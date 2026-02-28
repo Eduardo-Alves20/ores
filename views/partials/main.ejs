@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+  <link rel="icon" href="/assets/favicon.ico" />
+
+  <script src="/js/main.js"></script>
+  <script src="/js/upload.js"></script>
+  <script src="/js/modal.js"></script>
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <link rel="stylesheet" href="/css/alerts.css">
+  <link rel="stylesheet" href="/css/sidebar.css" />
+  <link rel="stylesheet" href="/css/index.css" />
+  <link rel="stylesheet" href="/css/pagination.css">
+  <link rel="stylesheet" href="/css/filterAccordion.css">
+  <link rel="stylesheet" href="/css/upload.css">
+  <link rel="stylesheet" href="/css/modal.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+
+
+  <title><%= title %></title>
+</head>
+
+<body class="app-body">
+  <%- include('../partials/sidebar.ejs'); %>
+
+  <!-- Área principal -->
+  <main class="app-content">
+    <div class="app-container">
+      <%- body %>
+    </div>
+  </main>
+</body>
+</html>
