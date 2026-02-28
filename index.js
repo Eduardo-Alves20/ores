@@ -1,4 +1,5 @@
-require("dotenv").config();
+require("dotenv").config({ override: true });
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
@@ -8,15 +9,15 @@ const flash = require("express-flash");
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const http = require("http");
+const { attachCurrentUser } = require("./middlewares/authSession");
+const { ensureAdminFromEnv } = require("./services/bootstrapAdminService");
 
 const app = express();
 
 const {
   PORT,
   HOST,
-  hostForUrl,
   AMBIENTE,
-  isProdLike,
   sessionParser,
 } = require("./config/env");
 
@@ -24,8 +25,28 @@ const {
 const { loadOrCreateCookieParserKey } = require("./config/config");
 const cookieParserKey = loadOrCreateCookieParserKey();
 
-const MONGO_FALLBACK = `mongodb://${DB_HOST || "localhost"}:${DB_PORT || "27017"}/ALENTO`;
-const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || MONGO_FALLBACK;
+const DB_HOST = process.env.DB_HOST || "127.0.0.1";
+const DB_PORT = process.env.DB_PORT || "27017";
+const MONGO_FALLBACK = `mongodb://${DB_HOST}:${DB_PORT}/ALENTO`;
+const RAW_MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || MONGO_FALLBACK;
+
+function normalizeMongoUri(uri) {
+  try {
+    const parsed = new URL(uri);
+    const isLocal =
+      parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+
+    if (isLocal && !parsed.searchParams.has("directConnection")) {
+      parsed.searchParams.set("directConnection", "true");
+      return parsed.toString();
+    }
+  } catch (_) {
+    return uri;
+  }
+  return uri;
+}
+
+const MONGO_URI = normalizeMongoUri(RAW_MONGO_URI);
 
 /* Mongo */
 mongoose.set("bufferCommands", false);
@@ -46,9 +67,10 @@ async function connectDb() {
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(expressLayouts);
+app.set("trust proxy", 1);
 
 // layout padrão (você pode manter login aqui; cada render pode sobrescrever)
-app.set("layout", "layouts/login.ejs");
+app.set("layout", "partials/login.ejs");
 
 /* Middlewares */
 app.use(express.json({ limit: "200mb" }));
@@ -57,6 +79,7 @@ app.use(cookieParser(cookieParserKey));
 app.use(compression());
 app.use(sessionParser);
 app.use(flash());
+app.use(attachCurrentUser);
 
 /* Static */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -72,10 +95,10 @@ app.use((req, res, next) => {
   res.locals.alert = null;
 
   const sess = req.session || {};
-  const sessUser = sess.userdata || null;
+  const sessUser = sess.user || null;
 
   res.locals.user = sessUser;
-  res.locals.username = sessUser?.username || sess.username || null;
+  res.locals.username = sessUser?.nome || sessUser?.email || null;
 
   next();
 });
@@ -88,8 +111,8 @@ app.use(
       timeZone: "America/Sao_Paulo"
     });
     const usuario =
-      req?.session?.userdata?.username ||
-      req?.session?.username ||
+      req?.session?.user?.nome ||
+      req?.session?.user?.email ||
       "Desconhecido";
     const clientIp =
       req.headers["x-forwarded-for"] || req.connection.remoteAddress;
@@ -159,24 +182,42 @@ function mountRoutes() {
     const showStack = AMBIENTE !== "prod";
     const errToView = showStack ? err : {};
 
-    return res.status(status).render(view, {
-      status,
-      message,
-      req,
-      err: errToView, // seu 500.ejs usa err.stack
-      layout: "layouts/main.ejs" // <-- AQUI: erros sempre com MAIN
-    });
+    const viewPath = path.join(__dirname, "views", `${view}.ejs`);
+
+    if (fs.existsSync(viewPath)) {
+      return res.status(status).render(view, {
+        status,
+        message,
+        req,
+        err: errToView,
+        layout: "partials/login.ejs"
+      });
+    }
+
+    return res.status(status).type("html").send(`
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Erro ${status}</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; padding: 24px;">
+    <h1>Erro ${status}</h1>
+    <p>${message}</p>
+  </body>
+</html>
+`);
   });
 }
 
 
 /* Start server (http + ws) */
 function startServer() {
-  const port = SERVER_PORT || process.env.PORT || 4000;
+  const port = PORT || process.env.PORT || 4000;
   const host = HOST || "0.0.0.0";
 
   const server = http.createServer(app);
-  WebSocketServer(server);
 
   server.listen(port, host, () => {
     console.log(`Server rodando em http://${host}:${port}/`);
@@ -206,11 +247,8 @@ function startServer() {
 /* Main */
 (async () => {
   try {
-    if (store?.on) {
-      store.on("error", (err) => console.log("Session store error:", err));
-    }
-
-    const dbOk = await connectDb();
+    await connectDb();
+    await ensureAdminFromEnv();
     
     // rotas SEMPRE
     mountRoutes();

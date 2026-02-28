@@ -1,0 +1,180 @@
+.page-auth {
+  overflow: hidden;
+}
+
+.auth-viewport {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  position: relative;
+  padding: 28px 16px;
+}
+
+.auth-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: #b24a32;
+  filter: blur(0.1px);
+  opacity: 1;
+  z-index: 0;
+}
+
+.bubble-a {
+  width: 320px;
+  height: 320px;
+  left: -70px;
+  top: 190px;
+}
+
+.bubble-b {
+  width: 290px;
+  height: 290px;
+  right: 130px;
+  top: -70px;
+}
+
+.bubble-c {
+  width: 84px;
+  height: 84px;
+  left: 160px;
+  top: 18px;
+}
+
+.bubble-d {
+  width: 98px;
+  height: 98px;
+  right: 96px;
+  top: 250px;
+}
+
+.bubble-e {
+  width: 330px;
+  height: 330px;
+  right: 70px;
+  bottom: -120px;
+}
+
+.auth-card {
+  width: min(100%, 430px);
+  padding: 28px 30px 22px;
+  position: relative;
+  z-index: 2;
+  border-radius: 24px;
+}
+
+.auth-brand {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(2.3rem, 4.2vw, 3.2rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.auth-subtitle {
+  margin: 4px 0 22px;
+  text-align: center;
+  color: #8d837e;
+  font-size: 0.9rem;
+}
+
+.auth-error {
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #f0b0a5;
+  background: #fff0ed;
+  color: #8a2f22;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.mini-link {
+  color: var(--brand);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.mini-link:hover {
+  text-decoration: underline;
+}
+
+.field-icon-wrap {
+  position: relative;
+}
+
+.field-icon,
+.field-icon-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8f8178;
+  font-size: 0.88rem;
+}
+
+.field-icon {
+  left: 12px;
+}
+
+.field-icon-right {
+  right: 12px;
+}
+
+.field-icon-wrap .input-control {
+  padding-left: 36px;
+  padding-right: 36px;
+}
+
+.create-link {
+  text-align: center;
+  color: var(--brand);
+  text-decoration: none;
+  font-size: 0.94rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.create-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+  .auth-card {
+    padding: 22px 18px 18px;
+    border-radius: 18px;
+  }
+
+  .bubble-a {
+    width: 200px;
+    height: 200px;
+    left: -80px;
+    top: 220px;
+  }
+
+  .bubble-b {
+    width: 190px;
+    height: 190px;
+    right: -50px;
+    top: -40px;
+  }
+
+  .bubble-c,
+  .bubble-d {
+    display: none;
+  }
+
+  .bubble-e {
+    width: 210px;
+    height: 210px;
+    right: -70px;
+    bottom: -70px;
+  }
+}
+

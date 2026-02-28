@@ -1,4 +1,11 @@
 const UsuarioService = require("../services/domain/UsuarioService");
+const { registrarAuditoria } = require("../services/auditService");
+
+function getContext(req) {
+  return {
+    usuarioId: req?.session?.user?.id || null,
+  };
+}
 
 class UsuarioController {
   static async listar(req, res) {
@@ -16,9 +23,9 @@ class UsuarioController {
 
       return res.status(200).json(resultado);
     } catch (error) {
-      console.error("Erro ao listar usuários:", error);
+      console.error("Erro ao listar usuarios:", error);
       return res.status(500).json({
-        erro: "Erro interno ao listar usuários.",
+        erro: "Erro interno ao listar usuarios.",
       });
     }
   }
@@ -26,20 +33,19 @@ class UsuarioController {
   static async buscarPorId(req, res) {
     try {
       const { id } = req.params;
-
       const usuario = await UsuarioService.buscarPorId(id);
 
       if (!usuario) {
         return res.status(404).json({
-          erro: "Usuário não encontrado.",
+          erro: "Usuario nao encontrado.",
         });
       }
 
       return res.status(200).json(usuario);
     } catch (error) {
-      console.error("Erro ao buscar usuário por ID:", error);
+      console.error("Erro ao buscar usuario por ID:", error);
       return res.status(500).json({
-        erro: "Erro interno ao buscar usuário.",
+        erro: "Erro interno ao buscar usuario.",
       });
     }
   }
@@ -48,38 +54,41 @@ class UsuarioController {
     try {
       const { nome, email, senha, telefone, cpf, perfil, ativo } = req.body;
 
-      if (!nome || !email || !senha) {
-        return res.status(400).json({
-          erro: "Campos obrigatórios: nome, email e senha.",
-        });
-      }
+      const usuario = await UsuarioService.criar(
+        {
+          nome,
+          email,
+          senha,
+          telefone,
+          cpf,
+          perfil,
+          ativo,
+        },
+        getContext(req)
+      );
 
-      const usuario = await UsuarioService.criar({
-        nome,
-        email,
-        senha,
-        telefone,
-        cpf,
-        perfil,
-        ativo,
+      await registrarAuditoria(req, {
+        acao: "USUARIO_CRIADO",
+        entidade: "usuario",
+        entidadeId: usuario?._id,
       });
 
       return res.status(201).json({
-        mensagem: "Usuário criado com sucesso.",
+        mensagem: "Usuario criado com sucesso.",
         usuario,
       });
     } catch (error) {
-      console.error("Erro ao criar usuário:", error);
+      console.error("Erro ao criar usuario:", error);
 
       if (error && error.code === 11000) {
         return res.status(409).json({
-          erro: "Email ou CPF já cadastrado.",
+          erro: "Email ou CPF ja cadastrado.",
           detalhes: error.keyValue,
         });
       }
 
-      return res.status(500).json({
-        erro: "Erro interno ao criar usuário.",
+      return res.status(error.status || 500).json({
+        erro: error.message || "Erro interno ao criar usuario.",
       });
     }
   }
@@ -87,31 +96,36 @@ class UsuarioController {
   static async atualizar(req, res) {
     try {
       const { id } = req.params;
-
-      const usuario = await UsuarioService.atualizar(id, req.body);
+      const usuario = await UsuarioService.atualizar(id, req.body, getContext(req));
 
       if (!usuario) {
         return res.status(404).json({
-          erro: "Usuário não encontrado.",
+          erro: "Usuario nao encontrado.",
         });
       }
 
+      await registrarAuditoria(req, {
+        acao: "USUARIO_ATUALIZADO",
+        entidade: "usuario",
+        entidadeId: id,
+      });
+
       return res.status(200).json({
-        mensagem: "Usuário atualizado com sucesso.",
+        mensagem: "Usuario atualizado com sucesso.",
         usuario,
       });
     } catch (error) {
-      console.error("Erro ao atualizar usuário:", error);
+      console.error("Erro ao atualizar usuario:", error);
 
       if (error && error.code === 11000) {
         return res.status(409).json({
-          erro: "Email ou CPF já cadastrado.",
+          erro: "Email ou CPF ja cadastrado.",
           detalhes: error.keyValue,
         });
       }
 
-      return res.status(500).json({
-        erro: "Erro interno ao atualizar usuário.",
+      return res.status(error.status || 500).json({
+        erro: error.message || "Erro interno ao atualizar usuario.",
       });
     }
   }
@@ -123,17 +137,23 @@ class UsuarioController {
 
       if (!senha) {
         return res.status(400).json({
-          erro: "Campo senha é obrigatório.",
+          erro: "Campo senha e obrigatorio.",
         });
       }
 
-      const usuario = await UsuarioService.atualizarSenha(id, senha);
+      const usuario = await UsuarioService.atualizarSenha(id, senha, getContext(req));
 
       if (!usuario) {
         return res.status(404).json({
-          erro: "Usuário não encontrado.",
+          erro: "Usuario nao encontrado.",
         });
       }
+
+      await registrarAuditoria(req, {
+        acao: "USUARIO_SENHA_ATUALIZADA",
+        entidade: "usuario",
+        entidadeId: id,
+      });
 
       return res.status(200).json({
         mensagem: "Senha atualizada com sucesso.",
@@ -141,8 +161,8 @@ class UsuarioController {
       });
     } catch (error) {
       console.error("Erro ao atualizar senha:", error);
-      return res.status(500).json({
-        erro: "Erro interno ao atualizar senha.",
+      return res.status(error.status || 500).json({
+        erro: error.message || "Erro interno ao atualizar senha.",
       });
     }
   }
@@ -154,26 +174,32 @@ class UsuarioController {
 
       if (typeof ativo === "undefined") {
         return res.status(400).json({
-          erro: "Campo ativo é obrigatório.",
+          erro: "Campo ativo e obrigatorio.",
         });
       }
 
-      const usuario = await UsuarioService.alterarStatus(id, ativo);
+      const usuario = await UsuarioService.alterarStatus(id, ativo, getContext(req));
 
       if (!usuario) {
         return res.status(404).json({
-          erro: "Usuário não encontrado.",
+          erro: "Usuario nao encontrado.",
         });
       }
+
+      await registrarAuditoria(req, {
+        acao: ativo ? "USUARIO_REATIVADO" : "USUARIO_INATIVADO",
+        entidade: "usuario",
+        entidadeId: id,
+      });
 
       return res.status(200).json({
         mensagem: "Status atualizado com sucesso.",
         usuario,
       });
     } catch (error) {
-      console.error("Erro ao alterar status do usuário:", error);
-      return res.status(500).json({
-        erro: "Erro interno ao alterar status.",
+      console.error("Erro ao alterar status do usuario:", error);
+      return res.status(error.status || 500).json({
+        erro: error.message || "Erro interno ao alterar status.",
       });
     }
   }
@@ -181,26 +207,32 @@ class UsuarioController {
   static async remover(req, res) {
     try {
       const { id } = req.params;
-
-      const usuario = await UsuarioService.remover(id);
+      const usuario = await UsuarioService.remover(id, getContext(req));
 
       if (!usuario) {
         return res.status(404).json({
-          erro: "Usuário não encontrado.",
+          erro: "Usuario nao encontrado.",
         });
       }
 
+      await registrarAuditoria(req, {
+        acao: "USUARIO_INATIVADO",
+        entidade: "usuario",
+        entidadeId: id,
+      });
+
       return res.status(200).json({
-        mensagem: "Usuário removido com sucesso.",
+        mensagem: "Usuario inativado com sucesso.",
         usuario,
       });
     } catch (error) {
-      console.error("Erro ao remover usuário:", error);
-      return res.status(500).json({
-        erro: "Erro interno ao remover usuário.",
+      console.error("Erro ao inativar usuario:", error);
+      return res.status(error.status || 500).json({
+        erro: error.message || "Erro interno ao inativar usuario.",
       });
     }
   }
 }
 
 module.exports = UsuarioController;
+

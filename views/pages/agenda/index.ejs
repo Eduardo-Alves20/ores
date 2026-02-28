@@ -1,0 +1,138 @@
+<section class="page-shell agenda-layout" data-page="agenda">
+  <header class="agenda-header">
+    <div>
+      <h2>Agenda de Atendimentos</h2>
+      <p>Gerencie visitas, compromissos e retornos com fluxo dinâmico por perfil.</p>
+    </div>
+    <div class="agenda-toolbar">
+      <label class="field-wrap">
+        <span class="input-label">Profissional</span>
+        <select id="agenda-responsavel-filtro" class="input-control"></select>
+      </label>
+      <button type="button" class="btn btn-muted" id="agenda-hoje-btn">Hoje</button>
+    </div>
+  </header>
+
+  <section class="agenda-board card-elevated">
+    <section class="agenda-calendar-panel">
+      <header class="agenda-calendar-head">
+        <h3 id="agenda-mes-titulo">Calendário</h3>
+        <div class="agenda-calendar-actions">
+          <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="Mês anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="Próximo mês">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="agenda-weekdays">
+        <span>Dom</span>
+        <span>Seg</span>
+        <span>Ter</span>
+        <span>Qua</span>
+        <span>Qui</span>
+        <span>Sex</span>
+        <span>Sáb</span>
+      </div>
+
+      <div class="agenda-calendar-grid" id="agenda-calendar-grid"></div>
+    </section>
+
+    <aside class="agenda-day-panel">
+      <header class="agenda-day-head">
+        <div>
+          <p class="agenda-day-overline">Eventos do Dia</p>
+          <h3 id="agenda-dia-titulo">-</h3>
+        </div>
+        <button type="button" class="btn btn-primary" id="agenda-novo-btn">Novo Agendamento</button>
+      </header>
+
+      <div class="agenda-day-list" id="agenda-dia-lista">
+        <p class="empty-hint">Carregando agenda...</p>
+      </div>
+    </aside>
+  </section>
+</section>
+
+<div class="agenda-modal-backdrop" id="agenda-modal-backdrop" hidden>
+  <section class="agenda-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-modal-title">
+    <header class="agenda-modal-head">
+      <h3 id="agenda-modal-title">Novo Agendamento</h3>
+      <button type="button" class="btn btn-muted btn-icon" id="agenda-modal-close" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <form id="agenda-form" class="agenda-form">
+      <div class="agenda-form-grid">
+        <label class="field-wrap span-2">
+          <span class="input-label">Título *</span>
+          <input class="input-control" type="text" name="titulo" required maxlength="140" />
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Data *</span>
+          <input class="input-control" type="date" name="data" required />
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Hora *</span>
+          <input class="input-control" type="time" name="hora" required />
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Tipo de atendimento</span>
+          <select class="input-control" name="tipoAtendimento" id="agenda-tipo-select"></select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Responsável</span>
+          <select class="input-control" name="responsavelId" id="agenda-responsavel-select"></select>
+        </label>
+
+        <label class="field-wrap span-2">
+          <span class="input-label">Buscar família</span>
+          <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsável, telefone..." />
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Família</span>
+          <select class="input-control" name="familiaId" id="agenda-familia-select">
+            <option value="">Sem família vinculada</option>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Paciente</span>
+          <select class="input-control" name="pacienteId" id="agenda-paciente-select">
+            <option value="">Sem paciente específico</option>
+          </select>
+        </label>
+
+        <label class="field-wrap span-2">
+          <span class="input-label">Local / Endereço</span>
+          <input class="input-control" type="text" name="local" maxlength="240" />
+        </label>
+
+        <label class="field-wrap span-2">
+          <span class="input-label">Observações</span>
+          <textarea class="input-control textarea-control" name="observacoes" rows="4" maxlength="3000"></textarea>
+        </label>
+      </div>
+
+      <p class="agenda-form-hint">
+        Dica: você pode arrastar um evento no painel da direita e soltar em outro dia no calendário.
+      </p>
+
+      <div class="agenda-form-actions">
+        <button type="button" class="btn btn-muted" id="agenda-form-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="agenda-form-submit">Salvar Agendamento</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script id="agenda-config" type="application/json"><%- JSON.stringify(agendaConfig || {}) %></script>
+

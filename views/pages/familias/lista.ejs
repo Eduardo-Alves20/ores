@@ -1,0 +1,95 @@
+<section class="page-shell familias-layout" data-page="familias-lista">
+  <header class="familias-header card-elevated">
+    <div>
+      <p class="familias-overline">Cadastro central</p>
+      <h1 class="familias-title">Familias</h1>
+      <p class="familias-subtitle">Gestao dos responsaveis e da rede de apoio familiar.</p>
+    </div>
+    <div class="familias-header-actions">
+      <a href="/painel" class="btn btn-muted">Voltar ao Painel</a>
+      <a href="/familias/nova" class="btn btn-primary">Nova Familia</a>
+    </div>
+  </header>
+
+  <section class="familias-filtros card-elevated">
+    <div class="section-title-wrap">
+      <h2 class="section-title">Filtros</h2>
+      <p class="section-subtitle">Busca rapida no estilo GLPI, adaptada para o fluxo da ONG.</p>
+    </div>
+
+    <form id="familias-filtro-form" class="filtro-grid">
+      <label class="field-wrap">
+        <span class="input-label">Busca geral</span>
+        <input class="input-control" type="text" name="busca" placeholder="Responsavel, telefone, email, cidade..." />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Status</span>
+        <select class="input-control" name="ativo">
+          <option value="">Todos</option>
+          <option value="true">Ativos</option>
+          <option value="false">Inativos</option>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Parentesco</span>
+        <input class="input-control" type="text" name="parentesco" placeholder="mae, tio, adotante..." />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Cidade</span>
+        <input class="input-control" type="text" name="cidade" placeholder="Cidade" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Itens por pagina</span>
+        <select class="input-control" name="limit">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </label>
+
+      <div class="filtro-actions">
+        <button class="btn btn-primary" type="submit">Aplicar</button>
+        <button class="btn btn-muted" type="button" id="familias-limpar-filtros">Limpar</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="familias-listagem card-elevated">
+    <div class="listagem-head">
+      <h2 class="section-title">Resultados</h2>
+      <span class="badge-soft" id="familias-count">0 encontrados</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="familias-table">
+        <thead>
+          <tr>
+            <th>Responsavel</th>
+            <th>Contato</th>
+            <th>Parentesco</th>
+            <th>Cidade/UF</th>
+            <th>Pacientes</th>
+            <th>Status</th>
+            <th>Atualizacao</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody id="familias-table-body">
+          <tr>
+            <td colspan="8">Carregando...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <nav id="familias-paginacao" class="paginacao-wrap"></nav>
+  </section>
+</section>
+
+<script id="familias-initial" type="application/json"><%- JSON.stringify(filtros || {}) %></script>
+

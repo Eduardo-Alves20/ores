@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const UsuarioController = require("../controllers/UsuarioController");
+const UsuarioController = require("../Controllers/UsuarioController");
+const { requireAdmin } = require("../middlewares/authSession");
 
-// Se quiser proteger depois:
-// const verificarUsuarioLogado = require("../middlewares/verificarUsuarioLogado");
+router.use(requireAdmin);
 
 // LISTAR (com paginação e filtros)
 // GET /usuarios?page=1&limit=10&busca=joao&ativo=true&perfil=admin

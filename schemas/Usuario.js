@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate-v2");
+const { PERFIS_LIST, PERFIS } = require("../config/roles");
 
 const UsuarioSchema = new mongoose.Schema(
   {
@@ -26,8 +27,8 @@ const UsuarioSchema = new mongoose.Schema(
 
     perfil: {
       type: String,
-      enum: ["admin", "usuario"],
-      default: "usuario",
+      enum: PERFIS_LIST,
+      default: PERFIS.ATENDENTE,
     },
 
     ativo: {
@@ -37,6 +38,45 @@ const UsuarioSchema = new mongoose.Schema(
 
     ultimoLoginEm: {
       type: Date,
+      default: null,
+    },
+
+    ultimoLoginIp: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    tentativasLogin: {
+      type: Number,
+      default: 0,
+    },
+
+    bloqueadoAte: {
+      type: Date,
+      default: null,
+    },
+
+    criadoPor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      default: null,
+    },
+
+    atualizadoPor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      default: null,
+    },
+
+    inativadoEm: {
+      type: Date,
+      default: null,
+    },
+
+    inativadoPor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
       default: null,
     },
   },

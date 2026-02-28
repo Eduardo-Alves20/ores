@@ -1,0 +1,111 @@
+<section
+  class="page-shell familias-layout"
+  data-page="familias-form"
+  data-mode="<%= modo %>"
+  data-familia-id="<%= familia?._id || '' %>"
+>
+  <header class="familias-header card-elevated">
+    <div>
+      <p class="familias-overline">Cadastro central</p>
+      <h1 class="familias-title"><%= modo === "editar" ? "Editar Familia" : "Nova Familia" %></h1>
+      <p class="familias-subtitle">Dados do responsavel e informacoes de contexto da familia.</p>
+    </div>
+    <div class="familias-header-actions">
+      <a href="<%= familia?._id ? `/familias/${familia._id}` : '/familias' %>" class="btn btn-muted">Cancelar</a>
+    </div>
+  </header>
+
+  <form id="familia-form" class="familia-form card-elevated">
+    <h2 class="section-title">Responsavel</h2>
+    <div class="form-grid">
+      <label class="field-wrap">
+        <span class="input-label">Nome completo *</span>
+        <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" required />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Telefone *</span>
+        <input class="input-control" type="text" name="responsavel_telefone" value="<%= familia?.responsavel?.telefone || '' %>" required />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Email</span>
+        <input class="input-control" type="email" name="responsavel_email" value="<%= familia?.responsavel?.email || '' %>" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Parentesco / Vinculo</span>
+        <select class="input-control" name="responsavel_parentesco">
+          <% const parentescoAtual = familia?.responsavel?.parentesco || "responsavel"; %>
+          <% ["responsavel","mae","pai","tio","tia","avo","irmao","primo","adotante","outro"].forEach((item) => { %>
+            <option value="<%= item %>" <%= parentescoAtual === item ? "selected" : "" %>><%= item %></option>
+          <% }) %>
+        </select>
+      </label>
+    </div>
+
+    <h2 class="section-title">Endereco</h2>
+    <div class="form-grid">
+      <label class="field-wrap">
+        <span class="input-label">CEP</span>
+        <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" />
+      </label>
+
+      <label class="field-wrap span-2">
+        <span class="input-label">Rua</span>
+        <input class="input-control" type="text" name="endereco_rua" value="<%= familia?.endereco?.rua || '' %>" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Numero</span>
+        <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Bairro</span>
+        <input class="input-control" type="text" name="endereco_bairro" value="<%= familia?.endereco?.bairro || '' %>" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Cidade</span>
+        <input class="input-control" type="text" name="endereco_cidade" value="<%= familia?.endereco?.cidade || '' %>" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Estado</span>
+        <input class="input-control" type="text" name="endereco_estado" value="<%= familia?.endereco?.estado || '' %>" maxlength="2" />
+      </label>
+
+      <label class="field-wrap span-2">
+        <span class="input-label">Complemento</span>
+        <input class="input-control" type="text" name="endereco_complemento" value="<%= familia?.endereco?.complemento || '' %>" />
+      </label>
+    </div>
+
+    <h2 class="section-title">Observacoes</h2>
+    <label class="field-wrap">
+      <textarea class="input-control textarea-control" name="observacoes" rows="5" placeholder="Necessidades, contexto da familia e observacoes de apoio..."><%= familia?.observacoes || '' %></textarea>
+    </label>
+
+    <% if (modo === "editar") { %>
+      <h2 class="section-title">Status</h2>
+      <label class="field-wrap field-inline">
+        <span class="input-label">Familia ativa</span>
+        <select class="input-control" name="ativo">
+          <option value="true" <%= familia?.ativo ? "selected" : "" %>>Sim</option>
+          <option value="false" <%= !familia?.ativo ? "selected" : "" %>>Nao</option>
+        </select>
+      </label>
+    <% } %>
+
+    <div id="familia-form-feedback" class="form-feedback" hidden></div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit"><%= modo === "editar" ? "Salvar Alteracoes" : "Criar Familia" %></button>
+      <a class="btn btn-muted" href="<%= familia?._id ? `/familias/${familia._id}` : '/familias' %>">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+<script id="familia-form-initial" type="application/json"><%- JSON.stringify(familia || null) %></script>
+

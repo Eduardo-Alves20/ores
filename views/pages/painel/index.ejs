@@ -1,0 +1,58 @@
+<section class="dashboard-page">
+  <header class="dashboard-welcome">
+    <h2>Bem-vindo de volta!</h2>
+    <p>Aqui está o resumo dos atendimentos sociais hoje.</p>
+  </header>
+
+  <section class="stats-grid">
+    <% cards.forEach((card) => { %>
+      <article class="stat-card">
+        <span class="stat-icon">
+          <i class="<%= card.icon %>"></i>
+        </span>
+        <span class="stat-title"><%= card.title %></span>
+        <strong class="stat-value"><%= card.value %></strong>
+        <small class="stat-hint"><%= card.hint %></small>
+      </article>
+    <% }) %>
+  </section>
+
+  <section class="module-card">
+    <header class="module-header">
+      <span class="module-title">Cadastros Recentes</span>
+      <a href="/familias" class="module-link">Ver todos</a>
+    </header>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Data Cadastro</th>
+            <th>Responsável</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cadastros.forEach((row) => { %>
+            <tr>
+              <td><%= row.nome %></td>
+              <td>
+                <% if (row.status === "ATIVO") { %>
+                  <span class="status-badge status-active">ATIVO</span>
+                <% } else if (row.status === "PENDENTE") { %>
+                  <span class="status-badge status-pending">PENDENTE</span>
+                <% } else { %>
+                  <span class="status-badge status-inactive">INATIVO</span>
+                <% } %>
+              </td>
+              <td><%= row.data %></td>
+              <td><%= row.responsavel %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+

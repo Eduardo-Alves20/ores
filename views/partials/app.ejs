@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title || "GESA" %></title>
+    <link rel="icon" href="/assets/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <% if (typeof extraCss !== "undefined" && Array.isArray(extraCss)) { %>
+      <% extraCss.forEach((href) => { %>
+        <link rel="stylesheet" href="<%= href %>" />
+      <% }) %>
+    <% } %>
+  </head>
+  <body class="app-shell <%= pageClass || '' %>">
+    <button
+      class="mobile-nav-toggle"
+      type="button"
+      aria-label="Abrir menu"
+      aria-expanded="false"
+      data-mobile-nav-toggle
+    >
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <aside class="sidebar" data-sidebar>
+      <div class="sidebar-brand">GESA</div>
+
+      <nav class="sidebar-nav">
+        <a href="/painel" class="sidebar-link <%= navKey === 'home' ? 'is-active' : '' %>">
+          <i class="fa-regular fa-house"></i>
+          <span>Tela de Início</span>
+        </a>
+        <a href="/familias" class="sidebar-link <%= navKey === 'assistidos' ? 'is-active' : '' %>">
+          <i class="fa-regular fa-users"></i>
+          <span>Assistidos</span>
+        </a>
+        <a href="/agenda" class="sidebar-link <%= navKey === 'agenda' ? 'is-active' : '' %>">
+          <i class="fa-regular fa-calendar-days"></i>
+          <span>Agenda</span>
+        </a>
+        <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
+          <i class="fa-regular fa-gear"></i>
+          <span>Administração</span>
+        </a>
+      </nav>
+
+      <form method="post" action="/auth/logout" class="sidebar-logout">
+        <button type="submit" class="logout-btn">
+          <i class="fa-regular fa-arrow-right-from-bracket"></i>
+          <span>Sair do Sistema</span>
+        </button>
+      </form>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <h1 class="topbar-title"><%= sectionTitle || title || "Tela" %></h1>
+        <div class="topbar-user">
+          <i class="fa-regular fa-bell"></i>
+          <div class="topbar-user-meta">
+            <strong><%= currentUser?.nome || 'Admin Gesa' %></strong>
+            <small><%= currentUser?.perfil || 'Gestor Social' %></small>
+          </div>
+          <span class="user-dot"></span>
+        </div>
+      </header>
+
+      <main class="app-content">
+        <%- body %>
+      </main>
+    </div>
+
+    <script src="/js/app-shell.js" defer></script>
+    <% if (typeof extraJs !== "undefined" && Array.isArray(extraJs)) { %>
+      <% extraJs.forEach((src) => { %>
+        <script src="<%= src %>" defer></script>
+      <% }) %>
+    <% } %>
+  </body>
+</html>

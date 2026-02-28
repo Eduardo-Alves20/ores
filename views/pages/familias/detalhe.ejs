@@ -1,0 +1,222 @@
+<section class="page-shell familias-layout" data-page="familia-detalhe" data-familia-id="<%= familia._id %>">
+  <header class="familias-header card-elevated">
+    <div>
+      <p class="familias-overline">Prontuario familiar</p>
+      <h1 class="familias-title"><%= familia?.responsavel?.nome || "Familia" %></h1>
+      <p class="familias-subtitle">
+        <%= familia?.responsavel?.telefone || "Sem telefone" %>
+        <% if (familia?.responsavel?.parentesco) { %>
+          | <%= familia.responsavel.parentesco %>
+        <% } %>
+      </p>
+    </div>
+    <div class="familias-header-actions">
+      <a href="/familias" class="btn btn-muted">Voltar</a>
+      <a href="/familias/<%= familia._id %>/editar" class="btn btn-primary">Editar Familia</a>
+    </div>
+  </header>
+
+  <section class="familia-resumo card-elevated">
+    <div class="resumo-grid">
+      <article class="resumo-item">
+        <h2>Contato</h2>
+        <p><strong>Nome:</strong> <span id="resumo-nome"><%= familia?.responsavel?.nome || "-" %></span></p>
+        <p><strong>Telefone:</strong> <span id="resumo-telefone"><%= familia?.responsavel?.telefone || "-" %></span></p>
+        <p><strong>Email:</strong> <span id="resumo-email"><%= familia?.responsavel?.email || "-" %></span></p>
+      </article>
+      <article class="resumo-item">
+        <h2>Endereco</h2>
+        <p id="resumo-endereco">
+          <%= [familia?.endereco?.rua, familia?.endereco?.numero, familia?.endereco?.bairro, familia?.endereco?.cidade, familia?.endereco?.estado].filter(Boolean).join(", ") || "-" %>
+        </p>
+      </article>
+      <article class="resumo-item">
+        <h2>Status</h2>
+        <p><span class="status-badge <%= familia?.ativo ? 'status-active' : 'status-inactive' %>" id="resumo-status"><%= familia?.ativo ? "Ativa" : "Inativa" %></span></p>
+        <button class="btn btn-muted" id="familia-toggle-status" type="button">
+          <%= familia?.ativo ? "Inativar Familia" : "Reativar Familia" %>
+        </button>
+      </article>
+    </div>
+    <p class="observacao-livre"><strong>Observacoes:</strong> <span id="resumo-observacoes"><%= familia?.observacoes || "-" %></span></p>
+  </section>
+
+  <section class="detail-workflow card-elevated">
+    <header class="workflow-toolbar">
+      <div>
+        <h2 class="section-title" id="workflow-title">Ficha de Dependentes</h2>
+        <p class="section-subtitle" id="workflow-subtitle">Gestao dos dependentes vinculados a esta familia.</p>
+      </div>
+      <div class="workflow-actions-top">
+        <button type="button" class="btn btn-muted" id="workflow-back-btn" hidden>Voltar</button>
+        <button type="button" class="btn btn-primary" id="workflow-main-btn">Historico de atendimento</button>
+      </div>
+    </header>
+
+    <div class="workflow-panels">
+      <section id="panel-pacientes" class="workflow-panel is-active">
+        <div class="listagem-head">
+          <h3 class="section-title panel-title">Dependentes da Familia</h3>
+          <span class="badge-soft" id="pacientes-count">0</span>
+        </div>
+        <div id="pacientes-lista" class="stack-list"></div>
+        <div class="panel-actions">
+          <button type="button" class="btn btn-primary" id="paciente-novo-btn">Registrar Dependente</button>
+        </div>
+
+        <form id="paciente-form" class="form-stack panel-inline-form" hidden>
+          <h3 class="section-title panel-title">Novo Dependente</h3>
+          <label class="field-wrap">
+            <span class="input-label">Nome *</span>
+            <input class="input-control" type="text" name="nome" required />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Data de nascimento</span>
+            <input class="input-control" type="date" name="dataNascimento" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Tipo de deficiencia</span>
+            <select class="input-control" name="tipoDeficiencia">
+              <option value="fisica">fisica</option>
+              <option value="intelectual">intelectual</option>
+              <option value="auditiva">auditiva</option>
+              <option value="visual">visual</option>
+              <option value="multipla">multipla</option>
+              <option value="transtorno_espectro_autista">transtorno_espectro_autista</option>
+              <option value="outra" selected>outra</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Necessidades de apoio</span>
+            <textarea class="input-control textarea-control" name="necessidadesApoio" rows="4"></textarea>
+          </label>
+          <div class="panel-actions">
+            <button type="button" class="btn btn-muted" id="paciente-cancelar-btn">Cancelar</button>
+            <button class="btn btn-primary" type="submit">Adicionar Dependente</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="panel-dependente" class="workflow-panel" hidden>
+        <div class="listagem-head">
+          <h3 class="section-title panel-title">Ficha do Dependente</h3>
+          <div class="panel-head-actions">
+            <button type="button" class="btn btn-muted" id="dependente-editar-btn">
+              <i class="fa-regular fa-pen-to-square"></i>
+              Editar
+            </button>
+          </div>
+        </div>
+
+        <div id="dependente-detalhe" class="stack-card">
+          <p class="empty-hint">Selecione um dependente para visualizar a ficha.</p>
+        </div>
+
+        <form id="dependente-form" class="form-stack panel-inline-form" hidden>
+          <h3 class="section-title panel-title">Editar Dependente</h3>
+          <label class="field-wrap">
+            <span class="input-label">Nome *</span>
+            <input class="input-control" type="text" name="nome" required />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Data de nascimento</span>
+            <input class="input-control" type="date" name="dataNascimento" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Tipo de deficiencia</span>
+            <select class="input-control" name="tipoDeficiencia">
+              <option value="fisica">fisica</option>
+              <option value="intelectual">intelectual</option>
+              <option value="auditiva">auditiva</option>
+              <option value="visual">visual</option>
+              <option value="multipla">multipla</option>
+              <option value="transtorno_espectro_autista">transtorno_espectro_autista</option>
+              <option value="outra">outra</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Necessidades de apoio</span>
+            <textarea class="input-control textarea-control" name="necessidadesApoio" rows="4"></textarea>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Observacoes</span>
+            <textarea class="input-control textarea-control" name="observacoes" rows="3"></textarea>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Diagnostico / laudo (resumo)</span>
+            <textarea class="input-control textarea-control" name="diagnosticoResumo" rows="3"></textarea>
+          </label>
+          <div class="panel-actions">
+            <button type="button" class="btn btn-muted" id="dependente-cancelar-btn">Cancelar</button>
+            <button class="btn btn-primary" type="submit">Salvar Alteracoes</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="panel-historico" class="workflow-panel" hidden>
+        <div class="listagem-head">
+          <h3 class="section-title panel-title">Historico de Atendimentos</h3>
+          <span class="badge-soft" id="atendimentos-count">0</span>
+        </div>
+        <div id="atendimentos-lista" class="timeline-list"></div>
+        <div class="panel-actions">
+          <button type="button" class="btn btn-primary" id="historico-registrar-btn">Registrar Atendimento</button>
+        </div>
+      </section>
+
+      <section id="panel-atendimento" class="workflow-panel" hidden>
+        <div class="listagem-head">
+          <h3 class="section-title panel-title">Ficha do Atendimento</h3>
+          <div class="panel-head-actions">
+            <button type="button" class="btn btn-muted" id="atendimento-editar-btn">
+              <i class="fa-regular fa-pen-to-square"></i>
+              Editar
+            </button>
+          </div>
+        </div>
+        <div id="atendimento-detalhe" class="timeline-card">
+          <p class="empty-hint">Selecione um atendimento no historico para visualizar a ficha.</p>
+        </div>
+      </section>
+
+      <section id="panel-registro" class="workflow-panel" hidden>
+        <div class="listagem-head">
+          <h3 class="section-title panel-title" id="registro-panel-title">Registrar Atendimento</h3>
+        </div>
+        <form id="atendimento-form" class="form-stack atendimento-form-box">
+          <label class="field-wrap">
+            <span class="input-label">Dependente (opcional)</span>
+            <select class="input-control" name="pacienteId" id="atendimento-paciente"></select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Tipo</span>
+            <select class="input-control" name="tipo">
+              <option value="ligacao">ligacao</option>
+              <option value="presencial">presencial</option>
+              <option value="mensagem">mensagem</option>
+              <option value="whatsapp">whatsapp</option>
+              <option value="videochamada">videochamada</option>
+              <option value="outro" selected>outro</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Data e hora</span>
+            <input class="input-control" type="datetime-local" name="dataHora" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Resumo *</span>
+            <textarea class="input-control textarea-control" name="resumo" rows="4" required></textarea>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Proximos passos</span>
+            <textarea class="input-control textarea-control" name="proximosPassos" rows="3"></textarea>
+          </label>
+          <div class="panel-actions">
+            <button type="button" class="btn btn-muted" id="registro-voltar-btn">Voltar ao Historico</button>
+            <button class="btn btn-primary" type="submit" id="atendimento-submit-btn">Salvar Atendimento</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </section>
+</section>
