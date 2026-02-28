@@ -66,6 +66,29 @@ Defina uma senha forte no `.env` (minimo 10 chars, com maiuscula, minuscula e nu
 - `npm run dev` -> sobe com watch
 - `npm start` -> sobe em modo normal
 
+## Docker (sem Mongo no compose)
+
+O projeto ja esta preparado para subir apenas o app em Docker, conectando no Mongo externo/host.
+
+1. Configure `.env` (copiando de `.env.example`).
+2. Garanta que o Mongo esteja rodando fora do Docker.
+3. Suba:
+
+```bash
+docker compose up -d --build
+```
+
+4. Acesse:
+
+`http://localhost:4000`
+
+Observacoes importantes:
+
+- O `docker-compose.yml` **nao** cria servico Mongo.
+- Dentro do container, a conexao padrao usa:
+  - `MONGO_URI_DOCKER=mongodb://host.docker.internal:27017/ALENTO?directConnection=true`
+- Se seu Mongo estiver em outro host/IP, ajuste `MONGO_URI_DOCKER` no `.env`.
+
 ## Estrutura resumida
 
 - `Controllers/` -> controladores HTTP
