@@ -5,5 +5,6 @@ const { requireAuth } = require("../middlewares/authSession");
 const router = express.Router();
 
 router.get("/meus-dados", requireAuth, PortalUsuarioController.meusDados);
+router.get("/minha-familia", requireAuth, PortalUsuarioController.minhaFamilia);
 
 module.exports = router;

@@ -58,6 +58,19 @@
     }).format(dt);
   }
 
+  function formatAtendimentoTipoLabel(tipo) {
+    const labels = {
+      ligacao: "Ligacao",
+      presencial: "Presencial",
+      mensagem: "Mensagem",
+      whatsapp: "Whatsapp",
+      videochamada: "Videochamada",
+      outro: "Outro",
+    };
+    const normalized = String(tipo || "").toLowerCase().trim();
+    return labels[normalized] || "Outro";
+  }
+
   function showToast(message) {
     if (typeof window.appNotifyError === "function") {
       window.appNotifyError(message);
@@ -599,18 +612,37 @@
       const statusClass = atendimento.ativo ? "status-active" : "status-inactive";
       const statusLabel = atendimento.ativo ? "Ativo" : "Inativo";
       const toggleLabel = atendimento.ativo ? "Inativar" : "Reativar";
+      const tipoLabel = formatAtendimentoTipoLabel(atendimento.tipo);
+      const resumoSafe = escapeHtml(atendimento.resumo || "-");
+      const proximosSafe = escapeHtml(atendimento.proximosPassos || "-");
 
       atendimentoDetalhe.innerHTML = `
-        <div class="stack-card-content">
-          <h4>${escapeHtml(atendimento.tipo || "outro")} - ${escapeHtml(formatDateTime(atendimento.dataHora))}</h4>
-          <p><strong>Dependente:</strong> ${escapeHtml(paciente?.nome || "Nao informado")}</p>
-          <p><strong>Resumo:</strong> ${escapeHtml(atendimento.resumo || "-")}</p>
-          <p><strong>Proximos passos:</strong> ${escapeHtml(atendimento.proximosPassos || "-")}</p>
-        </div>
-        <div class="stack-actions">
-          <span class="status-badge ${statusClass}">${statusLabel}</span>
-          <button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${atendimento._id}" data-next="${String(!atendimento.ativo)}">${toggleLabel}</button>
-        </div>
+        <article class="consulta-card consulta-card-detalhe">
+          <header class="consulta-card-head">
+            <h4 class="consulta-card-title">Consulta ${escapeHtml(tipoLabel)}</h4>
+            <span class="consulta-card-mark"></span>
+          </header>
+          <div class="consulta-card-body">
+            <p class="consulta-label">Data da consulta</p>
+            <p class="consulta-value consulta-value-primary">${escapeHtml(formatDateTime(atendimento.dataHora))}</p>
+
+            <p class="consulta-label">Dependente</p>
+            <p class="consulta-value consulta-value-success">${escapeHtml(paciente?.nome || "Nao informado")}</p>
+
+            <hr class="consulta-divider" />
+
+            <p class="consulta-label">Status</p>
+            <p class="consulta-value consulta-value-accent">${escapeHtml(statusLabel.toUpperCase())}</p>
+
+            <p class="consulta-meta"><strong>Resumo:</strong> ${resumoSafe}</p>
+            <p class="consulta-meta"><strong>Proximos passos:</strong> ${proximosSafe}</p>
+
+            <div class="stack-actions">
+              <span class="status-badge ${statusClass}">${statusLabel}</span>
+              <button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${atendimento._id}" data-next="${String(!atendimento.ativo)}">${toggleLabel}</button>
+            </div>
+          </div>
+        </article>
       `;
     }
 
@@ -784,20 +816,34 @@
         .map((item) => {
           const paciente = getAtendimentoPaciente(item);
           const toggleLabel = item.ativo ? "Inativar" : "Reativar";
+          const tipoLabel = formatAtendimentoTipoLabel(item.tipo);
+          const selectedClass = String(selectedAtendimentoId || "") === String(item._id) ? "consulta-card-selected" : "";
+          const resumoRaw = String(item.resumo || "-");
+          const resumoCorto = escapeHtml(resumoRaw.length > 180 ? `${resumoRaw.slice(0, 180)}...` : resumoRaw);
 
           return `
-            <article class="timeline-card timeline-card-clickable" data-type="atendimento-open" data-id="${item._id}" role="button" tabindex="0" aria-label="Abrir ficha do atendimento">
-              <div class="timeline-top">
-                <div>
-                  <h4>${escapeHtml(item.tipo || "outro")} - ${escapeHtml(formatDateTime(item.dataHora))}</h4>
-                  <p><strong>Dependente:</strong> ${escapeHtml(paciente?.nome || "Nao informado")}</p>
+            <article class="consulta-card consulta-card-clickable ${selectedClass}" data-type="atendimento-open" data-id="${item._id}" role="button" tabindex="0" aria-label="Abrir ficha do atendimento">
+              <header class="consulta-card-head">
+                <h4 class="consulta-card-title">Consulta ${escapeHtml(tipoLabel)}</h4>
+                <span class="consulta-card-mark"></span>
+              </header>
+              <div class="consulta-card-body">
+                <p class="consulta-label">Data da consulta</p>
+                <p class="consulta-value consulta-value-primary">${escapeHtml(formatDateTime(item.dataHora))}</p>
+
+                <p class="consulta-label">Dependente</p>
+                <p class="consulta-value consulta-value-success">${escapeHtml(paciente?.nome || "Nao informado")}</p>
+
+                <hr class="consulta-divider" />
+
+                <p class="consulta-label">Status</p>
+                <p class="consulta-value consulta-value-accent">${item.ativo ? "ATIVO" : "INATIVO"}</p>
+
+                <p class="consulta-meta"><strong>Resumo:</strong> ${resumoCorto}</p>
+                <div class="stack-actions">
+                  <span class="status-badge ${item.ativo ? "status-active" : "status-inactive"}">${item.ativo ? "Ativo" : "Inativo"}</span>
+                  <button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${item._id}" data-next="${String(!item.ativo)}">${toggleLabel}</button>
                 </div>
-                <span class="status-badge ${item.ativo ? "status-active" : "status-inactive"}">${item.ativo ? "Ativo" : "Inativo"}</span>
-              </div>
-              <p><strong>Resumo:</strong> ${escapeHtml(item.resumo || "-")}</p>
-              <p><strong>Proximos passos:</strong> ${escapeHtml(item.proximosPassos || "-")}</p>
-              <div class="stack-actions">
-                <button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${item._id}" data-next="${String(!item.ativo)}">${toggleLabel}</button>
               </div>
             </article>
           `;
@@ -817,7 +863,7 @@
     function openAtendimentoViewById(id) {
       if (!id) return;
       selectedAtendimentoId = String(id);
-      renderAtendimentoFicha();
+      renderAtendimentos(currentAtendimentos);
       setView("atendimento");
     }
 

@@ -40,6 +40,9 @@ function requireRole(...allowedRoles) {
     if (!allowedRoles.includes(user.perfil)) {
       if (isHtmlRequest(req)) {
         if (user.perfil === PERFIS.USUARIO) {
+          if (String(user.tipoCadastro || "").toLowerCase() === "familia") {
+            return res.redirect("/minha-familia");
+          }
           return res.redirect("/meus-dados");
         }
 

@@ -410,6 +410,11 @@
   gap: 8px;
 }
 
+.consulta-cards-list {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
 .stack-card,
 .timeline-card {
   border: 1px solid #e9ddd5;
@@ -441,6 +446,115 @@
   box-shadow: 0 4px 14px rgba(163, 97, 76, 0.12);
   transform: translateY(-1px);
   outline: none;
+}
+
+.consulta-card {
+  border: 1px solid #d9dce6;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(28, 38, 72, 0.12);
+}
+
+.consulta-card-clickable {
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.consulta-card-clickable:hover,
+.consulta-card-clickable:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(31, 43, 80, 0.16);
+  outline: none;
+}
+
+.consulta-card-selected {
+  border-color: #8799d1;
+  box-shadow: 0 0 0 2px rgba(83, 105, 170, 0.2);
+}
+
+.consulta-card-head {
+  background: #3d539f;
+  color: #fff;
+  padding: 14px 16px 12px;
+  text-align: center;
+}
+
+.consulta-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.consulta-card-mark {
+  width: 46px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  margin: 8px auto 0;
+}
+
+.consulta-card-body {
+  padding: 14px 16px 16px;
+}
+
+.consulta-label {
+  margin: 0;
+  font-size: 0.77rem;
+  font-weight: 800;
+  color: #959baa;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.consulta-value {
+  margin: 2px 0 14px;
+  line-height: 1.2;
+  font-size: 1.02rem;
+  font-weight: 900;
+  color: #111b37;
+}
+
+.consulta-value-primary {
+  color: #111b37;
+}
+
+.consulta-value-success {
+  color: #2ea777;
+}
+
+.consulta-value-accent {
+  color: #2f4fa6;
+}
+
+.consulta-divider {
+  border: 0;
+  border-top: 2px dotted #e4e7ef;
+  margin: 4px 0 14px;
+}
+
+.consulta-meta {
+  margin: 0 0 8px;
+  color: #6c707d;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.consulta-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.consulta-card-detail-wrap {
+  background: #f9fbff;
+  border: 1px solid #dbe2f2;
+}
+
+.consulta-card-detalhe .consulta-card-head {
+  background: #324686;
 }
 
 .stack-card-content {
@@ -569,5 +683,9 @@
     font-weight: 800;
     letter-spacing: 0.02em;
     text-transform: uppercase;
+  }
+
+  .consulta-cards-list {
+    grid-template-columns: 1fr;
   }
 }

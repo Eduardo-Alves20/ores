@@ -46,6 +46,10 @@
 
       <nav class="sidebar-nav">
         <% if (currentUser?.perfil === 'usuario') { %>
+          <a href="/minha-familia" class="sidebar-link <%= navKey === 'minha-familia' ? 'is-active' : '' %>">
+            <i class="fa-regular fa-heart"></i>
+            <span>Minha Familia</span>
+          </a>
           <a href="/meus-dados" class="sidebar-link <%= navKey === 'meus-dados' ? 'is-active' : '' %>">
             <i class="fa-regular fa-id-card"></i>
             <span>Meus Dados</span>

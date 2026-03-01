@@ -34,6 +34,9 @@ const limiter = rateLimit({
 router.get("/", (req, res) => {
   if (req?.session?.user) {
     if (req.session.user.perfil === PERFIS.USUARIO) {
+      if (String(req.session.user.tipoCadastro || "").toLowerCase() === "familia") {
+        return res.redirect("/minha-familia");
+      }
       return res.redirect("/meus-dados");
     }
     return res.redirect("/painel");

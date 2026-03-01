@@ -205,6 +205,7 @@ class ContaController {
         nome: usuario.nome,
         email: usuario.email,
         perfil: usuario.perfil,
+        tipoCadastro: usuario.tipoCadastro || "",
       };
 
       await registrarAuditoria(req, {
