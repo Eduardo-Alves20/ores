@@ -1,0 +1,160 @@
+<section class="conta-page">
+  <% 
+    const ambienteSenha = String(ambiente || "").toUpperCase();
+    const senhaModoDev = ["DEV", "DEVELOPMENT", "LOCAL", "TEST", "TESTE"].includes(ambienteSenha);
+  %>
+
+  <header class="conta-header">
+    <div>
+      <h2>Perfil</h2>
+      <p>Informacoes da conta atualmente logada.</p>
+    </div>
+    <a href="/perfil/editar" class="btn btn-primary">Editar Perfil</a>
+  </header>
+
+  <section class="module-card">
+    <% if (errorMessage && errorMessage.length) { %>
+      <div class="conta-error">
+        <%= errorMessage[0] %>
+      </div>
+    <% } %>
+
+    <% if (successMessage && successMessage.length) { %>
+      <div class="conta-success">
+        <%= successMessage[0] %>
+      </div>
+    <% } %>
+
+    <div class="table-wrap">
+      <table class="data-table conta-table">
+        <tbody>
+          <tr>
+            <th>Nome</th>
+            <td><%= usuario?.nome || "-" %></td>
+          </tr>
+          <tr>
+            <th>Email</th>
+            <td><%= usuario?.email || "-" %></td>
+          </tr>
+          <tr>
+            <th>Perfil</th>
+            <td><%= perfilLabel || "-" %></td>
+          </tr>
+          <tr>
+            <th>Telefone</th>
+            <td><%= usuario?.telefone || "-" %></td>
+          </tr>
+          <tr>
+            <th>CPF</th>
+            <td><%= usuario?.cpf || "-" %></td>
+          </tr>
+          <tr>
+            <th>Tipo de cadastro</th>
+            <td><%= tipoCadastroLabel || "-" %></td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td>
+              <% if (usuario?.ativo) { %>
+                <span class="status-badge status-active">ATIVO</span>
+              <% } else { %>
+                <span class="status-badge status-inactive">INATIVO</span>
+              <% } %>
+            </td>
+          </tr>
+          <tr>
+            <th>Ultimo login</th>
+            <td><%= usuario?.ultimoLoginEm ? new Date(usuario.ultimoLoginEm).toLocaleString("pt-BR") : "-" %></td>
+          </tr>
+          <tr>
+            <th>Criado em</th>
+            <td><%= usuario?.createdAt ? new Date(usuario.createdAt).toLocaleString("pt-BR") : "-" %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="module-card">
+    <div class="conta-seguranca-head">
+      <div>
+        <h3>Seguranca</h3>
+        <p>Troca de senha com validacao da senha atual.</p>
+      </div>
+      <button type="button" class="btn btn-muted" id="btnAbrirModalSenha">Trocar Senha</button>
+    </div>
+  </section>
+
+  <div class="senha-modal" id="senhaModal" hidden>
+    <div class="senha-modal-backdrop" data-close-modal="true"></div>
+    <section class="senha-modal-dialog card-elevated" role="dialog" aria-modal="true" aria-labelledby="senhaModalTitulo">
+      <header class="senha-modal-head">
+        <h3 id="senhaModalTitulo">Trocar Senha</h3>
+        <button type="button" class="btn btn-muted btn-icon-sm" data-close-modal="true" aria-label="Fechar">x</button>
+      </header>
+
+      <% if (senhaErrorMessage && senhaErrorMessage.length) { %>
+        <div class="conta-error"><%= senhaErrorMessage[0] %></div>
+      <% } %>
+
+      <form method="post" action="/perfil/senha" class="form-stack senha-form-grid" autocomplete="off">
+        <label class="field-wrap">
+          <span class="input-label">Senha atual</span>
+          <input class="input-control" id="senhaAtual" name="senhaAtual" type="password" required />
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Nova senha</span>
+          <input class="input-control" id="senhaNova" name="senhaNova" type="password" required />
+          <small class="senha-help"><%= senhaModoDev ? "Modo desenvolvimento: minimo 4 caracteres." : "Minimo 10 caracteres, com maiuscula, minuscula e numero." %></small>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Confirmar nova senha</span>
+          <input class="input-control" id="senhaNovaConfirmacao" name="senhaNovaConfirmacao" type="password" required />
+        </label>
+
+        <div class="conta-form-actions">
+          <button class="btn btn-primary" type="submit">Alterar Senha</button>
+          <button class="btn btn-muted" type="button" data-close-modal="true">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const modal = document.getElementById("senhaModal");
+    const openBtn = document.getElementById("btnAbrirModalSenha");
+    if (!modal || !openBtn) return;
+
+    const startOpen = <%= openSenhaModal ? "true" : "false" %>;
+
+    function closeModal() {
+      modal.setAttribute("hidden", "");
+      document.body.classList.remove("perfil-modal-open");
+    }
+
+    function openModal() {
+      modal.removeAttribute("hidden");
+      document.body.classList.add("perfil-modal-open");
+      const first = document.getElementById("senhaAtual");
+      if (first) first.focus();
+    }
+
+    openBtn.addEventListener("click", openModal);
+
+    modal.querySelectorAll('[data-close-modal="true"]').forEach((el) => {
+      el.addEventListener("click", closeModal);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
+        closeModal();
+      }
+    });
+
+    if (startOpen) openModal();
+  })();
+</script>

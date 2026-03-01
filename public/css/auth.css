@@ -88,6 +88,17 @@
   padding: 10px 12px;
 }
 
+.auth-success {
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #b8e4be;
+  background: #eefcf1;
+  color: #1f6c2e;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
 .label-row {
   display: flex;
   justify-content: space-between;
@@ -125,6 +136,24 @@
 
 .field-icon-right {
   right: 12px;
+}
+
+.field-icon-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.field-icon-toggle:focus-visible {
+  outline: 2px solid #d39b87;
+  outline-offset: -2px;
+  border-radius: 8px;
 }
 
 .field-icon-wrap .input-control {
@@ -177,4 +206,3 @@
     bottom: -70px;
   }
 }
-

@@ -1,0 +1,76 @@
+<section class="conta-page notificacoes-page">
+  <header class="notificacoes-head">
+    <div class="notificacoes-head-main">
+      <h2 class="notificacoes-title">Notificacoes</h2>
+      <p class="notificacoes-subtitle">
+        Acompanhe os alertas recentes da sua conta e do sistema.
+      </p>
+    </div>
+  </header>
+
+  <section class="notificacoes-kpis">
+    <article class="notificacoes-kpi">
+      <span class="kpi-label">Listadas</span>
+      <strong class="kpi-value"><%= totais?.listadas || 0 %></strong>
+    </article>
+    <article class="notificacoes-kpi">
+      <span class="kpi-label">Alertas</span>
+      <strong class="kpi-value"><%= totais?.alertas || 0 %></strong>
+    </article>
+    <article class="notificacoes-kpi">
+      <span class="kpi-label">Informativas</span>
+      <strong class="kpi-value"><%= totais?.informativas || 0 %></strong>
+    </article>
+  </section>
+
+  <form class="notificacoes-filtros module-card" method="get" action="/notificacoes">
+    <label class="field-wrap filtro-item">
+      <span class="input-label">Tipo</span>
+      <select class="input-control" name="tipo">
+        <option value="todos" <%= filtros?.tipo === "todos" ? "selected" : "" %>>Todos</option>
+        <option value="alert" <%= filtros?.tipo === "alert" ? "selected" : "" %>>Somente alertas</option>
+        <option value="info" <%= filtros?.tipo === "info" ? "selected" : "" %>>Somente informativas</option>
+      </select>
+    </label>
+
+    <label class="field-wrap filtro-item">
+      <span class="input-label">Limite</span>
+      <select class="input-control" name="limit">
+        <% (filtros?.limitOptions || [10, 20, 40, 60, 100]).forEach((n) => { %>
+          <option value="<%= n %>" <%= Number(filtros?.limit) === Number(n) ? "selected" : "" %>><%= n %></option>
+        <% }) %>
+      </select>
+    </label>
+
+    <div class="filtro-actions">
+      <button class="btn btn-primary" type="submit">Aplicar</button>
+      <a href="/notificacoes" class="btn btn-muted">Limpar</a>
+    </div>
+  </form>
+
+  <section class="notificacoes-lista">
+    <% if (!notificacoes || !notificacoes.length) { %>
+      <article class="notificacoes-empty module-card">
+        <h3>Nenhuma notificacao para os filtros selecionados</h3>
+        <p>Novos eventos aparecerao aqui automaticamente.</p>
+      </article>
+    <% } else { %>
+      <% notificacoes.forEach((item) => { %>
+        <article class="notificacao-card <%= item.tipo === 'alert' ? 'is-unread' : 'is-read' %>">
+          <div class="notificacao-top">
+            <div class="notificacao-badges">
+              <span class="notif-tipo"><%= item.tipoLabel %></span>
+              <span class="notif-status"><%= item.entidadeLabel %></span>
+            </div>
+            <time class="notif-data" datetime="<%= item.criadoEmIso || '' %>">
+              <%= item.criadoEm ? new Date(item.criadoEm).toLocaleString("pt-BR") : "-" %>
+            </time>
+          </div>
+
+          <h3 class="notificacao-titulo"><%= item.titulo %></h3>
+          <p class="notificacao-mensagem"><%= item.mensagem %></p>
+        </article>
+      <% }) %>
+    <% } %>
+  </section>
+</section>

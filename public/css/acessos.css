@@ -1,0 +1,132 @@
+.page-acessos .app-content {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+}
+
+.acessos-page {
+  display: grid;
+  gap: 12px;
+}
+
+.acessos-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.acessos-head h2 {
+  margin: 0;
+  font-size: 1.9rem;
+}
+
+.acessos-head p {
+  margin: 4px 0 0;
+  color: #887970;
+}
+
+.acessos-kpis {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.acessos-kpis .module-card {
+  display: grid;
+  gap: 4px;
+}
+
+.acessos-kpis small {
+  color: #8f8179;
+  font-weight: 700;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.acessos-kpis strong {
+  color: #7f3b2b;
+  font-size: 1.34rem;
+  line-height: 1.1;
+}
+
+.acessos-filtros {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1.5fr repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+
+.aprovacoes-filtros {
+  grid-template-columns: 1.6fr repeat(2, minmax(0, 1fr)) auto;
+}
+
+.acessos-filtros .field-wrap {
+  margin: 0;
+}
+
+.acessos-filtros-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.acessos-table td {
+  vertical-align: top;
+}
+
+.acesso-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-xxs {
+  padding: 6px 9px;
+  font-size: 0.72rem;
+}
+
+.acesso-row-hint {
+  margin-top: 5px;
+  color: #8a7d76;
+  font-size: 0.72rem;
+}
+
+.acessos-pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.is-disabled {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+@media (max-width: 980px) {
+  .acessos-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acessos-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .acessos-filtros,
+  .aprovacoes-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .acessos-filtros-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .acessos-kpis {
+    grid-template-columns: 1fr;
+  }
+}

@@ -38,6 +38,17 @@ function requireRole(...allowedRoles) {
     }
 
     if (!allowedRoles.includes(user.perfil)) {
+      if (isHtmlRequest(req)) {
+        if (user.perfil === PERFIS.USUARIO) {
+          return res.redirect("/meus-dados");
+        }
+
+        const err = new Error("Acesso negado para este perfil.");
+        err.status = 403;
+        err.publicMessage = "Voce nao tem permissao para acessar esta pagina.";
+        return next(err);
+      }
+
       return res.status(403).json({ erro: "Acesso negado para este perfil." });
     }
 
@@ -53,4 +64,3 @@ module.exports = {
   requireRole,
   requireAdmin,
 };
-

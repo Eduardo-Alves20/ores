@@ -11,10 +11,14 @@ const buscaRoutes = require("./Routes/buscaRoutes");
 const relatorioRoutes = require("./Routes/relatorioRoutes");
 const familiaPageRoutes = require("./Routes/familiaPageRoutes");
 const agendaRoutes = require("./Routes/agendaRoutes");
+const portalUsuarioRoutes = require("./Routes/portalUsuarioRoutes");
+const contaRoutes = require("./Routes/contaRoutes");
+const acessoPageRoutes = require("./Routes/acessoPageRoutes");
 const DashboardController = require("./Controllers/DashboardController");
 const AgendaPageController = require("./Controllers/AgendaPageController");
+const { PERFIS } = require("./config/roles");
 
-const { requireAuth } = require("./middlewares/authSession");
+const { requireAuth, requireRole } = require("./middlewares/authSession");
 
 const router = express.Router();
 
@@ -29,6 +33,9 @@ const limiter = rateLimit({
 
 router.get("/", (req, res) => {
   if (req?.session?.user) {
+    if (req.session.user.perfil === PERFIS.USUARIO) {
+      return res.redirect("/meus-dados");
+    }
     return res.redirect("/painel");
   }
   return res.redirect("/login");
@@ -44,12 +51,15 @@ router.get("/health", (req, res) => {
 
 router.use("/", authRoutes);
 router.use("/auth", authRoutes);
+router.use("/", portalUsuarioRoutes);
 
 router.use(requireAuth);
+router.use("/", contaRoutes);
+router.use("/", acessoPageRoutes);
 
-router.get("/painel", DashboardController.index);
-router.get("/agenda", AgendaPageController.index);
-router.use("/familias", familiaPageRoutes);
+router.get("/painel", requireRole(PERFIS.ADMIN, PERFIS.ATENDENTE, PERFIS.TECNICO), DashboardController.index);
+router.get("/agenda", requireRole(PERFIS.ADMIN, PERFIS.ATENDENTE, PERFIS.TECNICO), AgendaPageController.index);
+router.use("/familias", requireRole(PERFIS.ADMIN, PERFIS.ATENDENTE), familiaPageRoutes);
 
 router.use("/admin/usuarios", limiter, usuarioRoutes);
 router.use("/usuarios", limiter, usuarioRoutes);

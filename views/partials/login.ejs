@@ -28,6 +28,7 @@
   </head>
   <body class="app app-light <%= pageClass || '' %>">
     <%- body %>
+    <script src="/js/auth.js" defer></script>
     <% if (typeof extraJs !== "undefined" && Array.isArray(extraJs)) { %>
       <% extraJs.forEach((src) => { %>
         <script src="<%= src %>" defer></script>

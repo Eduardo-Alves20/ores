@@ -91,6 +91,7 @@
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
+  overflow: visible;
 }
 
 .agenda-day-cell {
@@ -100,6 +101,9 @@
   background: #f2dacd;
   padding: 6px;
   cursor: pointer;
+  position: relative;
+  overflow: visible;
+  z-index: 1;
   transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.15s ease;
 }
 
@@ -124,9 +128,122 @@
   border-color: #b24a32;
 }
 
+.agenda-day-cell:hover,
+.agenda-day-cell:focus-within,
+.agenda-day-cell.is-popover-open {
+  z-index: 60;
+}
+
 .agenda-day-cell.is-drop-target {
   outline: 2px dashed #7bcf89;
   outline-offset: -3px;
+}
+
+.agenda-day-cell.is-draggable-event {
+  cursor: grab;
+}
+
+.agenda-day-cell.is-draggable-event .agenda-day-pill {
+  box-shadow: 0 0 0 1px rgba(132, 64, 47, 0.25);
+}
+
+.agenda-day-cell.is-dragging {
+  opacity: 0.65;
+  transform: scale(0.98);
+}
+
+.agenda-day-cell.has-multi-events .agenda-day-pill {
+  box-shadow: 0 0 0 1px rgba(132, 64, 47, 0.25);
+  cursor: pointer;
+}
+
+.agenda-day-events-popover {
+  position: absolute;
+  z-index: 120;
+  left: 4px;
+  right: 4px;
+  top: calc(100% + 5px);
+  display: none;
+  border: 1px solid #e0c9bc;
+  border-radius: 10px;
+  background: #fff9f6;
+  box-shadow: 0 10px 24px rgba(58, 25, 15, 0.2);
+  padding: 7px;
+  text-align: left;
+}
+
+.agenda-day-cell.has-multi-events:hover .agenda-day-events-popover,
+.agenda-day-cell.has-multi-events:focus-within .agenda-day-events-popover,
+.agenda-day-cell.has-multi-events.is-popover-open .agenda-day-events-popover {
+  display: block;
+}
+
+.agenda-day-cell.has-multi-events.is-dragging .agenda-day-events-popover {
+  opacity: 0.85;
+}
+
+.agenda-day-events-title {
+  margin: 0 0 6px;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #8f4a35;
+}
+
+.agenda-day-events-list {
+  display: grid;
+  gap: 5px;
+}
+
+.agenda-day-events-item {
+  border: 1px solid #e7d2c7;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
+  display: grid;
+  gap: 3px;
+}
+
+.agenda-day-events-item.is-draggable {
+  cursor: grab;
+}
+
+.agenda-day-events-item.is-draggable:hover {
+  border-color: #cb8f79;
+  background: #fff6f1;
+}
+
+.agenda-day-events-item.is-locked {
+  opacity: 0.62;
+}
+
+.agenda-day-events-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.63rem;
+  color: #7b3d2d;
+}
+
+.agenda-day-events-item-title {
+  margin: 0;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #4e3931;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-day-events-item-meta {
+  margin: 0;
+  font-size: 0.66rem;
+  color: #7a6962;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .agenda-day-number {

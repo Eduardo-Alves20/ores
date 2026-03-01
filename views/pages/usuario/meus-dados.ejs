@@ -1,0 +1,45 @@
+<section class="meus-dados-page">
+  <header class="meus-dados-header">
+    <h2>Meus Dados</h2>
+    <p>Visualizacao do seu cadastro no sistema.</p>
+  </header>
+
+  <section class="module-card">
+    <div class="table-wrap">
+      <table class="data-table meus-dados-table">
+        <tbody>
+          <tr>
+            <th>Nome</th>
+            <td><%= usuario?.nome || "-" %></td>
+          </tr>
+          <tr>
+            <th>Email</th>
+            <td><%= usuario?.email || "-" %></td>
+          </tr>
+          <tr>
+            <th>CPF</th>
+            <td><%= usuario?.cpf || "-" %></td>
+          </tr>
+          <tr>
+            <th>Telefone</th>
+            <td><%= usuario?.telefone || "-" %></td>
+          </tr>
+          <tr>
+            <th>Tipo de cadastro</th>
+            <td><%= tipoCadastroLabel %></td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td>
+              <% if (usuario?.ativo) { %>
+                <span class="status-badge status-active">ATIVO</span>
+              <% } else { %>
+                <span class="status-badge status-inactive">INATIVO</span>
+              <% } %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

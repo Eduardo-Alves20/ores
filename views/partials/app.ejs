@@ -41,22 +41,45 @@
       <div class="sidebar-brand">GESA</div>
 
       <nav class="sidebar-nav">
-        <a href="/painel" class="sidebar-link <%= navKey === 'home' ? 'is-active' : '' %>">
-          <i class="fa-regular fa-house"></i>
-          <span>Tela de Início</span>
-        </a>
-        <a href="/familias" class="sidebar-link <%= navKey === 'assistidos' ? 'is-active' : '' %>">
-          <i class="fa-regular fa-users"></i>
-          <span>Assistidos</span>
-        </a>
-        <a href="/agenda" class="sidebar-link <%= navKey === 'agenda' ? 'is-active' : '' %>">
-          <i class="fa-regular fa-calendar-days"></i>
-          <span>Agenda</span>
-        </a>
-        <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
-          <i class="fa-regular fa-gear"></i>
-          <span>Administração</span>
-        </a>
+        <% if (currentUser?.perfil === 'usuario') { %>
+          <a href="/meus-dados" class="sidebar-link <%= navKey === 'meus-dados' ? 'is-active' : '' %>">
+            <i class="fa-regular fa-id-card"></i>
+            <span>Meus Dados</span>
+          </a>
+        <% } else { %>
+          <a href="/painel" class="sidebar-link <%= navKey === 'home' ? 'is-active' : '' %>">
+            <i class="fa-regular fa-house"></i>
+            <span>Tela de Inicio</span>
+          </a>
+          <a href="/familias" class="sidebar-link <%= navKey === 'assistidos' ? 'is-active' : '' %>">
+            <i class="fa-regular fa-users"></i>
+            <span>Assistidos</span>
+          </a>
+          <% if (currentUser?.perfil === 'admin' || currentUser?.perfil === 'atendente') { %>
+            <a href="/acessos/familias" class="sidebar-link <%= navKey === 'usuarios-familia' ? 'is-active' : '' %>">
+              <i class="fa-regular fa-id-card"></i>
+              <span>Usuarios Familia</span>
+            </a>
+            <a href="/acessos/voluntarios" class="sidebar-link <%= navKey === 'usuarios-voluntario' ? 'is-active' : '' %>">
+              <i class="fa-regular fa-handshake"></i>
+              <span>Usuarios Voluntario</span>
+            </a>
+          <% } %>
+          <% if (currentUser?.perfil === 'admin') { %>
+            <a href="/acessos/aprovacoes" class="sidebar-link <%= navKey === 'aprovacoes' ? 'is-active' : '' %>">
+              <i class="fa-regular fa-circle-check"></i>
+              <span>Aprovacoes</span>
+            </a>
+          <% } %>
+          <a href="/agenda" class="sidebar-link <%= navKey === 'agenda' ? 'is-active' : '' %>">
+            <i class="fa-regular fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+          <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
+            <i class="fa-regular fa-gear"></i>
+            <span>Administracao</span>
+          </a>
+        <% } %>
       </nav>
 
       <form method="post" action="/auth/logout" class="sidebar-logout">
@@ -70,13 +93,22 @@
     <div class="app-main">
       <header class="topbar">
         <h1 class="topbar-title"><%= sectionTitle || title || "Tela" %></h1>
-        <div class="topbar-user">
-          <i class="fa-regular fa-bell"></i>
-          <div class="topbar-user-meta">
-            <strong><%= currentUser?.nome || 'Admin Gesa' %></strong>
-            <small><%= currentUser?.perfil || 'Gestor Social' %></small>
-          </div>
-          <span class="user-dot"></span>
+        <div class="topbar-actions">
+          <a
+            href="/notificacoes"
+            class="topbar-icon-btn <%= navKey === 'notificacoes' ? 'is-active' : '' %>"
+            title="Notificacoes"
+            aria-label="Notificacoes"
+          >
+            <i class="fa-regular fa-bell"></i>
+          </a>
+          <a href="/perfil" class="topbar-user topbar-profile-link <%= navKey === 'perfil' ? 'is-active' : '' %>">
+            <div class="topbar-user-meta">
+              <strong><%= currentUser?.nome || 'Admin Gesa' %></strong>
+              <small><%= currentUser?.perfil || 'Gestor Social' %></small>
+            </div>
+            <span class="user-dot"></span>
+          </a>
         </div>
       </header>
 

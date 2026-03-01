@@ -1,0 +1,95 @@
+﻿<section class="conta-page">
+  <header class="conta-header">
+    <div>
+      <h2>Editar Perfil</h2>
+      <p>
+        <% if (isAdmin) { %>
+          Como administrador, voce pode editar todos os campos.
+        <% } else { %>
+          Voce pode editar apenas email e telefone.
+        <% } %>
+      </p>
+    </div>
+    <a href="/perfil" class="btn btn-muted">Voltar</a>
+  </header>
+
+  <section class="module-card">
+    <% if (errorMessage && errorMessage.length) { %>
+      <div class="conta-error">
+        <%= errorMessage[0] %>
+      </div>
+    <% } %>
+
+    <% if (successMessage && successMessage.length) { %>
+      <div class="conta-success">
+        <%= successMessage[0] %>
+      </div>
+    <% } %>
+
+    <form method="post" action="/perfil/editar" class="form-stack conta-form-grid">
+      <% if (isAdmin) { %>
+        <label class="field-wrap">
+          <span class="input-label">Nome</span>
+          <input class="input-control" type="text" name="nome" required value="<%= usuario?.nome || '' %>" />
+        </label>
+      <% } else { %>
+        <label class="field-wrap">
+          <span class="input-label">Nome</span>
+          <input class="input-control" type="text" value="<%= usuario?.nome || '' %>" disabled />
+        </label>
+      <% } %>
+
+      <label class="field-wrap">
+        <span class="input-label">Email</span>
+        <input class="input-control" type="email" name="email" required value="<%= usuario?.email || '' %>" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Telefone</span>
+        <input class="input-control" type="text" name="telefone" value="<%= usuario?.telefone || '' %>" />
+      </label>
+
+      <% if (isAdmin) { %>
+        <label class="field-wrap">
+          <span class="input-label">CPF</span>
+          <input class="input-control" type="text" name="cpf" value="<%= usuario?.cpf || '' %>" />
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Perfil</span>
+          <select class="input-control" name="perfil" required>
+            <% perfisDisponiveis.forEach((perfil) => { %>
+              <option value="<%= perfil %>" <%= usuario?.perfil === perfil ? 'selected' : '' %>><%= perfil %></option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Tipo de cadastro</span>
+          <select class="input-control" name="tipoCadastro" required>
+            <option value="voluntario" <%= usuario?.tipoCadastro !== 'familia' ? 'selected' : '' %>>voluntario</option>
+            <option value="familia" <%= usuario?.tipoCadastro === 'familia' ? 'selected' : '' %>>familia</option>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Status da conta</span>
+          <select class="input-control" name="ativo" required>
+            <option value="true" <%= usuario?.ativo ? 'selected' : '' %>>ativo</option>
+            <option value="false" <%= !usuario?.ativo ? 'selected' : '' %>>inativo</option>
+          </select>
+        </label>
+      <% } else { %>
+        <label class="field-wrap">
+          <span class="input-label">Perfil</span>
+          <input class="input-control" type="text" value="<%= usuario?.perfil || '' %>" disabled />
+        </label>
+      <% } %>
+
+      <div class="conta-form-actions">
+        <button type="submit" class="btn btn-primary">Salvar Alteracoes</button>
+        <a href="/perfil" class="btn btn-muted">Cancelar</a>
+      </div>
+    </form>
+  </section>
+</section>

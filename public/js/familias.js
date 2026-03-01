@@ -134,10 +134,13 @@
           const cidade = [doc?.endereco?.cidade, doc?.endereco?.estado].filter(Boolean).join("/");
           const statusClass = doc?.ativo ? "status-active" : "status-inactive";
           const statusLabel = doc?.ativo ? "Ativa" : "Inativa";
-          const toggleLabel = doc?.ativo ? "Inativar" : "Reativar";
+          const toggleLabel = doc?.ativo ? "Excluir" : "Reativar";
+          const detalhesHref = `/familias/${doc._id}`;
+          const editarHref = `/familias/${doc._id}/editar`;
+          const rowLabel = doc?.responsavel?.nome || "familia";
 
           return `
-            <tr>
+            <tr class="family-row-clickable" data-href="${detalhesHref}" role="link" tabindex="0" aria-label="Abrir ficha de ${escapeHtml(rowLabel)}">
               <td data-label="Responsavel">${escapeHtml(doc?.responsavel?.nome || "-")}</td>
               <td data-label="Contato">
                 <div>${escapeHtml(doc?.responsavel?.telefone || "-")}</div>
@@ -149,10 +152,16 @@
               <td data-label="Status"><span class="status-badge ${statusClass}">${statusLabel}</span></td>
               <td data-label="Atualizacao">${formatDate(doc?.updatedAt)}</td>
               <td data-label="Acoes">
-                <div class="row-actions">
-                  <a class="mini-btn" href="/familias/${doc._id}">Detalhes</a>
-                  <a class="mini-btn" href="/familias/${doc._id}/editar">Editar</a>
-                  <button class="mini-btn mini-btn-warn" type="button" data-action="toggle" data-id="${doc._id}" data-next="${String(!doc?.ativo)}">${toggleLabel}</button>
+                <div class="actions-menu" data-no-row-nav>
+                  <button class="actions-menu-trigger" type="button" aria-haspopup="true" aria-expanded="false" data-action="menu-toggle" title="Abrir acoes">
+                    <span aria-hidden="true">...</span>
+                    <span class="sr-only">Abrir acoes</span>
+                  </button>
+                  <div class="actions-menu-dropdown" role="menu">
+                    <a class="actions-menu-item" role="menuitem" href="${detalhesHref}">Visualizar ficha</a>
+                    <a class="actions-menu-item" role="menuitem" href="${editarHref}">Editar</a>
+                    <button class="actions-menu-item actions-menu-item-warn" role="menuitem" type="button" data-action="toggle" data-id="${doc._id}" data-next="${String(!doc?.ativo)}">${toggleLabel}</button>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -226,26 +235,74 @@
       load();
     });
 
+    function closeAllActionMenus() {
+      tbody.querySelectorAll(".actions-menu.is-open").forEach((menu) => {
+        menu.classList.remove("is-open");
+        const trigger = menu.querySelector("[data-action='menu-toggle']");
+        if (trigger) trigger.setAttribute("aria-expanded", "false");
+      });
+    }
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("#familias-table-body .actions-menu")) return;
+      closeAllActionMenus();
+    });
+
     tbody.addEventListener("click", async (event) => {
-      const button = event.target.closest("button[data-action='toggle']");
-      if (!button) return;
-
-      const id = button.getAttribute("data-id");
-      const next = button.getAttribute("data-next");
-      if (!id || typeof next === "undefined") return;
-
-      try {
-        button.disabled = true;
-        await requestJson(`/api/familias/${id}/status`, {
-          method: "PATCH",
-          body: { ativo: next === "true" },
-        });
-        await load();
-      } catch (error) {
-        showToast(error.message);
-      } finally {
-        button.disabled = false;
+      const menuToggleBtn = event.target.closest("button[data-action='menu-toggle']");
+      if (menuToggleBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+        const menu = menuToggleBtn.closest(".actions-menu");
+        if (!menu) return;
+        const willOpen = !menu.classList.contains("is-open");
+        closeAllActionMenus();
+        menu.classList.toggle("is-open", willOpen);
+        menuToggleBtn.setAttribute("aria-expanded", String(willOpen));
+        return;
       }
+
+      const button = event.target.closest("button[data-action='toggle']");
+      if (button) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const id = button.getAttribute("data-id");
+        const next = button.getAttribute("data-next");
+        if (!id || typeof next === "undefined") return;
+
+        try {
+          button.disabled = true;
+          await requestJson(`/api/familias/${id}/status`, {
+            method: "PATCH",
+            body: { ativo: next === "true" },
+          });
+          await load();
+        } catch (error) {
+          showToast(error.message);
+        } finally {
+          button.disabled = false;
+        }
+        return;
+      }
+
+      if (event.target.closest("[data-no-row-nav]")) return;
+      if (event.target.closest("a, button")) return;
+
+      const row = event.target.closest("tr[data-href]");
+      if (!row) return;
+      const href = row.getAttribute("data-href");
+      if (href) window.location.href = href;
+    });
+
+    tbody.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      if (event.target.closest("[data-no-row-nav]")) return;
+      const row = event.target.closest("tr[data-href]");
+      if (!row) return;
+      event.preventDefault();
+      const href = row.getAttribute("data-href");
+      if (href) window.location.href = href;
     });
 
     paginacao.addEventListener("click", (event) => {

@@ -1,0 +1,147 @@
+<section class="auth-viewport">
+  <div class="auth-bubble bubble-a"></div>
+  <div class="auth-bubble bubble-b"></div>
+  <div class="auth-bubble bubble-c"></div>
+  <div class="auth-bubble bubble-d"></div>
+  <div class="auth-bubble bubble-e"></div>
+
+  <div class="auth-card card-elevated">
+    <h1 class="auth-brand">GESA</h1>
+    <p class="auth-subtitle">Cadastro de acesso para voluntario ou familia</p>
+
+    <% if (errorMessage && errorMessage.length) { %>
+      <div class="auth-error">
+        <%= errorMessage[0] %>
+      </div>
+    <% } %>
+
+    <% if (successMessage && successMessage.length) { %>
+      <div class="auth-success">
+        <%= successMessage[0] %>
+      </div>
+    <% } %>
+
+    <form method="post" action="/cadastro" autocomplete="off" class="form-stack">
+      <label for="nome" class="input-label">Nome completo *</label>
+      <div class="field-icon-wrap">
+        <i class="fa-regular fa-user field-icon"></i>
+        <input
+          class="input-control"
+          id="nome"
+          name="nome"
+          type="text"
+          maxlength="120"
+          required
+          value="<%= formData?.nome || '' %>"
+        />
+      </div>
+
+      <label for="email" class="input-label">Email *</label>
+      <div class="field-icon-wrap">
+        <i class="fa-regular fa-envelope field-icon"></i>
+        <input
+          class="input-control"
+          id="email"
+          name="email"
+          type="email"
+          maxlength="140"
+          required
+          value="<%= formData?.email || '' %>"
+        />
+      </div>
+
+      <label for="cpf" class="input-label">CPF *</label>
+      <div class="field-icon-wrap">
+        <i class="fa-regular fa-id-card field-icon"></i>
+        <input
+          class="input-control"
+          id="cpf"
+          name="cpf"
+          type="text"
+          inputmode="numeric"
+          placeholder="Somente numeros"
+          maxlength="14"
+          required
+          value="<%= formData?.cpf || '' %>"
+        />
+      </div>
+
+      <label for="tipoCadastro" class="input-label">Tipo de cadastro *</label>
+      <select class="input-control" id="tipoCadastro" name="tipoCadastro" required>
+        <option value="voluntario" <%= (formData?.tipoCadastro || 'voluntario') === 'voluntario' ? 'selected' : '' %>>
+          Voluntario
+        </option>
+        <option value="familia" <%= formData?.tipoCadastro === 'familia' ? 'selected' : '' %>>
+          Familia
+        </option>
+      </select>
+
+      <label for="telefone" class="input-label">Telefone</label>
+      <div class="field-icon-wrap">
+        <i class="fa-regular fa-phone field-icon"></i>
+        <input
+          class="input-control"
+          id="telefone"
+          name="telefone"
+          type="text"
+          maxlength="20"
+          value="<%= formData?.telefone || '' %>"
+        />
+      </div>
+
+      <%
+        const ambienteSenha = String(ambiente || "").toUpperCase();
+        const senhaModoDev = ["DEV", "DEVELOPMENT", "LOCAL", "TEST", "TESTE"].includes(ambienteSenha);
+      %>
+
+      <label for="senha" class="input-label">Senha *</label>
+      <div class="field-icon-wrap">
+        <i class="fa-regular fa-lock field-icon"></i>
+        <input
+          class="input-control"
+          id="senha"
+          name="senha"
+          type="password"
+          placeholder="<%= senhaModoDev ? 'Minimo 4 caracteres (dev)' : 'Minimo 10 caracteres' %>"
+          required
+        />
+        <button
+          class="field-icon-toggle"
+          type="button"
+          data-password-toggle="senha"
+          aria-label="Mostrar senha"
+          aria-pressed="false"
+        >
+          <i class="fa-regular fa-eye-slash field-icon-right" data-password-icon></i>
+        </button>
+      </div>
+
+      <label for="confirmarSenha" class="input-label">Confirmar senha *</label>
+      <div class="field-icon-wrap">
+        <i class="fa-regular fa-lock field-icon"></i>
+        <input
+          class="input-control"
+          id="confirmarSenha"
+          name="confirmarSenha"
+          type="password"
+          required
+        />
+        <button
+          class="field-icon-toggle"
+          type="button"
+          data-password-toggle="confirmarSenha"
+          aria-label="Mostrar senha"
+          aria-pressed="false"
+        >
+          <i class="fa-regular fa-eye-slash field-icon-right" data-password-icon></i>
+        </button>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">
+        Enviar Cadastro
+      </button>
+
+      <a href="/login" class="create-link">Ja tenho conta</a>
+    </form>
+  </div>
+</section>

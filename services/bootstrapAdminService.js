@@ -35,6 +35,8 @@ async function ensureAdminFromEnv() {
     await Usuario.findByIdAndUpdate(existingByEmail._id, {
       perfil: PERFIS.ADMIN,
       ativo: true,
+      statusAprovacao: "aprovado",
+      aprovadoEm: new Date(),
       inativadoEm: null,
       inativadoPor: null,
     });

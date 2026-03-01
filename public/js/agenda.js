@@ -40,7 +40,21 @@
     window.alert(message);
   }
 
+  const DAY_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+  function parseDayKeyLocal(dayKey) {
+    const raw = String(dayKey || "").trim();
+    if (!DAY_KEY_PATTERN.test(raw)) return null;
+    const [year, month, day] = raw.split("-").map(Number);
+    const dt = new Date(year, month - 1, day, 12, 0, 0, 0);
+    if (Number.isNaN(dt.getTime())) return null;
+    return dt;
+  }
+
   function toDayString(dateLike) {
+    const dayKey = String(dateLike || "").trim();
+    if (DAY_KEY_PATTERN.test(dayKey)) return dayKey;
+
     const dt = new Date(dateLike);
     if (Number.isNaN(dt.getTime())) return "";
     const year = dt.getFullYear();
@@ -59,7 +73,7 @@
   }
 
   function toDayLabel(dateLike) {
-    const dt = new Date(dateLike);
+    const dt = parseDayKeyLocal(dateLike) || new Date(dateLike);
     if (Number.isNaN(dt.getTime())) return "-";
     return new Intl.DateTimeFormat("pt-BR", {
       weekday: "long",
@@ -79,6 +93,12 @@
     const h = String(dt.getHours()).padStart(2, "0");
     const m = String(dt.getMinutes()).padStart(2, "0");
     return `${h}:${m}`;
+  }
+
+  function toHourLabel(dateLike) {
+    const dt = new Date(dateLike);
+    if (Number.isNaN(dt.getTime())) return "--:--";
+    return dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   }
 
   function mergeDateAndTime(dateStr, timeStr) {
@@ -144,6 +164,8 @@
   const state = {
     viewDate: new Date(),
     selectedDay: toDayString(new Date()),
+    openPopoverDay: null,
+    draggingEventId: "",
     responsavelFiltro: permissions.canViewAll ? "" : String(user.id || ""),
     profissionais: [],
     eventos: [],
@@ -178,7 +200,7 @@
   function ensureSelectedDayVisible() {
     const month = state.viewDate.getMonth();
     const year = state.viewDate.getFullYear();
-    const selected = new Date(state.selectedDay);
+    const selected = parseDayKeyLocal(state.selectedDay) || new Date(state.selectedDay);
     if (Number.isNaN(selected.getTime())) {
       state.selectedDay = toDayString(new Date(year, month, 1));
       return;
@@ -202,12 +224,17 @@
       day.setDate(gridStart.getDate() + i);
       const dayKey = toDayString(day);
       const dayEvents = eventosByDay.get(dayKey) || [];
+      const hasMultipleEvents = dayEvents.length > 1;
+      const movableEvents = dayEvents.filter((evento) => canMutateEvent(evento) && permissions.canMove);
+      const dragCandidate = !hasMultipleEvents && movableEvents.length === 1 ? movableEvents[0] : null;
       const outside = day.getMonth() !== state.viewDate.getMonth();
 
-      const cell = document.createElement("button");
-      cell.type = "button";
+      const cell = document.createElement("div");
       cell.className = "agenda-day-cell";
       cell.dataset.day = dayKey;
+      cell.setAttribute("role", "button");
+      cell.setAttribute("tabindex", "0");
+      cell.setAttribute("aria-label", `Selecionar dia ${day.getDate()}`);
       cell.innerHTML = `
         <div class="agenda-day-number">${day.getDate()}</div>
         <div class="agenda-day-meta">
@@ -218,11 +245,130 @@
       if (outside) cell.classList.add("is-outside");
       if (dayKey === today) cell.classList.add("is-today");
       if (dayKey === state.selectedDay) cell.classList.add("is-selected");
+      if (hasMultipleEvents) cell.classList.add("has-multi-events");
+      if (state.openPopoverDay === dayKey && hasMultipleEvents) cell.classList.add("is-popover-open");
 
-      cell.addEventListener("click", () => {
+      if (dragCandidate) {
+        cell.setAttribute("draggable", "true");
+        cell.classList.add("is-draggable-event");
+        cell.dataset.eventId = String(dragCandidate._id);
+        cell.title = "Arraste para mover este evento para outro dia.";
+      } else if (hasMultipleEvents) {
+        cell.title = "Passe o mouse ou clique no balao de eventos para escolher o item e arrastar.";
+
+        const popover = document.createElement("div");
+        popover.className = "agenda-day-events-popover";
+        popover.setAttribute("data-no-day-select", "true");
+
+        const popoverTitle = document.createElement("p");
+        popoverTitle.className = "agenda-day-events-title";
+        popoverTitle.textContent = "Arraste o evento desejado";
+        popover.appendChild(popoverTitle);
+
+        const popoverList = document.createElement("div");
+        popoverList.className = "agenda-day-events-list";
+
+        dayEvents.forEach((evento) => {
+          const canMoveThis = canMutateEvent(evento) && permissions.canMove;
+          const item = document.createElement("div");
+          item.className = `agenda-day-events-item ${canMoveThis ? "is-draggable" : "is-locked"}`;
+          item.setAttribute("data-no-day-select", "true");
+          item.dataset.eventId = String(evento._id);
+
+          if (canMoveThis) {
+            item.setAttribute("draggable", "true");
+            item.title = "Arraste para mover este evento.";
+          } else {
+            item.title = "Sem permissao para mover este evento.";
+          }
+
+          const head = document.createElement("div");
+          head.className = "agenda-day-events-item-head";
+
+          const time = document.createElement("strong");
+          time.textContent = toHourLabel(evento.inicio);
+
+          const tipo = document.createElement("span");
+          tipo.textContent = normalizeTypeLabel(evento.tipoAtendimento);
+
+          head.appendChild(time);
+          head.appendChild(tipo);
+
+          const title = document.createElement("p");
+          title.className = "agenda-day-events-item-title";
+          title.textContent = String(evento.titulo || "Sem titulo");
+
+          const meta = document.createElement("p");
+          meta.className = "agenda-day-events-item-meta";
+          meta.textContent = `Resp: ${evento?.responsavel?.nome || "-"}`;
+
+          item.appendChild(head);
+          item.appendChild(title);
+          item.appendChild(meta);
+          popoverList.appendChild(item);
+        });
+
+        popover.appendChild(popoverList);
+
+        popover.addEventListener("dragstart", (event) => {
+          const item = event.target.closest(".agenda-day-events-item[draggable='true']");
+          if (!item) return;
+          const eventId = item.dataset.eventId;
+          if (!eventId) return;
+          event.stopPropagation();
+          state.draggingEventId = String(eventId);
+          event.dataTransfer.setData("text/plain", eventId);
+          event.dataTransfer.effectAllowed = "move";
+          cell.classList.add("is-dragging");
+        });
+
+        popover.addEventListener("dragend", (event) => {
+          event.stopPropagation();
+          state.draggingEventId = "";
+          cell.classList.remove("is-dragging");
+        });
+
+        cell.appendChild(popover);
+      }
+
+      cell.addEventListener("click", (event) => {
+        if (event.target.closest("[data-no-day-select='true']")) return;
+        if (event.target.closest(".agenda-day-pill") && hasMultipleEvents) {
+          state.openPopoverDay = state.openPopoverDay === dayKey ? null : dayKey;
+          renderCalendar();
+          return;
+        }
+        state.openPopoverDay = null;
         state.selectedDay = dayKey;
         renderCalendar();
         renderSelectedDay();
+      });
+
+      cell.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        state.openPopoverDay = null;
+        state.selectedDay = dayKey;
+        renderCalendar();
+        renderSelectedDay();
+      });
+
+      cell.addEventListener("dragstart", (event) => {
+        if (event.target !== cell) return;
+        const eventId = cell.dataset.eventId;
+        if (!eventId) {
+          event.preventDefault();
+          return;
+        }
+        state.draggingEventId = String(eventId);
+        event.dataTransfer.setData("text/plain", eventId);
+        event.dataTransfer.effectAllowed = "move";
+        cell.classList.add("is-dragging");
+      });
+
+      cell.addEventListener("dragend", () => {
+        state.draggingEventId = "";
+        cell.classList.remove("is-dragging");
       });
 
       cell.addEventListener("dragover", (event) => {
@@ -237,7 +383,7 @@
       cell.addEventListener("drop", async (event) => {
         event.preventDefault();
         cell.classList.remove("is-drop-target");
-        const eventId = event.dataTransfer.getData("text/plain");
+        const eventId = event.dataTransfer.getData("text/plain") || state.draggingEventId;
         if (!eventId) return;
 
         const agendaEvent = state.eventosById.get(String(eventId));
@@ -245,6 +391,7 @@
         if (toDayString(agendaEvent.inicio) === dayKey) return;
 
         try {
+          state.openPopoverDay = null;
           await requestJson(`/api/agenda/eventos/${eventId}/mover`, {
             method: "PATCH",
             body: { novaData: dayKey },
@@ -252,6 +399,8 @@
           await loadMonthEvents();
         } catch (error) {
           showToast(error.message);
+        } finally {
+          state.draggingEventId = "";
         }
       });
 
@@ -260,7 +409,7 @@
   }
 
   function renderSelectedDay() {
-    const dayDate = new Date(state.selectedDay);
+    const dayDate = parseDayKeyLocal(state.selectedDay) || new Date(state.selectedDay);
     const eventos = state.eventos
       .filter((evento) => toDayString(evento.inicio) === state.selectedDay)
       .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
@@ -592,6 +741,7 @@
   function changeMonth(step) {
     state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() + step, 1);
     state.selectedDay = toDayString(new Date(state.viewDate.getFullYear(), state.viewDate.getMonth(), 1));
+    state.openPopoverDay = null;
     loadMonthEvents().catch((error) => showToast(error.message));
   }
 
@@ -601,11 +751,13 @@
     elements.hojeBtn.addEventListener("click", () => {
       state.viewDate = new Date();
       state.selectedDay = toDayString(new Date());
+      state.openPopoverDay = null;
       loadMonthEvents().catch((error) => showToast(error.message));
     });
 
     elements.responsavelFiltro.addEventListener("change", () => {
       state.responsavelFiltro = elements.responsavelFiltro.value || "";
+      state.openPopoverDay = null;
       loadMonthEvents().catch((error) => showToast(error.message));
     });
 
@@ -627,6 +779,13 @@
 
     elements.form.addEventListener("submit", handleFormSubmit);
     elements.diaLista.addEventListener("click", handleDayListActions);
+
+    document.addEventListener("click", (event) => {
+      if (!state.openPopoverDay) return;
+      if (event.target.closest(".agenda-day-cell.has-multi-events")) return;
+      state.openPopoverDay = null;
+      renderCalendar();
+    });
 
     elements.familiaBusca.addEventListener("input", () => {
       window.clearTimeout(state.searchTimer);

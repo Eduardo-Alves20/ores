@@ -6,8 +6,17 @@ const scryptAsync = util.promisify(crypto.scrypt);
 const HASH_PREFIX = "scrypt.v1";
 const KEY_LENGTH = 64;
 
+function isWeakPolicyDevMode() {
+  const env = String(process.env.AMBIENTE || process.env.NODE_ENV || "").trim().toLowerCase();
+  return ["dev", "development", "local", "test", "teste"].includes(env);
+}
+
 function validarSenhaForte(senha) {
   const senhaStr = String(senha || "");
+
+  if (isWeakPolicyDevMode()) {
+    return senhaStr.length >= 4;
+  }
 
   if (senhaStr.length < 10) return false;
   if (!/[a-z]/.test(senhaStr)) return false;
@@ -15,6 +24,13 @@ function validarSenhaForte(senha) {
   if (!/[0-9]/.test(senhaStr)) return false;
 
   return true;
+}
+
+function mensagemPoliticaSenha() {
+  if (isWeakPolicyDevMode()) {
+    return "Senha fraca. Em desenvolvimento, use ao menos 4 caracteres.";
+  }
+  return "Senha fraca. Use ao menos 10 caracteres com letras maiusculas, minusculas e numeros.";
 }
 
 async function hashSenha(senha) {
@@ -53,7 +69,7 @@ async function compararSenha(senha, hashArmazenado) {
 
 module.exports = {
   validarSenhaForte,
+  mensagemPoliticaSenha,
   hashSenha,
   compararSenha,
 };
-

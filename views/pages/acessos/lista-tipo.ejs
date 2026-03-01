@@ -1,0 +1,205 @@
+<%
+  const filtrosAtuais = filtros || {};
+  const pageAtual = Number(paginacao?.page || 1);
+  const totalPages = Number(paginacao?.totalPages || 1);
+  const inicioPag = Math.max(1, pageAtual - 2);
+  const fimPag = Math.min(totalPages, pageAtual + 2);
+
+  function encode(v) {
+    return encodeURIComponent(String(v || ""));
+  }
+
+  function buildQuery(pageValue) {
+    const q = [];
+    if (filtrosAtuais.busca) q.push(`busca=${encode(filtrosAtuais.busca)}`);
+    if (filtrosAtuais.status && filtrosAtuais.status !== "todos") q.push(`status=${encode(filtrosAtuais.status)}`);
+    if (String(filtrosAtuais.ativo || "") !== "") q.push(`ativo=${encode(filtrosAtuais.ativo)}`);
+    if (filtrosAtuais.limit) q.push(`limit=${encode(filtrosAtuais.limit)}`);
+    if (Number(pageValue || 1) > 1) q.push(`page=${encode(pageValue)}`);
+    return q.join("&");
+  }
+
+  function pageHref(pageValue) {
+    const query = buildQuery(pageValue);
+    return query ? `${basePath}?${query}` : basePath;
+  }
+
+  const currentQuery = buildQuery(pageAtual);
+  const returnTo = currentQuery ? `${basePath}?${currentQuery}` : basePath;
+%>
+
+<section class="acessos-page">
+  <header class="acessos-head module-card">
+    <div>
+      <h2><%= sectionTitle %></h2>
+      <p><%= subtitle %></p>
+    </div>
+    <div class="badge-soft"><%= paginacao?.totalDocs || 0 %> cadastro(s)</div>
+  </header>
+
+  <% if (errorMessage && errorMessage.length) { %>
+    <div class="conta-error"><%= errorMessage[0] %></div>
+  <% } %>
+
+  <% if (successMessage && successMessage.length) { %>
+    <div class="conta-success"><%= successMessage[0] %></div>
+  <% } %>
+
+  <section class="acessos-kpis">
+    <article class="module-card">
+      <small>Total</small>
+      <strong><%= resumo?.total || 0 %></strong>
+    </article>
+    <article class="module-card">
+      <small>Pendentes</small>
+      <strong><%= resumo?.pendentes || 0 %></strong>
+    </article>
+    <article class="module-card">
+      <small>Aprovados</small>
+      <strong><%= resumo?.aprovados || 0 %></strong>
+    </article>
+    <article class="module-card">
+      <small>Acesso ativo</small>
+      <strong><%= resumo?.ativos || 0 %></strong>
+    </article>
+  </section>
+
+  <section class="module-card">
+    <form method="get" action="<%= basePath %>" class="acessos-filtros">
+      <label class="field-wrap">
+        <span class="input-label">Busca</span>
+        <input class="input-control" type="text" name="busca" value="<%= filtrosAtuais.busca || '' %>" placeholder="Nome, email, telefone ou CPF" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Aprovacao</span>
+        <select class="input-control" name="status">
+          <option value="todos" <%= filtrosAtuais.status === "todos" ? "selected" : "" %>>Todos</option>
+          <option value="pendente" <%= filtrosAtuais.status === "pendente" ? "selected" : "" %>>Pendente</option>
+          <option value="aprovado" <%= filtrosAtuais.status === "aprovado" ? "selected" : "" %>>Aprovado</option>
+          <option value="rejeitado" <%= filtrosAtuais.status === "rejeitado" ? "selected" : "" %>>Rejeitado</option>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Acesso</span>
+        <select class="input-control" name="ativo">
+          <option value="" <%= String(filtrosAtuais.ativo || "") === "" ? "selected" : "" %>>Todos</option>
+          <option value="true" <%= String(filtrosAtuais.ativo || "") === "true" ? "selected" : "" %>>Ativo</option>
+          <option value="false" <%= String(filtrosAtuais.ativo || "") === "false" ? "selected" : "" %>>Inativo</option>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Limite</span>
+        <select class="input-control" name="limit">
+          <% (filtrosAtuais.limitOptions || [10, 20, 50, 100]).forEach((n) => { %>
+            <option value="<%= n %>" <%= Number(filtrosAtuais.limit || 20) === Number(n) ? "selected" : "" %>><%= n %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <div class="acessos-filtros-actions">
+        <button class="btn btn-primary" type="submit">Aplicar</button>
+        <a href="<%= basePath %>" class="btn btn-muted">Limpar</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="module-card">
+    <div class="table-wrap">
+      <table class="data-table acessos-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Contato</th>
+            <th>CPF</th>
+            <th>Aprovacao</th>
+            <th>Acesso</th>
+            <th>Criado em</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!usuarios || !usuarios.length) { %>
+            <tr>
+              <td colspan="7">Nenhum cadastro encontrado com os filtros atuais.</td>
+            </tr>
+          <% } else { %>
+            <% usuarios.forEach((item) => { %>
+              <tr>
+                <td>
+                  <strong><%= item.nome || "-" %></strong>
+                  <% if (item.motivoAprovacao) { %>
+                    <div class="acesso-row-hint">Motivo: <%= item.motivoAprovacao %></div>
+                  <% } %>
+                </td>
+                <td>
+                  <div><%= item.email || "-" %></div>
+                  <small><%= item.telefone || "-" %></small>
+                </td>
+                <td><%= item.cpf || "-" %></td>
+                <td><span class="status-badge <%= item.statusAprovacaoClass %>"><%= item.statusAprovacaoLabel %></span></td>
+                <td>
+                  <% if (item.ativo) { %>
+                    <span class="status-badge status-active">Ativo</span>
+                  <% } else { %>
+                    <span class="status-badge status-inactive">Inativo</span>
+                  <% } %>
+                </td>
+                <td><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
+                <td>
+                  <% if (isAdmin) { %>
+                    <div class="acesso-actions">
+                      <% if (item.statusAprovacaoNormalized !== "aprovado") { %>
+                        <form method="post" action="/acessos/<%= item._id %>/aprovar">
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <button class="btn btn-primary btn-xxs" type="submit">Aprovar</button>
+                        </form>
+                      <% } %>
+
+                      <% if (item.tipoCadastro === "familia" && item.statusAprovacaoNormalized !== "aprovado") { %>
+                        <form method="post" action="/acessos/<%= item._id %>/aprovar">
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <input type="hidden" name="ativo" value="true" />
+                          <button class="btn btn-muted btn-xxs" type="submit">Aprovar + Ativar</button>
+                        </form>
+                      <% } %>
+
+                      <% if (item.statusAprovacaoNormalized !== "rejeitado") { %>
+                        <form method="post" action="/acessos/<%= item._id %>/rejeitar">
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <button class="btn btn-muted btn-xxs" type="submit">Rejeitar</button>
+                        </form>
+                      <% } %>
+
+                      <% if (item.statusAprovacaoNormalized === "aprovado") { %>
+                        <form method="post" action="/acessos/<%= item._id %>/status">
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <input type="hidden" name="ativo" value="<%= item.ativo ? 'false' : 'true' %>" />
+                          <button class="btn btn-muted btn-xxs" type="submit"><%= item.ativo ? "Inativar Acesso" : "Ativar Acesso" %></button>
+                        </form>
+                      <% } %>
+                    </div>
+                  <% } else { %>
+                    <small>-</small>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <% if (totalPages > 1) { %>
+    <nav class="acessos-pagination">
+      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasPrevPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasPrevPage ? pageHref(paginacao.prevPage) : '#' %>">Anterior</a>
+      <% for (let p = inicioPag; p <= fimPag; p += 1) { %>
+        <a class="btn btn-xxs <%= p === pageAtual ? 'btn-primary' : 'btn-muted' %>" href="<%= pageHref(p) %>"><%= p %></a>
+      <% } %>
+      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Proxima</a>
+    </nav>
+  <% } %>
+</section>

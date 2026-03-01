@@ -15,8 +15,14 @@
       </div>
     <% } %>
 
+    <% if (successMessage && successMessage.length) { %>
+      <div class="auth-success">
+        <%= successMessage[0] %>
+      </div>
+    <% } %>
+
     <form method="post" action="/auth/login" autocomplete="off" class="form-stack">
-      <label for="email" class="input-label">Usuario ou Email</label>
+      <label for="email" class="input-label">CPF, Usuario ou Email</label>
       <div class="field-icon-wrap">
         <i class="fa-regular fa-user field-icon"></i>
         <input
@@ -24,7 +30,7 @@
           id="email"
           name="email"
           type="text"
-          placeholder="Digite seu usuario ou e-mail"
+          placeholder="Digite CPF, usuario ou e-mail"
           required
         />
       </div>
@@ -43,14 +49,22 @@
           placeholder="********"
           required
         />
-        <i class="fa-regular fa-eye-slash field-icon-right"></i>
+        <button
+          class="field-icon-toggle"
+          type="button"
+          data-password-toggle="senha"
+          aria-label="Mostrar senha"
+          aria-pressed="false"
+        >
+          <i class="fa-regular fa-eye-slash field-icon-right" data-password-icon></i>
+        </button>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block">
         Entrar
       </button>
 
-      <a href="#" class="create-link">Criar Conta</a>
+      <a href="/cadastro" class="create-link">Criar Conta</a>
     </form>
   </div>
 </section>

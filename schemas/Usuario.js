@@ -31,6 +31,37 @@ const UsuarioSchema = new mongoose.Schema(
       default: PERFIS.ATENDENTE,
     },
 
+    tipoCadastro: {
+      type: String,
+      enum: ["voluntario", "familia"],
+      default: "voluntario",
+    },
+
+    statusAprovacao: {
+      type: String,
+      enum: ["pendente", "aprovado", "rejeitado"],
+      default: "pendente",
+      index: true,
+    },
+
+    aprovadoEm: {
+      type: Date,
+      default: null,
+    },
+
+    aprovadoPor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      default: null,
+    },
+
+    motivoAprovacao: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 500,
+    },
+
     ativo: {
       type: Boolean,
       default: true,
