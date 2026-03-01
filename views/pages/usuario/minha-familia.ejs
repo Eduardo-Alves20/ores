@@ -1,0 +1,208 @@
+<section class="usuario-familia-layout">
+  <header class="usuario-familia-head module-card">
+    <div>
+      <h2>Minha Familia</h2>
+      <p>Visualizacao dos atendimentos da sua familia na ONG.</p>
+    </div>
+    <a href="/meus-dados" class="btn btn-muted">Meus Dados</a>
+  </header>
+
+  <section class="usuario-familia-kpis">
+    <article class="module-card">
+      <h3>Total de atendimentos</h3>
+      <strong><%= Number(totais?.total || 0).toLocaleString("pt-BR") %></strong>
+    </article>
+    <article class="module-card">
+      <h3>Atendimentos ativos</h3>
+      <strong><%= Number(totais?.ativos || 0).toLocaleString("pt-BR") %></strong>
+    </article>
+    <article class="module-card">
+      <h3>Atendimentos inativos</h3>
+      <strong><%= Number(totais?.inativos || 0).toLocaleString("pt-BR") %></strong>
+    </article>
+  </section>
+
+  <% if (!isFamilia) { %>
+    <section class="module-card usuario-familia-empty">
+      <h3>Perfil sem vinculo familiar</h3>
+      <p>Seu tipo de cadastro atual e <strong><%= tipoCadastroLabel || "-" %></strong>. Esta tela e destinada a usuarios familiares.</p>
+    </section>
+  <% } else if (!familia) { %>
+    <section class="module-card usuario-familia-empty">
+      <h3>Familia nao vinculada</h3>
+      <p>Nao encontramos uma familia associada ao seu cadastro. Fale com o administrador para concluir o vinculo.</p>
+    </section>
+  <% } else { %>
+    <section class="module-card usuario-familia-resumo">
+      <h3>Dados da familia</h3>
+      <div class="usuario-familia-grid">
+        <p><strong>Responsavel:</strong> <%= familia?.responsavel?.nome || "-" %></p>
+        <p><strong>Telefone:</strong> <%= familia?.responsavel?.telefone || "-" %></p>
+        <p><strong>Email:</strong> <%= familia?.responsavel?.email || "-" %></p>
+        <p>
+          <strong>Endereco:</strong>
+          <%= [familia?.endereco?.rua, familia?.endereco?.numero, familia?.endereco?.bairro, familia?.endereco?.cidade, familia?.endereco?.estado].filter(Boolean).join(", ") || "-" %>
+        </p>
+      </div>
+    </section>
+
+    <section class="module-card usuario-familia-historico">
+      <header class="usuario-familia-historico-head">
+        <h3>Historico de atendimentos</h3>
+        <span class="badge-soft"><%= cards?.length || 0 %> registro(s)</span>
+      </header>
+
+      <form class="usuario-familia-filtros module-card" method="get" action="/minha-familia">
+        <label class="field-wrap filtro-item">
+          <span class="input-label">Busca</span>
+          <input
+            class="input-control"
+            type="text"
+            name="busca"
+            value="<%= filtros?.busca || '' %>"
+            placeholder="Resumo, proximos passos, tipo ou dependente"
+          />
+        </label>
+
+        <label class="field-wrap filtro-item">
+          <span class="input-label">Tipo</span>
+          <select class="input-control" name="tipo">
+            <option value="todos" <%= filtros?.tipo === "todos" ? "selected" : "" %>>Todos</option>
+            <% (filtros?.tiposOptions || []).forEach((tipo) => { %>
+              <option value="<%= tipo.value %>" <%= filtros?.tipo === tipo.value ? "selected" : "" %>><%= tipo.label %></option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="field-wrap filtro-item">
+          <span class="input-label">Status</span>
+          <select class="input-control" name="status">
+            <option value="todos" <%= filtros?.status === "todos" ? "selected" : "" %>>Todos</option>
+            <option value="ativo" <%= filtros?.status === "ativo" ? "selected" : "" %>>Ativo</option>
+            <option value="inativo" <%= filtros?.status === "inativo" ? "selected" : "" %>>Inativo</option>
+          </select>
+        </label>
+
+        <label class="field-wrap filtro-item">
+          <span class="input-label">Data inicial</span>
+          <input class="input-control" type="date" name="dataInicio" value="<%= filtros?.dataInicio || '' %>" />
+        </label>
+
+        <label class="field-wrap filtro-item">
+          <span class="input-label">Data final</span>
+          <input class="input-control" type="date" name="dataFim" value="<%= filtros?.dataFim || '' %>" />
+        </label>
+
+        <label class="field-wrap filtro-item">
+          <span class="input-label">Limite</span>
+          <select class="input-control" name="limit">
+            <% (filtros?.limitOptions || [9, 12, 18, 30, 60]).forEach((n) => { %>
+              <option value="<%= n %>" <%= Number(filtros?.limit || 18) === Number(n) ? "selected" : "" %>><%= n %></option>
+            <% }) %>
+          </select>
+        </label>
+
+        <div class="filtro-actions">
+          <button class="btn btn-primary" type="submit">Aplicar</button>
+          <a href="/minha-familia" class="btn btn-muted">Limpar</a>
+        </div>
+      </form>
+
+      <% if (!cards || !cards.length) { %>
+        <p class="empty-hint">Nenhum atendimento encontrado com os filtros selecionados.</p>
+      <% } else { %>
+        <div class="consulta-mes-nav" data-consulta-mes-nav>
+          <button type="button" class="btn btn-muted btn-icon-sm" data-consulta-mes-prev aria-label="Mes anterior"><</button>
+          <div class="consulta-mes-nav-info">
+            <strong data-consulta-mes-label><%= (cardsPorMes && cardsPorMes[0] && cardsPorMes[0].label) || "-" %></strong>
+            <span data-consulta-mes-count>1 / <%= cardsPorMes?.length || 1 %></span>
+          </div>
+          <div class="consulta-mes-picker">
+            <label class="field-wrap">
+              <span class="input-label">Ano</span>
+              <select class="input-control" data-consulta-ano-select></select>
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Mes</span>
+              <select class="input-control" data-consulta-mes-select></select>
+            </label>
+          </div>
+          <button type="button" class="btn btn-muted btn-icon-sm" data-consulta-mes-next aria-label="Proximo mes">></button>
+        </div>
+
+        <div class="consulta-meses-list">
+          <% (cardsPorMes || []).forEach((mes, idx) => { %>
+            <section class="consulta-mes-group" data-mes-key="<%= mes.key %>" data-mes-label="<%= mes.label %>" <%= idx === 0 ? "" : "hidden" %>>
+              <header class="consulta-mes-head">
+                <h4><%= mes.label %></h4>
+                <span class="badge-soft"><%= mes.cards?.length || 0 %> consulta(s)</span>
+              </header>
+
+              <div class="consulta-cards-list">
+                <% (mes.cards || []).forEach((item) => { %>
+                  <article
+                    class="consulta-card consulta-card-clickable"
+                    data-consulta-id="<%= item.id %>"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Abrir detalhes da consulta de <%= item.diaLabel %>"
+                  >
+                    <header class="consulta-card-head">
+                      <h4 class="consulta-card-title">Consulta <%= item.tipoLabel %></h4>
+                      <span class="consulta-card-mark"></span>
+                    </header>
+                    <div class="consulta-card-body">
+                      <p class="consulta-label">Data da consulta</p>
+                      <p class="consulta-value consulta-value-primary"><%= item.dataHoraLabel %></p>
+
+                      <p class="consulta-label">Dependente</p>
+                      <p class="consulta-value consulta-value-success"><%= item.dependenteNome %></p>
+
+                      <hr class="consulta-divider" />
+
+                      <p class="consulta-meta is-resumo"><strong>Resumo:</strong> <%= item.resumo %></p>
+                      <p class="consulta-meta is-passos"><strong>Proximos passos:</strong> <%= item.proximosPassos %></p>
+
+                      <div class="consulta-card-status-row">
+                        <span class="consulta-label">Status</span>
+                        <span class="status-badge <%= item.ativo ? 'status-active' : 'status-inactive' %>"><%= item.statusLabel %></span>
+                      </div>
+                    </div>
+                  </article>
+                <% }) %>
+              </div>
+            </section>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <div class="usuario-consulta-modal-backdrop" id="usuario-consulta-modal-backdrop" hidden>
+      <section
+        class="usuario-consulta-modal card-elevated"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="usuario-consulta-modal-title"
+      >
+        <header class="usuario-consulta-modal-head">
+          <h3 id="usuario-consulta-modal-title">Detalhes da Consulta</h3>
+          <button type="button" class="btn btn-muted btn-icon-sm" id="usuario-consulta-modal-close" aria-label="Fechar">x</button>
+        </header>
+
+        <div class="usuario-consulta-modal-content">
+          <p><strong>Tipo:</strong> <span id="usuario-consulta-tipo">-</span></p>
+          <p><strong>Data:</strong> <span id="usuario-consulta-data">-</span></p>
+          <p><strong>Dependente:</strong> <span id="usuario-consulta-dependente">-</span></p>
+          <p><strong>Status:</strong> <span id="usuario-consulta-status">-</span></p>
+          <hr class="consulta-divider" />
+          <p><strong>Resumo:</strong></p>
+          <p class="usuario-consulta-modal-text" id="usuario-consulta-resumo">-</p>
+          <p><strong>Proximos passos:</strong></p>
+          <p class="usuario-consulta-modal-text" id="usuario-consulta-passos">-</p>
+        </div>
+      </section>
+    </div>
+
+    <script id="usuario-familia-consultas-data" type="application/json"><%- JSON.stringify(cards || []).replace(/</g, "\\u003c") %></script>
+  <% } %>
+</section>
