@@ -24,6 +24,7 @@
   const monthNextBtn = root.querySelector("[data-consulta-mes-next]");
   const yearSelect = root.querySelector("[data-consulta-ano-select]");
   const monthSelect = root.querySelector("[data-consulta-mes-select]");
+  const monthCards = Array.from(root.querySelectorAll("[data-consulta-month-card][data-mes-key]"));
 
   const modalBackdrop = document.getElementById("usuario-consulta-modal-backdrop");
   const modalCloseBtn = document.getElementById("usuario-consulta-modal-close");
@@ -116,6 +117,12 @@
       const label = current?.getAttribute("data-mes-label") || "-";
       const currentKey = String(current?.getAttribute("data-mes-key") || "");
       const parsedCurrent = parseMonthKey(currentKey);
+
+      monthCards.forEach((card) => {
+        const key = String(card.getAttribute("data-mes-key") || "");
+        card.classList.toggle("is-active", key === currentKey);
+      });
+
       setText(monthLabelEl, label);
       setText(monthCountEl, `${monthIndex + 1} / ${totalMonths}`);
 
@@ -146,6 +153,14 @@
         renderMonth();
       });
     }
+
+    monthCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const key = String(card.getAttribute("data-mes-key") || "");
+        if (!key) return;
+        goToMonthKey(key);
+      });
+    });
 
     if (yearSelect) {
       yearSelect.addEventListener("change", () => {

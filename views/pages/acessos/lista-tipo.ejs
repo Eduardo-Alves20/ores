@@ -148,74 +148,88 @@
                   <% } %>
                 </td>
                 <td><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
-                <td>
+                <td class="acessos-actions-col">
                   <% if (isAdmin) { %>
-                    <div class="acesso-actions">
-                      <% if (item.statusAprovacaoNormalized !== "aprovado") { %>
-                        <form
-                          method="post"
-                          action="/acessos/<%= item._id %>/aprovar"
-                          data-confirm="true"
-                          data-confirm-title="Aprovar cadastro?"
-                          data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
-                          data-confirm-icon="question"
-                          data-confirm-confirm="Aprovar"
-                          data-confirm-cancel="Cancelar"
-                        >
-                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <button class="btn btn-muted btn-xxs" type="submit">Aprovar</button>
-                        </form>
-                      <% } %>
+                    <div class="actions-menu acesso-actions-menu" data-actions-menu>
+                      <button
+                        class="actions-menu-trigger"
+                        type="button"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        data-action="menu-toggle"
+                        title="Abrir acoes"
+                      >
+                        <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+                        <span class="sr-only">Abrir acoes</span>
+                      </button>
 
-                      <% if (item.tipoCadastro === "familia" && item.statusAprovacaoNormalized !== "aprovado") { %>
-                        <form
-                          method="post"
-                          action="/acessos/<%= item._id %>/aprovar"
-                          data-confirm="true"
-                          data-confirm-title="Aprovar e ativar acesso?"
-                          data-confirm-text="Deseja aprovar e ativar o acesso de <%= item.nome || 'usuario' %>?"
-                          data-confirm-icon="question"
-                          data-confirm-confirm="Aprovar e ativar"
-                          data-confirm-cancel="Cancelar"
-                        >
-                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <input type="hidden" name="ativo" value="true" />
-                          <button class="btn btn-muted btn-xxs" type="submit">Aprovar + Ativar</button>
-                        </form>
-                      <% } %>
+                      <div class="actions-menu-dropdown" role="menu">
+                        <% if (item.statusAprovacaoNormalized !== "aprovado") { %>
+                          <form
+                            method="post"
+                            action="/acessos/<%= item._id %>/aprovar"
+                            data-confirm="true"
+                            data-confirm-title="Aprovar cadastro?"
+                            data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
+                            data-confirm-icon="question"
+                            data-confirm-confirm="Aprovar"
+                            data-confirm-cancel="Cancelar"
+                          >
+                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                            <button class="actions-menu-item" type="submit">Aprovar</button>
+                          </form>
+                        <% } %>
 
-                      <% if (item.statusAprovacaoNormalized !== "rejeitado") { %>
-                        <form
-                          method="post"
-                          action="/acessos/<%= item._id %>/rejeitar"
-                          data-confirm="true"
-                          data-confirm-title="Rejeitar cadastro?"
-                          data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
-                          data-confirm-icon="warning"
-                          data-confirm-confirm="Rejeitar"
-                          data-confirm-cancel="Cancelar"
-                        >
-                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <button class="btn btn-muted btn-xxs" type="submit">Rejeitar</button>
-                        </form>
-                      <% } %>
+                        <% if (item.tipoCadastro === "familia" && item.statusAprovacaoNormalized !== "aprovado") { %>
+                          <form
+                            method="post"
+                            action="/acessos/<%= item._id %>/aprovar"
+                            data-confirm="true"
+                            data-confirm-title="Aprovar e ativar acesso?"
+                            data-confirm-text="Deseja aprovar e ativar o acesso de <%= item.nome || 'usuario' %>?"
+                            data-confirm-icon="question"
+                            data-confirm-confirm="Aprovar e ativar"
+                            data-confirm-cancel="Cancelar"
+                          >
+                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                            <input type="hidden" name="ativo" value="true" />
+                            <button class="actions-menu-item" type="submit">Aprovar + Ativar</button>
+                          </form>
+                        <% } %>
 
-                      <% if (item.statusAprovacaoNormalized === "aprovado") { %>
-                        <form
-                          method="post"
-                          action="/acessos/<%= item._id %>/status"
-                          data-confirm="true"
-                          data-confirm-title="<%= item.ativo ? 'Inativar acesso?' : 'Ativar acesso?' %>"
-                          data-confirm-text="<%= item.ativo ? ('Deseja inativar o acesso de ' + (item.nome || 'usuario') + '?') : ('Deseja ativar o acesso de ' + (item.nome || 'usuario') + '?') %>"
-                          data-confirm-icon="warning"
-                          data-confirm-confirm="<%= item.ativo ? 'Inativar' : 'Ativar' %>"
-                          data-confirm-cancel="Cancelar"
-                        >
-                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <input type="hidden" name="ativo" value="<%= item.ativo ? 'false' : 'true' %>" />
-                          <button class="btn btn-muted btn-xxs" type="submit"><%= item.ativo ? "Inativar Acesso" : "Ativar Acesso" %></button>
-                        </form>
-                      <% } %>
+                        <% if (item.statusAprovacaoNormalized !== "rejeitado") { %>
+                          <form
+                            method="post"
+                            action="/acessos/<%= item._id %>/rejeitar"
+                            data-confirm="true"
+                            data-confirm-title="Rejeitar cadastro?"
+                            data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
+                            data-confirm-icon="warning"
+                            data-confirm-confirm="Rejeitar"
+                            data-confirm-cancel="Cancelar"
+                          >
+                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                            <button class="actions-menu-item actions-menu-item-warn" type="submit">Rejeitar</button>
+                          </form>
+                        <% } %>
+
+                        <% if (item.statusAprovacaoNormalized === "aprovado") { %>
+                          <form
+                            method="post"
+                            action="/acessos/<%= item._id %>/status"
+                            data-confirm="true"
+                            data-confirm-title="<%= item.ativo ? 'Inativar acesso?' : 'Ativar acesso?' %>"
+                            data-confirm-text="<%= item.ativo ? ('Deseja inativar o acesso de ' + (item.nome || 'usuario') + '?') : ('Deseja ativar o acesso de ' + (item.nome || 'usuario') + '?') %>"
+                            data-confirm-icon="warning"
+                            data-confirm-confirm="<%= item.ativo ? 'Inativar' : 'Ativar' %>"
+                            data-confirm-cancel="Cancelar"
+                          >
+                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                            <input type="hidden" name="ativo" value="<%= item.ativo ? 'false' : 'true' %>" />
+                            <button class="actions-menu-item" type="submit"><%= item.ativo ? "Inativar Acesso" : "Ativar Acesso" %></button>
+                          </form>
+                        <% } %>
+                      </div>
                     </div>
                   <% } else { %>
                     <small>-</small>

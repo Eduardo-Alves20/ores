@@ -198,7 +198,7 @@
               <td data-label="Acoes">
                 <div class="actions-menu" data-no-row-nav>
                   <button class="actions-menu-trigger" type="button" aria-haspopup="true" aria-expanded="false" data-action="menu-toggle" title="Abrir acoes">
-                    <span aria-hidden="true">...</span>
+                    <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
                     <span class="sr-only">Abrir acoes</span>
                   </button>
                   <div class="actions-menu-dropdown" role="menu">

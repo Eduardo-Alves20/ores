@@ -130,6 +130,30 @@
           <button type="button" class="btn btn-muted btn-icon-sm" data-consulta-mes-next aria-label="Proximo mes">></button>
         </div>
 
+        <div class="consulta-calendar-grid" data-consulta-calendar-grid>
+          <% (cardsPorMes || []).forEach((mes, idx) => { %>
+            <% const totalMes = Number(mes?.cards?.length || 0); %>
+            <% const ativosMes = Number((mes?.cards || []).filter((item) => !!item?.ativo).length); %>
+            <% const inativosMes = Math.max(totalMes - ativosMes, 0); %>
+            <% const progressoMes = `${ativosMes}/${totalMes}`; %>
+            <% const statusToken = totalMes === 0 ? "is-bad" : (ativosMes === totalMes ? "is-ok" : (ativosMes > 0 ? "is-warn" : "is-bad")); %>
+            <button
+              type="button"
+              class="consulta-calendar-card <%= idx === 0 ? 'is-active' : '' %>"
+              data-consulta-month-card
+              data-mes-key="<%= mes.key %>"
+              aria-label="Abrir consultas de <%= mes.label %>"
+            >
+              <span class="consulta-calendar-label"><%= mes.label %></span>
+              <span class="consulta-calendar-pill"><%= progressoMes %></span>
+              <span class="consulta-calendar-meta">
+                <span class="consulta-calendar-dot <%= statusToken %>" aria-hidden="true"></span>
+                <span><%= totalMes %> consulta(s) - <%= inativosMes %> inativa(s)</span>
+              </span>
+            </button>
+          <% }) %>
+        </div>
+
         <div class="consulta-meses-list">
           <% (cardsPorMes || []).forEach((mes, idx) => { %>
             <section class="consulta-mes-group" data-mes-key="<%= mes.key %>" data-mes-label="<%= mes.label %>" <%= idx === 0 ? "" : "hidden" %>>

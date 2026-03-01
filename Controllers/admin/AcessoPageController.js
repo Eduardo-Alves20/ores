@@ -80,6 +80,7 @@ function buildPageBase({ title, sectionTitle, navKey }) {
     layout: "partials/app.ejs",
     pageClass: "page-acessos",
     extraCss: ["/css/acessos.css"],
+    extraJs: ["/js/acessos.js"],
   };
 }
 

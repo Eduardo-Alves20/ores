@@ -168,6 +168,89 @@
   font-size: 0.78rem;
 }
 
+.page-usuario-minha-familia .consulta-calendar-grid {
+  margin: 0 0 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.page-usuario-minha-familia .consulta-calendar-card {
+  border: 1px solid #dfd3cc;
+  border-radius: 14px;
+  background: #fff;
+  min-height: 108px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.page-usuario-minha-familia .consulta-calendar-card:hover,
+.page-usuario-minha-familia .consulta-calendar-card:focus {
+  transform: translateY(-1px);
+  border-color: #cfa899;
+  box-shadow: 0 8px 18px rgba(93, 54, 41, 0.12);
+  outline: none;
+}
+
+.page-usuario-minha-familia .consulta-calendar-card.is-active {
+  border-color: #b77661;
+  box-shadow: 0 0 0 2px rgba(178, 74, 50, 0.14), 0 10px 20px rgba(93, 54, 41, 0.14);
+}
+
+.page-usuario-minha-familia .consulta-calendar-label {
+  display: block;
+  color: #6e5349;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.page-usuario-minha-familia .consulta-calendar-pill {
+  width: fit-content;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-strong) 100%);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  padding: 10px 16px;
+}
+
+.page-usuario-minha-familia .consulta-calendar-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #7f726b;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.page-usuario-minha-familia .consulta-calendar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #d2c6bf;
+}
+
+.page-usuario-minha-familia .consulta-calendar-dot.is-ok {
+  background: var(--success);
+}
+
+.page-usuario-minha-familia .consulta-calendar-dot.is-warn {
+  background: var(--warning);
+}
+
+.page-usuario-minha-familia .consulta-calendar-dot.is-bad {
+  background: #e05b4b;
+}
+
 .page-usuario-minha-familia .consulta-meses-list {
   display: grid;
   gap: 10px;
@@ -398,6 +481,10 @@ body.usuario-consulta-modal-open {
   .page-usuario-minha-familia .consulta-cards-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .page-usuario-minha-familia .consulta-calendar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -429,5 +516,9 @@ body.usuario-consulta-modal-open {
     grid-column: 1 / -1;
     grid-template-columns: 1fr 1fr;
     width: 100%;
+  }
+
+  .page-usuario-minha-familia .consulta-calendar-grid {
+    grid-template-columns: 1fr;
   }
 }
