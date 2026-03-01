@@ -1,0 +1,220 @@
+<%
+  const editando = !!roleEmEdicao;
+  const roleEdicaoId = String(roleEmEdicao?._id || "");
+  const permissoesEdicao = new Set((roleEmEdicao?.permissoes || []).map((p) => String(p || "")));
+  const returnTo = filtros?.userBusca
+    ? `/seguranca/funcoes?userBusca=${encodeURIComponent(String(filtros.userBusca || ""))}`
+    : "/seguranca/funcoes";
+  const rolesAtivas = (roles || []).filter((item) => item?.ativo);
+%>
+
+<section class="seguranca-page">
+  <header class="seguranca-head module-card">
+    <div>
+      <h2>Seguranca de Acesso</h2>
+      <p>Painel do SuperAdmin para criar funcoes, definir permissoes e atribuir acessos por usuario.</p>
+    </div>
+    <span class="badge-soft"><%= Number(roles?.length || 0).toLocaleString("pt-BR") %> funcao(oes)</span>
+  </header>
+
+  <section class="module-card">
+    <header class="seguranca-section-head">
+      <h3><%= editando ? "Editar Funcao" : "Nova Funcao" %></h3>
+      <% if (editando) { %>
+        <a href="/seguranca/funcoes" class="btn btn-muted btn-xxs">Cancelar edicao</a>
+      <% } %>
+    </header>
+
+    <form class="seguranca-funcao-form" method="post" action="<%= editando ? (`/seguranca/funcoes/${roleEdicaoId}/update`) : '/seguranca/funcoes' %>">
+      <label class="field-wrap">
+        <span class="input-label">Nome da funcao *</span>
+        <input class="input-control" type="text" name="nome" maxlength="80" required value="<%= roleEmEdicao?.nome || '' %>" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Slug tecnico *</span>
+        <input class="input-control" type="text" name="slug" maxlength="90" placeholder="coordenacao-agenda" value="<%= roleEmEdicao?.slug || '' %>" />
+      </label>
+
+      <label class="field-wrap seguranca-form-full">
+        <span class="input-label">Descricao</span>
+        <textarea class="input-control textarea-control" name="descricao" rows="2" maxlength="400"><%= roleEmEdicao?.descricao || '' %></textarea>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Status</span>
+        <select class="input-control" name="ativo">
+          <option value="true" <%= roleEmEdicao?.ativo !== false ? "selected" : "" %>>Ativa</option>
+          <option value="false" <%= roleEmEdicao?.ativo === false ? "selected" : "" %>>Inativa</option>
+        </select>
+      </label>
+
+      <div class="seguranca-form-full">
+        <h4 class="seguranca-subtitle">Permissoes da funcao</h4>
+        <div class="seguranca-perm-groups">
+          <% (permissionGroups || []).forEach((group) => { %>
+            <fieldset class="seguranca-perm-group">
+              <legend><%= group.label %></legend>
+              <div class="seguranca-perm-list">
+                <% (group.permissions || []).forEach((perm) => { %>
+                  <label class="seguranca-perm-item">
+                    <input
+                      type="checkbox"
+                      name="permissoes"
+                      value="<%= perm.key %>"
+                      <%= permissoesEdicao.has(perm.key) ? "checked" : "" %>
+                    />
+                    <span><%= perm.label %></span>
+                    <small><%= perm.key %></small>
+                  </label>
+                <% }) %>
+              </div>
+            </fieldset>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="seguranca-form-actions">
+        <button class="btn btn-primary" type="submit"><%= editando ? "Salvar Funcao" : "Criar Funcao" %></button>
+      </div>
+    </form>
+  </section>
+
+  <section class="module-card">
+    <header class="seguranca-section-head">
+      <h3>Funcoes Cadastradas</h3>
+    </header>
+
+    <div class="table-wrap">
+      <table class="data-table acessos-table">
+        <thead>
+          <tr>
+            <th>Funcao</th>
+            <th>Permissoes</th>
+            <th>Status</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!roles || !roles.length) { %>
+            <tr>
+              <td colspan="4">Nenhuma funcao cadastrada.</td>
+            </tr>
+          <% } else { %>
+            <% roles.forEach((role) => { %>
+              <tr>
+                <td>
+                  <strong><%= role.nome || "-" %></strong>
+                  <div class="seguranca-hint"><%= role.slug || "-" %></div>
+                  <% if (role.descricao) { %>
+                    <div class="seguranca-hint"><%= role.descricao %></div>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="badge-soft"><%= Number(role.permissoes?.length || 0).toLocaleString("pt-BR") %> permissao(oes)</span>
+                </td>
+                <td>
+                  <span class="status-badge <%= role.ativo ? 'status-active' : 'status-inactive' %>"><%= role.ativo ? "Ativa" : "Inativa" %></span>
+                </td>
+                <td>
+                  <div class="acesso-actions">
+                    <a class="btn btn-muted btn-xxs" href="/seguranca/funcoes?editar=<%= role._id %>">Editar</a>
+                    <form method="post" action="/seguranca/funcoes/<%= role._id %>/status" data-confirm="true" data-confirm-title="<%= role.ativo ? 'Inativar funcao?' : 'Ativar funcao?' %>" data-confirm-text="<%= role.ativo ? 'Deseja inativar esta funcao?' : 'Deseja ativar esta funcao?' %>" data-confirm-icon="warning" data-confirm-confirm="<%= role.ativo ? 'Inativar' : 'Ativar' %>" data-confirm-cancel="Cancelar">
+                      <input type="hidden" name="returnTo" value="/seguranca/funcoes" />
+                      <input type="hidden" name="ativo" value="<%= role.ativo ? 'false' : 'true' %>" />
+                      <button class="btn btn-muted btn-xxs" type="submit"><%= role.ativo ? "Inativar" : "Ativar" %></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="module-card">
+    <header class="seguranca-section-head">
+      <h3>Atribuir Funcoes por Usuario</h3>
+    </header>
+
+    <form class="seguranca-user-filter" method="get" action="/seguranca/funcoes">
+      <label class="field-wrap">
+        <span class="input-label">Buscar usuario</span>
+        <input class="input-control" type="text" name="userBusca" value="<%= filtros?.userBusca || '' %>" placeholder="Nome, email ou login" />
+      </label>
+      <div class="filtro-actions">
+        <button class="btn btn-primary" type="submit">Filtrar</button>
+        <a href="/seguranca/funcoes" class="btn btn-muted">Limpar</a>
+      </div>
+    </form>
+
+    <div class="table-wrap">
+      <table class="data-table acessos-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Perfil</th>
+            <th>Funcoes atribuidas</th>
+            <th>Atribuir</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!usuarios || !usuarios.length) { %>
+            <tr>
+              <td colspan="4">Nenhum usuario encontrado.</td>
+            </tr>
+          <% } else { %>
+            <% usuarios.forEach((user) => { %>
+              <tr>
+                <td>
+                  <strong><%= user.nome || "-" %></strong>
+                  <div class="seguranca-hint"><%= user.email || "-" %></div>
+                  <div class="seguranca-hint">login: <%= user.login || "-" %></div>
+                </td>
+                <td>
+                  <span class="badge-soft"><%= user.perfil || "-" %></span>
+                </td>
+                <td>
+                  <% if (user.funcoesAcesso?.length) { %>
+                    <div class="seguranca-chip-list">
+                      <% user.funcoesAcesso.forEach((f) => { %>
+                        <span class="seguranca-chip <%= f.ativo === false ? 'is-off' : '' %>"><%= f.nome || "-" %></span>
+                      <% }) %>
+                    </div>
+                  <% } else { %>
+                    <span class="seguranca-hint">Sem funcao customizada (usa perfil padrao)</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (String(user.perfil || '').toLowerCase() === 'superadmin') { %>
+                    <span class="seguranca-hint">Nao editavel</span>
+                  <% } else { %>
+                    <form method="post" action="/seguranca/usuarios/<%= user._id %>/funcoes" class="seguranca-assign-form">
+                      <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                      <div class="seguranca-assign-list">
+                        <% rolesAtivas.forEach((role) => { %>
+                          <label class="seguranca-assign-item">
+                            <input
+                              type="checkbox"
+                              name="funcoes"
+                              value="<%= role._id %>"
+                              <%= (user.funcoesAcesso || []).some((f) => String(f._id || "") === String(role._id || "")) ? "checked" : "" %>
+                            />
+                            <span><%= role.nome %></span>
+                          </label>
+                        <% }) %>
+                      </div>
+                      <button class="btn btn-muted btn-xxs" type="submit">Salvar funcoes</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

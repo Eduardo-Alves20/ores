@@ -1,4 +1,4 @@
-const Usuario = require("../../schemas/Usuario");
+﻿const Usuario = require("../../schemas/core/Usuario");
 const { PERFIS } = require("../../config/roles");
 const {
   validarSenhaForte,
@@ -436,3 +436,4 @@ class UsuarioService {
 }
 
 module.exports = UsuarioService;
+

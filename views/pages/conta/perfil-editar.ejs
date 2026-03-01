@@ -3,8 +3,10 @@
     <div>
       <h2>Editar Perfil</h2>
       <p>
-        <% if (isAdmin) { %>
-          Como administrador, voce pode editar todos os campos.
+        <% if (isSuperAdmin) { %>
+          Como SuperAdmin, voce pode editar todos os campos.
+        <% } else if (isAdmin) { %>
+          Como administrador, voce pode editar campos operacionais da conta.
         <% } else { %>
           Voce pode editar apenas email e telefone.
         <% } %>
@@ -67,30 +69,47 @@
           <input class="input-control" type="text" name="cpf" value="<%= usuario?.cpf || '' %>" />
         </label>
 
-        <label class="field-wrap">
-          <span class="input-label">Perfil</span>
-          <select class="input-control" name="perfil" required>
-            <% perfisDisponiveis.forEach((perfil) => { %>
-              <option value="<%= perfil %>" <%= usuario?.perfil === perfil ? 'selected' : '' %>><%= perfil %></option>
-            <% }) %>
-          </select>
-        </label>
+        <% if (isSuperAdmin) { %>
+          <label class="field-wrap">
+            <span class="input-label">Perfil</span>
+            <select class="input-control" name="perfil" required>
+              <% perfisDisponiveis.forEach((perfil) => { %>
+                <option value="<%= perfil %>" <%= usuario?.perfil === perfil ? 'selected' : '' %>><%= perfil %></option>
+              <% }) %>
+            </select>
+          </label>
 
-        <label class="field-wrap">
-          <span class="input-label">Tipo de cadastro</span>
-          <select class="input-control" name="tipoCadastro" required>
-            <option value="voluntario" <%= usuario?.tipoCadastro !== 'familia' ? 'selected' : '' %>>voluntario</option>
-            <option value="familia" <%= usuario?.tipoCadastro === 'familia' ? 'selected' : '' %>>familia</option>
-          </select>
-        </label>
+          <label class="field-wrap">
+            <span class="input-label">Tipo de cadastro</span>
+            <select class="input-control" name="tipoCadastro" required>
+              <option value="voluntario" <%= usuario?.tipoCadastro !== 'familia' ? 'selected' : '' %>>voluntario</option>
+              <option value="familia" <%= usuario?.tipoCadastro === 'familia' ? 'selected' : '' %>>familia</option>
+            </select>
+          </label>
 
-        <label class="field-wrap">
-          <span class="input-label">Status da conta</span>
-          <select class="input-control" name="ativo" required>
-            <option value="true" <%= usuario?.ativo ? 'selected' : '' %>>ativo</option>
-            <option value="false" <%= !usuario?.ativo ? 'selected' : '' %>>inativo</option>
-          </select>
-        </label>
+          <label class="field-wrap">
+            <span class="input-label">Status da conta</span>
+            <select class="input-control" name="ativo" required>
+              <option value="true" <%= usuario?.ativo ? 'selected' : '' %>>ativo</option>
+              <option value="false" <%= !usuario?.ativo ? 'selected' : '' %>>inativo</option>
+            </select>
+          </label>
+        <% } else { %>
+          <label class="field-wrap">
+            <span class="input-label">Perfil</span>
+            <input class="input-control" type="text" value="<%= usuario?.perfil || '' %>" disabled />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Tipo de cadastro</span>
+            <input class="input-control" type="text" value="<%= usuario?.tipoCadastro || '' %>" disabled />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Status da conta</span>
+            <input class="input-control" type="text" value="<%= usuario?.ativo ? 'ativo' : 'inativo' %>" disabled />
+          </label>
+        <% } %>
       <% } else { %>
         <label class="field-wrap">
           <span class="input-label">Perfil</span>

@@ -78,8 +78,46 @@
 
 .acesso-actions {
   display: flex;
-  gap: 6px;
+  gap: 7px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.acesso-actions form {
+  margin: 0;
+}
+
+.acessos-table thead th:last-child {
+  text-align: center;
+}
+
+.acessos-table td:last-child {
+  width: 230px;
+  min-width: 230px;
+}
+
+.acesso-actions .btn,
+.acesso-actions .btn-xxs {
+  min-height: 28px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.71rem;
+  line-height: 1;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.acesso-actions .btn-primary,
+.acesso-actions .btn-muted {
+  color: #5d4f47;
+  border: 1px solid var(--line-strong);
+  background: #efe5df;
+}
+
+.acesso-actions .btn-primary:hover,
+.acesso-actions .btn-muted:hover {
+  background: #e6d7cf;
+  transform: none;
 }
 
 .btn-xxs {

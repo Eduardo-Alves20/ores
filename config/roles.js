@@ -1,4 +1,5 @@
 const PERFIS = Object.freeze({
+  SUPERADMIN: "superadmin",
   ADMIN: "admin",
   ATENDENTE: "atendente",
   TECNICO: "tecnico",

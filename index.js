@@ -10,7 +10,7 @@ const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const http = require("http");
 const { attachCurrentUser } = require("./middlewares/authSession");
-const { ensureAdminFromEnv } = require("./services/bootstrapAdminService");
+const { ensureAdminFromEnv, ensureSuperAdminFromEnv } = require("./services/bootstrapAdminService");
 
 const app = express();
 
@@ -248,6 +248,7 @@ function startServer() {
 (async () => {
   try {
     await connectDb();
+    await ensureSuperAdminFromEnv();
     await ensureAdminFromEnv();
     
     // rotas SEMPRE

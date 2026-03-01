@@ -1,7 +1,7 @@
-const Log = require('../../schemas/Log');
+﻿const Log = require('../../schemas/core/Log');
 const { decodeUser } = require('../decode');
 
-const tipos = ['Acesso', 'Erro', 'Ação'];
+const tipos = ['Acesso', 'Erro', 'AÃ§Ã£o'];
 
 async function saveAccessLog(user, req, modulo, mensagem) {
     try {
