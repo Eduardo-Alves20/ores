@@ -58,6 +58,7 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 10px;
+  position: relative;
 }
 
 .agenda-calendar-head h3 {
@@ -66,6 +67,55 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   font-size: 1.06rem;
+}
+
+.agenda-month-picker-wrap {
+  position: relative;
+}
+
+.agenda-month-picker-toggle {
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+}
+
+.agenda-month-picker-toggle i {
+  color: #8f4a35;
+  font-size: 0.84rem;
+  transition: transform 0.15s ease;
+}
+
+.agenda-month-picker-toggle[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+.agenda-month-picker-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 130;
+  width: min(320px, calc(100vw - 52px));
+  border: 1px solid #e3cec2;
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.agenda-month-picker-popover[hidden] {
+  display: none !important;
+}
+
+.agenda-month-picker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .agenda-calendar-actions {
@@ -486,6 +536,20 @@
 
   .agenda-calendar-actions .btn {
     flex: 1;
+  }
+
+  .agenda-month-picker-wrap {
+    width: 100%;
+  }
+
+  .agenda-month-picker-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .agenda-month-picker-popover {
+    width: 100%;
+    max-width: none;
   }
 
   .agenda-day-cell {

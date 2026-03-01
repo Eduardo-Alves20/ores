@@ -46,6 +46,7 @@ class AuthController {
       formData: {
         nome: String(req.query.nome || ""),
         email: String(req.query.email || ""),
+        login: String(req.query.login || ""),
         cpf: String(req.query.cpf || ""),
         telefone: String(req.query.telefone || ""),
         tipoCadastro: String(req.query.tipoCadastro || "voluntario"),
@@ -57,14 +58,15 @@ class AuthController {
     try {
       const nome = String(req.body?.nome || "").trim();
       const email = String(req.body?.email || "").trim();
+      const login = String(req.body?.login || "").trim();
       const cpf = String(req.body?.cpf || "").trim();
       const telefone = String(req.body?.telefone || "").trim();
       const tipoCadastro = String(req.body?.tipoCadastro || "voluntario").trim();
       const senha = String(req.body?.senha || "");
       const confirmarSenha = String(req.body?.confirmarSenha || "");
 
-      if (!nome || !email || !cpf || !senha || !confirmarSenha) {
-        throw Object.assign(new Error("Preencha os campos obrigatorios: nome, email, cpf, senha e confirmar senha."), {
+      if (!nome || !email || !login || !cpf || !senha || !confirmarSenha) {
+        throw Object.assign(new Error("Preencha os campos obrigatorios: nome, email, usuario, cpf, senha e confirmar senha."), {
           status: 400,
         });
       }
@@ -76,6 +78,7 @@ class AuthController {
       const novoUsuario = await UsuarioService.criar({
         nome,
         email,
+        login,
         cpf,
         telefone,
         tipoCadastro,
@@ -107,7 +110,7 @@ class AuthController {
     } catch (error) {
       const duplicate =
         error?.code === 11000
-          ? "Ja existe um usuario cadastrado com este email ou CPF."
+          ? "Ja existe um usuario cadastrado com este email, usuario ou CPF."
           : error?.message || "Falha ao realizar cadastro.";
 
       if (isHtmlRequest(req)) {
@@ -116,6 +119,7 @@ class AuthController {
         const nextQuery = new URLSearchParams({
           nome: String(req.body?.nome || ""),
           email: String(req.body?.email || ""),
+          login: String(req.body?.login || ""),
           cpf: String(req.body?.cpf || ""),
           telefone: String(req.body?.telefone || ""),
           tipoCadastro: String(req.body?.tipoCadastro || "voluntario"),

@@ -59,7 +59,38 @@
   }
 
   function showToast(message) {
+    if (typeof window.appNotifyError === "function") {
+      window.appNotifyError(message);
+      return;
+    }
     window.alert(message);
+  }
+
+  function showSuccess(message) {
+    const text = String(message || "").trim();
+    if (!text) return;
+    if (typeof window.appNotifySuccess === "function") {
+      window.appNotifySuccess(text);
+      return;
+    }
+  }
+
+  async function confirmAction(options = {}) {
+    const defaults = {
+      title: "Confirmar acao",
+      text: "Deseja continuar?",
+      icon: "question",
+      confirmButtonText: "Sim",
+      cancelButtonText: "Cancelar",
+    };
+
+    const payload = Object.assign({}, defaults, options);
+
+    if (typeof window.appConfirm === "function") {
+      return window.appConfirm(payload);
+    }
+
+    return window.confirm(payload.text || defaults.text);
   }
 
   function escapeHtml(value) {
@@ -270,14 +301,26 @@
         const id = button.getAttribute("data-id");
         const next = button.getAttribute("data-next");
         if (!id || typeof next === "undefined") return;
+        const nextAtivo = next === "true";
+
+        const ok = await confirmAction({
+          title: nextAtivo ? "Reativar familia?" : "Inativar familia?",
+          text: nextAtivo
+            ? "Deseja reativar esta familia?"
+            : "Deseja inativar esta familia? Essa acao pode impactar atendimentos.",
+          icon: "warning",
+          confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
+        });
+        if (!ok) return;
 
         try {
           button.disabled = true;
           await requestJson(`/api/familias/${id}/status`, {
             method: "PATCH",
-            body: { ativo: next === "true" },
+            body: { ativo: nextAtivo },
           });
           await load();
+          showSuccess("Status da familia atualizado com sucesso.");
         } catch (error) {
           showToast(error.message);
         } finally {
@@ -846,12 +889,23 @@
     statusBtn.addEventListener("click", async () => {
       if (!currentFamilia) return;
       const next = !currentFamilia.ativo;
+      const ok = await confirmAction({
+        title: next ? "Reativar familia?" : "Inativar familia?",
+        text: next
+          ? "Deseja reativar esta familia?"
+          : "Deseja inativar esta familia? Essa acao pode impactar atendimentos.",
+        icon: "warning",
+        confirmButtonText: next ? "Reativar" : "Inativar",
+      });
+      if (!ok) return;
+
       try {
         await requestJson(`/api/familias/${familiaId}/status`, {
           method: "PATCH",
           body: { ativo: next },
         });
         await loadDetail();
+        showSuccess("Status da familia atualizado com sucesso.");
       } catch (error) {
         showToast(error.message);
       }
@@ -860,12 +914,24 @@
     pacientesLista.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-type='paciente-status']");
       if (button) {
+        const nextAtivo = button.getAttribute("data-next") === "true";
+        const ok = await confirmAction({
+          title: nextAtivo ? "Reativar dependente?" : "Inativar dependente?",
+          text: nextAtivo
+            ? "Deseja reativar este dependente?"
+            : "Deseja inativar este dependente?",
+          icon: "warning",
+          confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
+        });
+        if (!ok) return;
+
         try {
           await requestJson(`/api/pacientes/${button.getAttribute("data-id")}/status`, {
             method: "PATCH",
-            body: { ativo: button.getAttribute("data-next") === "true" },
+            body: { ativo: nextAtivo },
           });
           await loadDetail();
+          showSuccess("Status do dependente atualizado com sucesso.");
         } catch (error) {
           showToast(error.message);
         }
@@ -890,12 +956,24 @@
     dependenteDetalhe.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-type='dependente-status']");
       if (!button) return;
+      const nextAtivo = button.getAttribute("data-next") === "true";
+      const ok = await confirmAction({
+        title: nextAtivo ? "Reativar dependente?" : "Inativar dependente?",
+        text: nextAtivo
+          ? "Deseja reativar este dependente?"
+          : "Deseja inativar este dependente?",
+        icon: "warning",
+        confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
+      });
+      if (!ok) return;
+
       try {
         await requestJson(`/api/pacientes/${button.getAttribute("data-id")}/status`, {
           method: "PATCH",
-          body: { ativo: button.getAttribute("data-next") === "true" },
+          body: { ativo: nextAtivo },
         });
         await loadDetail();
+        showSuccess("Status do dependente atualizado com sucesso.");
       } catch (error) {
         showToast(error.message);
       }
@@ -904,12 +982,24 @@
     atendimentosLista.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-type='atendimento-status']");
       if (button) {
+        const nextAtivo = button.getAttribute("data-next") === "true";
+        const ok = await confirmAction({
+          title: nextAtivo ? "Reativar atendimento?" : "Inativar atendimento?",
+          text: nextAtivo
+            ? "Deseja reativar este atendimento?"
+            : "Deseja inativar este atendimento?",
+          icon: "warning",
+          confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
+        });
+        if (!ok) return;
+
         try {
           await requestJson(`/api/atendimentos/${button.getAttribute("data-id")}/status`, {
             method: "PATCH",
-            body: { ativo: button.getAttribute("data-next") === "true" },
+            body: { ativo: nextAtivo },
           });
           await loadDetail();
+          showSuccess("Status do atendimento atualizado com sucesso.");
         } catch (error) {
           showToast(error.message);
         }
@@ -934,12 +1024,24 @@
     atendimentoDetalhe.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-type='atendimento-status']");
       if (!button) return;
+      const nextAtivo = button.getAttribute("data-next") === "true";
+      const ok = await confirmAction({
+        title: nextAtivo ? "Reativar atendimento?" : "Inativar atendimento?",
+        text: nextAtivo
+          ? "Deseja reativar este atendimento?"
+          : "Deseja inativar este atendimento?",
+        icon: "warning",
+        confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
+      });
+      if (!ok) return;
+
       try {
         await requestJson(`/api/atendimentos/${button.getAttribute("data-id")}/status`, {
           method: "PATCH",
-          body: { ativo: button.getAttribute("data-next") === "true" },
+          body: { ativo: nextAtivo },
         });
         await loadDetail();
+        showSuccess("Status do atendimento atualizado com sucesso.");
       } catch (error) {
         showToast(error.message);
       }

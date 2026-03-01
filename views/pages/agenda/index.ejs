@@ -16,7 +16,36 @@
   <section class="agenda-board card-elevated">
     <section class="agenda-calendar-panel">
       <header class="agenda-calendar-head">
-        <h3 id="agenda-mes-titulo">Calendário</h3>
+        <div class="agenda-month-picker-wrap" id="agenda-mes-picker-wrap">
+          <button
+            type="button"
+            class="agenda-month-picker-toggle"
+            id="agenda-mes-picker-toggle"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="agenda-mes-picker-popover"
+          >
+            <h3 id="agenda-mes-titulo">Calendario</h3>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+
+          <div class="agenda-month-picker-popover card-elevated" id="agenda-mes-picker-popover" hidden>
+            <label class="field-wrap">
+              <span class="input-label">Mes</span>
+              <select class="input-control" id="agenda-mes-picker-mes"></select>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Ano</span>
+              <select class="input-control" id="agenda-mes-picker-ano"></select>
+            </label>
+
+            <div class="agenda-month-picker-actions">
+              <button type="button" class="btn btn-muted" id="agenda-mes-picker-cancelar">Cancelar</button>
+              <button type="button" class="btn btn-primary" id="agenda-mes-picker-aplicar">Ir</button>
+            </div>
+          </div>
+        </div>
         <div class="agenda-calendar-actions">
           <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="Mês anterior">
             <i class="fa-solid fa-chevron-left"></i>
@@ -135,3 +164,4 @@
 </div>
 
 <script id="agenda-config" type="application/json"><%- JSON.stringify(agendaConfig || {}) %></script>
+

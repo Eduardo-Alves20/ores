@@ -37,7 +37,37 @@
   }
 
   function showToast(message) {
+    if (typeof window.appNotifyError === "function") {
+      window.appNotifyError(message);
+      return;
+    }
     window.alert(message);
+  }
+
+  function showSuccess(message) {
+    const text = String(message || "").trim();
+    if (!text) return;
+    if (typeof window.appNotifySuccess === "function") {
+      window.appNotifySuccess(text);
+      return;
+    }
+  }
+
+  async function confirmAction(options = {}) {
+    const defaults = {
+      title: "Confirmar acao",
+      text: "Deseja continuar?",
+      icon: "question",
+      confirmButtonText: "Sim",
+      cancelButtonText: "Cancelar",
+    };
+
+    const payload = Object.assign({}, defaults, options);
+    if (typeof window.appConfirm === "function") {
+      return window.appConfirm(payload);
+    }
+
+    return window.confirm(payload.text || defaults.text);
   }
 
   const DAY_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -133,6 +163,21 @@
     return labels[value] || value || "Outro";
   }
 
+  const MONTH_NAMES = [
+    "Janeiro",
+    "Fevereiro",
+    "Marco",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+
   const config = parseJsonScript("agenda-config", {});
   const user = config.user || {};
   const permissions = config.permissions || {};
@@ -140,6 +185,13 @@
 
   const elements = {
     mesTitulo: document.getElementById("agenda-mes-titulo"),
+    mesPickerWrap: document.getElementById("agenda-mes-picker-wrap"),
+    mesPickerToggle: document.getElementById("agenda-mes-picker-toggle"),
+    mesPickerPopover: document.getElementById("agenda-mes-picker-popover"),
+    mesPickerMes: document.getElementById("agenda-mes-picker-mes"),
+    mesPickerAno: document.getElementById("agenda-mes-picker-ano"),
+    mesPickerApply: document.getElementById("agenda-mes-picker-aplicar"),
+    mesPickerCancel: document.getElementById("agenda-mes-picker-cancelar"),
     calendarGrid: document.getElementById("agenda-calendar-grid"),
     prevBtn: document.getElementById("agenda-mes-prev"),
     nextBtn: document.getElementById("agenda-mes-next"),
@@ -217,6 +269,7 @@
     const today = toDayString(new Date());
 
     elements.mesTitulo.textContent = toMonthLabel(state.viewDate).toUpperCase();
+    syncMonthPickerControls();
     elements.calendarGrid.innerHTML = "";
 
     for (let i = 0; i < 42; i += 1) {
@@ -715,12 +768,21 @@
 
     if (action === "status") {
       const next = target.getAttribute("data-next") === "true";
+      const ok = await confirmAction({
+        title: next ? "Reativar evento?" : "Inativar evento?",
+        text: next ? "Deseja reativar este evento?" : "Deseja inativar este evento?",
+        icon: "warning",
+        confirmButtonText: next ? "Reativar" : "Inativar",
+      });
+      if (!ok) return;
+
       try {
         await requestJson(`/api/agenda/eventos/${id}/status`, {
           method: "PATCH",
           body: { ativo: next },
         });
         await loadMonthEvents();
+        showSuccess("Status do evento atualizado com sucesso.");
       } catch (error) {
         showToast(error.message);
       }
@@ -738,10 +800,65 @@
     });
   }
 
+  function setMonthPickerOpen(open) {
+    if (!elements.mesPickerPopover || !elements.mesPickerToggle) return;
+    const next = !!open;
+    elements.mesPickerPopover.hidden = !next;
+    elements.mesPickerToggle.setAttribute("aria-expanded", String(next));
+    if (next) {
+      syncMonthPickerControls();
+      if (elements.mesPickerMes) elements.mesPickerMes.focus();
+    }
+  }
+
+  function syncMonthPickerControls() {
+    if (!elements.mesPickerMes || !elements.mesPickerAno) return;
+
+    if (!elements.mesPickerMes.dataset.ready) {
+      elements.mesPickerMes.innerHTML = MONTH_NAMES.map(
+        (label, index) => `<option value="${index}">${label}</option>`
+      ).join("");
+      elements.mesPickerMes.dataset.ready = "1";
+    }
+
+    const viewYear = state.viewDate.getFullYear();
+    const nowYear = new Date().getFullYear();
+    const yearStart = Math.min(viewYear - 5, nowYear - 15);
+    const yearEnd = Math.max(viewYear + 5, nowYear + 15);
+    const expectedRange = `${yearStart}:${yearEnd}`;
+
+    if (elements.mesPickerAno.dataset.range !== expectedRange) {
+      const years = [];
+      for (let year = yearStart; year <= yearEnd; year += 1) {
+        years.push(`<option value="${year}">${year}</option>`);
+      }
+      elements.mesPickerAno.innerHTML = years.join("");
+      elements.mesPickerAno.dataset.range = expectedRange;
+    }
+
+    elements.mesPickerMes.value = String(state.viewDate.getMonth());
+    elements.mesPickerAno.value = String(viewYear);
+  }
+
+  async function applyMonthPickerSelection() {
+    if (!elements.mesPickerMes || !elements.mesPickerAno) return;
+
+    const nextMonth = Number.parseInt(elements.mesPickerMes.value, 10);
+    const nextYear = Number.parseInt(elements.mesPickerAno.value, 10);
+    if (Number.isNaN(nextMonth) || Number.isNaN(nextYear)) return;
+
+    state.viewDate = new Date(nextYear, nextMonth, 1);
+    state.selectedDay = toDayString(new Date(nextYear, nextMonth, 1));
+    state.openPopoverDay = null;
+    setMonthPickerOpen(false);
+    await loadMonthEvents();
+  }
+
   function changeMonth(step) {
     state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() + step, 1);
     state.selectedDay = toDayString(new Date(state.viewDate.getFullYear(), state.viewDate.getMonth(), 1));
     state.openPopoverDay = null;
+    setMonthPickerOpen(false);
     loadMonthEvents().catch((error) => showToast(error.message));
   }
 
@@ -752,8 +869,36 @@
       state.viewDate = new Date();
       state.selectedDay = toDayString(new Date());
       state.openPopoverDay = null;
+      setMonthPickerOpen(false);
       loadMonthEvents().catch((error) => showToast(error.message));
     });
+
+    if (elements.mesPickerToggle) {
+      elements.mesPickerToggle.addEventListener("click", () => {
+        const isOpen = !elements.mesPickerPopover?.hidden;
+        setMonthPickerOpen(!isOpen);
+      });
+    }
+
+    if (elements.mesPickerCancel) {
+      elements.mesPickerCancel.addEventListener("click", () => {
+        setMonthPickerOpen(false);
+      });
+    }
+
+    if (elements.mesPickerApply) {
+      elements.mesPickerApply.addEventListener("click", () => {
+        applyMonthPickerSelection().catch((error) => showToast(error.message));
+      });
+    }
+
+    if (elements.mesPickerAno) {
+      elements.mesPickerAno.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        applyMonthPickerSelection().catch((error) => showToast(error.message));
+      });
+    }
 
     elements.responsavelFiltro.addEventListener("change", () => {
       state.responsavelFiltro = elements.responsavelFiltro.value || "";
@@ -781,10 +926,30 @@
     elements.diaLista.addEventListener("click", handleDayListActions);
 
     document.addEventListener("click", (event) => {
-      if (!state.openPopoverDay) return;
-      if (event.target.closest(".agenda-day-cell.has-multi-events")) return;
-      state.openPopoverDay = null;
-      renderCalendar();
+      let shouldRender = false;
+
+      if (state.openPopoverDay && !event.target.closest(".agenda-day-cell.has-multi-events")) {
+        state.openPopoverDay = null;
+        shouldRender = true;
+      }
+
+      if (
+        elements.mesPickerPopover &&
+        !elements.mesPickerPopover.hidden &&
+        elements.mesPickerWrap &&
+        !elements.mesPickerWrap.contains(event.target)
+      ) {
+        setMonthPickerOpen(false);
+      }
+
+      if (shouldRender) renderCalendar();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (elements.mesPickerPopover && !elements.mesPickerPopover.hidden) {
+        setMonthPickerOpen(false);
+      }
     });
 
     elements.familiaBusca.addEventListener("input", () => {

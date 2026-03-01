@@ -42,6 +42,17 @@ function normalizeCpf(cpf) {
   return digits || "";
 }
 
+function normalizeLogin(login) {
+  return String(login || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "");
+}
+
+function isValidLogin(login) {
+  return /^[a-z0-9._-]{3,40}$/.test(String(login || ""));
+}
+
 function escapeRegex(value) {
   return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -96,7 +107,6 @@ async function buscarUsuarioPorIdentificador(identificador) {
     if (usuario) return usuario;
   }
 
-  // Campo "login" pode ser adicionado no schema futuramente sem quebrar este fluxo.
   usuario = await Usuario.findOne({ login: lower }).select("+senha");
   if (usuario) return usuario;
 
@@ -132,6 +142,7 @@ class UsuarioService {
       filtro.$or = [
         { nome: { $regex: busca, $options: "i" } },
         { email: { $regex: busca, $options: "i" } },
+        { login: { $regex: busca, $options: "i" } },
         { cpf: { $regex: busca, $options: "i" } },
       ];
     }
@@ -176,6 +187,8 @@ class UsuarioService {
     const email = String(dados.email || "").toLowerCase().trim();
     const senha = String(dados.senha || "");
     const cpf = normalizeCpf(dados.cpf);
+    const hasLogin = Object.prototype.hasOwnProperty.call(dados, "login");
+    const login = normalizeLogin(dados.login);
     const ativoParsed = parseBoolean(dados.ativo);
     const perfilNormalized = normalizePerfil(dados.perfil);
     const tipoCadastroNormalized = normalizeTipoCadastro(dados.tipoCadastro);
@@ -200,9 +213,22 @@ class UsuarioService {
       );
     }
 
+    if (hasLogin && !login) {
+      throw createServiceError("Usuario para login e obrigatorio.", 400, "VALIDATION_ERROR");
+    }
+
+    if (login && !isValidLogin(login)) {
+      throw createServiceError(
+        "Login invalido. Use 3 a 40 caracteres com letras, numeros, ponto, traco ou underscore.",
+        400,
+        "VALIDATION_ERROR"
+      );
+    }
+
     const payload = {
       nome: String(dados.nome).trim(),
       email,
+      login: login || undefined,
       senha: await hashSenha(senha),
       telefone: String(dados.telefone || "").trim() || undefined,
       cpf: cpf || undefined,
@@ -225,11 +251,25 @@ class UsuarioService {
   static async atualizar(id, dados, contexto = {}) {
     const hasCpf = Object.prototype.hasOwnProperty.call(dados, "cpf");
     const cpf = normalizeCpf(dados.cpf);
+    const hasLogin = Object.prototype.hasOwnProperty.call(dados, "login");
+    const login = normalizeLogin(dados.login);
     // Validacao de CPF temporariamente desativada para facilitar testes.
     // Aqui fica a validacao de CPF:
     // if (hasCpf && cpf && !isValidCpf(cpf)) {
     //   throw createServiceError("CPF invalido.", 400, "VALIDATION_ERROR");
     // }
+
+    if (hasLogin && !login) {
+      throw createServiceError("Usuario para login e obrigatorio.", 400, "VALIDATION_ERROR");
+    }
+
+    if (login && !isValidLogin(login)) {
+      throw createServiceError(
+        "Login invalido. Use 3 a 40 caracteres com letras, numeros, ponto, traco ou underscore.",
+        400,
+        "VALIDATION_ERROR"
+      );
+    }
 
     const ativoParsed = parseBoolean(dados.ativo);
     const hasStatusAprovacao = Object.prototype.hasOwnProperty.call(dados, "statusAprovacao");
@@ -240,6 +280,7 @@ class UsuarioService {
     const payload = {
       nome: dados.nome ? String(dados.nome).trim() : undefined,
       email: dados.email ? String(dados.email).toLowerCase().trim() : undefined,
+      login: hasLogin ? login : undefined,
       telefone: Object.prototype.hasOwnProperty.call(dados, "telefone")
         ? (String(dados.telefone || "").trim() || null)
         : undefined,

@@ -14,6 +14,14 @@ const UsuarioSchema = new mongoose.Schema(
       trim: true,
     },
 
+    login: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      unique: true,
+      sparse: true,
+    },
+
     senha: { type: String, required: true, select: false },
 
     telefone: { type: String, trim: true },

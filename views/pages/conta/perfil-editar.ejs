@@ -44,6 +44,18 @@
         <input class="input-control" type="email" name="email" required value="<%= usuario?.email || '' %>" />
       </label>
 
+      <% if (isAdmin) { %>
+        <label class="field-wrap">
+          <span class="input-label">Usuario de login</span>
+          <input class="input-control" type="text" name="login" required value="<%= usuario?.login || '' %>" />
+        </label>
+      <% } else { %>
+        <label class="field-wrap">
+          <span class="input-label">Usuario de login</span>
+          <input class="input-control" type="text" value="<%= usuario?.login || '-' %>" disabled />
+        </label>
+      <% } %>
+
       <label class="field-wrap">
         <span class="input-label">Telefone</span>
         <input class="input-control" type="text" name="telefone" value="<%= usuario?.telefone || '' %>" />

@@ -172,6 +172,7 @@ class ContaController {
         ? {
             nome: String(req.body?.nome || "").trim(),
             email: String(req.body?.email || "").trim(),
+            login: String(req.body?.login || "").trim(),
             telefone: String(req.body?.telefone || "").trim(),
             cpf: String(req.body?.cpf || "").trim(),
             perfil: String(req.body?.perfil || "").trim(),
@@ -217,7 +218,7 @@ class ContaController {
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
       if (error?.code === 11000) {
-        req.flash("error", "Email ou CPF ja cadastrado.");
+        req.flash("error", "Email, usuario de login ou CPF ja cadastrado.");
         return res.redirect("/perfil/editar");
       }
       req.flash("error", error?.message || "Erro ao atualizar perfil.");

@@ -52,12 +52,13 @@ class UsuarioController {
 
   static async criar(req, res) {
     try {
-      const { nome, email, senha, telefone, cpf, perfil, ativo } = req.body;
+      const { nome, email, login, senha, telefone, cpf, perfil, ativo } = req.body;
 
       const usuario = await UsuarioService.criar(
         {
           nome,
           email,
+          login,
           senha,
           telefone,
           cpf,
@@ -82,7 +83,7 @@ class UsuarioController {
 
       if (error && error.code === 11000) {
         return res.status(409).json({
-          erro: "Email ou CPF ja cadastrado.",
+          erro: "Email, usuario de login ou CPF ja cadastrado.",
           detalhes: error.keyValue,
         });
       }
@@ -119,7 +120,7 @@ class UsuarioController {
 
       if (error && error.code === 11000) {
         return res.status(409).json({
-          erro: "Email ou CPF ja cadastrado.",
+          erro: "Email, usuario de login ou CPF ja cadastrado.",
           detalhes: error.keyValue,
         });
       }
@@ -235,4 +236,3 @@ class UsuarioController {
 }
 
 module.exports = UsuarioController;
-

@@ -50,6 +50,21 @@
         />
       </div>
 
+      <label for="login" class="input-label">Usuario para login *</label>
+      <div class="field-icon-wrap">
+        <i class="fa-regular fa-at field-icon"></i>
+        <input
+          class="input-control"
+          id="login"
+          name="login"
+          type="text"
+          maxlength="40"
+          placeholder="Ex: joao.silva"
+          required
+          value="<%= formData?.login || '' %>"
+        />
+      </div>
+
       <label for="cpf" class="input-label">CPF *</label>
       <div class="field-icon-wrap">
         <i class="fa-regular fa-id-card field-icon"></i>

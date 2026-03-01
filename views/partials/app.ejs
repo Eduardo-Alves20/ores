@@ -18,6 +18,10 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
     <link rel="stylesheet" href="/css/index.css" />
     <link rel="stylesheet" href="/css/app.css" />
     <% if (typeof extraCss !== "undefined" && Array.isArray(extraCss)) { %>
@@ -117,6 +121,34 @@
       </main>
     </div>
 
+    <%
+      const __normalizeFlash = (value) => {
+        if (Array.isArray(value)) {
+          return value
+            .map((item) => String(item || "").trim())
+            .filter(Boolean);
+        }
+        const single = String(value || "").trim();
+        return single ? [single] : [];
+      };
+
+      const __appFlashPayload = {
+        success: []
+          .concat(typeof successMessage !== "undefined" ? __normalizeFlash(successMessage) : []),
+        error: []
+          .concat(typeof errorMessage !== "undefined" ? __normalizeFlash(errorMessage) : [])
+          .concat(typeof senhaErrorMessage !== "undefined" ? __normalizeFlash(senhaErrorMessage) : []),
+        warning: []
+          .concat(typeof warningMessage !== "undefined" ? __normalizeFlash(warningMessage) : []),
+        info: []
+          .concat(typeof infoMessage !== "undefined" ? __normalizeFlash(infoMessage) : []),
+      };
+    %>
+    <script>
+      window.__APP_FLASH = <%- JSON.stringify(__appFlashPayload) %>;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/ui-alerts.js" defer></script>
     <script src="/js/app-shell.js" defer></script>
     <% if (typeof extraJs !== "undefined" && Array.isArray(extraJs)) { %>
       <% extraJs.forEach((src) => { %>
