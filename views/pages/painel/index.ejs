@@ -24,7 +24,7 @@
     </header>
 
     <div class="table-wrap">
-      <table class="data-table">
+      <table class="data-table" data-stack-mobile="true">
         <thead>
           <tr>
             <th>Nome</th>
@@ -36,8 +36,8 @@
         <tbody>
           <% cadastros.forEach((row) => { %>
             <tr>
-              <td><%= row.nome %></td>
-              <td>
+              <td data-label="Nome"><%= row.nome %></td>
+              <td data-label="Status">
                 <% if (row.status === "ATIVO") { %>
                   <span class="status-badge status-active">ATIVO</span>
                 <% } else if (row.status === "PENDENTE") { %>
@@ -46,8 +46,8 @@
                   <span class="status-badge status-inactive">INATIVO</span>
                 <% } %>
               </td>
-              <td><%= row.data %></td>
-              <td><%= row.responsavel %></td>
+              <td data-label="Data Cadastro"><%= row.data %></td>
+              <td data-label="Responsavel"><%= row.responsavel %></td>
             </tr>
           <% }) %>
         </tbody>
@@ -55,4 +55,3 @@
     </div>
   </section>
 </section>
-

@@ -41,6 +41,14 @@
       <i class="fa-solid fa-bars"></i>
     </button>
 
+    <button
+      class="sidebar-backdrop"
+      type="button"
+      aria-label="Fechar menu"
+      hidden
+      data-sidebar-backdrop
+    ></button>
+
     <aside class="sidebar" data-sidebar>
       <div class="sidebar-brand">GESA</div>
 
@@ -52,60 +60,60 @@
         <% if (currentUser?.perfil === 'usuario') { %>
           <% if (hasPerm("portal.minha_familia")) { %>
             <a href="/minha-familia" class="sidebar-link <%= navKey === 'minha-familia' ? 'is-active' : '' %>">
-              <i class="fa-regular fa-heart"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>
               <span>Minha Familia</span>
             </a>
           <% } %>
           <% if (hasPerm("portal.meus_dados")) { %>
             <a href="/meus-dados" class="sidebar-link <%= navKey === 'meus-dados' ? 'is-active' : '' %>">
-              <i class="fa-regular fa-id-card"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-address-card"></i></span>
               <span>Meus Dados</span>
             </a>
           <% } %>
         <% } else { %>
           <% if (hasPerm("dashboard.view")) { %>
             <a href="/painel" class="sidebar-link <%= navKey === 'home' ? 'is-active' : '' %>">
-              <i class="fa-regular fa-house"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
               <span>Tela de Inicio</span>
             </a>
           <% } %>
           <% if (hasPerm("familias.view")) { %>
             <a href="/familias" class="sidebar-link <%= navKey === 'assistidos' ? 'is-active' : '' %>">
-              <i class="fa-regular fa-users"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-people-group"></i></span>
               <span>Assistidos</span>
             </a>
           <% } %>
           <% if (hasPerm("acessos.view")) { %>
             <a href="/acessos/familias" class="sidebar-link <%= navKey === 'usuarios-familia' ? 'is-active' : '' %>">
-              <i class="fa-solid fa-id-card"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-address-card"></i></span>
               <span>Usuarios Familia</span>
             </a>
             <a href="/acessos/voluntarios" class="sidebar-link <%= navKey === 'usuarios-voluntario' ? 'is-active' : '' %>">
-              <i class="fa-solid fa-users"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-group"></i></span>
               <span>Usuarios Voluntario</span>
             </a>
           <% } %>
           <% if (hasPerm("acessos.approve")) { %>
             <a href="/acessos/aprovacoes" class="sidebar-link <%= navKey === 'aprovacoes' ? 'is-active' : '' %>">
-              <i class="fa-regular fa-circle-check"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
               <span>Aprovacoes</span>
             </a>
           <% } %>
           <% if (currentUser?.perfil === 'superadmin') { %>
             <a href="/seguranca/funcoes" class="sidebar-link <%= navKey === 'seguranca-funcoes' ? 'is-active' : '' %>">
-              <i class="fa-solid fa-user-shield"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-shield"></i></span>
               <span>Seguranca de Acesso</span>
             </a>
           <% } %>
           <% if (hasPerm("agenda.view")) { %>
             <a href="/agenda" class="sidebar-link <%= navKey === 'agenda' ? 'is-active' : '' %>">
-              <i class="fa-regular fa-calendar-days"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
               <span>Agenda</span>
             </a>
           <% } %>
           <% if (hasPerm("dashboard.view")) { %>
             <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
-              <i class="fa-regular fa-gear"></i>
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-gear"></i></span>
               <span>Administracao</span>
             </a>
           <% } %>
@@ -114,7 +122,7 @@
 
       <form method="post" action="/auth/logout" class="sidebar-logout">
         <button type="submit" class="logout-btn">
-          <i class="fa-regular fa-arrow-right-from-bracket"></i>
+          <span class="logout-btn-icon" aria-hidden="true"><i class="fa-solid fa-right-from-bracket"></i></span>
           <span>Sair do Sistema</span>
         </button>
       </form>
@@ -131,7 +139,7 @@
               title="Notificacoes"
               aria-label="Notificacoes"
             >
-              <i class="fa-regular fa-bell"></i>
+              <i class="fa-solid fa-bell"></i>
             </a>
           <% } %>
           <a href="/perfil" class="topbar-user topbar-profile-link <%= navKey === 'perfil' ? 'is-active' : '' %>">

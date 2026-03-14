@@ -1,6 +1,9 @@
 ﻿const Familia = require("../../schemas/social/Familia");
+const mongoose = require("mongoose");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { Atendimento } = require("../../schemas/social/Atendimento");
+const Usuario = require("../../schemas/core/Usuario");
+const { PERFIS } = require("../../config/roles");
 const { registrarAuditoria } = require("../../services/auditService");
 
 function parseBoolean(value) {
@@ -11,6 +14,20 @@ function parseBoolean(value) {
 
 function getActorId(req) {
   return req?.session?.user?.id || null;
+}
+
+async function buscarProfissionalAtendido(profissionalId) {
+  const raw = String(profissionalId || "").trim();
+  if (!raw) return null;
+  if (!mongoose.isValidObjectId(raw)) return undefined;
+
+  return Usuario.findOne({
+    _id: raw,
+    tipoCadastro: "voluntario",
+    perfil: PERFIS.USUARIO,
+    statusAprovacao: "aprovado",
+    ativo: true,
+  }).select("_id nome login email");
 }
 
 class AtendimentoController {
@@ -33,6 +50,10 @@ class AtendimentoController {
         page,
         limit,
         sort: "-dataHora",
+        populate: {
+          path: "profissionalId",
+          select: "nome login email",
+        },
         lean: true,
       });
 
@@ -47,7 +68,7 @@ class AtendimentoController {
     try {
       const { familiaId } = req.params;
       const actorId = getActorId(req);
-      const { pacienteId, dataHora, tipo, resumo, proximosPassos } = req.body || {};
+      const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos } = req.body || {};
 
       const familia = await Familia.findById(familiaId).select("_id ativo");
       if (!familia || !familia.ativo) {
@@ -65,9 +86,17 @@ class AtendimentoController {
         }
       }
 
+      const profissional = await buscarProfissionalAtendido(profissionalId);
+      if (String(profissionalId || "").trim() && !profissional) {
+        return res.status(400).json({
+          erro: "Profissional/voluntario informado nao foi encontrado ou nao esta apto para atendimento.",
+        });
+      }
+
       const atendimento = await Atendimento.create({
         familiaId,
         pacienteId: pacienteId || null,
+        profissionalId: profissional?._id || null,
         dataHora: dataHora || new Date(),
         tipo: tipo || "outro",
         resumo: String(resumo).trim(),
@@ -81,7 +110,11 @@ class AtendimentoController {
         acao: "ATENDIMENTO_CRIADO",
         entidade: "atendimento",
         entidadeId: atendimento._id,
-        detalhes: { familiaId, pacienteId: pacienteId || null },
+        detalhes: {
+          familiaId,
+          pacienteId: pacienteId || null,
+          profissionalId: profissional?._id || null,
+        },
       });
 
       return res.status(201).json({
@@ -98,7 +131,7 @@ class AtendimentoController {
     try {
       const { id } = req.params;
       const actorId = getActorId(req);
-      const { pacienteId, dataHora, tipo, resumo, proximosPassos } = req.body || {};
+      const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos } = req.body || {};
 
       const atual = await Atendimento.findById(id).select("_id familiaId pacienteId");
       if (!atual) {
@@ -118,6 +151,21 @@ class AtendimentoController {
             return res.status(400).json({ erro: "Paciente nao pertence a esta familia." });
           }
           patch.pacienteId = pacienteId;
+        }
+      }
+
+      if (typeof profissionalId !== "undefined") {
+        const rawProfissionalId = String(profissionalId || "").trim();
+        if (!rawProfissionalId) {
+          patch.profissionalId = null;
+        } else {
+          const profissional = await buscarProfissionalAtendido(rawProfissionalId);
+          if (!profissional) {
+            return res.status(400).json({
+              erro: "Profissional/voluntario informado nao foi encontrado ou nao esta apto para atendimento.",
+            });
+          }
+          patch.profissionalId = profissional._id;
         }
       }
 
@@ -161,6 +209,7 @@ class AtendimentoController {
         detalhes: {
           familiaId: atendimento.familiaId,
           pacienteId: atendimento.pacienteId,
+          profissionalId: atendimento.profissionalId,
         },
       });
 

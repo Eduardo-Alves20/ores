@@ -1,6 +1,8 @@
 ﻿const Familia = require("../../schemas/social/Familia");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { Atendimento } = require("../../schemas/social/Atendimento");
+const Usuario = require("../../schemas/core/Usuario");
+const { PERFIS } = require("../../config/roles");
 const { registrarAuditoria } = require("../../services/auditService");
 
 function parseBoolean(value) {
@@ -21,7 +23,7 @@ class FamiliaController {
   static async listar(req, res) {
     try {
       const page = Math.max(Number(req.query.page) || 1, 1);
-      const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
+      const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
       const busca = String(req.query.busca || "").trim().slice(0, 100);
       const ativo = parseBoolean(req.query.ativo);
       const parentesco = String(req.query.parentesco || "").trim().slice(0, 60);
@@ -85,25 +87,40 @@ class FamiliaController {
         return res.status(404).json({ erro: "Familia nao encontrada." });
       }
 
-      const pacientes = await Paciente.find({
-        familiaId: id,
-        ...(incluirInativos ? {} : { ativo: true }),
-      })
-        .sort({ nome: 1 })
-        .lean();
-
-      const atendimentos = await Atendimento.find({
-        familiaId: id,
-        ...(incluirInativos ? {} : { ativo: true }),
-      })
-        .sort({ dataHora: -1 })
-        .limit(200)
-        .lean();
+      const [pacientes, atendimentos, voluntarios] = await Promise.all([
+        Paciente.find({
+          familiaId: id,
+          ...(incluirInativos ? {} : { ativo: true }),
+        })
+          .sort({ nome: 1 })
+          .lean(),
+        Atendimento.find({
+          familiaId: id,
+          ...(incluirInativos ? {} : { ativo: true }),
+        })
+          .sort({ dataHora: -1 })
+          .limit(200)
+          .populate({
+            path: "profissionalId",
+            select: "nome login email",
+          })
+          .lean(),
+        Usuario.find({
+          tipoCadastro: "voluntario",
+          perfil: PERFIS.USUARIO,
+          statusAprovacao: "aprovado",
+          ativo: true,
+        })
+          .sort({ nome: 1 })
+          .select("_id nome login email")
+          .lean(),
+      ]);
 
       return res.status(200).json({
         familia,
         pacientes,
         atendimentos,
+        voluntarios,
       });
     } catch (error) {
       console.error("Erro ao detalhar familia:", error);

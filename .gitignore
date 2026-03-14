@@ -25,6 +25,7 @@ tmp/
 # Uploads
 uploads/*
 !uploads/.gitkeep
+backups/*.archive.gz
 
 # OS / editor
 .DS_Store

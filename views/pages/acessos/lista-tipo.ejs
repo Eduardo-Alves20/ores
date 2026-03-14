@@ -28,13 +28,30 @@
   const returnTo = currentQuery ? `${basePath}?${currentQuery}` : basePath;
 %>
 
-<section class="acessos-page">
-  <header class="acessos-head module-card">
-    <div>
+<section class="acessos-page" data-default-tipo-cadastro="<%= tipoCadastro || 'voluntario' %>">
+  <header class="acessos-hero module-card">
+    <div class="acessos-hero-main">
+      <span class="acessos-hero-eyebrow">Gestao de acessos</span>
       <h2><%= sectionTitle %></h2>
       <p><%= subtitle %></p>
+
+      <div class="acessos-hero-stats">
+        <span class="acessos-hero-stat"><strong><%= resumo?.total || 0 %></strong> cadastros</span>
+        <span class="acessos-hero-stat"><strong><%= resumo?.pendentes || 0 %></strong> pendentes</span>
+        <span class="acessos-hero-stat"><strong><%= resumo?.ativos || 0 %></strong> com acesso ativo</span>
+      </div>
     </div>
-    <div class="badge-soft"><%= paginacao?.totalDocs || 0 %> cadastro(s)</div>
+
+    <div class="acessos-hero-side">
+      <div class="badge-soft"><%= paginacao?.totalDocs || 0 %> cadastro(s)</div>
+
+      <% if (canManageUsers) { %>
+        <button type="button" class="btn acessos-create-btn" data-create-user-open>
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          <span>Criar usuario</span>
+        </button>
+      <% } %>
+    </div>
   </header>
 
   <% if (errorMessage && errorMessage.length) { %>
@@ -64,7 +81,14 @@
     </article>
   </section>
 
-  <section class="module-card">
+  <section class="module-card acessos-panel">
+    <div class="acessos-panel-head">
+      <div>
+        <h3>Filtros inteligentes</h3>
+        <p>Busque por nome, contato, CPF e acompanhe o status do acesso com mais clareza.</p>
+      </div>
+    </div>
+
     <form method="get" action="<%= basePath %>" class="acessos-filtros">
       <label class="field-wrap">
         <span class="input-label">Busca</span>
@@ -94,7 +118,7 @@
         <span class="input-label">Limite</span>
         <select class="input-control" name="limit">
           <% (filtrosAtuais.limitOptions || [10, 20, 50, 100]).forEach((n) => { %>
-            <option value="<%= n %>" <%= Number(filtrosAtuais.limit || 20) === Number(n) ? "selected" : "" %>><%= n %></option>
+            <option value="<%= n %>" <%= Number(filtrosAtuais.limit || 10) === Number(n) ? "selected" : "" %>><%= n %></option>
           <% }) %>
         </select>
       </label>
@@ -106,14 +130,23 @@
     </form>
   </section>
 
-  <section class="module-card">
+  <section class="module-card acessos-panel acessos-table-panel">
+    <div class="acessos-panel-head">
+      <div>
+        <h3>Base de cadastros</h3>
+        <p>Edite, aprove, rejeite e controle o acesso sem sair da listagem.</p>
+      </div>
+      <span class="badge-soft"><%= paginacao?.totalDocs || 0 %> resultados</span>
+    </div>
+
     <div class="table-wrap">
-      <table class="data-table acessos-table">
+      <table class="data-table acessos-table" data-stack-mobile="true">
         <thead>
           <tr>
             <th>Nome</th>
             <th>Contato</th>
             <th>CPF</th>
+            <th>Perfil / Tipo</th>
             <th>Aprovacao</th>
             <th>Acesso</th>
             <th>Criado em</th>
@@ -123,113 +156,134 @@
         <tbody>
           <% if (!usuarios || !usuarios.length) { %>
             <tr>
-              <td colspan="7">Nenhum cadastro encontrado com os filtros atuais.</td>
+              <td colspan="8">Nenhum cadastro encontrado com os filtros atuais.</td>
             </tr>
           <% } else { %>
             <% usuarios.forEach((item) => { %>
               <tr>
-                <td>
+                <td data-label="Nome">
                   <strong><%= item.nome || "-" %></strong>
+                  <div class="acesso-row-hint">Login: <%= item.login || "-" %></div>
                   <% if (item.motivoAprovacao) { %>
                     <div class="acesso-row-hint">Motivo: <%= item.motivoAprovacao %></div>
                   <% } %>
                 </td>
-                <td>
+                <td data-label="Contato">
                   <div><%= item.email || "-" %></div>
                   <small><%= item.telefone || "-" %></small>
                 </td>
-                <td><%= item.cpf || "-" %></td>
-                <td><span class="status-badge <%= item.statusAprovacaoClass %>"><%= item.statusAprovacaoLabel %></span></td>
-                <td>
+                <td data-label="CPF"><%= item.cpf || "-" %></td>
+                <td data-label="Perfil / Tipo">
+                  <div class="acesso-perfil-stack">
+                    <span class="badge-soft"><%= item.perfilLabel %></span>
+                    <small><%= item.tipoCadastro ? item.tipoCadastroLabel : "-" %></small>
+                  </div>
+                </td>
+                <td data-label="Aprovacao"><span class="status-badge <%= item.statusAprovacaoClass %>"><%= item.statusAprovacaoLabel %></span></td>
+                <td data-label="Acesso">
                   <% if (item.ativo) { %>
                     <span class="status-badge status-active">Ativo</span>
                   <% } else { %>
                     <span class="status-badge status-inactive">Inativo</span>
                   <% } %>
                 </td>
-                <td><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
-                <td class="acessos-actions-col">
-                  <% if (isAdmin) { %>
-                    <div class="actions-menu acesso-actions-menu" data-actions-menu>
-                      <button
-                        class="actions-menu-trigger"
-                        type="button"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                        data-action="menu-toggle"
-                        title="Abrir acoes"
-                      >
-                        <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-                        <span class="sr-only">Abrir acoes</span>
-                      </button>
+                <td data-label="Criado em"><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
+                <td class="acessos-actions-col" data-label="Acoes">
+                  <% if (item.canEdit || item.canAdminister) { %>
+                    <div class="acessos-action-stack">
+                      <% if (item.canEdit) { %>
+                        <button
+                          class="table-action-btn table-action-btn-edit acessos-action-btn acesso-action-edit"
+                          type="button"
+                          data-action="edit-user"
+                          data-user-id="<%= item._id %>"
+                        >
+                          <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                          <span>Editar</span>
+                        </button>
+                      <% } %>
 
-                      <div class="actions-menu-dropdown" role="menu">
-                        <% if (item.statusAprovacaoNormalized !== "aprovado") { %>
-                          <form
-                            method="post"
-                            action="/acessos/<%= item._id %>/aprovar"
-                            data-confirm="true"
-                            data-confirm-title="Aprovar cadastro?"
-                            data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
-                            data-confirm-icon="question"
-                            data-confirm-confirm="Aprovar"
-                            data-confirm-cancel="Cancelar"
-                          >
-                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                            <button class="actions-menu-item" type="submit">Aprovar</button>
-                          </form>
-                        <% } %>
+                      <% if (item.canAdminister && item.statusAprovacaoNormalized !== "aprovado") { %>
+                        <form
+                          method="post"
+                          action="/acessos/<%= item._id %>/aprovar"
+                          class="acessos-action-form"
+                          data-confirm="true"
+                          data-confirm-title="Aprovar cadastro?"
+                          data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
+                          data-confirm-icon="question"
+                          data-confirm-confirm="Aprovar"
+                          data-confirm-cancel="Cancelar"
+                        >
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-approve" type="submit">
+                            <i class="fa-solid fa-check" aria-hidden="true"></i>
+                            <span>Aprovar</span>
+                          </button>
+                        </form>
+                      <% } %>
 
-                        <% if (item.tipoCadastro === "familia" && item.statusAprovacaoNormalized !== "aprovado") { %>
-                          <form
-                            method="post"
-                            action="/acessos/<%= item._id %>/aprovar"
-                            data-confirm="true"
-                            data-confirm-title="Aprovar e ativar acesso?"
-                            data-confirm-text="Deseja aprovar e ativar o acesso de <%= item.nome || 'usuario' %>?"
-                            data-confirm-icon="question"
-                            data-confirm-confirm="Aprovar e ativar"
-                            data-confirm-cancel="Cancelar"
-                          >
-                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                            <input type="hidden" name="ativo" value="true" />
-                            <button class="actions-menu-item" type="submit">Aprovar + Ativar</button>
-                          </form>
-                        <% } %>
+                      <% if (item.canAdminister && item.tipoCadastro === "familia" && item.statusAprovacaoNormalized !== "aprovado") { %>
+                        <form
+                          method="post"
+                          action="/acessos/<%= item._id %>/aprovar"
+                          class="acessos-action-form"
+                          data-confirm="true"
+                          data-confirm-title="Aprovar e ativar acesso?"
+                          data-confirm-text="Deseja aprovar e ativar o acesso de <%= item.nome || 'usuario' %>?"
+                          data-confirm-icon="question"
+                          data-confirm-confirm="Aprovar e ativar"
+                          data-confirm-cancel="Cancelar"
+                        >
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <input type="hidden" name="ativo" value="true" />
+                          <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-secondary" type="submit">
+                            <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                            <span>Aprovar + ativar</span>
+                          </button>
+                        </form>
+                      <% } %>
 
-                        <% if (item.statusAprovacaoNormalized !== "rejeitado") { %>
-                          <form
-                            method="post"
-                            action="/acessos/<%= item._id %>/rejeitar"
-                            data-confirm="true"
-                            data-confirm-title="Rejeitar cadastro?"
-                            data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
-                            data-confirm-icon="warning"
-                            data-confirm-confirm="Rejeitar"
-                            data-confirm-cancel="Cancelar"
-                          >
-                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                            <button class="actions-menu-item actions-menu-item-warn" type="submit">Rejeitar</button>
-                          </form>
-                        <% } %>
+                      <% if (item.canAdminister && item.statusAprovacaoNormalized !== "rejeitado") { %>
+                        <form
+                          method="post"
+                          action="/acessos/<%= item._id %>/rejeitar"
+                          class="acessos-action-form"
+                          data-confirm="true"
+                          data-confirm-title="Rejeitar cadastro?"
+                          data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
+                          data-confirm-icon="warning"
+                          data-confirm-confirm="Rejeitar"
+                          data-confirm-cancel="Cancelar"
+                        >
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <button class="table-action-btn table-action-btn-danger acessos-action-btn acesso-action-reject" type="submit">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            <span>Rejeitar</span>
+                          </button>
+                        </form>
+                      <% } %>
 
-                        <% if (item.statusAprovacaoNormalized === "aprovado") { %>
-                          <form
-                            method="post"
-                            action="/acessos/<%= item._id %>/status"
-                            data-confirm="true"
-                            data-confirm-title="<%= item.ativo ? 'Inativar acesso?' : 'Ativar acesso?' %>"
-                            data-confirm-text="<%= item.ativo ? ('Deseja inativar o acesso de ' + (item.nome || 'usuario') + '?') : ('Deseja ativar o acesso de ' + (item.nome || 'usuario') + '?') %>"
-                            data-confirm-icon="warning"
-                            data-confirm-confirm="<%= item.ativo ? 'Inativar' : 'Ativar' %>"
-                            data-confirm-cancel="Cancelar"
-                          >
-                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                            <input type="hidden" name="ativo" value="<%= item.ativo ? 'false' : 'true' %>" />
-                            <button class="actions-menu-item" type="submit"><%= item.ativo ? "Inativar Acesso" : "Ativar Acesso" %></button>
-                          </form>
-                        <% } %>
-                      </div>
+                      <% if (item.canAdminister && item.statusAprovacaoNormalized === "aprovado") { %>
+                        <form
+                          method="post"
+                          action="/acessos/<%= item._id %>/status"
+                          class="acessos-action-form"
+                          data-confirm="true"
+                          data-confirm-title="<%= item.ativo ? 'Inativar acesso?' : 'Ativar acesso?' %>"
+                          data-confirm-text="<%= item.ativo ? ('Deseja inativar o acesso de ' + (item.nome || 'usuario') + '?') : ('Deseja ativar o acesso de ' + (item.nome || 'usuario') + '?') %>"
+                          data-confirm-icon="warning"
+                          data-confirm-confirm="<%= item.ativo ? 'Inativar' : 'Ativar' %>"
+                          data-confirm-cancel="Cancelar"
+                        >
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <input type="hidden" name="ativo" value="<%= item.ativo ? 'false' : 'true' %>" />
+                          <button class="table-action-btn table-action-btn-neutral acessos-action-btn acesso-action-neutral" type="submit">
+                            <i class="fa-solid <%= item.ativo ? 'fa-user-slash' : 'fa-power-off' %>" aria-hidden="true"></i>
+                            <span><%= item.ativo ? "Inativar" : "Ativar" %></span>
+                          </button>
+                        </form>
+                      <% } %>
                     </div>
                   <% } else { %>
                     <small>-</small>
@@ -251,5 +305,122 @@
       <% } %>
       <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Proxima</a>
     </nav>
+  <% } %>
+
+  <% if (canManageUsers) { %>
+    <div class="acessos-modal" hidden data-create-user-modal>
+      <div class="acessos-modal-backdrop" data-create-user-close="true"></div>
+
+      <section
+        class="acessos-modal-dialog card-elevated"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="acessos-create-user-title"
+      >
+        <header class="acessos-modal-head">
+          <div>
+            <h3 id="acessos-create-user-title" data-user-modal-title>Criar novo usuario</h3>
+            <p data-user-modal-description>Preencha os dados abaixo para liberar um novo acesso manualmente.</p>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-muted btn-icon-sm"
+            data-create-user-close="true"
+            aria-label="Fechar cadastro"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="acessos-modal-error" data-create-user-error hidden></div>
+
+        <form class="acessos-create-form" data-create-user-form autocomplete="off">
+          <div class="acessos-create-grid">
+            <label class="field-wrap">
+              <span class="input-label">Nome completo *</span>
+              <input class="input-control" type="text" name="nome" maxlength="120" required />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Email *</span>
+              <input class="input-control" type="email" name="email" maxlength="140" required />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Usuario para login *</span>
+              <input class="input-control" type="text" name="login" maxlength="40" required />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Perfil *</span>
+              <select class="input-control" name="perfil" required>
+                <% (createProfileOptions || []).forEach((option) => { %>
+                  <option value="<%= option.value %>"><%= option.label %></option>
+                <% }) %>
+              </select>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Tipo de cadastro</span>
+              <select class="input-control" name="tipoCadastro">
+                <option value="voluntario" <%= tipoCadastro === "voluntario" ? "selected" : "" %>>Voluntario</option>
+                <option value="familia" <%= tipoCadastro === "familia" ? "selected" : "" %>>Familia</option>
+              </select>
+            </label>
+
+            <label class="field-wrap" data-create-user-status-wrap>
+              <span class="input-label">Status de aprovacao</span>
+              <select class="input-control" name="statusAprovacao">
+                <option value="aprovado">Aprovado</option>
+                <option value="pendente">Pendente</option>
+                <option value="rejeitado">Rejeitado</option>
+              </select>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Acesso inicial</span>
+              <select class="input-control" name="ativo">
+                <option value="true" selected>Ativo</option>
+                <option value="false">Inativo</option>
+              </select>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">CPF</span>
+              <input class="input-control" type="text" name="cpf" maxlength="14" inputmode="numeric" />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Telefone</span>
+              <input class="input-control" type="text" name="telefone" maxlength="20" />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Senha *</span>
+              <input class="input-control" type="password" name="senha" required />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Confirmar senha *</span>
+              <input class="input-control" type="password" name="confirmarSenha" required />
+            </label>
+          </div>
+
+          <p class="acessos-create-hint" data-user-password-hint>
+            Defina uma senha inicial para esse acesso.
+          </p>
+
+          <p class="acessos-create-hint" data-create-user-hint>
+            Perfis internos sao aprovados automaticamente e podem nao aparecer nesta lista filtrada.
+          </p>
+
+          <div class="acessos-create-actions">
+            <button type="submit" class="btn btn-primary" data-user-modal-submit>Salvar usuario</button>
+            <button type="button" class="btn btn-muted" data-create-user-close="true">Cancelar</button>
+          </div>
+        </form>
+      </section>
+    </div>
   <% } %>
 </section>

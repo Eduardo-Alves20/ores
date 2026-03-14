@@ -28,12 +28,21 @@
 %>
 
 <section class="acessos-page">
-  <header class="acessos-head module-card">
-    <div>
+  <header class="acessos-hero module-card">
+    <div class="acessos-hero-main">
+      <span class="acessos-hero-eyebrow">Triagem de acessos</span>
       <h2>Aprovacoes Pendentes</h2>
       <p><%= subtitle %></p>
+
+      <div class="acessos-hero-stats">
+        <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisao</span>
+        <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por pagina</span>
+      </div>
     </div>
-    <div class="badge-soft"><%= totalPendente || 0 %> pendente(s)</div>
+
+    <div class="acessos-hero-side">
+      <div class="badge-soft"><%= totalPendente || 0 %> pendente(s)</div>
+    </div>
   </header>
 
   <% if (errorMessage && errorMessage.length) { %>
@@ -44,7 +53,14 @@
     <div class="conta-success"><%= successMessage[0] %></div>
   <% } %>
 
-  <section class="module-card">
+  <section class="module-card acessos-panel">
+    <div class="acessos-panel-head">
+      <div>
+        <h3>Refinar fila</h3>
+        <p>Encontre rapidamente o cadastro pendente e aprove ou recuse em um clique.</p>
+      </div>
+    </div>
+
     <form method="get" action="/acessos/aprovacoes" class="acessos-filtros aprovacoes-filtros">
       <label class="field-wrap">
         <span class="input-label">Busca</span>
@@ -64,7 +80,7 @@
         <span class="input-label">Limite</span>
         <select class="input-control" name="limit">
           <% (filtrosAtuais.limitOptions || [10, 20, 50, 100]).forEach((n) => { %>
-            <option value="<%= n %>" <%= Number(filtrosAtuais.limit || 20) === Number(n) ? "selected" : "" %>><%= n %></option>
+            <option value="<%= n %>" <%= Number(filtrosAtuais.limit || 10) === Number(n) ? "selected" : "" %>><%= n %></option>
           <% }) %>
         </select>
       </label>
@@ -76,9 +92,17 @@
     </form>
   </section>
 
-  <section class="module-card">
+  <section class="module-card acessos-panel acessos-table-panel">
+    <div class="acessos-panel-head">
+      <div>
+        <h3>Fila de aprovacao</h3>
+        <p>Cadastros aguardando resposta da administracao.</p>
+      </div>
+      <span class="badge-soft"><%= totalPendente || 0 %> em analise</span>
+    </div>
+
     <div class="table-wrap">
-      <table class="data-table acessos-table">
+      <table class="data-table acessos-table" data-stack-mobile="true">
         <thead>
           <tr>
             <th>Tipo</th>
@@ -97,75 +121,50 @@
           <% } else { %>
             <% usuarios.forEach((item) => { %>
               <tr>
-                <td><span class="badge-soft"><%= item.tipoCadastroLabel %></span></td>
-                <td><strong><%= item.nome || "-" %></strong></td>
-                <td>
+                <td data-label="Tipo"><span class="badge-soft"><%= item.tipoCadastroLabel %></span></td>
+                <td data-label="Nome"><strong><%= item.nome || "-" %></strong></td>
+                <td data-label="Contato">
                   <div><%= item.email || "-" %></div>
                   <small><%= item.telefone || "-" %></small>
                 </td>
-                <td><%= item.cpf || "-" %></td>
-                <td><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
-                <td class="acessos-actions-col">
+                <td data-label="CPF"><%= item.cpf || "-" %></td>
+                <td data-label="Criado em"><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
+                <td class="acessos-actions-col" data-label="Acoes">
                   <% if (isAdmin) { %>
-                    <div class="actions-menu acesso-actions-menu" data-actions-menu>
-                      <button
-                        class="actions-menu-trigger"
-                        type="button"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                        data-action="menu-toggle"
-                        title="Abrir acoes"
+                    <div class="aprovacoes-actions">
+                      <form
+                        method="post"
+                        action="/acessos/<%= item._id %>/aprovar"
+                        class="aprovacao-quick-form"
+                        data-confirm="true"
+                        data-confirm-title="Aprovar cadastro?"
+                        data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
+                        data-confirm-icon="question"
+                        data-confirm-confirm="Aprovar"
+                        data-confirm-cancel="Cancelar"
                       >
-                        <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-                        <span class="sr-only">Abrir acoes</span>
-                      </button>
+                        <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                        <button class="aprovacao-quick-btn aprovacao-quick-btn-approve" type="submit" title="Aprovar cadastro" aria-label="Aprovar cadastro">
+                          <i class="fa-solid fa-check" aria-hidden="true"></i>
+                        </button>
+                      </form>
 
-                      <div class="actions-menu-dropdown" role="menu">
-                        <form
-                          method="post"
-                          action="/acessos/<%= item._id %>/aprovar"
-                          data-confirm="true"
-                          data-confirm-title="Aprovar cadastro?"
-                          data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
-                          data-confirm-icon="question"
-                          data-confirm-confirm="Aprovar"
-                          data-confirm-cancel="Cancelar"
-                        >
-                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <button class="actions-menu-item" type="submit">Aprovar</button>
-                        </form>
-
-                        <% if (item.tipoCadastro === "familia") { %>
-                          <form
-                            method="post"
-                            action="/acessos/<%= item._id %>/aprovar"
-                            data-confirm="true"
-                            data-confirm-title="Aprovar e ativar acesso?"
-                            data-confirm-text="Deseja aprovar e ativar o acesso de <%= item.nome || 'usuario' %>?"
-                            data-confirm-icon="question"
-                            data-confirm-confirm="Aprovar e ativar"
-                            data-confirm-cancel="Cancelar"
-                          >
-                            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                            <input type="hidden" name="ativo" value="true" />
-                            <button class="actions-menu-item" type="submit">Aprovar + Ativar</button>
-                          </form>
-                        <% } %>
-
-                        <form
-                          method="post"
-                          action="/acessos/<%= item._id %>/rejeitar"
-                          data-confirm="true"
-                          data-confirm-title="Rejeitar cadastro?"
-                          data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
-                          data-confirm-icon="warning"
-                          data-confirm-confirm="Rejeitar"
-                          data-confirm-cancel="Cancelar"
-                        >
-                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <button class="actions-menu-item actions-menu-item-warn" type="submit">Rejeitar</button>
-                        </form>
-                      </div>
+                      <form
+                        method="post"
+                        action="/acessos/<%= item._id %>/rejeitar"
+                        class="aprovacao-quick-form"
+                        data-confirm="true"
+                        data-confirm-title="Rejeitar cadastro?"
+                        data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
+                        data-confirm-icon="warning"
+                        data-confirm-confirm="Rejeitar"
+                        data-confirm-cancel="Cancelar"
+                      >
+                        <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                        <button class="aprovacao-quick-btn aprovacao-quick-btn-reject" type="submit" title="Recusar cadastro" aria-label="Recusar cadastro">
+                          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                      </form>
                     </div>
                   <% } else { %>
                     <small>Somente admin aprova.</small>

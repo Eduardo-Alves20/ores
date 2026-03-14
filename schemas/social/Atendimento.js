@@ -25,6 +25,13 @@ const AtendimentoSchema = new mongoose.Schema(
       index: true,
       default: null,
     },
+    profissionalId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      required: false,
+      index: true,
+      default: null,
+    },
     dataHora: {
       type: Date,
       required: true,
@@ -87,4 +94,3 @@ module.exports = {
   Atendimento: mongoose.model("Atendimento", AtendimentoSchema),
   TIPOS_ATENDIMENTO,
 };
-

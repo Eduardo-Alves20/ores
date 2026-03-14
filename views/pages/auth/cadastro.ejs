@@ -24,7 +24,7 @@
     <form method="post" action="/cadastro" autocomplete="off" class="form-stack">
       <label for="nome" class="input-label">Nome completo *</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-user field-icon"></i>
+        <i class="fa-solid fa-user field-icon"></i>
         <input
           class="input-control"
           id="nome"
@@ -38,7 +38,7 @@
 
       <label for="email" class="input-label">Email *</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-envelope field-icon"></i>
+        <i class="fa-solid fa-envelope field-icon"></i>
         <input
           class="input-control"
           id="email"
@@ -52,7 +52,7 @@
 
       <label for="login" class="input-label">Usuario para login *</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-at field-icon"></i>
+        <i class="fa-solid fa-at field-icon"></i>
         <input
           class="input-control"
           id="login"
@@ -67,7 +67,7 @@
 
       <label for="cpf" class="input-label">CPF *</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-id-card field-icon"></i>
+        <i class="fa-solid fa-address-card field-icon"></i>
         <input
           class="input-control"
           id="cpf"
@@ -93,7 +93,7 @@
 
       <label for="telefone" class="input-label">Telefone</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-phone field-icon"></i>
+        <i class="fa-solid fa-phone field-icon"></i>
         <input
           class="input-control"
           id="telefone"
@@ -111,7 +111,7 @@
 
       <label for="senha" class="input-label">Senha *</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-lock field-icon"></i>
+        <i class="fa-solid fa-lock field-icon"></i>
         <input
           class="input-control"
           id="senha"
@@ -127,13 +127,13 @@
           aria-label="Mostrar senha"
           aria-pressed="false"
         >
-          <i class="fa-regular fa-eye-slash field-icon-right" data-password-icon></i>
+          <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
         </button>
       </div>
 
       <label for="confirmarSenha" class="input-label">Confirmar senha *</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-lock field-icon"></i>
+        <i class="fa-solid fa-lock field-icon"></i>
         <input
           class="input-control"
           id="confirmarSenha"
@@ -148,15 +148,19 @@
           aria-label="Mostrar senha"
           aria-pressed="false"
         >
-          <i class="fa-regular fa-eye-slash field-icon-right" data-password-icon></i>
+          <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
         </button>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-block">
-        Enviar Cadastro
-      </button>
+      <div class="auth-actions">
+        <button type="submit" class="btn btn-accent btn-block auth-action-btn">
+          Criar conta
+        </button>
 
-      <a href="/login" class="create-link">Ja tenho conta</a>
+        <a href="/login" class="btn btn-primary btn-block auth-action-btn">
+          Entrar
+        </a>
+      </div>
     </form>
   </div>
 </section>

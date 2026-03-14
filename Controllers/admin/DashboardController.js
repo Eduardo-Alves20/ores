@@ -55,19 +55,19 @@ class DashboardController {
 
       const cards = [
         {
-          icon: "fa-regular fa-users",
+          icon: "fa-solid fa-users",
           title: "Total de Dependentes Ativos",
           value: Number(totalDependentesAtivos || 0).toLocaleString("pt-BR"),
           hint: "Total acumulado ativo na base",
         },
         {
-          icon: "fa-regular fa-user-plus",
+          icon: "fa-solid fa-user-plus",
           title: "Novos cadastros (mes)",
           value: Number(cadastrosMesAtual || 0).toLocaleString("pt-BR"),
           hint: hintCadastros,
         },
         {
-          icon: "fa-regular fa-calendar-check",
+          icon: "fa-solid fa-calendar-check",
           title: "Atendimentos hoje",
           value: Number(atendimentosHoje || 0).toLocaleString("pt-BR"),
           hint: "Agenda do dia",
@@ -101,9 +101,9 @@ class DashboardController {
         pageClass: "page-dashboard",
         user: req?.session?.user || null,
         cards: [
-          { icon: "fa-regular fa-users", title: "Total de Dependentes Ativos", value: "0", hint: "Falha ao carregar" },
-          { icon: "fa-regular fa-user-plus", title: "Novos cadastros (mes)", value: "0", hint: "Falha ao carregar" },
-          { icon: "fa-regular fa-calendar-check", title: "Atendimentos hoje", value: "0", hint: "Falha ao carregar" },
+          { icon: "fa-solid fa-users", title: "Total de Dependentes Ativos", value: "0", hint: "Falha ao carregar" },
+          { icon: "fa-solid fa-user-plus", title: "Novos cadastros (mes)", value: "0", hint: "Falha ao carregar" },
+          { icon: "fa-solid fa-calendar-check", title: "Atendimentos hoje", value: "0", hint: "Falha ao carregar" },
         ],
         cadastros: [],
       });

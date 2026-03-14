@@ -4,8 +4,8 @@ Sistema web para gestao social da Fundacao Alento, com foco em familias, depende
 
 ## Requisitos
 
-- Node.js 20+ (veja `.nvmrc`)
-- MongoDB local rodando na maquina
+- Node.js 20+ (veja `.nvmrc`) para rodar fora do Docker
+- Docker Desktop para o modo de clique duplo/publico
 
 ## Stack
 
@@ -66,28 +66,45 @@ Defina uma senha forte no `.env` (minimo 10 chars, com maiuscula, minuscula e nu
 - `npm run dev` -> sobe com watch
 - `npm start` -> sobe em modo normal
 
-## Docker (sem Mongo no compose)
+## Clique duplo para subir tudo
 
-O projeto ja esta preparado para subir apenas o app em Docker, conectando no Mongo externo/host.
+Se a maquina ja tiver Docker Desktop, da para subir o sistema inteiro e publicar no dominio fixo so com duplo clique em:
 
-1. Configure `.env` (copiando de `.env.example`).
-2. Garanta que o Mongo esteja rodando fora do Docker.
-3. Suba:
+- `INICIAR-ALENTO.bat`
+
+Na primeira execucao:
+
+1. O script cria o `.env` automaticamente se ele nao existir.
+2. Se faltar o `CLOUDFLARE_TUNNEL_TOKEN`, ele pede o token uma vez e salva no `.env`.
+3. Ele sobe `mongo`, `app`, `nginx` e o tunel da Cloudflare.
+
+Depois disso, basta clicar no mesmo arquivo sempre que quiser subir o sistema.
+
+URL publica fixa:
+
+`https://sistema.institutoalento.ong.br/login`
+
+## Docker
+
+O compose agora consegue subir o stack completo mesmo em maquina nova, usando Mongo dentro do proprio Docker.
+
+1. Configure `.env` (ou deixe o script criar a partir de `.env.example`).
+2. Suba:
 
 ```bash
-docker compose up -d --build
+docker compose --profile public up -d --build
 ```
 
 4. Acesse:
 
-`http://localhost:4000`
+`http://localhost:8080/login`
 
 Observacoes importantes:
 
-- O `docker-compose.yml` **nao** cria servico Mongo.
+- O `docker-compose.yml` agora sobe Mongo, app, nginx e o tunel publico.
 - Dentro do container, a conexao padrao usa:
-  - `MONGO_URI_DOCKER=mongodb://host.docker.internal:27017/ALENTO?directConnection=true`
-- Se seu Mongo estiver em outro host/IP, ajuste `MONGO_URI_DOCKER` no `.env`.
+  - `MONGO_URI_DOCKER=mongodb://mongo:27017/ALENTO?directConnection=true`
+- Se quiser continuar usando um Mongo externo, basta ajustar `MONGO_URI_DOCKER` no `.env`.
 
 ## Estrutura resumida
 

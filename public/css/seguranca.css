@@ -1,6 +1,7 @@
 .seguranca-page {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .seguranca-head {
@@ -133,6 +134,12 @@
   opacity: 0.6;
 }
 
+.acesso-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .seguranca-user-filter {
   margin-bottom: 8px;
   display: grid;
@@ -163,6 +170,12 @@
 }
 
 @media (max-width: 980px) {
+  .seguranca-head,
+  .seguranca-section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .seguranca-funcao-form {
     grid-template-columns: 1fr;
   }
@@ -173,5 +186,12 @@
 
   .seguranca-user-filter {
     grid-template-columns: 1fr;
+  }
+
+  .seguranca-form-actions .btn,
+  .seguranca-user-filter .btn,
+  .acesso-actions .btn,
+  .seguranca-assign-form .btn {
+    width: 100%;
   }
 }

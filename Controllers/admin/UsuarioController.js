@@ -1,10 +1,32 @@
 ﻿const UsuarioService = require("../../services/domain/UsuarioService");
 const { registrarAuditoria } = require("../../services/auditService");
+const { PERFIS } = require("../../config/roles");
 
 function getContext(req) {
   return {
     usuarioId: req?.session?.user?.id || null,
   };
+}
+
+function getCurrentProfile(req) {
+  return String(req?.session?.user?.perfil || "").trim().toLowerCase();
+}
+
+function isSuperAdminRequest(req) {
+  return getCurrentProfile(req) === PERFIS.SUPERADMIN;
+}
+
+async function ensureManageableTarget(req, id) {
+  const usuario = await UsuarioService.buscarPorId(id);
+  if (!usuario) return null;
+
+  if (String(usuario.perfil || "").toLowerCase() === PERFIS.SUPERADMIN && !isSuperAdminRequest(req)) {
+    const error = new Error("Somente superadmin pode alterar outro superadmin.");
+    error.status = 403;
+    throw error;
+  }
+
+  return usuario;
 }
 
 class UsuarioController {
@@ -52,7 +74,26 @@ class UsuarioController {
 
   static async criar(req, res) {
     try {
-      const { nome, email, login, senha, telefone, cpf, perfil, ativo } = req.body;
+      const {
+        nome,
+        email,
+        login,
+        senha,
+        telefone,
+        cpf,
+        perfil,
+        tipoCadastro,
+        statusAprovacao,
+        motivoAprovacao,
+        ativo,
+      } = req.body;
+
+      const requestedPerfil = String(perfil || "").trim().toLowerCase();
+      if (requestedPerfil === PERFIS.SUPERADMIN && getCurrentProfile(req) !== PERFIS.SUPERADMIN) {
+        return res.status(403).json({
+          erro: "Somente superadmin pode criar outro superadmin.",
+        });
+      }
 
       const usuario = await UsuarioService.criar(
         {
@@ -63,6 +104,9 @@ class UsuarioController {
           telefone,
           cpf,
           perfil,
+          tipoCadastro,
+          statusAprovacao,
+          motivoAprovacao,
           ativo,
         },
         getContext(req)
@@ -97,6 +141,20 @@ class UsuarioController {
   static async atualizar(req, res) {
     try {
       const { id } = req.params;
+      const requestedPerfil = String(req.body?.perfil || "").trim().toLowerCase();
+      if (requestedPerfil === PERFIS.SUPERADMIN && !isSuperAdminRequest(req)) {
+        return res.status(403).json({
+          erro: "Somente superadmin pode promover um usuario para superadmin.",
+        });
+      }
+
+      const alvo = await ensureManageableTarget(req, id);
+      if (!alvo) {
+        return res.status(404).json({
+          erro: "Usuario nao encontrado.",
+        });
+      }
+
       const usuario = await UsuarioService.atualizar(id, req.body, getContext(req));
 
       if (!usuario) {
@@ -142,6 +200,13 @@ class UsuarioController {
         });
       }
 
+      const alvo = await ensureManageableTarget(req, id);
+      if (!alvo) {
+        return res.status(404).json({
+          erro: "Usuario nao encontrado.",
+        });
+      }
+
       const usuario = await UsuarioService.atualizarSenha(id, senha, getContext(req));
 
       if (!usuario) {
@@ -179,6 +244,13 @@ class UsuarioController {
         });
       }
 
+      const alvo = await ensureManageableTarget(req, id);
+      if (!alvo) {
+        return res.status(404).json({
+          erro: "Usuario nao encontrado.",
+        });
+      }
+
       const usuario = await UsuarioService.alterarStatus(id, ativo, getContext(req));
 
       if (!usuario) {
@@ -208,6 +280,13 @@ class UsuarioController {
   static async remover(req, res) {
     try {
       const { id } = req.params;
+      const alvo = await ensureManageableTarget(req, id);
+      if (!alvo) {
+        return res.status(404).json({
+          erro: "Usuario nao encontrado.",
+        });
+      }
+
       const usuario = await UsuarioService.remover(id, getContext(req));
 
       if (!usuario) {

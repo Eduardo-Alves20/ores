@@ -5,12 +5,16 @@ const { requireAuth } = require("../../middlewares/authSession");
 const { PERFIS } = require("../../config/roles");
 
 const router = express.Router();
+const isDevLike = ["dev", "development", "local", "test", "teste"].includes(
+  String(process.env.AMBIENTE || process.env.NODE_ENV || "").trim().toLowerCase()
+);
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: isDevLike ? 200 : 20,
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
   message: "Muitas tentativas de login. Tente novamente em alguns minutos.",
 });
 

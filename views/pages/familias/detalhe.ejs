@@ -1,6 +1,6 @@
 <section class="page-shell familias-layout" data-page="familia-detalhe" data-familia-id="<%= familia._id %>">
-  <header class="familias-header card-elevated">
-    <div>
+  <header class="familias-header familias-hero familias-hero-detail card-elevated">
+    <div class="familias-hero-main">
       <p class="familias-overline">Prontuario familiar</p>
       <h1 class="familias-title"><%= familia?.responsavel?.nome || "Familia" %></h1>
       <p class="familias-subtitle">
@@ -9,6 +9,14 @@
           | <%= familia.responsavel.parentesco %>
         <% } %>
       </p>
+
+      <div class="familias-hero-tags">
+        <span class="familias-hero-tag <%= familia?.ativo ? 'is-success' : 'is-neutral' %>" id="familia-status-pill">
+          <%= familia?.ativo ? "Familia ativa" : "Familia inativa" %>
+        </span>
+        <span class="familias-hero-tag" id="familia-pacientes-pill">0 dependentes</span>
+        <span class="familias-hero-tag" id="familia-atendimentos-pill">0 atendimentos</span>
+      </div>
     </div>
     <div class="familias-header-actions">
       <a href="/familias" class="btn btn-muted">Voltar</a>
@@ -17,6 +25,14 @@
   </header>
 
   <section class="familia-resumo card-elevated">
+    <div class="familia-resumo-head">
+      <div>
+        <p class="familias-overline">Visao geral</p>
+        <h2 class="section-title">Resumo da familia</h2>
+      </div>
+      <span class="badge-soft">Ficha social centralizada</span>
+    </div>
+
     <div class="resumo-grid">
       <article class="resumo-item">
         <h2>Contato</h2>
@@ -49,9 +65,20 @@
       </div>
       <div class="workflow-actions-top">
         <button type="button" class="btn btn-muted" id="workflow-back-btn" hidden>Voltar</button>
-        <button type="button" class="btn btn-primary" id="workflow-main-btn">Historico de atendimento</button>
+        <button type="button" class="btn btn-primary workflow-main-btn" id="workflow-main-btn">Historico de atendimento</button>
       </div>
     </header>
+
+    <nav class="workflow-tabs" aria-label="Navegacao da ficha">
+      <button type="button" class="workflow-tab is-active" data-workflow-tab="pacientes">
+        <i class="fa-solid fa-people-group" aria-hidden="true"></i>
+        <span>Dependentes</span>
+      </button>
+      <button type="button" class="workflow-tab" data-workflow-tab="historico">
+        <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
+        <span>Historico de atendimento</span>
+      </button>
+    </nav>
 
     <div class="workflow-panels">
       <section id="panel-pacientes" class="workflow-panel is-active">
@@ -102,7 +129,7 @@
           <h3 class="section-title panel-title">Ficha do Dependente</h3>
           <div class="panel-head-actions">
             <button type="button" class="btn btn-muted" id="dependente-editar-btn">
-              <i class="fa-regular fa-pen-to-square"></i>
+              <i class="fa-solid fa-pen-to-square"></i>
               Editar
             </button>
           </div>
@@ -154,14 +181,20 @@
       </section>
 
       <section id="panel-historico" class="workflow-panel" hidden>
+        <section class="historico-spotlight">
+          <div class="historico-spotlight-copy">
+            <p class="familias-overline">Registro social</p>
+            <h3>Registrar atendimento sem perder o contexto</h3>
+            <p>Salve resumo, proximos passos e o voluntario atendido direto da linha do tempo da familia.</p>
+          </div>
+          <button type="button" class="btn btn-primary historico-spotlight-btn" id="historico-registrar-btn">Registrar Atendimento</button>
+        </section>
+
         <div class="listagem-head">
           <h3 class="section-title panel-title">Historico de Atendimentos</h3>
           <span class="badge-soft" id="atendimentos-count">0</span>
         </div>
         <div id="atendimentos-lista" class="timeline-list consulta-cards-list"></div>
-        <div class="panel-actions">
-          <button type="button" class="btn btn-primary" id="historico-registrar-btn">Registrar Atendimento</button>
-        </div>
       </section>
 
       <section id="panel-atendimento" class="workflow-panel" hidden>
@@ -169,7 +202,7 @@
           <h3 class="section-title panel-title">Ficha do Atendimento</h3>
           <div class="panel-head-actions">
             <button type="button" class="btn btn-muted" id="atendimento-editar-btn">
-              <i class="fa-regular fa-pen-to-square"></i>
+              <i class="fa-solid fa-pen-to-square"></i>
               Editar
             </button>
           </div>
@@ -187,6 +220,12 @@
           <label class="field-wrap">
             <span class="input-label">Dependente (opcional)</span>
             <select class="input-control" name="pacienteId" id="atendimento-paciente"></select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Profissional / voluntario atendido (opcional)</span>
+            <select class="input-control" name="profissionalId" id="atendimento-profissional">
+              <option value="">Sem profissional especificado</option>
+            </select>
           </label>
           <label class="field-wrap">
             <span class="input-label">Tipo</span>

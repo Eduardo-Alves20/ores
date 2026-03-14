@@ -24,7 +24,7 @@
     <form method="post" action="/auth/login" autocomplete="off" class="form-stack">
       <label for="email" class="input-label">CPF, Usuario ou Email</label>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-user field-icon"></i>
+        <i class="fa-solid fa-user field-icon"></i>
         <input
           class="input-control"
           id="email"
@@ -40,7 +40,7 @@
         <a href="#" class="mini-link">Esqueceu a senha?</a>
       </div>
       <div class="field-icon-wrap">
-        <i class="fa-regular fa-lock field-icon"></i>
+        <i class="fa-solid fa-lock field-icon"></i>
         <input
           class="input-control"
           id="senha"
@@ -56,15 +56,19 @@
           aria-label="Mostrar senha"
           aria-pressed="false"
         >
-          <i class="fa-regular fa-eye-slash field-icon-right" data-password-icon></i>
+          <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
         </button>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-block">
-        Entrar
-      </button>
+      <div class="auth-actions">
+        <button type="submit" class="btn btn-primary btn-block auth-action-btn">
+          Entrar
+        </button>
 
-      <a href="/cadastro" class="create-link">Criar Conta</a>
+        <a href="/cadastro" class="btn btn-accent btn-block auth-action-btn">
+          Criar conta
+        </a>
+      </div>
     </form>
   </div>
 </section>

@@ -1,6 +1,7 @@
 .usuario-familia-layout {
   display: grid;
   gap: 10px;
+  min-width: 0;
 }
 
 .usuario-familia-head {
@@ -502,6 +503,11 @@ body.usuario-consulta-modal-open {
     align-items: stretch;
   }
 
+  .usuario-familia-filtros .btn,
+  .page-usuario-minha-familia .consulta-mes-nav .btn {
+    width: 100%;
+  }
+
   .page-usuario-minha-familia .consulta-cards-list {
     grid-template-columns: 1fr;
   }
@@ -520,5 +526,23 @@ body.usuario-consulta-modal-open {
 
   .page-usuario-minha-familia .consulta-calendar-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .usuario-familia-historico-head,
+  .page-usuario-minha-familia .consulta-mes-head,
+  .page-usuario-minha-familia .consulta-card-status-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-usuario-minha-familia .consulta-calendar-card {
+    min-height: 0;
+  }
+
+  .page-usuario-minha-familia .consulta-calendar-pill {
+    width: 100%;
+    justify-content: center;
   }
 }

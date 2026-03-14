@@ -128,6 +128,9 @@
     const tbody = document.getElementById("familias-table-body");
     const paginacao = document.getElementById("familias-paginacao");
     const count = document.getElementById("familias-count");
+    const totalChip = document.getElementById("familias-total-chip");
+    const activeChip = document.getElementById("familias-active-chip");
+    const pacientesChip = document.getElementById("familias-pacientes-chip");
 
     const initial = parseJsonScript("familias-initial", {});
     const state = {
@@ -136,7 +139,7 @@
       parentesco: String(initial.parentesco || ""),
       cidade: String(initial.cidade || ""),
       page: Number(initial.page || 1),
-      limit: Number(initial.limit || 20),
+      limit: Number(initial.limit || 10),
     };
 
     function syncForm() {
@@ -152,7 +155,7 @@
       state.ativo = String(form.elements.ativo.value || "");
       state.parentesco = String(form.elements.parentesco.value || "").trim();
       state.cidade = String(form.elements.cidade.value || "").trim();
-      state.limit = Math.max(Number(form.elements.limit.value || 20), 1);
+      state.limit = Math.max(Number(form.elements.limit.value || 10), 1);
     }
 
     function updateUrl() {
@@ -178,7 +181,7 @@
           const cidade = [doc?.endereco?.cidade, doc?.endereco?.estado].filter(Boolean).join("/");
           const statusClass = doc?.ativo ? "status-active" : "status-inactive";
           const statusLabel = doc?.ativo ? "Ativa" : "Inativa";
-          const toggleLabel = doc?.ativo ? "Excluir" : "Reativar";
+          const toggleLabel = doc?.ativo ? "Inativar" : "Reativar";
           const detalhesHref = `/familias/${doc._id}`;
           const editarHref = `/familias/${doc._id}/editar`;
           const rowLabel = doc?.responsavel?.nome || "familia";
@@ -196,16 +199,19 @@
               <td data-label="Status"><span class="status-badge ${statusClass}">${statusLabel}</span></td>
               <td data-label="Atualizacao">${formatDate(doc?.updatedAt)}</td>
               <td data-label="Acoes">
-                <div class="actions-menu" data-no-row-nav>
-                  <button class="actions-menu-trigger" type="button" aria-haspopup="true" aria-expanded="false" data-action="menu-toggle" title="Abrir acoes">
-                    <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-                    <span class="sr-only">Abrir acoes</span>
+                <div class="table-actions" data-no-row-nav>
+                  <a class="table-action-btn table-action-btn-neutral" href="${detalhesHref}">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                    <span>Ficha</span>
+                  </a>
+                  <a class="table-action-btn table-action-btn-edit" href="${editarHref}">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                    <span>Editar</span>
+                  </a>
+                  <button class="table-action-btn ${doc?.ativo ? "table-action-btn-danger" : "table-action-btn-success"}" type="button" data-action="toggle" data-id="${doc._id}" data-next="${String(!doc?.ativo)}">
+                    <i class="fa-solid ${doc?.ativo ? "fa-user-slash" : "fa-power-off"}" aria-hidden="true"></i>
+                    <span>${toggleLabel}</span>
                   </button>
-                  <div class="actions-menu-dropdown" role="menu">
-                    <a class="actions-menu-item" role="menuitem" href="${detalhesHref}">Visualizar ficha</a>
-                    <a class="actions-menu-item" role="menuitem" href="${editarHref}">Editar</a>
-                    <button class="actions-menu-item actions-menu-item-warn" role="menuitem" type="button" data-action="toggle" data-id="${doc._id}" data-next="${String(!doc?.ativo)}">${toggleLabel}</button>
-                  </div>
                 </div>
               </td>
             </tr>
@@ -254,10 +260,21 @@
         const payload = await requestJson(`/api/familias?${params.toString()}`);
         renderRows(payload.docs || []);
         renderPaginacao(payload);
-        count.textContent = `${payload.totalDocs || 0} encontrados`;
+        count.textContent = `${payload.totalDocs || 0} familias monitoradas`;
+
+        const docs = Array.isArray(payload.docs) ? payload.docs : [];
+        const ativosNaPagina = docs.filter((doc) => doc?.ativo).length;
+        const dependentesNaPagina = docs.reduce((total, doc) => total + Number(doc?.pacientesAtivos || 0), 0);
+
+        if (totalChip) totalChip.textContent = String(payload.totalDocs || 0);
+        if (activeChip) activeChip.textContent = String(ativosNaPagina);
+        if (pacientesChip) pacientesChip.textContent = String(dependentesNaPagina);
       } catch (error) {
         tbody.innerHTML = `<tr><td colspan="8">${escapeHtml(error.message)}</td></tr>`;
         count.textContent = "Erro ao carregar";
+        if (totalChip) totalChip.textContent = "-";
+        if (activeChip) activeChip.textContent = "-";
+        if (pacientesChip) pacientesChip.textContent = "-";
       }
     }
 
@@ -274,7 +291,7 @@
       state.parentesco = "";
       state.cidade = "";
       state.page = 1;
-      state.limit = 20;
+      state.limit = 10;
       syncForm();
       load();
     });
@@ -461,6 +478,7 @@
     const workflowSubtitle = document.getElementById("workflow-subtitle");
     const workflowMainBtn = document.getElementById("workflow-main-btn");
     const workflowBackBtn = document.getElementById("workflow-back-btn");
+    const workflowTabs = Array.from(root.querySelectorAll("[data-workflow-tab]"));
     const panelPacientes = document.getElementById("panel-pacientes");
     const panelDependente = document.getElementById("panel-dependente");
     const panelHistorico = document.getElementById("panel-historico");
@@ -475,6 +493,9 @@
     const atendimentoEditarBtn = document.getElementById("atendimento-editar-btn");
     const pacientesCount = document.getElementById("pacientes-count");
     const atendimentosCount = document.getElementById("atendimentos-count");
+    const familiaStatusPill = document.getElementById("familia-status-pill");
+    const familiaPacientesPill = document.getElementById("familia-pacientes-pill");
+    const familiaAtendimentosPill = document.getElementById("familia-atendimentos-pill");
     const statusBadge = document.getElementById("resumo-status");
     const statusBtn = document.getElementById("familia-toggle-status");
     const pacienteNovoBtn = document.getElementById("paciente-novo-btn");
@@ -487,12 +508,14 @@
     const atendimentoForm = document.getElementById("atendimento-form");
     const atendimentoSubmitBtn = document.getElementById("atendimento-submit-btn");
     const pacienteSelect = document.getElementById("atendimento-paciente");
+    const profissionalSelect = document.getElementById("atendimento-profissional");
 
     if (!familiaId) return;
 
     let currentFamilia = null;
     let currentPacientes = [];
     let currentAtendimentos = [];
+    let currentVoluntarios = [];
     let selectedDependenteId = null;
     let selectedAtendimentoId = null;
     let activeView = "pacientes";
@@ -530,6 +553,36 @@
     function getAtendimentoPaciente(item) {
       const itemPacienteId = item?.pacienteId?._id || item?.pacienteId || null;
       return currentPacientes.find((p) => String(p._id) === String(itemPacienteId)) || null;
+    }
+
+    function formatProfissionalLabel(profissional) {
+      const nome = String(profissional?.nome || "").trim();
+      const login = String(profissional?.login || "").trim();
+      if (nome && login && nome.toLowerCase() !== login.toLowerCase()) {
+        return `${nome} (${login})`;
+      }
+      return nome || login || "Voluntario";
+    }
+
+    function getAtendimentoProfissional(item) {
+      const rawProfissional = item?.profissionalId || null;
+      const profissionalId = rawProfissional?._id || rawProfissional || null;
+      if (rawProfissional && typeof rawProfissional === "object" && rawProfissional._id) {
+        return rawProfissional;
+      }
+      return currentVoluntarios.find((profissional) => String(profissional._id) === String(profissionalId)) || null;
+    }
+
+    function renderProfissionalOptions(selectedId = "") {
+      if (!profissionalSelect) return;
+
+      const baseOption = '<option value="">Sem profissional especificado</option>';
+      const options = currentVoluntarios.map((profissional) => (
+        `<option value="${profissional._id}">${escapeHtml(formatProfissionalLabel(profissional))}</option>`
+      ));
+
+      profissionalSelect.innerHTML = [baseOption].concat(options).join("");
+      profissionalSelect.value = selectedId ? String(selectedId) : "";
     }
 
     function getSelectedAtendimento() {
@@ -609,6 +662,7 @@
 
       atendimentoEditarBtn.disabled = false;
       const paciente = getAtendimentoPaciente(atendimento);
+      const profissional = getAtendimentoProfissional(atendimento);
       const statusClass = atendimento.ativo ? "status-active" : "status-inactive";
       const statusLabel = atendimento.ativo ? "Ativo" : "Inativo";
       const toggleLabel = atendimento.ativo ? "Inativar" : "Reativar";
@@ -619,7 +673,7 @@
       atendimentoDetalhe.innerHTML = `
         <article class="consulta-card consulta-card-detalhe">
           <header class="consulta-card-head">
-            <h4 class="consulta-card-title">Consulta ${escapeHtml(tipoLabel)}</h4>
+            <h4 class="consulta-card-title">Atendimento ${escapeHtml(tipoLabel)}</h4>
             <span class="consulta-card-mark"></span>
           </header>
           <div class="consulta-card-body">
@@ -628,6 +682,9 @@
 
             <p class="consulta-label">Dependente</p>
             <p class="consulta-value consulta-value-success">${escapeHtml(paciente?.nome || "Nao informado")}</p>
+
+            <p class="consulta-label">Profissional / voluntario</p>
+            <p class="consulta-value consulta-value-success">${escapeHtml(profissional ? formatProfissionalLabel(profissional) : "Nao informado")}</p>
 
             <hr class="consulta-divider" />
 
@@ -654,6 +711,9 @@
         atendimentoSubmitBtn.textContent = "Salvar Alteracoes";
         registroVoltarBtn.textContent = "Voltar ao Atendimento";
         atendimentoForm.elements.pacienteId.value = String(atendimento?.pacienteId?._id || atendimento?.pacienteId || "");
+        atendimentoForm.elements.profissionalId.value = String(
+          atendimento?.profissionalId?._id || atendimento?.profissionalId || ""
+        );
         atendimentoForm.elements.tipo.value = atendimento.tipo || "outro";
         atendimentoForm.elements.dataHora.value = toDateTimeLocalValue(atendimento.dataHora);
         atendimentoForm.elements.resumo.value = atendimento.resumo || "";
@@ -663,6 +723,7 @@
         atendimentoSubmitBtn.textContent = "Salvar Atendimento";
         registroVoltarBtn.textContent = "Voltar ao Historico";
         atendimentoForm.reset();
+        atendimentoForm.elements.profissionalId.value = "";
       }
     }
 
@@ -730,6 +791,11 @@
         workflowBackBtn.textContent = registroOrigin === "atendimento" ? "Voltar ao atendimento" : "Voltar ao historico";
       }
 
+      const activeTab = view === "pacientes" || view === "dependente" ? "pacientes" : "historico";
+      workflowTabs.forEach((tab) => {
+        tab.classList.toggle("is-active", tab.dataset.workflowTab === activeTab);
+      });
+
       if (view !== "pacientes") {
         closePacienteForm();
       }
@@ -757,11 +823,19 @@
       statusBadge.textContent = familia?.ativo ? "Ativa" : "Inativa";
       statusBadge.className = `status-badge ${familia?.ativo ? "status-active" : "status-inactive"}`;
       statusBtn.textContent = familia?.ativo ? "Inativar Familia" : "Reativar Familia";
+
+      if (familiaStatusPill) {
+        familiaStatusPill.textContent = familia?.ativo ? "Familia ativa" : "Familia inativa";
+        familiaStatusPill.className = `familias-hero-tag ${familia?.ativo ? "is-success" : "is-neutral"}`;
+      }
     }
 
     function renderPacientes(pacientes) {
       currentPacientes = pacientes;
       pacientesCount.textContent = String(pacientes.length);
+      if (familiaPacientesPill) {
+        familiaPacientesPill.textContent = `${pacientes.length} dependente${pacientes.length === 1 ? "" : "s"}`;
+      }
       if (selectedDependenteId && !pacientes.some((p) => String(p._id) === String(selectedDependenteId))) {
         selectedDependenteId = null;
       }
@@ -802,6 +876,9 @@
     function renderAtendimentos(atendimentos) {
       currentAtendimentos = atendimentos;
       atendimentosCount.textContent = String(atendimentos.length);
+      if (familiaAtendimentosPill) {
+        familiaAtendimentosPill.textContent = `${atendimentos.length} atendimento${atendimentos.length === 1 ? "" : "s"}`;
+      }
       if (selectedAtendimentoId && !atendimentos.some((a) => String(a._id) === String(selectedAtendimentoId))) {
         selectedAtendimentoId = null;
       }
@@ -815,6 +892,7 @@
       atendimentosLista.innerHTML = atendimentos
         .map((item) => {
           const paciente = getAtendimentoPaciente(item);
+          const profissional = getAtendimentoProfissional(item);
           const toggleLabel = item.ativo ? "Inativar" : "Reativar";
           const tipoLabel = formatAtendimentoTipoLabel(item.tipo);
           const selectedClass = String(selectedAtendimentoId || "") === String(item._id) ? "consulta-card-selected" : "";
@@ -824,7 +902,7 @@
           return `
             <article class="consulta-card consulta-card-clickable ${selectedClass}" data-type="atendimento-open" data-id="${item._id}" role="button" tabindex="0" aria-label="Abrir ficha do atendimento">
               <header class="consulta-card-head">
-                <h4 class="consulta-card-title">Consulta ${escapeHtml(tipoLabel)}</h4>
+                <h4 class="consulta-card-title">Atendimento ${escapeHtml(tipoLabel)}</h4>
                 <span class="consulta-card-mark"></span>
               </header>
               <div class="consulta-card-body">
@@ -833,6 +911,9 @@
 
                 <p class="consulta-label">Dependente</p>
                 <p class="consulta-value consulta-value-success">${escapeHtml(paciente?.nome || "Nao informado")}</p>
+
+                <p class="consulta-label">Voluntario atendido</p>
+                <p class="consulta-value">${escapeHtml(profissional ? formatProfissionalLabel(profissional) : "Nao informado")}</p>
 
                 <hr class="consulta-divider" />
 
@@ -874,6 +955,17 @@
       } else if (activeView === "historico") {
         openRegistroCreate("historico");
       }
+    });
+
+    workflowTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const target = String(tab.dataset.workflowTab || "").trim();
+        if (target === "historico") {
+          setView("historico");
+          return;
+        }
+        setView(selectedDependenteId ? "dependente" : "pacientes");
+      });
     });
 
     workflowBackBtn.addEventListener("click", () => {
@@ -923,6 +1015,15 @@
     async function loadDetail() {
       try {
         const payload = await requestJson(`/api/familias/${familiaId}?incluirInativos=true`);
+        currentVoluntarios = Array.isArray(payload.voluntarios) ? payload.voluntarios.slice() : [];
+        (payload.atendimentos || []).forEach((atendimento) => {
+          const profissional = atendimento?.profissionalId;
+          if (!profissional || !profissional._id) return;
+          const exists = currentVoluntarios.some((item) => String(item._id) === String(profissional._id));
+          if (!exists) currentVoluntarios.push(profissional);
+        });
+        currentVoluntarios.sort((a, b) => formatProfissionalLabel(a).localeCompare(formatProfissionalLabel(b), "pt-BR"));
+        renderProfissionalOptions(atendimentoForm.elements.profissionalId.value || "");
         renderResumo(payload.familia);
         renderPacientes(payload.pacientes || []);
         renderDependenteFicha();
@@ -1159,6 +1260,7 @@
       event.preventDefault();
       const payload = {
         pacienteId: atendimentoForm.elements.pacienteId.value || null,
+        profissionalId: atendimentoForm.elements.profissionalId.value || null,
         tipo: atendimentoForm.elements.tipo.value,
         dataHora: toIsoFromLocal(atendimentoForm.elements.dataHora.value) || new Date().toISOString(),
         resumo: atendimentoForm.elements.resumo.value.trim(),
@@ -1197,6 +1299,7 @@
     setView("pacientes");
     closePacienteForm();
     closeDependenteForm();
+    renderProfissionalOptions();
     loadDetail();
   }
 

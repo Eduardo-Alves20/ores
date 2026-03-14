@@ -1,6 +1,7 @@
 .agenda-layout {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .agenda-header {
@@ -43,6 +44,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
   gap: 12px;
+  min-width: 0;
 }
 
 .agenda-calendar-panel {
@@ -50,6 +52,7 @@
   border-radius: 14px;
   background: #fff;
   padding: 10px;
+  min-width: 0;
 }
 
 .agenda-calendar-head {
@@ -332,6 +335,7 @@
   display: grid;
   grid-template-rows: auto 1fr;
   min-height: 560px;
+  min-width: 0;
 }
 
 .agenda-day-head {
@@ -538,6 +542,11 @@
     flex: 1;
   }
 
+  .agenda-day-head .btn,
+  .agenda-form-actions .btn {
+    width: 100%;
+  }
+
   .agenda-month-picker-wrap {
     width: 100%;
   }
@@ -578,5 +587,34 @@
   .agenda-form-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+@media (max-width: 620px) {
+  .agenda-calendar-panel {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .agenda-weekdays,
+  .agenda-calendar-grid {
+    min-width: 560px;
+  }
+
+  .agenda-day-panel {
+    min-height: 0;
+  }
+
+  .agenda-event-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .agenda-event-actions .btn-ghost {
+    width: 100%;
+  }
+
+  .agenda-modal-backdrop {
+    padding: 8px;
   }
 }

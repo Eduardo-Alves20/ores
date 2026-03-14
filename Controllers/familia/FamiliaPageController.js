@@ -22,7 +22,7 @@ class FamiliaPageController {
         parentesco: String(req.query.parentesco || ""),
         cidade: String(req.query.cidade || ""),
         page: Number(req.query.page || 1),
-        limit: Number(req.query.limit || 20),
+        limit: Number(req.query.limit || 10),
       },
     });
   }

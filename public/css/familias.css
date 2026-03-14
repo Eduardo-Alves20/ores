@@ -1,42 +1,116 @@
 .familias-layout {
   display: grid;
-  gap: 12px;
+  gap: 18px;
+  min-width: 0;
 }
 
 .familias-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 18px;
+  gap: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(31, 122, 99, 0.18), transparent 34%),
+    radial-gradient(circle at left center, rgba(178, 74, 50, 0.14), transparent 28%),
+    linear-gradient(135deg, #fffdfb 0%, #f7f1ed 100%);
+  border: 1px solid #e7d9d0;
+  border-radius: 22px;
+  padding: clamp(18px, 2vw, 26px);
+  box-shadow: 0 18px 34px rgba(58, 31, 22, 0.08);
+}
+
+.familias-hero-main {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
 }
 
 .familias-overline {
-  margin: 0 0 4px;
-  color: #7f6f67;
-  font-size: 0.76rem;
+  margin: 0;
+  color: #9b4b35;
+  font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
 }
 
 .familias-title {
   margin: 0;
-  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  line-height: 1.03;
+  color: #733321;
 }
 
 .familias-subtitle {
-  margin: 4px 0 0;
-  color: #8a7d75;
+  margin: 0;
+  color: #7c6f67;
+  line-height: 1.5;
+  max-width: 760px;
 }
 
 .familias-header-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.familias-header-actions .btn {
+  min-width: 160px;
+}
+
+.familias-hero-metrics,
+.familias-hero-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.familias-hero-metric,
+.familias-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(155, 75, 53, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  color: #6f5f57;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.familias-hero-metric {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  min-width: 148px;
+}
+
+.familias-hero-metric span {
+  color: #8d7c73;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.familias-hero-metric strong {
+  font-size: 1.45rem;
+  line-height: 1;
+  color: #8e3e2b;
+}
+
+.familias-hero-tag.is-success {
+  color: #155d4b;
+  border-color: #b9dfd0;
+  background: #ecfaf3;
+}
+
+.familias-hero-tag.is-neutral {
+  color: #64544d;
+  border-color: #ddd0c8;
+  background: #f4efed;
 }
 
 .familias-filtros,
@@ -44,10 +118,12 @@
 .familia-form,
 .familia-resumo,
 .detail-col {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #eadcd3;
+  border-radius: 20px;
+  padding: clamp(16px, 1.7vw, 22px);
+  min-width: 0;
+  box-shadow: 0 14px 28px rgba(62, 34, 24, 0.05);
 }
 
 .section-title-wrap {
@@ -61,9 +137,10 @@
 }
 
 .section-subtitle {
-  margin: 2px 0 0;
+  margin: 6px 0 0;
   color: #847870;
   font-size: 0.84rem;
+  line-height: 1.5;
 }
 
 .filtro-grid,
@@ -88,8 +165,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .table-responsive {
@@ -100,15 +177,15 @@
 .familias-table {
   width: 100%;
   min-width: 880px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 12px;
 }
 
 .familias-table th,
 .familias-table td {
-  border-bottom: 1px solid #ecdfd8;
-  padding: 7px 9px;
+  padding: 16px 14px;
   text-align: left;
-  font-size: 0.77rem;
+  font-size: 0.79rem;
 }
 
 .familias-table thead th {
@@ -116,7 +193,7 @@
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #fff;
-  background: var(--brand);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
 }
 
 .familias-table thead th:first-child {
@@ -129,6 +206,24 @@
   border-bottom-right-radius: 999px;
 }
 
+.familias-table tbody td {
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #ecddd4;
+  border-bottom: 1px solid #ecddd4;
+}
+
+.familias-table tbody tr td:first-child {
+  border-left: 1px solid #ecddd4;
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+}
+
+.familias-table tbody tr td:last-child {
+  border-right: 1px solid #ecddd4;
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
+}
+
 .row-actions {
   display: flex;
   flex-wrap: wrap;
@@ -137,17 +232,21 @@
 
 .family-row-clickable {
   cursor: pointer;
-  transition: background-color 0.16s ease;
+  transition: transform 0.16s ease;
 }
 
-.family-row-clickable:hover {
-  background: #fff6f1;
+.family-row-clickable:hover td {
+  background: #fff8f4;
+  border-color: #e4d3ca;
 }
 
 .family-row-clickable:focus {
   outline: 2px solid #d89b86;
   outline-offset: -2px;
-  background: #fff6f1;
+}
+
+.family-row-clickable:focus td {
+  background: #fff8f4;
 }
 
 .actions-menu {
@@ -161,7 +260,7 @@
   width: 42px;
   height: 42px;
   border: 1px solid #d8cdc6;
-  background: #ebe8e6;
+  background: #f4efec;
   border-radius: 999px;
   color: #6d5f57;
   padding: 0;
@@ -178,7 +277,7 @@
 }
 
 .actions-menu-trigger:hover {
-  background: #e3dfdc;
+  background: #ede5e0;
   border-color: #c9bcb4;
 }
 
@@ -247,7 +346,7 @@
 
 .mini-btn {
   border: 1px solid #dcc7bc;
-  background: #f3e4db;
+  background: #fff7f2;
   color: #774438;
   border-radius: 999px;
   padding: 4px 9px;
@@ -322,46 +421,72 @@
 
 .familia-resumo .resumo-grid {
   display: grid;
-  gap: 10px;
+  gap: 14px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.familia-resumo-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .resumo-item {
   border: 1px solid #e8dbd3;
-  border-radius: 12px;
+  border-radius: 18px;
   background: #fff;
-  padding: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.resumo-item::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(178, 74, 50, 0.22), rgba(31, 122, 99, 0.42));
 }
 
 .resumo-item h2 {
-  margin: 0 0 8px;
-  font-size: 0.9rem;
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: #7a3a29;
 }
 
 .resumo-item p {
   margin: 0 0 5px;
   color: #7b6f68;
   font-size: 0.84rem;
+  line-height: 1.5;
 }
 
 .observacao-livre {
-  margin: 12px 0 0;
+  margin: 16px 0 0;
   color: #7f726a;
+  line-height: 1.6;
 }
 
 .detail-workflow {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #eadcd3;
+  border-radius: 22px;
+  padding: clamp(16px, 1.7vw, 22px);
+  min-width: 0;
+  box-shadow: 0 14px 28px rgba(62, 34, 24, 0.05);
 }
 
 .workflow-toolbar {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .workflow-actions-top {
@@ -370,9 +495,50 @@
   flex-wrap: wrap;
 }
 
+.workflow-main-btn {
+  min-width: 220px;
+  border-radius: 14px;
+  box-shadow: 0 14px 24px rgba(169, 68, 46, 0.18);
+}
+
+.workflow-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.workflow-tab {
+  border: 1px solid #e4d6cd;
+  background: #fff8f4;
+  color: #7a4331;
+  border-radius: 999px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.workflow-tab:hover {
+  transform: translateY(-1px);
+  background: #fff1ea;
+  border-color: #d7b9ab;
+}
+
+.workflow-tab.is-active {
+  background: linear-gradient(135deg, #b24a32 0%, #9f3f29 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(164, 66, 44, 0.2);
+}
+
 .workflow-panels {
   border-top: 1px solid #ebddd4;
-  padding-top: 14px;
+  padding-top: 18px;
 }
 
 .workflow-panel {
@@ -392,6 +558,43 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.historico-spotlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #e8d8ce;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at right center, rgba(31, 122, 99, 0.12), transparent 32%),
+    linear-gradient(135deg, #fffaf7 0%, #f7f0eb 100%);
+}
+
+.historico-spotlight-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.historico-spotlight-copy h3 {
+  margin: 0;
+  color: #733321;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+}
+
+.historico-spotlight-copy p:last-child {
+  margin: 0;
+  color: #7c6f67;
+  line-height: 1.55;
+  max-width: 760px;
+}
+
+.historico-spotlight-btn {
+  min-width: 220px;
+  border-radius: 16px;
 }
 
 .panel-head-actions {
@@ -415,12 +618,13 @@
 
 .atendimento-form-box {
   max-width: 760px;
+  width: 100%;
 }
 
 .stack-list,
 .timeline-list {
   display: grid;
-  gap: 8px;
+  gap: 12px;
 }
 
 .consulta-cards-list {
@@ -430,9 +634,11 @@
 
 .stack-card,
 .timeline-card {
-  border: 1px solid #e9ddd5;
-  border-radius: 12px;
-  padding: 12px;
+  border: 1px solid #eadbd1;
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 22px rgba(62, 34, 24, 0.04);
 }
 
 .stack-card-clickable {
@@ -443,7 +649,7 @@
 .stack-card-clickable:hover,
 .stack-card-clickable:focus {
   border-color: #c9826c;
-  box-shadow: 0 4px 14px rgba(163, 97, 76, 0.12);
+  box-shadow: 0 12px 24px rgba(163, 97, 76, 0.12);
   transform: translateY(-1px);
   outline: none;
 }
@@ -456,17 +662,17 @@
 .timeline-card-clickable:hover,
 .timeline-card-clickable:focus {
   border-color: #c9826c;
-  box-shadow: 0 4px 14px rgba(163, 97, 76, 0.12);
+  box-shadow: 0 12px 24px rgba(163, 97, 76, 0.12);
   transform: translateY(-1px);
   outline: none;
 }
 
 .consulta-card {
-  border: 1px solid #d9dce6;
-  border-radius: 16px;
+  border: 1px solid #eadbd1;
+  border-radius: 22px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(28, 38, 72, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, #fcf7f3 100%);
+  box-shadow: 0 14px 28px rgba(62, 34, 24, 0.08);
 }
 
 .consulta-card-clickable {
@@ -477,49 +683,49 @@
 .consulta-card-clickable:hover,
 .consulta-card-clickable:focus {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(31, 43, 80, 0.16);
+  box-shadow: 0 18px 30px rgba(83, 47, 34, 0.12);
   outline: none;
 }
 
 .consulta-card-selected {
-  border-color: #8799d1;
-  box-shadow: 0 0 0 2px rgba(83, 105, 170, 0.2);
+  border-color: rgba(178, 74, 50, 0.36);
+  box-shadow: 0 0 0 3px rgba(178, 74, 50, 0.12), 0 18px 30px rgba(83, 47, 34, 0.1);
 }
 
 .consulta-card-head {
-  background: #3d539f;
+  background:
+    linear-gradient(135deg, #b24a32 0%, #9f3f29 100%);
   color: #fff;
-  padding: 14px 16px 12px;
-  text-align: center;
+  padding: 16px 18px 14px;
+  text-align: left;
 }
 
 .consulta-card-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.02rem;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
 }
 
 .consulta-card-mark {
   width: 46px;
   height: 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.45);
-  margin: 8px auto 0;
+  background: rgba(255, 255, 255, 0.48);
+  margin: 10px 0 0;
 }
 
 .consulta-card-body {
-  padding: 14px 16px 16px;
+  padding: 18px;
 }
 
 .consulta-label {
   margin: 0;
   font-size: 0.77rem;
   font-weight: 800;
-  color: #959baa;
+  color: #9b8579;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 .consulta-value {
@@ -527,30 +733,30 @@
   line-height: 1.2;
   font-size: 1.02rem;
   font-weight: 900;
-  color: #111b37;
+  color: #3d271f;
 }
 
 .consulta-value-primary {
-  color: #111b37;
+  color: #5d281d;
 }
 
 .consulta-value-success {
-  color: #2ea777;
+  color: #226c58;
 }
 
 .consulta-value-accent {
-  color: #2f4fa6;
+  color: #8a3e2a;
 }
 
 .consulta-divider {
   border: 0;
-  border-top: 2px dotted #e4e7ef;
+  border-top: 2px dotted #ead8ce;
   margin: 4px 0 14px;
 }
 
 .consulta-meta {
   margin: 0 0 8px;
-  color: #6c707d;
+  color: #6f635d;
   font-size: 0.8rem;
   line-height: 1.4;
 }
@@ -562,12 +768,8 @@
 }
 
 .consulta-card-detail-wrap {
-  background: #f9fbff;
-  border: 1px solid #dbe2f2;
-}
-
-.consulta-card-detalhe .consulta-card-head {
-  background: #324686;
+  background: #fdf8f4;
+  border: 1px solid #eddcd2;
 }
 
 .stack-card-content {
@@ -619,6 +821,10 @@
     grid-column: span 2;
   }
 
+  .familias-hero-metrics {
+    width: 100%;
+  }
+
   .familia-resumo .resumo-grid {
     grid-template-columns: 1fr;
   }
@@ -630,12 +836,18 @@
     align-items: stretch;
   }
 
+  .familias-hero-metrics,
+  .familias-hero-tags {
+    flex-direction: column;
+  }
+
   .familias-header-actions {
     width: 100%;
   }
 
   .familias-header-actions .btn {
     flex: 1;
+    min-width: 0;
   }
 
   .filtro-grid,
@@ -656,13 +868,36 @@
     align-items: stretch;
   }
 
+  .filtro-actions .btn,
+  .form-actions .btn,
+  .panel-actions .btn,
+  .workflow-actions-top .btn,
+  .panel-head-actions .btn {
+    width: 100%;
+  }
+
   .workflow-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .workflow-tabs {
+    flex-direction: column;
+  }
+
+  .historico-spotlight {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .historico-spotlight-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
   .familias-table {
     min-width: 0;
+    border-spacing: 0;
   }
 
   .familias-table thead {
@@ -685,6 +920,7 @@
   .familias-table td {
     border: 0;
     padding: 4px 0;
+    background: transparent;
   }
 
   .familias-table td::before {
@@ -700,5 +936,37 @@
 
   .consulta-cards-list {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .familia-resumo-head,
+  .listagem-head,
+  .panel-head-actions,
+  .stack-actions,
+  .timeline-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stack-actions .mini-btn,
+  .timeline-top .mini-btn {
+    width: 100%;
+  }
+
+  .consulta-card-head,
+  .consulta-card-body,
+  .stack-card,
+  .timeline-card {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .consulta-card-title {
+    font-size: 0.88rem;
+  }
+
+  .consulta-value {
+    font-size: 0.95rem;
   }
 }

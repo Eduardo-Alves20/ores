@@ -45,6 +45,40 @@ function isAdmin(req) {
   return hasAnyPermission(user.permissions || [], [PERMISSIONS.ACESSOS_APPROVE]);
 }
 
+function canManageUsers(req) {
+  const user = req?.session?.user || {};
+  const perfil = String(user.perfil || "").toLowerCase();
+  if (perfil === PERFIS.SUPERADMIN) return true;
+  return hasAnyPermission(user.permissions || [], [PERMISSIONS.USUARIOS_MANAGE]);
+}
+
+function isSuperAdminRequest(req) {
+  return String(req?.session?.user?.perfil || "").toLowerCase() === PERFIS.SUPERADMIN;
+}
+
+function canManageTargetUser(req, usuario) {
+  const perfilAlvo = String(usuario?.perfil || "").toLowerCase();
+  if (perfilAlvo !== PERFIS.SUPERADMIN) return true;
+  return isSuperAdminRequest(req);
+}
+
+function buildCreateProfileOptions(req) {
+  const user = req?.session?.user || {};
+  const perfilAtual = String(user.perfil || "").toLowerCase();
+  const options = [
+    { value: PERFIS.USUARIO, label: "Usuario do Portal" },
+    { value: PERFIS.ATENDENTE, label: "Atendente" },
+    { value: PERFIS.TECNICO, label: "Tecnico" },
+    { value: PERFIS.ADMIN, label: "Administrador" },
+  ];
+
+  if (perfilAtual === PERFIS.SUPERADMIN) {
+    options.push({ value: PERFIS.SUPERADMIN, label: "SuperAdmin" });
+  }
+
+  return options;
+}
+
 function resolveReturnTo(rawValue, fallbackPath) {
   const raw = String(rawValue || "").trim();
   if (!raw) return fallbackPath;
@@ -68,6 +102,15 @@ function statusClass(statusAprovacao) {
   return "status-pending";
 }
 
+function perfilLabel(perfil) {
+  const value = String(perfil || "").toLowerCase();
+  if (value === PERFIS.SUPERADMIN) return "SuperAdmin";
+  if (value === PERFIS.ADMIN) return "Administrador";
+  if (value === PERFIS.ATENDENTE) return "Atendente";
+  if (value === PERFIS.TECNICO) return "Tecnico";
+  return "Usuario";
+}
+
 function tipoLabel(tipoCadastro) {
   return String(tipoCadastro || "").toLowerCase() === "familia" ? "Familia" : "Voluntario";
 }
@@ -84,11 +127,13 @@ function buildPageBase({ title, sectionTitle, navKey }) {
   };
 }
 
-async function buildResumoByTipo(tipoCadastro) {
-  const base = {
-    tipoCadastro,
-    perfil: PERFIS.USUARIO,
-  };
+async function buildResumo(config = {}) {
+  const base = config.showAllUsers
+    ? {}
+    : {
+        tipoCadastro: config.tipoCadastro,
+        perfil: PERFIS.USUARIO,
+      };
 
   const [total, pendentes, aprovados, ativos] = await Promise.all([
     Usuario.countDocuments(base),
@@ -107,6 +152,7 @@ class AcessoPageController {
   static async usuariosFamilia(req, res) {
     return AcessoPageController.listarPorTipo(req, res, {
       tipoCadastro: "familia",
+      defaultLimit: 10,
       title: "Usuarios Familia",
       sectionTitle: "Usuarios Familia",
       navKey: "usuarios-familia",
@@ -118,10 +164,12 @@ class AcessoPageController {
   static async usuariosVoluntario(req, res) {
     return AcessoPageController.listarPorTipo(req, res, {
       tipoCadastro: "voluntario",
-      title: "Usuarios Voluntario",
-      sectionTitle: "Usuarios Voluntario",
+      showAllUsers: true,
+      defaultLimit: 10,
+      title: "Usuarios e Voluntarios",
+      sectionTitle: "Usuarios e Voluntarios",
       navKey: "usuarios-voluntario",
-      subtitle: "Voluntarios com conta e acesso controlado por aprovacao.",
+      subtitle: "Todos os acessos do sistema, inclusive portal, equipe interna e administradores.",
       basePath: "/acessos/voluntarios",
     });
   }
@@ -129,21 +177,24 @@ class AcessoPageController {
   static async listarPorTipo(req, res, config) {
     try {
       const page = parsePage(req.query.page, 1);
-      const limit = parseLimit(req.query.limit, 20);
+      const limit = parseLimit(req.query.limit, config.defaultLimit || 20);
       const busca = String(req.query.busca || "").trim().slice(0, 100);
       const status = parseStatus(req.query.status, "todos");
       const ativo = parseBoolean(req.query.ativo);
 
-      const filtro = {
-        tipoCadastro: config.tipoCadastro,
-        perfil: PERFIS.USUARIO,
-      };
+      const filtro = config.showAllUsers
+        ? {}
+        : {
+            tipoCadastro: config.tipoCadastro,
+            perfil: PERFIS.USUARIO,
+          };
 
       if (busca) {
         const rx = new RegExp(escapeRegex(busca), "i");
         filtro.$or = [
           { nome: rx },
           { email: rx },
+          { login: rx },
           { cpf: rx },
           { telefone: rx },
         ];
@@ -172,15 +223,18 @@ class AcessoPageController {
           select: "-senha",
           lean: true,
         }),
-        buildResumoByTipo(config.tipoCadastro),
+        buildResumo(config),
       ]);
 
       const usuarios = (resultado.docs || []).map((doc) => ({
         statusAprovacaoNormalized: String(doc.statusAprovacao || "aprovado").toLowerCase(),
         ...doc,
+        perfilLabel: perfilLabel(doc.perfil),
         statusAprovacaoLabel: statusLabel(doc.statusAprovacao),
         statusAprovacaoClass: statusClass(doc.statusAprovacao),
         tipoCadastroLabel: tipoLabel(doc.tipoCadastro),
+        canEdit: canManageUsers(req) && canManageTargetUser(req, doc),
+        canAdminister: isAdmin(req) && canManageTargetUser(req, doc),
       }));
 
       return res.status(200).render("pages/acessos/lista-tipo", {
@@ -211,6 +265,8 @@ class AcessoPageController {
           limitOptions: [10, 20, 50, 100],
         },
         isAdmin: isAdmin(req),
+        canManageUsers: canManageUsers(req),
+        createProfileOptions: buildCreateProfileOptions(req),
         successMessage: req.flash("success"),
         errorMessage: req.flash("error"),
       });
@@ -229,7 +285,7 @@ class AcessoPageController {
   static async aprovacoes(req, res) {
     try {
       const page = parsePage(req.query.page, 1);
-      const limit = parseLimit(req.query.limit, 20);
+      const limit = parseLimit(req.query.limit, 10);
       const busca = String(req.query.busca || "").trim().slice(0, 100);
       const tipo = parseTipo(req.query.tipo, "todos");
 
@@ -409,6 +465,17 @@ class AcessoPageController {
       const ativo = parseBoolean(req.body?.ativo);
       if (typeof ativo === "undefined") {
         req.flash("error", "Campo ativo e obrigatorio.");
+        return res.redirect(returnTo);
+      }
+
+      const usuarioAtual = await Usuario.findById(id).select("_id perfil").lean();
+      if (!usuarioAtual) {
+        req.flash("error", "Usuario nao encontrado.");
+        return res.redirect(returnTo);
+      }
+
+      if (!canManageTargetUser(req, usuarioAtual)) {
+        req.flash("error", "Somente superadmin pode alterar status de outro superadmin.");
         return res.redirect(returnTo);
       }
 

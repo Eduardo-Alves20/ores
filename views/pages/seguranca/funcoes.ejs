@@ -86,7 +86,7 @@
     </header>
 
     <div class="table-wrap">
-      <table class="data-table acessos-table">
+      <table class="data-table acessos-table" data-stack-mobile="true">
         <thead>
           <tr>
             <th>Funcao</th>
@@ -103,20 +103,20 @@
           <% } else { %>
             <% roles.forEach((role) => { %>
               <tr>
-                <td>
+                <td data-label="Funcao">
                   <strong><%= role.nome || "-" %></strong>
                   <div class="seguranca-hint"><%= role.slug || "-" %></div>
                   <% if (role.descricao) { %>
                     <div class="seguranca-hint"><%= role.descricao %></div>
                   <% } %>
                 </td>
-                <td>
+                <td data-label="Permissoes">
                   <span class="badge-soft"><%= Number(role.permissoes?.length || 0).toLocaleString("pt-BR") %> permissao(oes)</span>
                 </td>
-                <td>
+                <td data-label="Status">
                   <span class="status-badge <%= role.ativo ? 'status-active' : 'status-inactive' %>"><%= role.ativo ? "Ativa" : "Inativa" %></span>
                 </td>
-                <td>
+                <td data-label="Acoes">
                   <div class="acesso-actions">
                     <a class="btn btn-muted btn-xxs" href="/seguranca/funcoes?editar=<%= role._id %>">Editar</a>
                     <form method="post" action="/seguranca/funcoes/<%= role._id %>/status" data-confirm="true" data-confirm-title="<%= role.ativo ? 'Inativar funcao?' : 'Ativar funcao?' %>" data-confirm-text="<%= role.ativo ? 'Deseja inativar esta funcao?' : 'Deseja ativar esta funcao?' %>" data-confirm-icon="warning" data-confirm-confirm="<%= role.ativo ? 'Inativar' : 'Ativar' %>" data-confirm-cancel="Cancelar">
@@ -151,7 +151,7 @@
     </form>
 
     <div class="table-wrap">
-      <table class="data-table acessos-table">
+      <table class="data-table acessos-table" data-stack-mobile="true">
         <thead>
           <tr>
             <th>Usuario</th>
@@ -168,15 +168,15 @@
           <% } else { %>
             <% usuarios.forEach((user) => { %>
               <tr>
-                <td>
+                <td data-label="Usuario">
                   <strong><%= user.nome || "-" %></strong>
                   <div class="seguranca-hint"><%= user.email || "-" %></div>
                   <div class="seguranca-hint">login: <%= user.login || "-" %></div>
                 </td>
-                <td>
+                <td data-label="Perfil">
                   <span class="badge-soft"><%= user.perfil || "-" %></span>
                 </td>
-                <td>
+                <td data-label="Funcoes atribuidas">
                   <% if (user.funcoesAcesso?.length) { %>
                     <div class="seguranca-chip-list">
                       <% user.funcoesAcesso.forEach((f) => { %>
@@ -187,7 +187,7 @@
                     <span class="seguranca-hint">Sem funcao customizada (usa perfil padrao)</span>
                   <% } %>
                 </td>
-                <td>
+                <td data-label="Atribuir">
                   <% if (String(user.perfil || '').toLowerCase() === 'superadmin') { %>
                     <span class="seguranca-hint">Nao editavel</span>
                   <% } else { %>
