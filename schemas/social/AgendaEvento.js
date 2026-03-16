@@ -9,6 +9,9 @@ const TIPOS_AGENDA = [
   "outro",
 ];
 
+const AGENDA_ROOM_REQUIRED_TYPES = ["atendimento_sede"];
+const AGENDA_DEFAULT_DURATION_MINUTES = 30;
+
 const AgendaEventoSchema = new mongoose.Schema(
   {
     titulo: {
@@ -36,6 +39,12 @@ const AgendaEventoSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 240,
+    },
+    salaId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AgendaSala",
+      default: null,
+      index: true,
     },
     observacoes: {
       type: String,
@@ -92,10 +101,13 @@ const AgendaEventoSchema = new mongoose.Schema(
   }
 );
 
+AgendaEventoSchema.index({ salaId: 1, inicio: 1, ativo: 1 });
+
 AgendaEventoSchema.plugin(mongoosePaginate);
 
 module.exports = {
   AgendaEvento: mongoose.model("AgendaEvento", AgendaEventoSchema),
   TIPOS_AGENDA,
+  AGENDA_ROOM_REQUIRED_TYPES,
+  AGENDA_DEFAULT_DURATION_MINUTES,
 };
-

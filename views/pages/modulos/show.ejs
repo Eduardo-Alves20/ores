@@ -1,0 +1,78 @@
+<section class="module-show-page">
+  <header class="card-elevated module-hero">
+    <div class="module-hero-eyebrow">Modulo integrado</div>
+
+    <div class="module-hero-top">
+      <div class="module-hero-copy">
+        <h2>
+          <i class="<%= moduleView.icon %>" aria-hidden="true"></i>
+          <span><%= moduleView.title %></span>
+        </h2>
+        <p><%= moduleView.summary %></p>
+      </div>
+
+      <span class="badge-soft"><%= moduleView.stageLabel %></span>
+    </div>
+
+    <div class="module-hero-actions">
+      <% if (moduleView.launchUrl) { %>
+        <a href="<%= moduleView.bridgePath %>" class="btn btn-primary">
+          Entrar no sistema real
+        </a>
+        <span class="module-launch-note">
+          O GESA fara a autenticacao automatica no modulo usando o perfil definido para o usuario.
+        </span>
+      <% } else { %>
+        <span class="module-launch-note">
+          URL externa ainda nao configurada. Esta pagina representa o modulo dentro da apresentacao.
+        </span>
+      <% } %>
+    </div>
+  </header>
+
+  <section class="module-metrics">
+    <article class="card-elevated module-metric-card">
+      <span class="module-metric-label">Perfil de entrada</span>
+      <strong class="module-metric-value"><%= moduleView.access.roleLabel %></strong>
+      <p><%= moduleView.access.roleDescription %></p>
+    </article>
+
+    <article class="card-elevated module-metric-card">
+      <span class="module-metric-label">Status da fase</span>
+      <strong class="module-metric-value"><%= moduleView.isLive ? "Ambiente real publicado" : "Menu ativo no sistema central" %></strong>
+      <p><%= moduleView.isLive ? "O menu do GESA ja abre este modulo real por link externo, preservando a independencia do sistema." : "O modulo ja aparece na barra lateral do GESA para a apresentacao da proposta unificada." %></p>
+    </article>
+
+    <article class="card-elevated module-metric-card">
+      <span class="module-metric-label">Regra temporaria</span>
+      <strong class="module-metric-value">Admin ou usuario padrao</strong>
+      <p>Nesta fase inicial, somente administradores entram com perfil administrativo. Os demais entram como usuario padrao.</p>
+    </article>
+  </section>
+
+  <section class="module-detail-grid">
+    <article class="card-elevated module-detail-card">
+      <div class="module-detail-head">
+        <h3>O que ja estamos apresentando</h3>
+        <span class="badge-soft">Agora</span>
+      </div>
+      <ul class="module-detail-list">
+        <% moduleView.currentPhaseItems.forEach((item) => { %>
+          <li><%= item %></li>
+        <% }) %>
+      </ul>
+    </article>
+
+    <article class="card-elevated module-detail-card">
+      <div class="module-detail-head">
+        <h3>Proxima evolucao</h3>
+        <span class="badge-soft">Depois</span>
+      </div>
+      <ul class="module-detail-list">
+        <% moduleView.nextPhaseItems.forEach((item) => { %>
+          <li><%= item %></li>
+        <% }) %>
+      </ul>
+    </article>
+  </section>
+</section>

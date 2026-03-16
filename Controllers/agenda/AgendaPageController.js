@@ -1,5 +1,9 @@
-﻿const { PERMISSIONS } = require("../../config/permissions");
-const { TIPOS_AGENDA } = require("../../schemas/social/AgendaEvento");
+const { PERMISSIONS } = require("../../config/permissions");
+const {
+  TIPOS_AGENDA,
+  AGENDA_ROOM_REQUIRED_TYPES,
+  AGENDA_DEFAULT_DURATION_MINUTES,
+} = require("../../schemas/social/AgendaEvento");
 const { hasAnyPermission } = require("../../services/accessControlService");
 
 function buildPermissions(user) {
@@ -8,12 +12,14 @@ function buildPermissions(user) {
   const canAssignOthers = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_ASSIGN_OTHERS]);
   const canCreate = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_CREATE]);
   const canMove = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_MOVE]);
+  const canManageRooms = canViewAll;
 
   return {
     canViewAll,
     canAssignOthers,
     canCreate,
     canMove,
+    canManageRooms,
   };
 }
 
@@ -37,11 +43,11 @@ class AgendaPageController {
         },
         permissions: buildPermissions(user),
         tiposAtendimento: TIPOS_AGENDA,
+        roomRequiredTypes: AGENDA_ROOM_REQUIRED_TYPES,
+        slotMinutes: AGENDA_DEFAULT_DURATION_MINUTES,
       },
     });
   }
 }
 
 module.exports = AgendaPageController;
-
-

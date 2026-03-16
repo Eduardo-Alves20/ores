@@ -139,6 +139,17 @@
     return dt.toISOString();
   }
 
+  function addMinutes(dateLike, minutes) {
+    const dt = new Date(dateLike);
+    if (Number.isNaN(dt.getTime())) return null;
+    return new Date(dt.getTime() + minutes * 60 * 1000);
+  }
+
+  function buildEndIso(startIso) {
+    const end = addMinutes(startIso, slotMinutes);
+    return end ? end.toISOString() : null;
+  }
+
   function startOfCalendarGrid(monthDate) {
     const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
     const diff = first.getDay();
@@ -163,6 +174,18 @@
     return labels[value] || value || "Outro";
   }
 
+  function requiresRoomSelection(tipoAtendimento) {
+    return roomRequiredTypes.includes(String(tipoAtendimento || "").trim());
+  }
+
+  function toTimeRangeLabel(inicioLike, fimLike) {
+    const inicio = new Date(inicioLike);
+    const fim = new Date(fimLike);
+    if (Number.isNaN(inicio.getTime())) return "--:--";
+    if (Number.isNaN(fim.getTime())) return toHourLabel(inicio);
+    return `${toHourLabel(inicio)} - ${toHourLabel(fim)}`;
+  }
+
   const MONTH_NAMES = [
     "Janeiro",
     "Fevereiro",
@@ -182,6 +205,8 @@
   const user = config.user || {};
   const permissions = config.permissions || {};
   const tiposAtendimento = Array.isArray(config.tiposAtendimento) ? config.tiposAtendimento : [];
+  const roomRequiredTypes = Array.isArray(config.roomRequiredTypes) ? config.roomRequiredTypes : [];
+  const slotMinutes = Number(config.slotMinutes) > 0 ? Number(config.slotMinutes) : 30;
 
   const elements = {
     mesTitulo: document.getElementById("agenda-mes-titulo"),
@@ -196,6 +221,7 @@
     prevBtn: document.getElementById("agenda-mes-prev"),
     nextBtn: document.getElementById("agenda-mes-next"),
     hojeBtn: document.getElementById("agenda-hoje-btn"),
+    salasBtn: document.getElementById("agenda-salas-btn"),
     responsavelFiltro: document.getElementById("agenda-responsavel-filtro"),
     diaTitulo: document.getElementById("agenda-dia-titulo"),
     diaLista: document.getElementById("agenda-dia-lista"),
@@ -208,9 +234,18 @@
     formSubmit: document.getElementById("agenda-form-submit"),
     tipoSelect: document.getElementById("agenda-tipo-select"),
     responsavelSelect: document.getElementById("agenda-responsavel-select"),
+    salaLabel: document.getElementById("agenda-sala-label"),
+    salaSelect: document.getElementById("agenda-sala-select"),
+    salaHint: document.getElementById("agenda-sala-hint"),
     familiaBusca: document.getElementById("agenda-familia-busca"),
     familiaSelect: document.getElementById("agenda-familia-select"),
     pacienteSelect: document.getElementById("agenda-paciente-select"),
+    salasBackdrop: document.getElementById("agenda-salas-backdrop"),
+    salasCloseBtn: document.getElementById("agenda-salas-close"),
+    salaForm: document.getElementById("agenda-sala-form"),
+    salaSubmit: document.getElementById("agenda-sala-submit"),
+    salaReset: document.getElementById("agenda-sala-reset"),
+    salasLista: document.getElementById("agenda-salas-lista"),
   };
 
   const state = {
@@ -225,6 +260,10 @@
     familias: [],
     searchTimer: null,
     saving: false,
+    salaSaving: false,
+    salaRequestId: 0,
+    availableSalas: [],
+    salasCatalogo: [],
   };
 
   function canMutateEvent(evento) {
@@ -476,11 +515,11 @@
 
     elements.diaLista.innerHTML = eventos
       .map((evento) => {
-        const dt = new Date(evento.inicio);
-        const hora = Number.isNaN(dt.getTime()) ? "--:--" : dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        const hora = toTimeRangeLabel(evento.inicio, evento.fim);
         const responsavelNome = evento?.responsavel?.nome || "Sem responsável";
         const pacienteNome = evento?.paciente?.nome || "Sem paciente específico";
         const familiaNome = evento?.familia?.responsavelNome || "Sem família vinculada";
+        const salaNome = evento?.sala?.nome || "";
         const statusLabel = evento.ativo ? "Inativar" : "Reativar";
 
         return `
@@ -493,6 +532,7 @@
             <p class="agenda-event-line"><strong>Responsável:</strong> ${responsavelNome}</p>
             <p class="agenda-event-line"><strong>Paciente:</strong> ${pacienteNome}</p>
             <p class="agenda-event-line"><strong>Família:</strong> ${familiaNome}</p>
+            ${salaNome ? `<p class="agenda-event-line"><strong>Sala:</strong> ${salaNome}</p>` : ""}
             ${evento.local ? `<p class="agenda-event-line"><strong>Local:</strong> ${evento.local}</p>` : ""}
             <div class="agenda-event-actions">
               ${canMutateEvent(evento) ? `<button type="button" class="btn-ghost" data-action="editar" data-id="${evento._id}">Editar</button>` : ""}
@@ -506,13 +546,263 @@
 
   function setModalOpen(open) {
     elements.modalBackdrop.hidden = !open;
-    document.body.style.overflow = open ? "hidden" : "";
+    document.body.style.overflow = open || (elements.salasBackdrop && !elements.salasBackdrop.hidden) ? "hidden" : "";
+  }
+
+  function setSecondaryModalOpen(backdrop, open) {
+    if (!backdrop) return;
+    backdrop.hidden = !open;
+    document.body.style.overflow = open || !elements.modalBackdrop.hidden ? "hidden" : "";
+  }
+
+  function getCurrentFormStartIso() {
+    return mergeDateAndTime(elements.form.elements.data.value, elements.form.elements.hora.value);
+  }
+
+  function getCurrentEventId() {
+    return String(elements.form.dataset.eventId || "").trim();
+  }
+
+  function setSalaHintMessage(message, tone) {
+    if (!elements.salaHint) return;
+    elements.salaHint.textContent = message || "";
+    elements.salaHint.dataset.tone = tone || "default";
+  }
+
+  function renderSalaOptions(salas, preferredValue) {
+    const list = Array.isArray(salas) ? salas : [];
+    const requiresRoom = requiresRoomSelection(elements.tipoSelect.value);
+    const currentValue = String(preferredValue || elements.salaSelect.value || "");
+    const options = [];
+
+    if (!requiresRoom) {
+      options.push('<option value="">Sem sala vinculada</option>');
+    } else {
+      options.push('<option value="">Selecione uma sala</option>');
+    }
+
+    list.forEach((sala) => {
+      options.push(`<option value="${sala._id}">${sala.nome}</option>`);
+    });
+
+    if (!list.length && requiresRoom) {
+      options.push('<option value="" disabled>Nenhuma sala disponivel neste horario</option>');
+    }
+
+    elements.salaSelect.innerHTML = options.join("");
+    elements.salaSelect.required = requiresRoom;
+
+    if (currentValue && list.some((sala) => String(sala._id) === currentValue)) {
+      elements.salaSelect.value = currentValue;
+    } else if (!requiresRoom) {
+      elements.salaSelect.value = "";
+    } else {
+      elements.salaSelect.value = "";
+    }
+  }
+
+  async function loadAvailableSalas(preferredValue) {
+    if (!elements.salaSelect) return;
+
+    const inicio = getCurrentFormStartIso();
+    if (!inicio) {
+      elements.salaSelect.innerHTML = '<option value="">Informe data e hora</option>';
+      elements.salaSelect.disabled = true;
+      setSalaHintMessage("Informe data e hora para consultar as salas livres.");
+      return;
+    }
+
+    const requestId = state.salaRequestId + 1;
+    state.salaRequestId = requestId;
+    elements.salaSelect.disabled = true;
+    elements.salaSelect.innerHTML = '<option value="">Consultando salas...</option>';
+
+    const params = new URLSearchParams();
+    params.set("inicio", inicio);
+    params.set("fim", buildEndIso(inicio));
+    if (getCurrentEventId()) params.set("eventoId", getCurrentEventId());
+
+    const payload = await requestJson(`/api/agenda/salas/disponiveis?${params.toString()}`);
+    if (requestId !== state.salaRequestId) return;
+
+    state.availableSalas = Array.isArray(payload.salas) ? payload.salas : [];
+    renderSalaOptions(state.availableSalas, preferredValue);
+    elements.salaSelect.disabled = false;
+
+    const requiresRoom = requiresRoomSelection(elements.tipoSelect.value);
+    if (!state.availableSalas.length) {
+      setSalaHintMessage(
+        requiresRoom
+          ? "Nao ha sala livre para esse horario. Troque a hora ou cadastre outra sala."
+          : "Nenhuma sala livre neste horario. Voce ainda pode salvar sem sala vinculada.",
+        requiresRoom ? "warning" : "default"
+      );
+      return;
+    }
+
+    setSalaHintMessage(`${state.availableSalas.length} sala(s) livre(s) para esse horario.`, "success");
+  }
+
+  function syncSalaRequirement() {
+    const requiresRoom = requiresRoomSelection(elements.tipoSelect.value);
+    if (elements.salaLabel) {
+      elements.salaLabel.textContent = requiresRoom ? "Sala de atendimento *" : "Sala de atendimento";
+    }
+    elements.salaSelect.required = requiresRoom;
+  }
+
+  async function loadSalasCatalogo() {
+    if (!permissions.canManageRooms || !elements.salasLista) return;
+    const payload = await requestJson("/api/agenda/salas?incluirInativas=true");
+    state.salasCatalogo = Array.isArray(payload.salas) ? payload.salas : [];
+  }
+
+  function renderSalasCatalogo() {
+    if (!elements.salasLista) return;
+
+    if (!state.salasCatalogo.length) {
+      elements.salasLista.innerHTML = '<p class="empty-hint">Nenhuma sala cadastrada.</p>';
+      return;
+    }
+
+    elements.salasLista.innerHTML = state.salasCatalogo
+      .map((sala) => {
+        const activeLabel = sala.ativo ? "Ativa" : "Inativa";
+        const toggleLabel = sala.ativo ? "Inativar" : "Reativar";
+        return `
+          <article class="agenda-sala-card ${sala.ativo ? "" : "is-inactive"}" data-sala-id="${sala._id}">
+            <div class="agenda-sala-card-head">
+              <div>
+                <h4>${sala.nome}</h4>
+                <p>${sala.descricao || "Sem descricao cadastrada."}</p>
+              </div>
+              <span class="agenda-sala-status">${activeLabel}</span>
+            </div>
+            <div class="agenda-sala-card-actions">
+              <button type="button" class="btn-ghost" data-sala-action="editar" data-sala-id="${sala._id}">Editar</button>
+              <button type="button" class="btn-ghost" data-sala-action="status" data-sala-id="${sala._id}" data-next="${String(!sala.ativo)}">${toggleLabel}</button>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function resetSalaForm() {
+    if (!elements.salaForm) return;
+    elements.salaForm.reset();
+    elements.salaForm.elements.salaId.value = "";
+    if (elements.salaSubmit) {
+      elements.salaSubmit.textContent = "Salvar sala";
+      elements.salaSubmit.disabled = false;
+    }
+  }
+
+  async function openSalasModal() {
+    if (!permissions.canManageRooms || !elements.salasBackdrop) return;
+    await loadSalasCatalogo();
+    renderSalasCatalogo();
+    resetSalaForm();
+    setSecondaryModalOpen(elements.salasBackdrop, true);
+  }
+
+  function closeSalasModal() {
+    if (!elements.salasBackdrop) return;
+    resetSalaForm();
+    setSecondaryModalOpen(elements.salasBackdrop, false);
+  }
+
+  async function handleSalaFormSubmit(event) {
+    event.preventDefault();
+    if (state.salaSaving || !elements.salaForm) return;
+
+    const salaId = String(elements.salaForm.elements.salaId.value || "");
+    const body = {
+      nome: String(elements.salaForm.elements.nome.value || "").trim(),
+      descricao: String(elements.salaForm.elements.descricao.value || "").trim(),
+    };
+
+    if (!body.nome) {
+      showToast("Informe o nome da sala.");
+      return;
+    }
+
+    state.salaSaving = true;
+    if (elements.salaSubmit) elements.salaSubmit.disabled = true;
+
+    try {
+      if (salaId) {
+        await requestJson(`/api/agenda/salas/${salaId}`, {
+          method: "PUT",
+          body,
+        });
+      } else {
+        await requestJson("/api/agenda/salas", {
+          method: "POST",
+          body,
+        });
+      }
+
+      await loadSalasCatalogo();
+      renderSalasCatalogo();
+      resetSalaForm();
+      await loadAvailableSalas(elements.salaSelect.value || "");
+      showSuccess("Sala salva com sucesso.");
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      state.salaSaving = false;
+      if (elements.salaSubmit) elements.salaSubmit.disabled = false;
+    }
+  }
+
+  async function handleSalasListActions(event) {
+    const trigger = event.target.closest("button[data-sala-action]");
+    if (!trigger) return;
+
+    const action = trigger.getAttribute("data-sala-action");
+    const salaId = trigger.getAttribute("data-sala-id");
+    const sala = state.salasCatalogo.find((item) => String(item._id) === String(salaId));
+    if (!sala) return;
+
+    if (action === "editar") {
+      elements.salaForm.elements.salaId.value = String(sala._id);
+      elements.salaForm.elements.nome.value = sala.nome || "";
+      elements.salaForm.elements.descricao.value = sala.descricao || "";
+      if (elements.salaSubmit) elements.salaSubmit.textContent = "Salvar alteracoes";
+      return;
+    }
+
+    if (action === "status") {
+      const next = trigger.getAttribute("data-next") === "true";
+      const ok = await confirmAction({
+        title: next ? "Reativar sala?" : "Inativar sala?",
+        text: next ? "Deseja reativar esta sala?" : "Deseja inativar esta sala?",
+        icon: "warning",
+        confirmButtonText: next ? "Reativar" : "Inativar",
+      });
+      if (!ok) return;
+
+      try {
+        await requestJson(`/api/agenda/salas/${sala._id}/status`, {
+          method: "PATCH",
+          body: { ativo: next },
+        });
+        await loadSalasCatalogo();
+        renderSalasCatalogo();
+        await loadAvailableSalas(elements.salaSelect.value || "");
+        showSuccess("Status da sala atualizado com sucesso.");
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
   }
 
   function setTipoOptions() {
     elements.tipoSelect.innerHTML = tiposAtendimento
       .map((tipo) => `<option value="${tipo}">${normalizeTypeLabel(tipo)}</option>`)
       .join("");
+    syncSalaRequirement();
   }
 
   function setResponsavelOptions() {
@@ -612,6 +902,7 @@
     elements.form.elements.data.value = state.selectedDay || toDateInputValue(new Date());
     elements.form.elements.hora.value = "09:00";
     elements.form.elements.tipoAtendimento.value = "visita_domiciliar";
+    syncSalaRequirement();
 
     if (permissions.canAssignOthers) {
       elements.responsavelSelect.disabled = false;
@@ -627,6 +918,7 @@
     fillPatientsOptions([]);
     await loadFamilies(elements.familiaBusca.value || "");
     setModalOpen(true);
+    await loadAvailableSalas("");
   }
 
   async function openEditModal(eventoId) {
@@ -648,6 +940,7 @@
     elements.form.elements.data.value = toDateInputValue(dt);
     elements.form.elements.hora.value = toTimeInputValue(dt);
     elements.form.elements.tipoAtendimento.value = evento.tipoAtendimento || "outro";
+    syncSalaRequirement();
     elements.form.elements.local.value = evento.local || "";
     elements.form.elements.observacoes.value = evento.observacoes || "";
 
@@ -688,6 +981,7 @@
     }
 
     setModalOpen(true);
+    await loadAvailableSalas(String(evento?.sala?._id || ""));
   }
 
   function closeModal() {
@@ -695,6 +989,9 @@
     elements.form.reset();
     elements.form.dataset.mode = "create";
     elements.form.dataset.eventId = "";
+    state.salaRequestId += 1;
+    renderSalaOptions([], "");
+    setSalaHintMessage("As salas livres para este horario aparecem automaticamente aqui.");
   }
 
   async function handleFormSubmit(event) {
@@ -713,9 +1010,11 @@
     const payload = {
       titulo: String(elements.form.elements.titulo.value || "").trim(),
       inicio,
+      fim: buildEndIso(inicio),
       tipoAtendimento: elements.form.elements.tipoAtendimento.value || "outro",
       local: String(elements.form.elements.local.value || "").trim(),
       observacoes: String(elements.form.elements.observacoes.value || "").trim(),
+      salaId: elements.form.elements.salaId.value || null,
       familiaId: elements.form.elements.familiaId.value || null,
       pacienteId: elements.form.elements.pacienteId.value || null,
       responsavelId: elements.form.elements.responsavelId.value || null,
@@ -723,6 +1022,11 @@
 
     if (!payload.titulo) {
       showToast("Título é obrigatório.");
+      return;
+    }
+
+    if (requiresRoomSelection(payload.tipoAtendimento) && !payload.salaId) {
+      showToast("Selecione uma sala de atendimento para esse horario.");
       return;
     }
 
@@ -910,6 +1214,12 @@
       openCreateModal().catch((error) => showToast(error.message));
     });
 
+    if (elements.salasBtn) {
+      elements.salasBtn.addEventListener("click", () => {
+        openSalasModal().catch((error) => showToast(error.message));
+      });
+    }
+
     elements.modalCloseBtn.addEventListener("click", (event) => {
       event.preventDefault();
       closeModal();
@@ -922,8 +1232,46 @@
       if (event.target === elements.modalBackdrop) closeModal();
     });
 
+    if (elements.salasCloseBtn) {
+      elements.salasCloseBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        closeSalasModal();
+      });
+    }
+
+    if (elements.salasBackdrop) {
+      elements.salasBackdrop.addEventListener("click", (event) => {
+        if (event.target === elements.salasBackdrop) closeSalasModal();
+      });
+    }
+
     elements.form.addEventListener("submit", handleFormSubmit);
     elements.diaLista.addEventListener("click", handleDayListActions);
+    if (elements.salaForm) elements.salaForm.addEventListener("submit", handleSalaFormSubmit);
+    if (elements.salaReset) {
+      elements.salaReset.addEventListener("click", (event) => {
+        event.preventDefault();
+        resetSalaForm();
+      });
+    }
+    if (elements.salasLista) {
+      elements.salasLista.addEventListener("click", (event) => {
+        handleSalasListActions(event).catch((error) => showToast(error.message));
+      });
+    }
+
+    ["data", "hora"].forEach((fieldName) => {
+      const field = elements.form.elements[fieldName];
+      if (!field) return;
+      field.addEventListener("change", () => {
+        loadAvailableSalas(elements.salaSelect.value || "").catch((error) => showToast(error.message));
+      });
+    });
+
+    elements.tipoSelect.addEventListener("change", () => {
+      syncSalaRequirement();
+      loadAvailableSalas(elements.salaSelect.value || "").catch((error) => showToast(error.message));
+    });
 
     document.addEventListener("click", (event) => {
       let shouldRender = false;
@@ -949,6 +1297,12 @@
       if (event.key !== "Escape") return;
       if (elements.mesPickerPopover && !elements.mesPickerPopover.hidden) {
         setMonthPickerOpen(false);
+      }
+      if (elements.salasBackdrop && !elements.salasBackdrop.hidden) {
+        closeSalasModal();
+      }
+      if (elements.modalBackdrop && !elements.modalBackdrop.hidden) {
+        closeModal();
       }
     });
 
@@ -982,6 +1336,8 @@
 
   async function init() {
     setTipoOptions();
+    renderSalaOptions([], "");
+    setSalaHintMessage("As salas livres para este horario aparecem automaticamente aqui.");
     bindEvents();
     bindDayCardDragAndDrop();
 

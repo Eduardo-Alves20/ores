@@ -4,6 +4,7 @@ const {
   getDefaultPermissionsForProfile,
   normalizePermissionList,
 } = require("../config/permissions");
+const { getPermissionsForVolunteerAccessLevel } = require("../config/volunteerAccess");
 
 function normalizeList(list) {
   const input = Array.isArray(list) ? list : [list];
@@ -50,7 +51,7 @@ async function carregarUsuarioComFuncoes(userId) {
   if (!userId) return null;
 
   return Usuario.findById(userId)
-    .select("perfil funcoesAcesso ativo")
+    .select("perfil tipoCadastro nivelAcessoVoluntario funcoesAcesso ativo")
     .populate({
       path: "funcoesAcesso",
       select: "permissoes ativo",
@@ -74,6 +75,14 @@ async function resolvePermissionsForUserId(userId, fallbackPerfil = "") {
 
   if (funcoesAtivas.length) {
     return mapPermissoesDeFuncoes(funcoesAtivas);
+  }
+
+  if (
+    perfil === PERFIS.USUARIO &&
+    String(user.tipoCadastro || "").toLowerCase() === "voluntario" &&
+    user.nivelAcessoVoluntario
+  ) {
+    return getPermissionsForVolunteerAccessLevel(user.nivelAcessoVoluntario);
   }
 
   return getDefaultPermissionsForProfile(perfil);

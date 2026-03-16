@@ -1,5 +1,7 @@
 ﻿const Usuario = require("../../schemas/core/Usuario");
-const { PERFIS } = require("../../config/roles");
+const { PERFIS, normalizeProfileValue } = require("../../config/roles");
+const { normalizeVolunteerAccessLevel } = require("../../config/volunteerAccess");
+const { APPROVAL_ROLES, normalizeApprovalRole } = require("../../config/approvalRoles");
 const {
   validarSenhaForte,
   mensagemPoliticaSenha,
@@ -18,10 +20,10 @@ function createServiceError(message, status = 400, code = "SERVICE_ERROR") {
 }
 
 function normalizePerfil(perfil) {
-  const raw = String(perfil || "").toLowerCase().trim();
-  if (raw === "usuario") return PERFIS.USUARIO;
-  if (!raw) return PERFIS.ATENDENTE;
-  return raw;
+  const normalized = normalizeProfileValue(perfil);
+  if (normalized) return normalized;
+  if (!String(perfil || "").trim()) return PERFIS.ATENDENTE;
+  return String(perfil || "").toLowerCase().trim();
 }
 
 function normalizeTipoCadastro(tipoCadastro) {
@@ -194,6 +196,14 @@ class UsuarioService {
     const tipoCadastroNormalized = normalizeTipoCadastro(dados.tipoCadastro);
     const statusDefault = perfilNormalized === PERFIS.USUARIO ? "pendente" : "aprovado";
     const statusAprovacao = normalizeStatusAprovacao(dados.statusAprovacao, statusDefault);
+    const nivelAcessoVoluntario =
+      tipoCadastroNormalized === "voluntario"
+        ? normalizeVolunteerAccessLevel(dados.nivelAcessoVoluntario, null)
+        : null;
+    const papelAprovacao =
+      perfilNormalized === PERFIS.USUARIO
+        ? APPROVAL_ROLES.MEMBRO
+        : normalizeApprovalRole(dados.papelAprovacao, APPROVAL_ROLES.MEMBRO);
 
     if (!dados.nome || !email || !senha) {
       throw createServiceError("Campos obrigatorios: nome, email e senha.", 400, "VALIDATION_ERROR");
@@ -234,6 +244,8 @@ class UsuarioService {
       cpf: cpf || undefined,
       perfil: perfilNormalized,
       tipoCadastro: tipoCadastroNormalized,
+      nivelAcessoVoluntario,
+      papelAprovacao,
       statusAprovacao,
       ativo: typeof ativoParsed === "undefined" ? statusAprovacao === "aprovado" : ativoParsed,
       aprovadoEm: statusAprovacao === "aprovado" ? new Date() : null,
@@ -276,6 +288,18 @@ class UsuarioService {
     const statusAprovacao = hasStatusAprovacao
       ? normalizeStatusAprovacao(dados.statusAprovacao, "pendente")
       : undefined;
+    const hasNivelAcessoVoluntario = Object.prototype.hasOwnProperty.call(dados, "nivelAcessoVoluntario");
+    const hasPapelAprovacao = Object.prototype.hasOwnProperty.call(dados, "papelAprovacao");
+    const nextTipoCadastro = Object.prototype.hasOwnProperty.call(dados, "tipoCadastro")
+      ? normalizeTipoCadastro(dados.tipoCadastro)
+      : undefined;
+    const nivelAcessoVoluntario = hasNivelAcessoVoluntario
+      ? normalizeVolunteerAccessLevel(dados.nivelAcessoVoluntario, null)
+      : undefined;
+    const nextPerfil = typeof dados.perfil !== "undefined" ? normalizePerfil(dados.perfil) : undefined;
+    const papelAprovacao = hasPapelAprovacao
+      ? normalizeApprovalRole(dados.papelAprovacao, APPROVAL_ROLES.MEMBRO)
+      : undefined;
 
     const payload = {
       nome: dados.nome ? String(dados.nome).trim() : undefined,
@@ -285,14 +309,23 @@ class UsuarioService {
         ? (String(dados.telefone || "").trim() || null)
         : undefined,
       cpf: hasCpf ? (cpf || null) : undefined,
-      perfil: typeof dados.perfil !== "undefined" ? normalizePerfil(dados.perfil) : undefined,
-      tipoCadastro: typeof dados.tipoCadastro !== "undefined" ? normalizeTipoCadastro(dados.tipoCadastro) : undefined,
+      perfil: nextPerfil,
+      tipoCadastro: nextTipoCadastro,
+      nivelAcessoVoluntario:
+        typeof nextTipoCadastro !== "undefined" && nextTipoCadastro !== "voluntario"
+          ? null
+          : nivelAcessoVoluntario,
+      papelAprovacao:
+        nextPerfil === PERFIS.USUARIO
+          ? APPROVAL_ROLES.MEMBRO
+          : (typeof nextPerfil === "undefined" && !hasPapelAprovacao ? undefined : papelAprovacao),
       statusAprovacao,
       motivoAprovacao: Object.prototype.hasOwnProperty.call(dados, "motivoAprovacao")
         ? String(dados.motivoAprovacao || "").trim()
         : undefined,
       ativo: typeof ativoParsed !== "undefined" ? ativoParsed : undefined,
       atualizadoPor: contexto.usuarioId || undefined,
+      votosAprovacao: Array.isArray(dados.votosAprovacao) ? dados.votosAprovacao : undefined,
     };
 
     if (statusAprovacao === "aprovado") {

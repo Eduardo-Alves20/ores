@@ -36,6 +36,7 @@
 
       <div class="acessos-hero-stats">
         <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisao</span>
+        <span class="acessos-hero-stat"><strong><%= totalVotos || 0 %></strong> votos registrados</span>
         <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por pagina</span>
       </div>
     </div>
@@ -57,7 +58,7 @@
     <div class="acessos-panel-head">
       <div>
         <h3>Refinar fila</h3>
-        <p>Encontre rapidamente o cadastro pendente e aprove ou recuse em um clique.</p>
+        <p>Na tabela ficam so os icones. A ficha completa abre quando voce clicar para avaliar.</p>
       </div>
     </div>
 
@@ -96,7 +97,7 @@
     <div class="acessos-panel-head">
       <div>
         <h3>Fila de aprovacao</h3>
-        <p>Cadastros aguardando resposta da administracao.</p>
+        <p>Vote pelos icones e abra a ficha quando quiser ver todos os dados do cadastro.</p>
       </div>
       <span class="badge-soft"><%= totalPendente || 0 %> em analise</span>
     </div>
@@ -110,7 +111,7 @@
             <th>Contato</th>
             <th>CPF</th>
             <th>Criado em</th>
-            <th>Acoes</th>
+            <th>Aprovacao</th>
           </tr>
         </thead>
         <tbody>
@@ -121,53 +122,77 @@
           <% } else { %>
             <% usuarios.forEach((item) => { %>
               <tr>
-                <td data-label="Tipo"><span class="badge-soft"><%= item.tipoCadastroLabel %></span></td>
-                <td data-label="Nome"><strong><%= item.nome || "-" %></strong></td>
+                <td data-label="Tipo">
+                  <span class="badge-soft"><%= item.tipoCadastroLabel %></span>
+                </td>
+                <td data-label="Nome">
+                  <strong><%= item.nome || "-" %></strong>
+                  <div class="acesso-row-hint"><%= item.workflowResumo?.stateLabel || "Coletando votos" %></div>
+                </td>
                 <td data-label="Contato">
                   <div><%= item.email || "-" %></div>
                   <small><%= item.telefone || "-" %></small>
                 </td>
                 <td data-label="CPF"><%= item.cpf || "-" %></td>
                 <td data-label="Criado em"><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
-                <td class="acessos-actions-col" data-label="Acoes">
+                <td class="acessos-actions-col" data-label="Aprovacao">
                   <% if (isAdmin) { %>
-                    <div class="aprovacoes-actions">
-                      <form
-                        method="post"
-                        action="/acessos/<%= item._id %>/aprovar"
-                        class="aprovacao-quick-form"
-                        data-confirm="true"
-                        data-confirm-title="Aprovar cadastro?"
-                        data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
-                        data-confirm-icon="question"
-                        data-confirm-confirm="Aprovar"
-                        data-confirm-cancel="Cancelar"
-                      >
+                    <div class="aprovacao-icon-strip">
+                      <% if (item.tipoCadastro === "voluntario") { %>
+                        <button
+                          class="aprovacao-vote-btn aprovacao-vote-btn-approve <%= item.votosResumo?.actorVote === 'aprovar' ? 'is-active' : '' %>"
+                          type="button"
+                          data-approval-open
+                          data-user-id="<%= item._id %>"
+                          title="Abrir ficha para votar e definir nivel"
+                          aria-label="Abrir ficha para votar e definir nivel"
+                        >
+                          <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i>
+                          <span class="aprovacao-vote-count"><%= item.votosResumo?.aprovar || 0 %></span>
+                        </button>
+                      <% } else { %>
+                        <form method="post" action="/acessos/<%= item._id %>/votar" class="aprovacao-vote-form">
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <input type="hidden" name="decisao" value="aprovar" />
+                          <button
+                            class="aprovacao-vote-btn aprovacao-vote-btn-approve <%= item.votosResumo?.actorVote === 'aprovar' ? 'is-active' : '' %>"
+                            type="submit"
+                            title="Votar para aprovar"
+                            aria-label="Votar para aprovar"
+                          >
+                            <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i>
+                            <span class="aprovacao-vote-count"><%= item.votosResumo?.aprovar || 0 %></span>
+                          </button>
+                        </form>
+                      <% } %>
+
+                      <form method="post" action="/acessos/<%= item._id %>/votar" class="aprovacao-vote-form">
                         <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                        <button class="aprovacao-quick-btn aprovacao-quick-btn-approve" type="submit" title="Aprovar cadastro" aria-label="Aprovar cadastro">
-                          <i class="fa-solid fa-check" aria-hidden="true"></i>
+                        <input type="hidden" name="decisao" value="rejeitar" />
+                        <button
+                          class="aprovacao-vote-btn aprovacao-vote-btn-reject <%= item.votosResumo?.actorVote === 'rejeitar' ? 'is-active' : '' %>"
+                          type="submit"
+                          title="Votar para rejeitar"
+                          aria-label="Votar para rejeitar"
+                        >
+                          <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i>
+                          <span class="aprovacao-vote-count"><%= item.votosResumo?.rejeitar || 0 %></span>
                         </button>
                       </form>
 
-                      <form
-                        method="post"
-                        action="/acessos/<%= item._id %>/rejeitar"
-                        class="aprovacao-quick-form"
-                        data-confirm="true"
-                        data-confirm-title="Rejeitar cadastro?"
-                        data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
-                        data-confirm-icon="warning"
-                        data-confirm-confirm="Rejeitar"
-                        data-confirm-cancel="Cancelar"
+                      <button
+                        type="button"
+                        class="aprovacao-open-btn"
+                        data-approval-open
+                        data-user-id="<%= item._id %>"
+                        title="Abrir ficha de aprovacao"
+                        aria-label="Abrir ficha de aprovacao"
                       >
-                        <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                        <button class="aprovacao-quick-btn aprovacao-quick-btn-reject" type="submit" title="Recusar cadastro" aria-label="Recusar cadastro">
-                          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                        </button>
-                      </form>
+                        <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                      </button>
                     </div>
                   <% } else { %>
-                    <small>Somente admin aprova.</small>
+                    <small>Somente admin_alento aprova.</small>
                   <% } %>
                 </td>
               </tr>
@@ -187,4 +212,237 @@
       <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Proxima</a>
     </nav>
   <% } %>
+
+  <div class="acessos-modal" hidden data-approval-modal>
+    <div class="acessos-modal-backdrop" data-approval-close="true"></div>
+
+    <section
+      class="acessos-modal-dialog card-elevated aprovacao-modal-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="approval-modal-title"
+    >
+      <header class="acessos-modal-head">
+        <div>
+          <h3 id="approval-modal-title">Ficha de aprovacao</h3>
+          <p data-approval-description>Veja os dados do cadastro antes de decidir.</p>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-muted btn-icon-sm"
+          data-approval-close="true"
+          aria-label="Fechar ficha"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="acessos-modal-error" data-approval-error hidden></div>
+
+      <div class="aprovacao-modal-content">
+        <div class="aprovacao-detail-grid">
+          <label class="field-wrap">
+            <span class="input-label">Nome</span>
+            <input class="input-control" type="text" readonly data-approval-field="nome" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Email</span>
+            <input class="input-control" type="text" readonly data-approval-field="email" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Login</span>
+            <input class="input-control" type="text" readonly data-approval-field="login" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Telefone</span>
+            <input class="input-control" type="text" readonly data-approval-field="telefone" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">CPF</span>
+            <input class="input-control" type="text" readonly data-approval-field="cpf" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Tipo de cadastro</span>
+            <input class="input-control" type="text" readonly data-approval-field="tipoCadastroLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Perfil</span>
+            <input class="input-control" type="text" readonly data-approval-field="perfilLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Criado em</span>
+            <input class="input-control" type="text" readonly data-approval-field="createdAtLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Status</span>
+            <input class="input-control" type="text" readonly data-approval-field="statusAprovacaoLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Votos para aprovar</span>
+            <input class="input-control" type="text" readonly data-approval-field="approveVotesLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Votos para rejeitar</span>
+            <input class="input-control" type="text" readonly data-approval-field="rejectVotesLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Seu voto</span>
+            <input class="input-control" type="text" readonly data-approval-field="actorVoteLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Estado da votacao</span>
+            <input class="input-control" type="text" readonly data-approval-field="workflowStateLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Presidente do desempate</span>
+            <input class="input-control" type="text" readonly data-approval-field="presidentNameLabel" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Votos restantes</span>
+            <input class="input-control" type="text" readonly data-approval-field="pendingRegularVotesLabel" />
+          </label>
+        </div>
+
+        <section class="aprovacao-review-form aprovacao-voting-panel">
+          <div class="aprovacao-voting-head">
+            <div>
+              <h4>Votacao da analise</h4>
+              <p>Dentro da ficha, o voto segue a mesma logica dos icones da listagem.</p>
+            </div>
+            <span class="badge-soft" data-approval-actor-vote-pill>Ainda nao votou</span>
+          </div>
+
+          <form
+            method="post"
+            class="aprovacao-vote-form-inline"
+            data-approval-vote-approve-form
+          >
+            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+            <input type="hidden" name="decisao" value="aprovar" />
+
+            <label class="field-wrap" data-approval-access-wrap hidden>
+              <span class="input-label">Nivel do voluntario</span>
+              <select class="input-control" name="nivelAcessoVoluntario" data-approval-access-select>
+                <option value="">Escolha o nivel</option>
+                <% (volunteerAccessOptions || []).forEach((option) => { %>
+                  <option value="<%= option.value %>"><%= option.label %></option>
+                <% }) %>
+              </select>
+            </label>
+
+            <div class="aprovacao-voting-actions">
+              <button
+                class="aprovacao-vote-btn aprovacao-vote-btn-approve"
+                type="submit"
+                data-approval-vote-btn="aprovar"
+                title="Votar para aprovar"
+                aria-label="Votar para aprovar"
+              >
+                <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i>
+                <span class="aprovacao-vote-count" data-approval-vote-count="aprovar">0</span>
+              </button>
+
+              <button
+                class="aprovacao-vote-btn aprovacao-vote-btn-reject"
+                type="button"
+                data-approval-reject-open
+                title="Votar para rejeitar"
+                aria-label="Votar para rejeitar"
+              >
+                <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i>
+                <span class="aprovacao-vote-count" data-approval-vote-count="rejeitar">0</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="aprovacao-review-form aprovacao-reasons-panel" data-approval-reasons-wrap hidden>
+          <div class="aprovacao-voting-head">
+            <div>
+              <h4>Motivos de rejeicao</h4>
+              <p>Quando houver justificativa registrada, ela aparece aqui na ficha.</p>
+            </div>
+          </div>
+
+          <div class="aprovacao-reasons-list" data-approval-reasons-list></div>
+        </section>
+
+        <section class="aprovacao-review-form aprovacao-levels-panel" data-approval-level-votes-wrap hidden>
+          <div class="aprovacao-voting-head">
+            <div>
+              <h4>Votos por nivel</h4>
+              <p>Somente votos de aprovacao entram na contagem da funcao final do voluntario.</p>
+            </div>
+            <span class="badge-soft" data-approval-level-leader-pill>Nenhum nivel lider</span>
+          </div>
+
+          <div class="aprovacao-levels-list" data-approval-level-votes-list></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <div class="acessos-modal" hidden data-reject-vote-modal>
+    <div class="acessos-modal-backdrop" data-reject-vote-close="true"></div>
+
+    <section
+      class="acessos-modal-dialog card-elevated aprovacao-reject-modal-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reject-vote-modal-title"
+    >
+      <header class="acessos-modal-head">
+        <div>
+          <h3 id="reject-vote-modal-title">Registrar voto de rejeicao</h3>
+          <p data-reject-vote-description>Se quiser, adicione uma justificativa para aparecer na ficha.</p>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-muted btn-icon-sm"
+          data-reject-vote-close="true"
+          aria-label="Fechar voto de rejeicao"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <form
+        method="post"
+        class="aprovacao-review-form"
+        data-approval-reject-vote-form
+      >
+        <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+        <input type="hidden" name="decisao" value="rejeitar" />
+
+        <label class="field-wrap">
+          <span class="input-label">Motivo da rejeicao</span>
+          <textarea class="input-control textarea-control" name="motivo" rows="4" placeholder="Opcional"></textarea>
+        </label>
+
+        <div class="aprovacao-review-actions">
+          <button type="button" class="btn btn-muted" data-reject-vote-close="true">Cancelar</button>
+          <button class="btn btn-muted acesso-action-reject" type="submit">
+            <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i>
+            <span>Registrar rejeicao</span>
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
 </section>

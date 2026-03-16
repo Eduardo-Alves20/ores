@@ -4,6 +4,11 @@ const { Atendimento } = require("../../schemas/social/Atendimento");
 const Usuario = require("../../schemas/core/Usuario");
 const { PERFIS } = require("../../config/roles");
 const { registrarAuditoria } = require("../../services/auditService");
+const {
+  hasOwnAssistidosScope,
+  resolveScopedFamilyIds,
+  canAccessFamily,
+} = require("../../services/volunteerScopeService");
 
 function parseBoolean(value) {
   if (value === true || value === "true") return true;
@@ -19,9 +24,14 @@ function getActorId(req) {
   return req?.session?.user?.id || null;
 }
 
+function getSessionUser(req) {
+  return req?.session?.user || null;
+}
+
 class FamiliaController {
   static async listar(req, res) {
     try {
+      const user = getSessionUser(req);
       const page = Math.max(Number(req.query.page) || 1, 1);
       const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
       const busca = String(req.query.busca || "").trim().slice(0, 100);
@@ -49,6 +59,11 @@ class FamiliaController {
           { "endereco.cidade": rx },
           { "responsavel.parentesco": rx },
         ];
+      }
+
+      const scopedFamilyIds = await resolveScopedFamilyIds(user);
+      if (Array.isArray(scopedFamilyIds)) {
+        filtro._id = { $in: scopedFamilyIds };
       }
 
       const result = await Familia.paginate(filtro, {
@@ -80,7 +95,12 @@ class FamiliaController {
   static async detalhar(req, res) {
     try {
       const { id } = req.params;
+      const user = getSessionUser(req);
       const incluirInativos = parseBoolean(req.query.incluirInativos) === true;
+
+      if (!(await canAccessFamily(user, id))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
+      }
 
       const familia = await Familia.findById(id).lean();
       if (!familia) {
@@ -105,15 +125,22 @@ class FamiliaController {
             select: "nome login email",
           })
           .lean(),
-        Usuario.find({
-          tipoCadastro: "voluntario",
-          perfil: PERFIS.USUARIO,
-          statusAprovacao: "aprovado",
-          ativo: true,
-        })
-          .sort({ nome: 1 })
-          .select("_id nome login email")
-          .lean(),
+        hasOwnAssistidosScope(user)
+          ? Usuario.find({
+              _id: getActorId(req),
+              ativo: true,
+            })
+              .select("_id nome login email")
+              .lean()
+          : Usuario.find({
+              tipoCadastro: "voluntario",
+              perfil: PERFIS.USUARIO,
+              statusAprovacao: "aprovado",
+              ativo: true,
+            })
+              .sort({ nome: 1 })
+              .select("_id nome login email")
+              .lean(),
       ]);
 
       return res.status(200).json({

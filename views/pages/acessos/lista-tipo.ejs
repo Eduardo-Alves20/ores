@@ -176,7 +176,13 @@
                 <td data-label="Perfil / Tipo">
                   <div class="acesso-perfil-stack">
                     <span class="badge-soft"><%= item.perfilLabel %></span>
+                    <% if (item.perfil !== "usuario") { %>
+                      <small><%= item.papelAprovacaoLabel || "Membro votante" %></small>
+                    <% } %>
                     <small><%= item.tipoCadastro ? item.tipoCadastroLabel : "-" %></small>
+                    <% if (item.nivelAcessoVoluntarioLabel) { %>
+                      <small><%= item.nivelAcessoVoluntarioLabel %></small>
+                    <% } %>
                   </div>
                 </td>
                 <td data-label="Aprovacao"><span class="status-badge <%= item.statusAprovacaoClass %>"><%= item.statusAprovacaoLabel %></span></td>
@@ -204,6 +210,15 @@
                       <% } %>
 
                       <% if (item.canAdminister && item.statusAprovacaoNormalized !== "aprovado") { %>
+                        <% if (item.statusAprovacaoNormalized === "pendente" && item.perfil === "usuario") { %>
+                          <a
+                            href="/acessos/aprovacoes"
+                            class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-approve"
+                          >
+                            <i class="fa-solid fa-check-to-slot" aria-hidden="true"></i>
+                            <span>Votar na fila</span>
+                          </a>
+                        <% } else { %>
                         <form
                           method="post"
                           action="/acessos/<%= item._id %>/aprovar"
@@ -221,9 +236,10 @@
                             <span>Aprovar</span>
                           </button>
                         </form>
+                        <% } %>
                       <% } %>
 
-                      <% if (item.canAdminister && item.tipoCadastro === "familia" && item.statusAprovacaoNormalized !== "aprovado") { %>
+                      <% if (item.canAdminister && item.tipoCadastro === "familia" && item.statusAprovacaoNormalized !== "aprovado" && !(item.statusAprovacaoNormalized === "pendente" && item.perfil === "usuario")) { %>
                         <form
                           method="post"
                           action="/acessos/<%= item._id %>/aprovar"
@@ -244,7 +260,7 @@
                         </form>
                       <% } %>
 
-                      <% if (item.canAdminister && item.statusAprovacaoNormalized !== "rejeitado") { %>
+                      <% if (item.canAdminister && item.statusAprovacaoNormalized !== "rejeitado" && !(item.statusAprovacaoNormalized === "pendente" && item.perfil === "usuario")) { %>
                         <form
                           method="post"
                           action="/acessos/<%= item._id %>/rejeitar"
@@ -361,11 +377,30 @@
               </select>
             </label>
 
+            <label class="field-wrap" data-create-user-approval-role-wrap hidden>
+              <span class="input-label">Papel na aprovacao</span>
+              <select class="input-control" name="papelAprovacao">
+                <% (approvalRoleOptions || []).forEach((option) => { %>
+                  <option value="<%= option.value %>"><%= option.label %></option>
+                <% }) %>
+              </select>
+            </label>
+
             <label class="field-wrap">
               <span class="input-label">Tipo de cadastro</span>
               <select class="input-control" name="tipoCadastro">
                 <option value="voluntario" <%= tipoCadastro === "voluntario" ? "selected" : "" %>>Voluntario</option>
                 <option value="familia" <%= tipoCadastro === "familia" ? "selected" : "" %>>Familia</option>
+              </select>
+            </label>
+
+            <label class="field-wrap" data-create-user-access-wrap hidden>
+              <span class="input-label">Nivel do voluntario</span>
+              <select class="input-control" name="nivelAcessoVoluntario">
+                <option value="">Escolha o nivel</option>
+                <% (volunteerAccessOptions || []).forEach((option) => { %>
+                  <option value="<%= option.value %>"><%= option.label %></option>
+                <% }) %>
               </select>
             </label>
 

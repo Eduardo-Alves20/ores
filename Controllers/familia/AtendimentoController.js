@@ -1,10 +1,14 @@
-﻿const Familia = require("../../schemas/social/Familia");
+const Familia = require("../../schemas/social/Familia");
 const mongoose = require("mongoose");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const Usuario = require("../../schemas/core/Usuario");
 const { PERFIS } = require("../../config/roles");
 const { registrarAuditoria } = require("../../services/auditService");
+const {
+  canAccessFamily,
+  hasOwnAssistidosScope,
+} = require("../../services/volunteerScopeService");
 
 function parseBoolean(value) {
   if (value === true || value === "true") return true;
@@ -14,6 +18,10 @@ function parseBoolean(value) {
 
 function getActorId(req) {
   return req?.session?.user?.id || null;
+}
+
+function getSessionUser(req) {
+  return req?.session?.user || null;
 }
 
 async function buscarProfissionalAtendido(profissionalId) {
@@ -34,9 +42,14 @@ class AtendimentoController {
   static async listarPorFamilia(req, res) {
     try {
       const { familiaId } = req.params;
+      const user = getSessionUser(req);
       const page = Math.max(Number(req.query.page) || 1, 1);
       const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
       const ativo = parseBoolean(req.query.ativo);
+
+      if (!(await canAccessFamily(user, familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
+      }
 
       const familia = await Familia.findById(familiaId).select("_id");
       if (!familia) {
@@ -68,7 +81,12 @@ class AtendimentoController {
     try {
       const { familiaId } = req.params;
       const actorId = getActorId(req);
+      const user = getSessionUser(req);
       const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos } = req.body || {};
+
+      if (!(await canAccessFamily(user, familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
+      }
 
       const familia = await Familia.findById(familiaId).select("_id ativo");
       if (!familia || !familia.ativo) {
@@ -86,11 +104,21 @@ class AtendimentoController {
         }
       }
 
-      const profissional = await buscarProfissionalAtendido(profissionalId);
-      if (String(profissionalId || "").trim() && !profissional) {
+      const profissionalSelecionado = String(profissionalId || "").trim();
+      const profissional = profissionalSelecionado
+        ? await buscarProfissionalAtendido(profissionalSelecionado)
+        : hasOwnAssistidosScope(user)
+          ? await buscarProfissionalAtendido(actorId)
+          : null;
+
+      if (profissionalSelecionado && !profissional) {
         return res.status(400).json({
           erro: "Profissional/voluntario informado nao foi encontrado ou nao esta apto para atendimento.",
         });
+      }
+
+      if (hasOwnAssistidosScope(user) && profissional && String(profissional._id) !== String(actorId)) {
+        return res.status(403).json({ erro: "Voluntarios de atendimento so podem registrar apontamentos em nome proprio." });
       }
 
       const atendimento = await Atendimento.create({
@@ -131,11 +159,24 @@ class AtendimentoController {
     try {
       const { id } = req.params;
       const actorId = getActorId(req);
+      const user = getSessionUser(req);
       const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos } = req.body || {};
 
-      const atual = await Atendimento.findById(id).select("_id familiaId pacienteId");
+      const atual = await Atendimento.findById(id).select("_id familiaId pacienteId profissionalId");
       if (!atual) {
         return res.status(404).json({ erro: "Atendimento nao encontrado." });
+      }
+
+      if (!(await canAccessFamily(user, atual.familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
+      }
+
+      if (
+        hasOwnAssistidosScope(user) &&
+        atual.profissionalId &&
+        String(atual.profissionalId) !== String(actorId)
+      ) {
+        return res.status(403).json({ erro: "Voluntarios de atendimento so podem editar registros vinculados a si mesmos." });
       }
 
       const patch = {
@@ -159,6 +200,10 @@ class AtendimentoController {
         if (!rawProfissionalId) {
           patch.profissionalId = null;
         } else {
+          if (hasOwnAssistidosScope(user) && rawProfissionalId !== String(actorId)) {
+            return res.status(403).json({ erro: "Voluntarios de atendimento so podem manter o proprio nome no atendimento." });
+          }
+
           const profissional = await buscarProfissionalAtendido(rawProfissionalId);
           if (!profissional) {
             return res.status(400).json({
@@ -198,10 +243,6 @@ class AtendimentoController {
         runValidators: true,
       });
 
-      if (!atendimento) {
-        return res.status(404).json({ erro: "Atendimento nao encontrado." });
-      }
-
       await registrarAuditoria(req, {
         acao: "ATENDIMENTO_ATUALIZADO",
         entidade: "atendimento",
@@ -228,9 +269,19 @@ class AtendimentoController {
       const { id } = req.params;
       const ativo = parseBoolean(req.body?.ativo);
       const actorId = getActorId(req);
+      const user = getSessionUser(req);
 
       if (typeof ativo === "undefined") {
         return res.status(400).json({ erro: "Campo ativo e obrigatorio." });
+      }
+
+      const atual = await Atendimento.findById(id).select("_id familiaId");
+      if (!atual) {
+        return res.status(404).json({ erro: "Atendimento nao encontrado." });
+      }
+
+      if (!(await canAccessFamily(user, atual.familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
       }
 
       const atendimento = await Atendimento.findByIdAndUpdate(
@@ -246,10 +297,6 @@ class AtendimentoController {
           runValidators: true,
         }
       );
-
-      if (!atendimento) {
-        return res.status(404).json({ erro: "Atendimento nao encontrado." });
-      }
 
       await registrarAuditoria(req, {
         acao: ativo ? "ATENDIMENTO_REATIVADO" : "ATENDIMENTO_INATIVADO",
@@ -273,5 +320,3 @@ class AtendimentoController {
 }
 
 module.exports = AtendimentoController;
-
-

@@ -15,6 +15,7 @@ const portalUsuarioRoutes = require("./Routes/portal/portalUsuarioRoutes");
 const contaRoutes = require("./Routes/conta/contaRoutes");
 const acessoPageRoutes = require("./Routes/admin/acessoPageRoutes");
 const segurancaRoutes = require("./Routes/admin/segurancaRoutes");
+const modulosRoutes = require("./Routes/modulos/modulosRoutes");
 const DashboardController = require("./Controllers/admin/DashboardController");
 const AgendaPageController = require("./Controllers/agenda/AgendaPageController");
 const { PERFIS } = require("./config/roles");
@@ -57,6 +58,7 @@ router.get("/health", (req, res) => {
 router.use("/", authRoutes);
 router.use("/auth", authRoutes);
 router.use("/", portalUsuarioRoutes);
+router.use("/", modulosRoutes);
 
 router.use(requireAuth);
 router.use("/", contaRoutes);

@@ -1,12 +1,25 @@
-﻿const mongoose = require("mongoose");
 const Familia = require("../../schemas/social/Familia");
 const Usuario = require("../../schemas/core/Usuario");
 const { Paciente } = require("../../schemas/social/Paciente");
-const { AgendaEvento, TIPOS_AGENDA } = require("../../schemas/social/AgendaEvento");
+const {
+  AgendaEvento,
+  TIPOS_AGENDA,
+  AGENDA_ROOM_REQUIRED_TYPES,
+} = require("../../schemas/social/AgendaEvento");
+const { AgendaSala } = require("../../schemas/social/AgendaSala");
 const { PERFIS } = require("../../config/roles");
 const { PERMISSIONS } = require("../../config/permissions");
 const { registrarAuditoria } = require("../../services/auditService");
 const { hasAnyPermission } = require("../../services/accessControlService");
+const {
+  AGENDA_DEFAULT_DURATION_MINUTES,
+  asObjectId,
+  buildAgendaInterval,
+  buildAnySalaConflictFilter,
+  findSalaConflict,
+  getEffectiveEnd,
+  parseAgendaDate,
+} = require("../../services/agendaAvailabilityService");
 
 function parseBoolean(value) {
   if (value === true || value === "true") return true;
@@ -26,18 +39,12 @@ function canAssignOthers(user) {
   return hasAnyPermission(user?.permissions || [], [PERMISSIONS.AGENDA_ASSIGN_OTHERS]);
 }
 
-function asObjectId(value) {
-  if (!value) return null;
-  if (value instanceof mongoose.Types.ObjectId) return value;
-  if (!mongoose.Types.ObjectId.isValid(value)) return null;
-  return new mongoose.Types.ObjectId(String(value));
+function canManageRooms(user) {
+  return canViewAll(user);
 }
 
 function parseDateInput(value) {
-  if (!value) return null;
-  const dt = new Date(value);
-  if (Number.isNaN(dt.getTime())) return null;
-  return dt;
+  return parseAgendaDate(value);
 }
 
 function getMonthRange(query) {
@@ -75,8 +82,24 @@ function sanitizeTitle(value) {
   return String(value || "").trim().slice(0, 140);
 }
 
+function sanitizeSalaNome(value) {
+  return String(value || "").trim().slice(0, 120);
+}
+
+function sanitizeSalaDescricao(value) {
+  return String(value || "").trim().slice(0, 240);
+}
+
 function isProvided(value) {
   return typeof value !== "undefined" && value !== null && String(value).trim() !== "";
+}
+
+function isRoomRequiredForType(tipoAtendimento) {
+  return AGENDA_ROOM_REQUIRED_TYPES.includes(String(tipoAtendimento || "").trim());
+}
+
+function isDuplicateKeyError(error) {
+  return Number(error?.code) === 11000;
 }
 
 async function resolveRelations({ familiaIdInput, pacienteIdInput }) {
@@ -115,21 +138,35 @@ async function resolveRelations({ familiaIdInput, pacienteIdInput }) {
   };
 }
 
+function mapSala(doc) {
+  const sala = doc?.toObject ? doc.toObject() : doc;
+  if (!sala) return null;
+
+  return {
+    _id: sala._id,
+    nome: sala.nome || "",
+    descricao: sala.descricao || "",
+    ativo: sala.ativo !== false,
+  };
+}
+
 function mapEvento(doc) {
   const evento = doc?.toObject ? doc.toObject() : doc;
   const inicio = evento?.inicio ? new Date(evento.inicio) : null;
+  const fim = getEffectiveEnd(evento?.inicio, evento?.fim);
 
   return {
     _id: evento?._id,
     titulo: evento?.titulo || "",
     tipoAtendimento: evento?.tipoAtendimento || "outro",
     inicio: evento?.inicio,
-    fim: evento?.fim || null,
+    fim: fim || null,
     local: evento?.local || "",
     observacoes: evento?.observacoes || "",
     ativo: !!evento?.ativo,
     dia: inicio ? toDayDateString(inicio) : "",
     hora: inicio ? toTimeString(inicio) : "",
+    sala: mapSala(evento?.salaId),
     familia: evento?.familiaId
       ? {
           _id: evento.familiaId._id || evento.familiaId,
@@ -151,6 +188,58 @@ function mapEvento(doc) {
         }
       : null,
   };
+}
+
+async function loadEventoById(eventoId) {
+  return AgendaEvento.findById(eventoId)
+    .populate("responsavelId", "_id nome perfil")
+    .populate("familiaId", "_id responsavel endereco")
+    .populate("pacienteId", "_id nome")
+    .populate("salaId", "_id nome descricao ativo")
+    .lean();
+}
+
+async function resolveSalaSelection({
+  salaIdInput,
+  tipoAtendimento,
+  inicio,
+  fim,
+  ignoreEventId = null,
+  allowEmptyRoom = false,
+}) {
+  const salaId = asObjectId(salaIdInput);
+  if (isProvided(salaIdInput) && !salaId) {
+    return { error: "Sala informada e invalida.", status: 400 };
+  }
+
+  if (!salaId) {
+    if (isRoomRequiredForType(tipoAtendimento) && !allowEmptyRoom) {
+      return { error: "Selecione uma sala de atendimento para este agendamento.", status: 400 };
+    }
+    return { salaId: null, sala: null };
+  }
+
+  const sala = await AgendaSala.findById(salaId).select("_id nome descricao ativo").lean();
+  if (!sala || !sala.ativo) {
+    return { error: "Sala informada esta inativa ou nao existe.", status: 400 };
+  }
+
+  const conflito = await findSalaConflict({
+    salaId,
+    inicio,
+    fim,
+    ignoreEventId,
+  });
+
+  if (conflito) {
+    return {
+      error: "A sala selecionada ja possui um agendamento neste horario.",
+      status: 409,
+      conflito,
+    };
+  }
+
+  return { salaId, sala };
 }
 
 class AgendaController {
@@ -193,6 +282,7 @@ class AgendaController {
         .populate("responsavelId", "_id nome perfil")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
+        .populate("salaId", "_id nome descricao ativo")
         .lean();
 
       return res.status(200).json({
@@ -240,6 +330,196 @@ class AgendaController {
     }
   }
 
+  static async listarSalas(req, res) {
+    try {
+      const user = getSessionUser(req);
+      if (!user || !hasAnyPermission(user.permissions || [], [PERMISSIONS.AGENDA_VIEW])) {
+        return res.status(403).json({ erro: "Acesso negado para agenda." });
+      }
+
+      const incluirInativas = canManageRooms(user) && parseBoolean(req.query?.incluirInativas) === true;
+      const filtro = {};
+      if (!incluirInativas) filtro.ativo = true;
+
+      const salas = await AgendaSala.find(filtro).sort({ nome: 1 }).lean();
+      return res.status(200).json({ salas: salas.map(mapSala) });
+    } catch (error) {
+      console.error("Erro ao listar salas da agenda:", error);
+      return res.status(500).json({ erro: "Erro interno ao listar salas." });
+    }
+  }
+
+  static async listarSalasDisponiveis(req, res) {
+    try {
+      const user = getSessionUser(req);
+      if (!user || !hasAnyPermission(user.permissions || [], [PERMISSIONS.AGENDA_VIEW])) {
+        return res.status(403).json({ erro: "Acesso negado para agenda." });
+      }
+
+      const inicio = parseDateInput(req.query?.inicio);
+      const fim = parseDateInput(req.query?.fim);
+      if (!inicio) {
+        return res.status(400).json({ erro: "Informe o inicio para consultar as salas." });
+      }
+
+      const intervalo = buildAgendaInterval({ inicio, fim });
+      if (!intervalo.inicio || !intervalo.fim || intervalo.fim <= intervalo.inicio) {
+        return res.status(400).json({ erro: "Intervalo de consulta invalido." });
+      }
+
+      const salas = await AgendaSala.find({ ativo: true }).sort({ nome: 1 }).lean();
+      if (!salas.length) {
+        return res.status(200).json({
+          inicio: intervalo.inicio,
+          fim: intervalo.fim,
+          salas: [],
+        });
+      }
+
+      const filtroConflitos = buildAnySalaConflictFilter({
+        inicio: intervalo.inicio,
+        fim: intervalo.fim,
+        ignoreEventId: req.query?.eventoId || null,
+      });
+
+      const salasOcupadas = filtroConflitos ? await AgendaEvento.distinct("salaId", filtroConflitos) : [];
+      const salaOcupadaSet = new Set((salasOcupadas || []).map((item) => String(item || "")));
+      const disponiveis = salas.filter((sala) => !salaOcupadaSet.has(String(sala._id)));
+
+      return res.status(200).json({
+        inicio: intervalo.inicio,
+        fim: intervalo.fim,
+        salas: disponiveis.map(mapSala),
+      });
+    } catch (error) {
+      console.error("Erro ao listar salas disponiveis:", error);
+      return res.status(500).json({ erro: "Erro interno ao consultar salas disponiveis." });
+    }
+  }
+
+  static async criarSala(req, res) {
+    try {
+      const user = getSessionUser(req);
+      if (!user || !canManageRooms(user)) {
+        return res.status(403).json({ erro: "Sem permissao para cadastrar salas." });
+      }
+
+      const actorId = asObjectId(user.id);
+      const nome = sanitizeSalaNome(req.body?.nome);
+      const descricao = sanitizeSalaDescricao(req.body?.descricao);
+
+      if (!nome) {
+        return res.status(400).json({ erro: "Nome da sala e obrigatorio." });
+      }
+
+      const sala = await AgendaSala.create({
+        nome,
+        descricao,
+        ativo: true,
+        criadoPor: actorId,
+        atualizadoPor: actorId,
+      });
+
+      await registrarAuditoria(req, {
+        acao: "AGENDA_SALA_CRIADA",
+        entidade: "agenda_sala",
+        entidadeId: sala._id,
+      });
+
+      return res.status(201).json({
+        mensagem: "Sala criada com sucesso.",
+        sala: mapSala(sala),
+      });
+    } catch (error) {
+      if (isDuplicateKeyError(error)) {
+        return res.status(409).json({ erro: "Ja existe uma sala com esse nome." });
+      }
+      console.error("Erro ao criar sala da agenda:", error);
+      return res.status(500).json({ erro: "Erro interno ao criar sala." });
+    }
+  }
+
+  static async atualizarSala(req, res) {
+    try {
+      const user = getSessionUser(req);
+      if (!user || !canManageRooms(user)) {
+        return res.status(403).json({ erro: "Sem permissao para editar salas." });
+      }
+
+      const sala = await AgendaSala.findById(req.params?.id);
+      if (!sala) {
+        return res.status(404).json({ erro: "Sala nao encontrada." });
+      }
+
+      const nome = sanitizeSalaNome(req.body?.nome);
+      const descricao = sanitizeSalaDescricao(req.body?.descricao);
+      if (!nome) {
+        return res.status(400).json({ erro: "Nome da sala e obrigatorio." });
+      }
+
+      sala.nome = nome;
+      sala.descricao = descricao;
+      sala.atualizadoPor = asObjectId(user.id);
+      await sala.save();
+
+      await registrarAuditoria(req, {
+        acao: "AGENDA_SALA_ATUALIZADA",
+        entidade: "agenda_sala",
+        entidadeId: sala._id,
+      });
+
+      return res.status(200).json({
+        mensagem: "Sala atualizada com sucesso.",
+        sala: mapSala(sala),
+      });
+    } catch (error) {
+      if (isDuplicateKeyError(error)) {
+        return res.status(409).json({ erro: "Ja existe uma sala com esse nome." });
+      }
+      console.error("Erro ao atualizar sala da agenda:", error);
+      return res.status(500).json({ erro: "Erro interno ao atualizar sala." });
+    }
+  }
+
+  static async alterarStatusSala(req, res) {
+    try {
+      const user = getSessionUser(req);
+      if (!user || !canManageRooms(user)) {
+        return res.status(403).json({ erro: "Sem permissao para alterar salas." });
+      }
+
+      const ativo = parseBoolean(req.body?.ativo);
+      if (typeof ativo === "undefined") {
+        return res.status(400).json({ erro: "Campo ativo e obrigatorio." });
+      }
+
+      const sala = await AgendaSala.findById(req.params?.id);
+      if (!sala) {
+        return res.status(404).json({ erro: "Sala nao encontrada." });
+      }
+
+      sala.ativo = ativo;
+      sala.atualizadoPor = asObjectId(user.id);
+      sala.inativadoEm = ativo ? null : new Date();
+      sala.inativadoPor = ativo ? null : asObjectId(user.id);
+      await sala.save();
+
+      await registrarAuditoria(req, {
+        acao: ativo ? "AGENDA_SALA_REATIVADA" : "AGENDA_SALA_INATIVADA",
+        entidade: "agenda_sala",
+        entidadeId: sala._id,
+      });
+
+      return res.status(200).json({
+        mensagem: "Status da sala atualizado com sucesso.",
+        sala: mapSala(sala),
+      });
+    } catch (error) {
+      console.error("Erro ao alterar status da sala:", error);
+      return res.status(500).json({ erro: "Erro interno ao alterar status da sala." });
+    }
+  }
+
   static async criar(req, res) {
     try {
       const user = getSessionUser(req);
@@ -267,12 +547,13 @@ class AgendaController {
         return res.status(400).json({ erro: "Campo inicio e obrigatorio." });
       }
 
-      if (fim && fim <= inicio) {
-        return res.status(400).json({ erro: "Data de fim deve ser maior que a data de inicio." });
-      }
-
       if (!TIPOS_AGENDA.includes(tipoAtendimento)) {
         return res.status(400).json({ erro: "Tipo de atendimento invalido." });
+      }
+
+      const intervalo = buildAgendaInterval({ inicio, fim });
+      if (!intervalo.inicio || !intervalo.fim || intervalo.fim <= intervalo.inicio) {
+        return res.status(400).json({ erro: "Data de fim deve ser maior que a data de inicio." });
       }
 
       if (isProvided(req.body?.familiaId) && !asObjectId(req.body?.familiaId)) {
@@ -306,13 +587,25 @@ class AgendaController {
         return res.status(400).json({ erro: "Responsavel informado esta inativo ou nao existe." });
       }
 
+      const salaSelection = await resolveSalaSelection({
+        salaIdInput: req.body?.salaId || null,
+        tipoAtendimento,
+        inicio: intervalo.inicio,
+        fim: intervalo.fim,
+      });
+
+      if (salaSelection.error) {
+        return res.status(salaSelection.status || 400).json({ erro: salaSelection.error });
+      }
+
       const evento = await AgendaEvento.create({
         titulo,
         tipoAtendimento,
-        inicio,
-        fim: fim || null,
+        inicio: intervalo.inicio,
+        fim: intervalo.fim,
         local,
         observacoes,
+        salaId: salaSelection.salaId || null,
         familiaId: relation.familiaId || null,
         pacienteId: relation.pacienteId || null,
         responsavelId,
@@ -329,14 +622,12 @@ class AgendaController {
           responsavelId,
           familiaId: relation.familiaId || null,
           pacienteId: relation.pacienteId || null,
+          salaId: salaSelection.salaId || null,
+          duracaoMinutos: AGENDA_DEFAULT_DURATION_MINUTES,
         },
       });
 
-      const loaded = await AgendaEvento.findById(evento._id)
-        .populate("responsavelId", "_id nome perfil")
-        .populate("familiaId", "_id responsavel endereco")
-        .populate("pacienteId", "_id nome")
-        .lean();
+      const loaded = await loadEventoById(evento._id);
 
       return res.status(201).json({
         mensagem: "Agendamento criado com sucesso.",
@@ -398,10 +689,13 @@ class AgendaController {
       }
 
       const nextInicio = patch.inicio || evento.inicio;
-      const nextFim = Object.prototype.hasOwnProperty.call(patch, "fim") ? patch.fim : evento.fim;
-      if (nextFim && nextFim <= nextInicio) {
+      const rawNextFim = Object.prototype.hasOwnProperty.call(patch, "fim") ? patch.fim : evento.fim;
+      const intervalo = buildAgendaInterval({ inicio: nextInicio, fim: rawNextFim });
+      if (!intervalo.inicio || !intervalo.fim || intervalo.fim <= intervalo.inicio) {
         return res.status(400).json({ erro: "Data de fim deve ser maior que a data de inicio." });
       }
+
+      patch.fim = intervalo.fim;
 
       if (Object.prototype.hasOwnProperty.call(req.body, "local")) {
         patch.local = String(req.body?.local || "").trim().slice(0, 240);
@@ -454,6 +748,29 @@ class AgendaController {
         patch.responsavelId = responsavelId;
       }
 
+      const hasSala = Object.prototype.hasOwnProperty.call(req.body, "salaId");
+      const nextTipoAtendimento = patch.tipoAtendimento || evento.tipoAtendimento;
+      const nextSalaInput = hasSala ? req.body?.salaId || null : evento.salaId || null;
+      const allowEmptyRoom =
+        !hasSala &&
+        !Object.prototype.hasOwnProperty.call(req.body, "tipoAtendimento") &&
+        !asObjectId(evento.salaId);
+
+      const salaSelection = await resolveSalaSelection({
+        salaIdInput: nextSalaInput,
+        tipoAtendimento: nextTipoAtendimento,
+        inicio: intervalo.inicio,
+        fim: intervalo.fim,
+        ignoreEventId: evento._id,
+        allowEmptyRoom,
+      });
+
+      if (salaSelection.error) {
+        return res.status(salaSelection.status || 400).json({ erro: salaSelection.error });
+      }
+
+      patch.salaId = salaSelection.salaId || null;
+
       const updated = await AgendaEvento.findByIdAndUpdate(evento._id, patch, {
         new: true,
         runValidators: true,
@@ -461,6 +778,7 @@ class AgendaController {
         .populate("responsavelId", "_id nome perfil")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
+        .populate("salaId", "_id nome descricao ativo")
         .lean();
 
       await registrarAuditoria(req, {
@@ -529,6 +847,23 @@ class AgendaController {
         }
       }
 
+      if (!novoFim) {
+        novoFim = getEffectiveEnd(novoInicio, null);
+      }
+
+      const salaSelection = await resolveSalaSelection({
+        salaIdInput: evento.salaId || null,
+        tipoAtendimento: evento.tipoAtendimento,
+        inicio: novoInicio,
+        fim: novoFim,
+        ignoreEventId: evento._id,
+        allowEmptyRoom: !asObjectId(evento.salaId),
+      });
+
+      if (salaSelection.error) {
+        return res.status(salaSelection.status || 400).json({ erro: salaSelection.error });
+      }
+
       const actorId = asObjectId(user.id);
 
       const updated = await AgendaEvento.findByIdAndUpdate(
@@ -537,6 +872,7 @@ class AgendaController {
           inicio: novoInicio,
           fim: novoFim,
           atualizadoPor: actorId,
+          salaId: salaSelection.salaId || null,
         },
         {
           new: true,
@@ -546,6 +882,7 @@ class AgendaController {
         .populate("responsavelId", "_id nome perfil")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
+        .populate("salaId", "_id nome descricao ativo")
         .lean();
 
       await registrarAuditoria(req, {
@@ -607,6 +944,7 @@ class AgendaController {
         .populate("responsavelId", "_id nome perfil")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
+        .populate("salaId", "_id nome descricao ativo")
         .lean();
 
       await registrarAuditoria(req, {
@@ -627,5 +965,3 @@ class AgendaController {
 }
 
 module.exports = AgendaController;
-
-

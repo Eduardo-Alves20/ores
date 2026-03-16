@@ -10,6 +10,9 @@
         <select id="agenda-responsavel-filtro" class="input-control"></select>
       </label>
       <button type="button" class="btn btn-muted" id="agenda-hoje-btn">Hoje</button>
+      <% if (agendaConfig?.permissions?.canManageRooms) { %>
+        <button type="button" class="btn btn-muted" id="agenda-salas-btn">Salas</button>
+      <% } %>
     </div>
   </header>
 
@@ -121,6 +124,17 @@
           <select class="input-control" name="responsavelId" id="agenda-responsavel-select"></select>
         </label>
 
+        <label class="field-wrap">
+          <span class="input-label" id="agenda-sala-label">Sala de atendimento</span>
+          <select class="input-control" name="salaId" id="agenda-sala-select">
+            <option value="">Carregando salas...</option>
+          </select>
+        </label>
+
+        <div class="agenda-room-hint span-2" id="agenda-sala-hint">
+          As salas livres para este horario aparecem automaticamente aqui.
+        </div>
+
         <label class="field-wrap span-2">
           <span class="input-label">Buscar família</span>
           <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsável, telefone..." />
@@ -160,6 +174,45 @@
         <button type="submit" class="btn btn-primary" id="agenda-form-submit">Salvar Agendamento</button>
       </div>
     </form>
+  </section>
+</div>
+
+<div class="agenda-modal-backdrop" id="agenda-salas-backdrop" hidden>
+  <section class="agenda-modal agenda-salas-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-salas-title">
+    <header class="agenda-modal-head">
+      <div>
+        <h3 id="agenda-salas-title">Salas de Atendimento</h3>
+        <p class="agenda-modal-subtitle">Cadastre e organize as salas disponiveis para a agenda.</p>
+      </div>
+      <button type="button" class="btn btn-muted btn-icon" id="agenda-salas-close" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="agenda-salas-shell">
+      <form id="agenda-sala-form" class="agenda-sala-form">
+        <input type="hidden" name="salaId" value="" />
+
+        <label class="field-wrap">
+          <span class="input-label">Nome da sala *</span>
+          <input class="input-control" type="text" name="nome" maxlength="120" required />
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Descricao</span>
+          <input class="input-control" type="text" name="descricao" maxlength="240" />
+        </label>
+
+        <div class="agenda-sala-form-actions">
+          <button type="button" class="btn btn-muted" id="agenda-sala-reset">Nova sala</button>
+          <button type="submit" class="btn btn-primary" id="agenda-sala-submit">Salvar sala</button>
+        </div>
+      </form>
+
+      <div class="agenda-salas-list" id="agenda-salas-lista">
+        <p class="empty-hint">Carregando salas...</p>
+      </div>
+    </div>
   </section>
 </div>
 

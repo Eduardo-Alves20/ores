@@ -26,6 +26,20 @@ router.get(
   AcessoPageController.aprovacoes
 );
 
+router.get(
+  "/acessos/:id/detalhe",
+  requireAuth,
+  requirePermission(PERMISSIONS.ACESSOS_APPROVE),
+  AcessoPageController.detalhe
+);
+
+router.post(
+  "/acessos/:id/votar",
+  requireAuth,
+  requirePermission(PERMISSIONS.ACESSOS_APPROVE),
+  AcessoPageController.votar
+);
+
 router.post(
   "/acessos/:id/aprovar",
   requireAuth,

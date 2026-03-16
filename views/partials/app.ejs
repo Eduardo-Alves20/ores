@@ -55,6 +55,19 @@
       <%
         const userPerms = Array.isArray(currentUser?.permissions) ? currentUser.permissions : [];
         const hasPerm = (perm) => userPerms.includes("*") || userPerms.includes(perm);
+        const normalizedProfile = String(currentUser?.perfil || "").toLowerCase();
+        const profileLabel = normalizedProfile === "admin"
+          ? "admin_alento"
+          : normalizedProfile === "superadmin"
+            ? "SuperAdmin"
+            : normalizedProfile === "atendente"
+              ? "Atendente"
+              : normalizedProfile === "tecnico"
+                ? "Tecnico"
+                : normalizedProfile || "usuario";
+        const moduleBadge = ["admin", "superadmin"].includes(normalizedProfile) ? "Admin" : "Usuario";
+        const helpDeskHref = moduleLinks?.helpDeskUrl ? "/modulos/help-desk/acessar" : "/modulos/help-desk";
+        const hdiHref = moduleLinks?.hdiUrl ? "/modulos/hdi/acessar" : "/modulos/hdi";
       %>
       <nav class="sidebar-nav">
         <% if (currentUser?.perfil === 'usuario') { %>
@@ -97,6 +110,9 @@
             <a href="/acessos/aprovacoes" class="sidebar-link <%= navKey === 'aprovacoes' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
               <span>Aprovacoes</span>
+              <% if (Number(pendingApprovalCount || 0) > 0) { %>
+                <small class="sidebar-link-badge sidebar-link-badge-alert"><%= pendingApprovalCount %></small>
+              <% } %>
             </a>
           <% } %>
           <% if (currentUser?.perfil === 'superadmin') { %>
@@ -118,6 +134,24 @@
             </a>
           <% } %>
         <% } %>
+
+        <div class="sidebar-section-label">Modulos integrados</div>
+
+        <a
+          href="<%= helpDeskHref %>"
+          class="sidebar-link <%= navKey === 'modulo-helpdesk' ? 'is-active' : '' %>">
+          <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-headset"></i></span>
+          <span>Help Desk</span>
+          <small class="sidebar-link-badge"><%= moduleBadge %></small>
+        </a>
+
+        <a
+          href="<%= hdiHref %>"
+          class="sidebar-link <%= navKey === 'modulo-hdi' ? 'is-active' : '' %>">
+          <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-diagram-project"></i></span>
+          <span>HDI</span>
+          <small class="sidebar-link-badge"><%= moduleBadge %></small>
+        </a>
       </nav>
 
       <form method="post" action="/auth/logout" class="sidebar-logout">
@@ -145,7 +179,7 @@
           <a href="/perfil" class="topbar-user topbar-profile-link <%= navKey === 'perfil' ? 'is-active' : '' %>">
             <div class="topbar-user-meta">
               <strong><%= currentUser?.nome || 'Admin Gesa' %></strong>
-              <small><%= currentUser?.perfil || 'Gestor Social' %></small>
+              <small><%= profileLabel || 'Gestor Social' %></small>
             </div>
             <span class="user-dot"></span>
           </a>

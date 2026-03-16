@@ -1,0 +1,40 @@
+<section class="module-show-page">
+  <header class="card-elevated module-hero">
+    <div class="module-hero-eyebrow">Acesso automatico</div>
+
+    <div class="module-hero-top">
+      <div class="module-hero-copy">
+        <h2>
+          <i class="<%= moduleView.icon %>" aria-hidden="true"></i>
+          <span>Conectando ao <%= moduleView.title %></span>
+        </h2>
+        <p>
+          O GESA esta abrindo o modulo com o perfil
+          <strong><%= bridge.roleLabel %></strong>.
+        </p>
+      </div>
+
+      <span class="badge-soft">Redirecionando</span>
+    </div>
+
+    <div class="module-hero-actions">
+      <form id="module-bridge-form" method="post" action="<%= bridge.formAction %>">
+        <input type="hidden" name="username" value="<%= bridge.username %>" />
+        <input type="hidden" name="password" value="<%= bridge.password %>" />
+        <button type="submit" class="btn btn-primary">Entrar agora</button>
+      </form>
+      <span class="module-launch-note">
+        Se o redirecionamento nao acontecer sozinho, clique no botao.
+      </span>
+    </div>
+  </header>
+</section>
+
+<script>
+  window.addEventListener("load", function () {
+    const form = document.getElementById("module-bridge-form");
+    if (form) {
+      form.submit();
+    }
+  });
+</script>

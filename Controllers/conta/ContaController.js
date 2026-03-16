@@ -1,6 +1,6 @@
 ﻿const UsuarioService = require("../../services/domain/UsuarioService");
 const AuditTrail = require("../../schemas/core/AuditTrail");
-const { PERFIS, PERFIS_LIST } = require("../../config/roles");
+const { PERFIS, PERFIS_LIST, getProfileLabel } = require("../../config/roles");
 const { PERMISSIONS } = require("../../config/permissions");
 const { registrarAuditoria } = require("../../services/auditService");
 const Usuario = require("../../schemas/core/Usuario");
@@ -16,13 +16,7 @@ function mapTipoCadastroLabel(tipoCadastro) {
 }
 
 function mapPerfilLabel(perfil) {
-  const value = String(perfil || "").toLowerCase();
-  if (value === PERFIS.SUPERADMIN) return "SuperAdmin";
-  if (value === PERFIS.ADMIN) return "Administrador";
-  if (value === PERFIS.ATENDENTE) return "Atendente";
-  if (value === PERFIS.TECNICO) return "Tecnico";
-  if (value === PERFIS.USUARIO) return "Usuario";
-  return value || "-";
+  return getProfileLabel(perfil);
 }
 
 function mapActionLabel(acao) {

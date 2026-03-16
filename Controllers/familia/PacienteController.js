@@ -1,6 +1,7 @@
-﻿const Familia = require("../../schemas/social/Familia");
+const Familia = require("../../schemas/social/Familia");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { registrarAuditoria } = require("../../services/auditService");
+const { canAccessFamily } = require("../../services/volunteerScopeService");
 
 function parseBoolean(value) {
   if (value === true || value === "true") return true;
@@ -12,11 +13,20 @@ function getActorId(req) {
   return req?.session?.user?.id || null;
 }
 
+function getSessionUser(req) {
+  return req?.session?.user || null;
+}
+
 class PacienteController {
   static async listarPorFamilia(req, res) {
     try {
       const { familiaId } = req.params;
+      const user = getSessionUser(req);
       const ativo = parseBoolean(req.query.ativo);
+
+      if (!(await canAccessFamily(user, familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
+      }
 
       const familia = await Familia.findById(familiaId).select("_id");
       if (!familia) {
@@ -38,6 +48,12 @@ class PacienteController {
   static async criar(req, res) {
     try {
       const { familiaId } = req.params;
+      const user = getSessionUser(req);
+
+      if (!(await canAccessFamily(user, familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
+      }
+
       const familia = await Familia.findById(familiaId).select("_id ativo");
 
       if (!familia || !familia.ativo) {
@@ -92,6 +108,7 @@ class PacienteController {
     try {
       const { id } = req.params;
       const actorId = getActorId(req);
+      const user = getSessionUser(req);
       const {
         nome,
         dataNascimento,
@@ -100,6 +117,15 @@ class PacienteController {
         observacoes,
         diagnosticoResumo,
       } = req.body || {};
+
+      const atual = await Paciente.findById(id).select("_id familiaId");
+      if (!atual) {
+        return res.status(404).json({ erro: "Paciente nao encontrado." });
+      }
+
+      if (!(await canAccessFamily(user, atual.familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
+      }
 
       const patch = {
         atualizadoPor: actorId,
@@ -116,10 +142,6 @@ class PacienteController {
         new: true,
         runValidators: true,
       });
-
-      if (!paciente) {
-        return res.status(404).json({ erro: "Paciente nao encontrado." });
-      }
 
       await registrarAuditoria(req, {
         acao: "PACIENTE_ATUALIZADO",
@@ -143,9 +165,19 @@ class PacienteController {
       const { id } = req.params;
       const ativo = parseBoolean(req.body?.ativo);
       const actorId = getActorId(req);
+      const user = getSessionUser(req);
 
       if (typeof ativo === "undefined") {
         return res.status(400).json({ erro: "Campo ativo e obrigatorio." });
+      }
+
+      const atual = await Paciente.findById(id).select("_id familiaId");
+      if (!atual) {
+        return res.status(404).json({ erro: "Paciente nao encontrado." });
+      }
+
+      if (!(await canAccessFamily(user, atual.familiaId))) {
+        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
       }
 
       const paciente = await Paciente.findByIdAndUpdate(
@@ -161,10 +193,6 @@ class PacienteController {
           runValidators: true,
         }
       );
-
-      if (!paciente) {
-        return res.status(404).json({ erro: "Paciente nao encontrado." });
-      }
 
       await registrarAuditoria(req, {
         acao: ativo ? "PACIENTE_REATIVADO" : "PACIENTE_INATIVADO",
@@ -185,6 +213,3 @@ class PacienteController {
 }
 
 module.exports = PacienteController;
-
-
-

@@ -1,6 +1,8 @@
 ﻿const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate-v2");
 const { PERFIS_LIST, PERFIS } = require("../../config/roles");
+const { VOLUNTARIO_ACCESS_LEVELS } = require("../../config/volunteerAccess");
+const { APPROVAL_ROLES } = require("../../config/approvalRoles");
 
 const UsuarioSchema = new mongoose.Schema(
   {
@@ -45,12 +47,24 @@ const UsuarioSchema = new mongoose.Schema(
       default: "voluntario",
     },
 
+    nivelAcessoVoluntario: {
+      type: String,
+      enum: [...Object.values(VOLUNTARIO_ACCESS_LEVELS), null],
+      default: null,
+    },
+
     funcoesAcesso: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FuncaoAcesso",
       },
     ],
+
+    papelAprovacao: {
+      type: String,
+      enum: Object.values(APPROVAL_ROLES),
+      default: APPROVAL_ROLES.MEMBRO,
+    },
 
     statusAprovacao: {
       type: String,
@@ -76,6 +90,41 @@ const UsuarioSchema = new mongoose.Schema(
       default: "",
       maxlength: 500,
     },
+
+    votosAprovacao: [
+      {
+        _id: false,
+        adminId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Usuario",
+          required: true,
+        },
+        decisao: {
+          type: String,
+          enum: ["aprovar", "rejeitar"],
+          required: true,
+        },
+        motivo: {
+          type: String,
+          trim: true,
+          default: "",
+          maxlength: 500,
+        },
+        nivelAcessoVoluntario: {
+          type: String,
+          enum: [...Object.values(VOLUNTARIO_ACCESS_LEVELS), null],
+          default: null,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+        updatedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
 
     ativo: {
       type: Boolean,

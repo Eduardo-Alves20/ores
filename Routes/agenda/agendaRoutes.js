@@ -12,6 +12,36 @@ router.get(
 );
 
 router.get(
+  "/agenda/salas",
+  requirePermission(PERMISSIONS.AGENDA_VIEW),
+  AgendaController.listarSalas
+);
+
+router.get(
+  "/agenda/salas/disponiveis",
+  requirePermission(PERMISSIONS.AGENDA_VIEW),
+  AgendaController.listarSalasDisponiveis
+);
+
+router.post(
+  "/agenda/salas",
+  requirePermission(PERMISSIONS.AGENDA_VIEW_ALL),
+  AgendaController.criarSala
+);
+
+router.put(
+  "/agenda/salas/:id",
+  requirePermission(PERMISSIONS.AGENDA_VIEW_ALL),
+  AgendaController.atualizarSala
+);
+
+router.patch(
+  "/agenda/salas/:id/status",
+  requirePermission(PERMISSIONS.AGENDA_VIEW_ALL),
+  AgendaController.alterarStatusSala
+);
+
+router.get(
   "/agenda/eventos",
   requirePermission(PERMISSIONS.AGENDA_VIEW),
   AgendaController.listar

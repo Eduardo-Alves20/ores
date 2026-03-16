@@ -10,7 +10,12 @@ const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const http = require("http");
 const { attachCurrentUser } = require("./middlewares/authSession");
+const Usuario = require("./schemas/core/Usuario");
+const { PERFIS } = require("./config/roles");
+const { PERMISSIONS } = require("./config/permissions");
+const { hasAnyPermission } = require("./services/accessControlService");
 const { ensureAdminFromEnv, ensureSuperAdminFromEnv } = require("./services/bootstrapAdminService");
+const { ensureDemoUsers } = require("./services/bootstrapDemoUsersService");
 
 const app = express();
 
@@ -20,7 +25,6 @@ const {
   AMBIENTE,
   sessionParser,
 } = require("./config/env");
-
 
 const { loadOrCreateCookieParserKey } = require("./config/config");
 const cookieParserKey = loadOrCreateCookieParserKey();
@@ -48,12 +52,11 @@ function normalizeMongoUri(uri) {
 
 const MONGO_URI = normalizeMongoUri(RAW_MONGO_URI);
 
-/* Mongo */
 mongoose.set("bufferCommands", false);
 
 async function connectDb() {
   if (!MONGO_URI) {
-    console.warn("MONGO_URI não definido. Subindo sem banco…");
+    console.warn("MONGO_URI nao definido. Subindo sem banco...");
     return false;
   }
   await mongoose.connect(MONGO_URI, { maxPoolSize: 10 });
@@ -62,17 +65,12 @@ async function connectDb() {
   return true;
 }
 
-
-/* View engine */
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(expressLayouts);
 app.set("trust proxy", 1);
-
-// layout padrão (você pode manter login aqui; cada render pode sobrescrever)
 app.set("layout", "partials/login.ejs");
 
-/* Middlewares */
 app.use(express.json({ limit: "200mb" }));
 app.use(express.urlencoded({ extended: true, limit: "200mb" }));
 app.use(cookieParser(cookieParserKey));
@@ -81,34 +79,50 @@ app.use(sessionParser);
 app.use(flash());
 app.use(attachCurrentUser);
 
-/* Static */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "public", "assets")));
 app.use("/css", express.static(path.join(__dirname, "public", "css")));
 app.use("/js", express.static(path.join(__dirname, "public", "js")));
 app.use("/static", express.static(path.join(__dirname, "public")));
 
+app.use(async (req, res, next) => {
+  try {
+    res.locals.ambiente = AMBIENTE;
+    res.locals.lastCommitDate = `Ultima atualizacao em: ${new Date().toLocaleString("pt-BR")}`;
+    res.locals.alert = null;
+    res.locals.moduleLinks = {
+      helpDeskUrl: String(process.env.HELPDESK_URL || "").trim(),
+      hdiUrl: String(process.env.HDI_URL || "").trim(),
+    };
 
-app.use((req, res, next) => {
-  res.locals.ambiente = AMBIENTE;
-  res.locals.lastCommitDate = `Última atualização em: ${new Date().toLocaleString("pt-BR")}`;
-  res.locals.alert = null;
+    const sess = req.session || {};
+    const sessUser = sess.user || null;
 
-  const sess = req.session || {};
-  const sessUser = sess.user || null;
+    res.locals.user = sessUser;
+    res.locals.username = sessUser?.nome || sessUser?.email || null;
+    res.locals.pendingApprovalCount = 0;
 
-  res.locals.user = sessUser;
-  res.locals.username = sessUser?.nome || sessUser?.email || null;
+    const canApprove =
+      String(sessUser?.perfil || "").toLowerCase() === PERFIS.SUPERADMIN ||
+      hasAnyPermission(sessUser?.permissions || [], [PERMISSIONS.ACESSOS_APPROVE]);
 
-  next();
+    if (canApprove) {
+      res.locals.pendingApprovalCount = await Usuario.countDocuments({
+        perfil: PERFIS.USUARIO,
+        statusAprovacao: "pendente",
+      });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
-
-/* Logger */
 app.use(
   morgan((tokens, req, res) => {
     const date = new Date().toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo"
+      timeZone: "America/Sao_Paulo",
     });
     const usuario =
       req?.session?.user?.nome ||
@@ -124,25 +138,22 @@ app.use(
       `${tokens.method(req, res)}`,
       `URL: ${tokens.url(req, res)} |`,
       `Status: ${tokens.status(req, res)}`,
-      `Tempo: ${tokens["response-time"](req, res)} ms`
+      `Tempo: ${tokens["response-time"](req, res)} ms`,
     ].join(" ");
   })
 );
 
-/* Rotas + erros */
 function mountRoutes() {
   const routes = require("./routes");
   app.use("/", routes);
 
-  // 404 - nenhuma rota bateu
   app.use((req, res, next) => {
-    const err = new Error("Página não encontrada");
+    const err = new Error("Pagina nao encontrada");
     err.status = 404;
-    err.publicMessage = "A página que você está procurando não foi encontrada.";
+    err.publicMessage = "A pagina que voce esta procurando nao foi encontrada.";
     next(err);
   });
 
-  // Handler final: 400/403/404/500 (HTML com layout MAIN; JSON para API)
   app.use((err, req, res, next) => {
     if (res.headersSent) return next(err);
 
@@ -152,33 +163,30 @@ function mountRoutes() {
     const wantsHtml = !!req.accepts("html");
 
     const defaults = {
-      400: "Ocorreu um erro ao processar sua requisição.",
-      403: "Você não tem permissão para acessar esta página.",
-      404: "A página que você está procurando não foi encontrada.",
-      500: "Ocorreu um erro interno no servidor."
+      400: "Ocorreu um erro ao processar sua requisicao.",
+      403: "Voce nao tem permissao para acessar esta pagina.",
+      404: "A pagina que voce esta procurando nao foi encontrada.",
+      500: "Ocorreu um erro interno no servidor.",
     };
 
     const message = err.publicMessage || err.message || defaults[status] || defaults[500];
 
-    // JSON (para rotas de API)
     if (!wantsHtml) {
       return res.status(status).json({
         message: [message],
-        status
+        status,
       });
     }
 
-    // HTML (seus EJS existentes)
     const view =
       status === 400
         ? "pages/errors/400"
         : status === 403
-        ? "pages/errors/403"
-        : status === 404
-        ? "pages/errors/404"
-        : "pages/errors/500";
+          ? "pages/errors/403"
+          : status === 404
+            ? "pages/errors/404"
+            : "pages/errors/500";
 
-    // evita vazar stack em produção
     const showStack = AMBIENTE !== "prod";
     const errToView = showStack ? err : {};
 
@@ -190,7 +198,7 @@ function mountRoutes() {
         message,
         req,
         err: errToView,
-        layout: "partials/login.ejs"
+        layout: "partials/login.ejs",
       });
     }
 
@@ -211,8 +219,6 @@ function mountRoutes() {
   });
 }
 
-
-/* Start server (http + ws) */
 function startServer() {
   const port = PORT || process.env.PORT || 4000;
   const host = HOST || "0.0.0.0";
@@ -223,10 +229,9 @@ function startServer() {
     console.log(`Server rodando em http://${host}:${port}/`);
   });
 
-  // shutdown limpo
   const graceful = async (signal) => {
     try {
-      console.log(`\n${signal} recebido. Encerrando…`);
+      console.log(`\n${signal} recebido. Encerrando...`);
       await mongoose.connection.close().catch(() => {});
       server.close(() => {
         console.log("HTTP fechado.");
@@ -243,20 +248,17 @@ function startServer() {
   process.on("SIGTERM", () => graceful("SIGTERM"));
 }
 
-
-/* Main */
 (async () => {
   try {
     await connectDb();
     await ensureSuperAdminFromEnv();
     await ensureAdminFromEnv();
-    
-    // rotas SEMPRE
-    mountRoutes();
+    await ensureDemoUsers();
 
+    mountRoutes();
     startServer();
   } catch (err) {
-    console.error("❌ Falha geral (erro completo):");
+    console.error("Falha geral (erro completo):");
     console.error(err);
 
     if (err && err.stack) {
@@ -265,7 +267,7 @@ function startServer() {
       console.error("================================");
     }
 
-    console.error("🚫 Não foi possível iniciar o servidor.");
+    console.error("Nao foi possivel iniciar o servidor.");
     process.exit(1);
   }
 })();

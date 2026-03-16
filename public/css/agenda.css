@@ -496,6 +496,28 @@
   grid-column: span 2;
 }
 
+.agenda-room-hint {
+  border: 1px dashed #d8b8aa;
+  border-radius: 10px;
+  background: #fff7f2;
+  color: #7a6258;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  padding: 10px 12px;
+}
+
+.agenda-room-hint[data-tone="success"] {
+  border-color: #b8dfc0;
+  background: #f2fbf4;
+  color: #2d7c3b;
+}
+
+.agenda-room-hint[data-tone="warning"] {
+  border-color: #e2c285;
+  background: #fff8e8;
+  color: #95661d;
+}
+
 .agenda-form-hint {
   margin: 12px 0 0;
   color: #8a7a73;
@@ -507,6 +529,101 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.agenda-modal-subtitle {
+  margin: 4px 0 0;
+  color: #8a7a73;
+  font-size: 0.85rem;
+}
+
+.agenda-salas-modal {
+  width: min(860px, 100%);
+}
+
+.agenda-salas-shell {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.agenda-sala-form {
+  border: 1px solid #eadbd2;
+  border-radius: 14px;
+  background: #fffaf7;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.agenda-sala-form-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.agenda-salas-list {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  max-height: min(68vh, 560px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.agenda-sala-card {
+  border: 1px solid #e4cdc1;
+  border-radius: 14px;
+  background: #fff;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.agenda-sala-card.is-inactive {
+  opacity: 0.7;
+  background: #f6f1ed;
+}
+
+.agenda-sala-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.agenda-sala-card-head h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.agenda-sala-status {
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: rgba(123, 207, 137, 0.18);
+  color: #2d7c3b;
+}
+
+.agenda-sala-card.is-inactive .agenda-sala-status {
+  background: rgba(133, 114, 105, 0.14);
+  color: #6e5d56;
+}
+
+.agenda-sala-card p {
+  margin: 0;
+  color: #77675f;
+  font-size: 0.84rem;
+}
+
+.agenda-sala-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 1180px) {
@@ -587,6 +704,14 @@
   .agenda-form-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .agenda-salas-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-sala-form-actions {
+    flex-direction: column;
   }
 }
 

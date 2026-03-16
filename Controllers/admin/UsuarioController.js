@@ -85,6 +85,7 @@ class UsuarioController {
         tipoCadastro,
         statusAprovacao,
         motivoAprovacao,
+        papelAprovacao,
         ativo,
       } = req.body;
 
@@ -107,6 +108,7 @@ class UsuarioController {
           tipoCadastro,
           statusAprovacao,
           motivoAprovacao,
+          papelAprovacao,
           ativo,
         },
         getContext(req)

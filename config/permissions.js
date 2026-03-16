@@ -17,6 +17,7 @@ const PERMISSIONS = Object.freeze({
   ATENDIMENTOS_CREATE: "atendimentos.create",
   ATENDIMENTOS_UPDATE: "atendimentos.update",
   ATENDIMENTOS_STATUS: "atendimentos.status",
+  ASSISTIDOS_SCOPE_OWN: "assistidos.scope_own",
 
   AGENDA_VIEW: "agenda.view",
   AGENDA_CREATE: "agenda.create",
@@ -60,6 +61,7 @@ const PERMISSION_GROUPS = Object.freeze([
       { key: PERMISSIONS.ATENDIMENTOS_CREATE, label: "Criar atendimentos" },
       { key: PERMISSIONS.ATENDIMENTOS_UPDATE, label: "Editar atendimentos" },
       { key: PERMISSIONS.ATENDIMENTOS_STATUS, label: "Ativar/Inativar atendimentos" },
+      { key: PERMISSIONS.ASSISTIDOS_SCOPE_OWN, label: "Restringir assistidos ao proprio atendimento" },
     ],
   },
   {
