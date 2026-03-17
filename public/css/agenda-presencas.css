@@ -1,0 +1,2094 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap");
+
+.presenca-page {
+  display: grid;
+  gap: 16px;
+}
+
+.presenca-page.is-loading {
+  opacity: 0.58;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.presenca-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.8fr);
+  gap: 20px;
+  padding: 22px 24px;
+  border: 1px solid rgba(198, 160, 144, 0.34);
+  border-radius: 22px;
+  box-shadow: 0 18px 42px rgba(100, 65, 49, 0.08);
+  background:
+    radial-gradient(circle at top left, rgba(200, 111, 83, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(213, 235, 223, 0.5), transparent 32%),
+    linear-gradient(180deg, #fffdfa 0%, #fff8f4 100%);
+}
+
+.presenca-overline {
+  margin: 0 0 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a5d49;
+}
+
+.presenca-hero-copy h2 {
+  margin: 0;
+  color: #40251c;
+  font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+}
+
+.presenca-hero-copy p:last-child {
+  margin: 10px 0 0;
+  color: #775f56;
+  line-height: 1.6;
+  max-width: 64ch;
+}
+
+.presenca-hero-side {
+  display: grid;
+  gap: 12px;
+  justify-items: end;
+  align-content: start;
+}
+
+.presenca-calendar-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 18px;
+  border: 1px solid rgba(204, 170, 154, 0.42);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 247, 242, 0.94));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.presenca-calendar-title-block {
+  display: grid;
+  gap: 10px;
+  align-self: stretch;
+  align-content: center;
+}
+
+.presenca-calendar-support {
+  margin: 0;
+  max-width: 30ch;
+  color: #7c6a62;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.presenca-month-year-selectors {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.presenca-month-year-selectors .field-wrap {
+  margin: 0;
+}
+
+.presenca-month-select,
+.presenca-year-select {
+  min-width: 148px;
+  min-height: 48px;
+  padding-inline: 14px 38px;
+  border: 1px solid rgba(187, 147, 130, 0.5);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(85, 54, 40, 0.06);
+  text-transform: capitalize;
+  font-weight: 800;
+  color: #7c4330;
+}
+
+.presenca-calendar-head-tools {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.presenca-inline-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid rgba(205, 173, 160, 0.4);
+  border-radius: 18px;
+  background: rgba(255, 252, 249, 0.95);
+  box-shadow: 0 12px 28px rgba(92, 59, 44, 0.05);
+}
+
+.presenca-inline-filters .field-wrap {
+  margin: 0;
+}
+
+.presenca-inline-filters .input-control {
+  min-height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(191, 154, 137, 0.45);
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.presenca-inline-clear {
+  min-height: 46px;
+  justify-content: center;
+  border-radius: 14px;
+  border-color: rgba(187, 147, 130, 0.5);
+  background: linear-gradient(180deg, #f8f2ee 0%, #f0e6df 100%);
+  font-weight: 800;
+}
+
+.presenca-calendar-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.presenca-calendar-kpis {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.presenca-calendar-kpis .agenda-presenca-kpi {
+  min-height: 34px;
+  padding-inline: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.presenca-calendar-actions {
+  gap: 8px;
+}
+
+.presenca-calendar-actions .btn {
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 14px;
+  border-color: rgba(189, 151, 134, 0.54);
+  background: #fff;
+  box-shadow: 0 10px 22px rgba(92, 59, 44, 0.08);
+}
+
+.presenca-calendar-actions .btn i {
+  color: #8c523d;
+}
+
+.presenca-calendar-board {
+  align-items: stretch;
+  border-radius: 22px;
+  padding: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 244, 0.98));
+  box-shadow: 0 16px 42px rgba(88, 57, 44, 0.06);
+}
+
+.presenca-calendar-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 248, 244, 0.97));
+  border-radius: 20px;
+  border-color: rgba(208, 180, 166, 0.44);
+  padding: 14px;
+}
+
+.presenca-calendar-cell {
+  text-decoration: none;
+}
+
+.presenca-calendar-panel .agenda-weekdays {
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-inline: 2px;
+}
+
+.presenca-calendar-panel .agenda-weekdays span {
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a6b5f;
+}
+
+.presenca-calendar-panel .agenda-calendar-grid {
+  gap: 10px;
+}
+
+.presenca-calendar-panel .agenda-day-cell {
+  min-height: 114px;
+  padding: 10px;
+  border: 1px solid rgba(219, 191, 177, 0.7);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 248, 0.98), rgba(249, 236, 228, 0.92));
+  box-shadow: 0 10px 24px rgba(91, 58, 44, 0.05);
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    transform 0.15s ease,
+    box-shadow 0.18s ease;
+}
+
+.presenca-calendar-panel .agenda-day-cell:hover {
+  border-color: #c9856c;
+  box-shadow: 0 18px 34px rgba(95, 61, 46, 0.12);
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-outside {
+  background:
+    linear-gradient(180deg, rgba(251, 246, 242, 0.98), rgba(245, 237, 232, 0.94));
+  color: #a3928b;
+  box-shadow: none;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-placeholder {
+  min-height: 114px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: default;
+  pointer-events: none;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-today {
+  border-color: rgba(186, 92, 66, 0.7);
+  box-shadow:
+    0 0 0 3px rgba(186, 92, 66, 0.12),
+    0 14px 28px rgba(95, 61, 46, 0.1);
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-selected {
+  background:
+    linear-gradient(180deg, #c05d3d 0%, #a9472d 100%);
+  border-color: #a9472d;
+  box-shadow: 0 18px 34px rgba(129, 54, 34, 0.22);
+}
+
+.presenca-calendar-panel .agenda-day-number {
+  font-size: 1.08rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  color: #3f2a21;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-selected .agenda-day-number {
+  color: #fff;
+}
+
+.presenca-calendar-panel .agenda-day-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  background: rgba(183, 88, 58, 0.14);
+  color: #8a4835;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-selected .agenda-day-pill {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.presenca-calendar-panel .agenda-day-meta {
+  gap: 6px;
+}
+
+.presenca-calendar-panel .agenda-day-presence-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.presenca-calendar-panel .agenda-day-presence-pill {
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 0.69rem;
+  font-weight: 800;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-selected .agenda-day-presence-pill {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.agenda-day-presence-pill.is-cancelado {
+  background: rgba(100, 116, 139, 0.14);
+  color: #475569;
+}
+
+.presenca-day-panel {
+  min-height: 620px;
+}
+
+.presenca-day-head-kpis {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.presenca-event-card {
+  display: grid;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.presenca-event-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.presenca-event-card-top strong {
+  color: #2f211c;
+}
+
+.presenca-event-card:hover,
+.presenca-event-card:focus {
+  transform: translateY(-1px);
+  border-color: #d6b5a8;
+  box-shadow: 0 12px 24px rgba(62, 34, 24, 0.08);
+  outline: none;
+}
+
+.presenca-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.presenca-active-filters {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fff 0%, #fff8f4 100%);
+}
+
+.presenca-active-filters h3 {
+  margin: 0;
+  color: #40251c;
+  font-size: 1.02rem;
+}
+
+.presenca-active-filter-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.presenca-active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.presenca-active-filter-chip.is-neutral {
+  background: rgba(109, 63, 48, 0.12);
+  color: #6d3f30;
+}
+
+.presenca-active-filter-chip.is-success {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+}
+
+.presenca-active-filter-chip.is-danger {
+  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+}
+
+.presenca-active-filter-chip.is-warning {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+}
+
+.presenca-active-filter-chip.is-info {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.presenca-kpi-card {
+  display: grid;
+  gap: 10px;
+  min-height: 146px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.presenca-kpi-card strong {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  color: #2f211c;
+}
+
+.presenca-kpi-card small {
+  color: #7a6a63;
+  line-height: 1.45;
+}
+
+.presenca-kpi-label {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.presenca-kpi-card.is-total .presenca-kpi-label {
+  color: #6d3f30;
+  background: rgba(109, 63, 48, 0.12);
+}
+
+.presenca-kpi-card.is-presente .presenca-kpi-label {
+  color: #15803d;
+  background: rgba(22, 163, 74, 0.12);
+}
+
+.presenca-kpi-card.is-falta .presenca-kpi-label {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.12);
+}
+
+.presenca-kpi-card.is-justificada .presenca-kpi-label {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.presenca-kpi-card.is-highlight .presenca-kpi-label,
+.presenca-kpi-card.is-highlight-alt .presenca-kpi-label {
+  color: #1d4ed8;
+  background: rgba(29, 78, 216, 0.12);
+}
+
+.presenca-kpi-card.is-highlight {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.presenca-kpi-card.is-highlight-alt {
+  background: linear-gradient(180deg, #ffffff 0%, #fffaf0 100%);
+}
+
+.presenca-grid-main,
+.presenca-grid-secondary {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+}
+
+.presenca-panel {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.presenca-panel-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.presenca-panel.is-clickable {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.presenca-panel-link:hover .presenca-panel.is-clickable,
+.presenca-panel-link:focus-visible .presenca-panel.is-clickable {
+  transform: translateY(-2px);
+  border-color: #d6b5a8;
+  box-shadow: 0 18px 36px rgba(82, 52, 40, 0.1);
+}
+
+.presenca-panel-link:focus-visible {
+  outline: none;
+}
+
+.presenca-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.presenca-panel-head h3 {
+  margin: 0;
+  color: #40251c;
+}
+
+.presenca-panel-head small {
+  color: #8b756b;
+}
+
+.presenca-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(202, 175, 162, 0.55);
+  color: #8d563f;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.presenca-week-list,
+.presenca-occurrence-list,
+.presenca-ranking-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.presenca-week-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #ead6cc;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff 0%, #fffaf7 100%);
+}
+
+.presenca-week-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #6b5a52;
+}
+
+.presenca-week-head strong {
+  color: #34241d;
+}
+
+.presenca-week-bar {
+  display: flex;
+  overflow: hidden;
+  min-height: 10px;
+  border-radius: 999px;
+  background: #efe8e2;
+}
+
+.presenca-week-bar span {
+  display: block;
+  min-width: 0;
+}
+
+.presenca-week-bar .is-presente {
+  background: #16a34a;
+}
+
+.presenca-week-bar .is-falta {
+  background: #dc2626;
+}
+
+.presenca-week-bar .is-justificada {
+  background: #f59e0b;
+}
+
+.presenca-week-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.presenca-ranking-table-wrap {
+  overflow-x: auto;
+}
+
+.presenca-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.presenca-table th,
+.presenca-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee5df;
+  text-align: left;
+  vertical-align: top;
+}
+
+.presenca-table th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #856f65;
+}
+
+.presenca-table td strong {
+  display: block;
+  color: #2f211c;
+}
+
+.presenca-table td small {
+  display: block;
+  margin-top: 4px;
+  color: #8b756b;
+}
+
+.presenca-table tr.is-top td {
+  background: rgba(200, 111, 83, 0.08);
+}
+
+.presenca-prof-card,
+.presenca-occurrence-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #eadcd4;
+  border-radius: 14px;
+  background: #fffdfb;
+}
+
+.presenca-week-footnote {
+  margin: 0;
+  color: #735f57;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.presenca-prof-card strong,
+.presenca-occurrence-top strong {
+  color: #31231d;
+}
+
+.presenca-prof-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  color: #75655e;
+  font-size: 0.92rem;
+}
+
+.presenca-prof-stats b {
+  color: #2f211c;
+}
+
+.presenca-occurrence-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.presenca-occurrence-top span {
+  display: block;
+  margin-top: 3px;
+  color: #816d64;
+  font-size: 0.9rem;
+}
+
+.presenca-occurrence-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: #745f57;
+  font-size: 0.9rem;
+}
+
+.presenca-occurrence-meta i {
+  color: #a26049;
+}
+
+.presenca-occurrence-card p,
+.presenca-scope-copy {
+  margin: 0;
+  color: #6f5f58;
+  line-height: 1.6;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.pill.is-presente {
+  color: #15803d;
+  background: rgba(22, 163, 74, 0.12);
+}
+
+.pill.is-falta {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.12);
+}
+
+.pill.is-justificada {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.pill.is-muted {
+  color: #475569;
+  background: rgba(100, 116, 139, 0.14);
+}
+
+.presenca-detail-page {
+  gap: 18px;
+}
+
+.presenca-section-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(198, 160, 144, 0.32);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #fff 0%, #fff8f4 100%);
+}
+
+.presenca-section-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 56px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(207, 177, 164, 0.55);
+  background: rgba(255, 255, 255, 0.88);
+  color: #5a392f;
+  text-decoration: none;
+  font-weight: 800;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.presenca-section-nav-link strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(194, 97, 67, 0.12);
+  color: #8b4e39;
+}
+
+.presenca-section-nav-link:hover,
+.presenca-section-nav-link:focus-visible {
+  transform: translateY(-1px);
+  border-color: #ce8b73;
+  box-shadow: 0 14px 30px rgba(83, 52, 39, 0.08);
+  outline: none;
+}
+
+.presenca-section-nav-link.is-active {
+  border-color: #b65d41;
+  background: linear-gradient(180deg, rgba(192, 93, 61, 0.12), rgba(192, 93, 61, 0.04));
+  color: #6f3323;
+}
+
+.presenca-section-nav-link.is-active strong {
+  background: #b65d41;
+  color: #fff;
+}
+
+.presenca-detail-toolbar {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 20px;
+}
+
+.presenca-detail-filter-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.presenca-detail-filter-actions {
+  display: flex;
+  align-items: end;
+}
+
+.presenca-detail-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.presenca-detail-summary-card {
+  display: grid;
+  gap: 10px;
+  min-height: 138px;
+  padding: 18px;
+  border: 1px solid rgba(205, 173, 160, 0.46);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff 0%, #fff8f4 100%);
+}
+
+.presenca-detail-summary-card strong {
+  color: #2f211c;
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+}
+
+.presenca-detail-summary-card small {
+  color: #7b6960;
+  line-height: 1.5;
+}
+
+.presenca-detail-summary-card.is-success .presenca-kpi-label {
+  color: #15803d;
+  background: rgba(22, 163, 74, 0.12);
+}
+
+.presenca-detail-summary-card.is-danger .presenca-kpi-label {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.12);
+}
+
+.presenca-detail-summary-card.is-warning .presenca-kpi-label {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.presenca-detail-summary-card.is-info .presenca-kpi-label,
+.presenca-detail-summary-card.is-neutral .presenca-kpi-label {
+  color: #6d3f30;
+  background: rgba(109, 63, 48, 0.12);
+}
+
+.presenca-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 14px;
+}
+
+.presenca-detail-layout.is-single {
+  grid-template-columns: 1fr;
+}
+
+.presenca-inline-link {
+  color: #9b573f;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.presenca-inline-link:hover,
+.presenca-inline-link:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+.presenca-occurrence-card--interactive {
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.presenca-occurrence-card--interactive:hover,
+.presenca-occurrence-card--interactive:focus-visible {
+  transform: translateY(-1px);
+  border-color: #d7b6a8;
+  box-shadow: 0 16px 32px rgba(82, 52, 40, 0.1);
+  outline: none;
+}
+
+.presenca-occurrence-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1320px) {
+  .presenca-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .presenca-detail-summary-grid,
+  .presenca-section-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1080px) {
+  .presenca-hero,
+  .presenca-grid-main,
+  .presenca-grid-secondary,
+  .presenca-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .presenca-calendar-head {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .presenca-hero-side {
+    justify-items: stretch;
+  }
+
+  .presenca-calendar-support {
+    max-width: none;
+  }
+
+  .presenca-inline-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .presenca-calendar-meta {
+    align-items: stretch;
+  }
+
+  .presenca-detail-filter-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .presenca-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .presenca-prof-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .presenca-inline-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .presenca-section-nav,
+  .presenca-detail-summary-grid,
+  .presenca-detail-filter-form {
+    grid-template-columns: 1fr;
+  }
+
+  .presenca-month-select,
+  .presenca-year-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .presenca-calendar-kpis {
+    width: 100%;
+  }
+
+  .presenca-calendar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 560px) {
+  .presenca-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .presenca-filter-actions,
+  .presenca-occurrence-meta,
+  .presenca-occurrence-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Modern refresh */
+.presenca-page,
+.presenca-detail-page {
+  --presence-bg: #f8fafc;
+  --presence-surface: #ffffff;
+  --presence-surface-soft: rgba(255, 255, 255, 0.78);
+  --presence-line: rgba(148, 163, 184, 0.2);
+  --presence-line-strong: rgba(148, 163, 184, 0.34);
+  --presence-text: #0f172a;
+  --presence-muted: #64748b;
+  --presence-soft: #94a3b8;
+  --presence-accent: #0f766e;
+  --presence-accent-soft: rgba(15, 118, 110, 0.14);
+  --presence-accent-strong: #115e59;
+  --presence-danger: #dc2626;
+  --presence-danger-soft: rgba(220, 38, 38, 0.08);
+  --presence-success: #059669;
+  --presence-success-soft: rgba(5, 150, 105, 0.08);
+  --presence-warning: #d97706;
+  --presence-warning-soft: rgba(217, 119, 6, 0.1);
+  --presence-shadow-soft: 0 16px 32px rgba(15, 23, 42, 0.05);
+  --presence-shadow-float: 0 14px 28px rgba(15, 23, 42, 0.08);
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  color: var(--presence-text);
+}
+
+.presenca-page {
+  gap: 18px;
+}
+
+.presenca-page .card-elevated,
+.presenca-detail-page .card-elevated {
+  border-color: var(--presence-line);
+  box-shadow: var(--presence-shadow-soft);
+}
+
+.presenca-overline {
+  color: var(--presence-accent);
+  letter-spacing: 0.12em;
+}
+
+.presenca-hero {
+  gap: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--presence-line);
+  border-radius: 18px;
+  box-shadow: var(--presence-shadow-soft);
+  background:
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
+}
+
+.presenca-hero-copy h2,
+.presenca-panel-head h3,
+.presenca-active-filters h3 {
+  color: var(--presence-text);
+}
+
+.presenca-hero-copy p:last-child,
+.presenca-calendar-support,
+.presenca-panel-head small,
+.presenca-kpi-card small,
+.presenca-detail-summary-card small,
+.presenca-week-footnote,
+.presenca-scope-copy,
+.presenca-occurrence-card p {
+  color: var(--presence-muted);
+  font-weight: 500;
+}
+
+.agenda-presenca-kpi {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.agenda-presenca-kpi.is-total {
+  color: #334155;
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.agenda-presenca-kpi.is-presente {
+  color: var(--presence-success);
+  background: var(--presence-success-soft);
+  border-color: rgba(5, 150, 105, 0.16);
+}
+
+.agenda-presenca-kpi.is-falta {
+  color: var(--presence-danger);
+  background: var(--presence-danger-soft);
+  border-color: rgba(220, 38, 38, 0.16);
+}
+
+.agenda-presenca-kpi.is-pendente {
+  color: var(--presence-accent);
+  background: var(--presence-accent-soft);
+  border-color: rgba(15, 118, 110, 0.18);
+}
+
+.presenca-kpi-grid {
+  gap: 10px;
+}
+
+.presenca-kpi-card,
+.presenca-detail-summary-card,
+.presenca-panel,
+.presenca-active-filters,
+.presenca-detail-toolbar,
+.presenca-section-nav {
+  border: 1px solid var(--presence-line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.88));
+}
+
+.presenca-kpi-card,
+.presenca-detail-summary-card {
+  min-height: 132px;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.presenca-kpi-card strong,
+.presenca-detail-summary-card strong {
+  color: var(--presence-text);
+}
+
+.presenca-kpi-label {
+  font-weight: 700;
+}
+
+.presenca-kpi-card.is-total .presenca-kpi-label,
+.presenca-detail-summary-card.is-neutral .presenca-kpi-label,
+.presenca-detail-summary-card.is-info .presenca-kpi-label {
+  color: #334155;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.presenca-kpi-card.is-presente .presenca-kpi-label,
+.presenca-detail-summary-card.is-success .presenca-kpi-label {
+  color: var(--presence-success);
+  background: var(--presence-success-soft);
+}
+
+.presenca-kpi-card.is-falta .presenca-kpi-label,
+.presenca-detail-summary-card.is-danger .presenca-kpi-label {
+  color: var(--presence-danger);
+  background: var(--presence-danger-soft);
+}
+
+.presenca-kpi-card.is-justificada .presenca-kpi-label,
+.presenca-detail-summary-card.is-warning .presenca-kpi-label {
+  color: var(--presence-warning);
+  background: var(--presence-warning-soft);
+}
+
+.presenca-kpi-card.is-highlight,
+.presenca-kpi-card.is-highlight-alt {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.98));
+}
+
+.presenca-active-filters {
+  border-radius: 16px;
+}
+
+.presenca-active-filter-chip {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.presenca-active-filter-chip.is-neutral {
+  background: rgba(148, 163, 184, 0.1);
+  color: #334155;
+}
+
+.presenca-active-filter-chip.is-success {
+  background: var(--presence-success-soft);
+  color: var(--presence-success);
+}
+
+.presenca-active-filter-chip.is-danger {
+  background: var(--presence-danger-soft);
+  color: var(--presence-danger);
+}
+
+.presenca-active-filter-chip.is-warning {
+  background: var(--presence-warning-soft);
+  color: var(--presence-warning);
+}
+
+.presenca-active-filter-chip.is-info {
+  background: var(--presence-accent-soft);
+  color: var(--presence-accent);
+}
+
+.presenca-calendar-board {
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.presenca-calendar-panel {
+  padding: 18px;
+  border: 1px solid var(--presence-line);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.94));
+  box-shadow: var(--presence-shadow-soft);
+}
+
+.presenca-calendar-head {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 12px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.presenca-calendar-title-block {
+  gap: 8px;
+}
+
+.presenca-calendar-support {
+  max-width: 26ch;
+  font-size: 0.88rem;
+}
+
+.presenca-month-year-selectors {
+  gap: 8px;
+}
+
+.presenca-month-select,
+.presenca-year-select,
+.presenca-inline-filters .input-control,
+.presenca-detail-filter-form .input-control {
+  min-height: 42px;
+  border: 1px solid var(--presence-line-strong);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: none;
+  color: var(--presence-text);
+}
+
+.presenca-month-select,
+.presenca-year-select {
+  min-width: 136px;
+  font-weight: 700;
+}
+
+.presenca-calendar-head-tools {
+  gap: 8px;
+  align-self: center;
+}
+
+.presenca-inline-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.presenca-inline-filters .field-wrap {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.presenca-inline-clear {
+  min-height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--presence-line-strong);
+  background: transparent;
+  color: var(--presence-muted);
+  font-weight: 700;
+}
+
+.presenca-inline-clear:hover,
+.presenca-inline-clear:focus-visible {
+  border-color: rgba(15, 118, 110, 0.28);
+  color: var(--presence-accent);
+  background: rgba(15, 118, 110, 0.04);
+  outline: none;
+}
+
+.presenca-calendar-meta {
+  gap: 10px;
+}
+
+.presenca-calendar-actions .btn {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border: 1px solid var(--presence-line-strong);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: none;
+}
+
+.presenca-calendar-actions .btn:hover,
+.presenca-calendar-actions .btn:focus-visible {
+  border-color: rgba(15, 118, 110, 0.32);
+  background: rgba(15, 118, 110, 0.04);
+  outline: none;
+}
+
+.presenca-calendar-actions .btn i {
+  color: var(--presence-accent);
+}
+
+.presenca-calendar-panel .agenda-weekdays {
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-inline: 0;
+}
+
+.presenca-calendar-panel .agenda-weekdays span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--presence-soft);
+}
+
+.presenca-calendar-panel .agenda-calendar-grid {
+  gap: 8px;
+}
+
+.presenca-calendar-panel .agenda-day-cell {
+  display: flex;
+  flex-direction: column;
+  min-height: 104px;
+  padding: 10px;
+  border: 1px solid var(--presence-line);
+  border-radius: 14px;
+  background: var(--presence-surface);
+  box-shadow: none;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.presenca-calendar-panel .agenda-day-cell:hover,
+.presenca-calendar-panel .agenda-day-cell:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(15, 118, 110, 0.24);
+  background: #fbfeff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  outline: none;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-placeholder {
+  min-height: 104px;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-today {
+  border-color: rgba(15, 118, 110, 0.26);
+  box-shadow: none;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-selected {
+  border-color: var(--presence-accent);
+  background: var(--presence-surface);
+  box-shadow: 0 0 0 2px var(--presence-accent-soft);
+}
+
+.presenca-calendar-panel .agenda-day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0 0 10px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-today .agenda-day-number {
+  box-shadow: inset 0 0 0 1.5px rgba(15, 118, 110, 0.32);
+  color: var(--presence-accent);
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-selected .agenda-day-number {
+  background: var(--presence-accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+.presenca-calendar-panel .agenda-day-meta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.presenca-calendar-panel .agenda-day-pill {
+  align-self: flex-start;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--presence-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.presenca-calendar-panel .agenda-day-cell.is-selected .agenda-day-pill {
+  background: transparent;
+  color: var(--presence-muted);
+}
+
+.presenca-calendar-panel .agenda-day-presence-inline {
+  gap: 5px;
+}
+
+.presenca-calendar-panel .agenda-day-presence-pill {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.presenca-calendar-panel .agenda-day-presence-pill.is-presente {
+  color: var(--presence-success);
+  background: var(--presence-success-soft);
+  border-color: rgba(5, 150, 105, 0.12);
+}
+
+.presenca-calendar-panel .agenda-day-presence-pill.is-falta {
+  color: var(--presence-danger);
+  background: var(--presence-danger-soft);
+  border-color: rgba(220, 38, 38, 0.12);
+}
+
+.presenca-calendar-panel .agenda-day-presence-pill.is-falta-justificada {
+  color: var(--presence-warning);
+  background: var(--presence-warning-soft);
+  border-color: rgba(217, 119, 6, 0.14);
+}
+
+.presenca-calendar-panel .agenda-day-presence-pill.is-pendente {
+  color: var(--presence-accent);
+  background: var(--presence-accent-soft);
+  border-color: rgba(15, 118, 110, 0.16);
+}
+
+.presenca-calendar-panel .agenda-day-presence-pill.is-cancelado {
+  color: #475569;
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.presenca-calendar-panel .agenda-day-empty-dot {
+  align-self: flex-start;
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.24);
+}
+
+.presenca-day-panel {
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.64);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 22px 40px rgba(15, 23, 42, 0.08);
+  min-height: 100%;
+}
+
+.presenca-day-panel .agenda-day-head {
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.presenca-day-panel .agenda-day-overline {
+  color: var(--presence-accent);
+  letter-spacing: 0.12em;
+}
+
+.presenca-day-panel .agenda-day-head h3 {
+  color: var(--presence-text);
+}
+
+.presenca-day-panel .agenda-day-list {
+  padding: 16px;
+  gap: 10px;
+}
+
+.presenca-event-card {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: none;
+}
+
+.presenca-event-card:hover,
+.presenca-event-card:focus {
+  border-color: rgba(15, 118, 110, 0.24);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+}
+
+.presenca-event-card-top strong,
+.agenda-event-line strong {
+  color: var(--presence-text);
+}
+
+.agenda-event-line,
+.agenda-event-note {
+  font-size: 0.76rem;
+  color: var(--presence-muted);
+}
+
+.agenda-event-note {
+  border-radius: 12px;
+  background: rgba(15, 118, 110, 0.06);
+}
+
+.agenda-event-badge {
+  border: 1px solid transparent;
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.agenda-event-badge.status-agendado,
+.agenda-event-badge.status-pendente {
+  background: var(--presence-accent-soft);
+  color: var(--presence-accent);
+  border-color: rgba(15, 118, 110, 0.14);
+}
+
+.agenda-event-badge.status-encerrado,
+.agenda-event-badge.status-presente {
+  background: var(--presence-success-soft);
+  color: var(--presence-success);
+  border-color: rgba(5, 150, 105, 0.14);
+}
+
+.agenda-event-badge.status-falta,
+.agenda-event-badge.status-cancelado {
+  background: var(--presence-danger-soft);
+  color: var(--presence-danger);
+  border-color: rgba(220, 38, 38, 0.14);
+}
+
+.agenda-event-badge.status-falta_justificada,
+.agenda-event-badge.status-remarcado,
+.agenda-event-badge.status-cancelado_antecipadamente {
+  background: var(--presence-warning-soft);
+  color: var(--presence-warning);
+  border-color: rgba(217, 119, 6, 0.16);
+}
+
+.agenda-event-badge.status-em_analise_cancelamento,
+.agenda-event-badge.status-em_negociacao_remarcacao {
+  background: rgba(148, 163, 184, 0.12);
+  color: #475569;
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.presenca-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 12px 4px;
+}
+
+.presenca-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 16px;
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--presence-accent);
+  font-size: 1.15rem;
+}
+
+.presenca-empty-state strong {
+  color: var(--presence-text);
+  font-size: 1rem;
+}
+
+.presenca-empty-state .empty-hint {
+  margin: 0;
+  color: var(--presence-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.presenca-panel,
+.presenca-detail-toolbar,
+.presenca-section-nav,
+.presenca-detail-summary-card {
+  border-radius: 18px;
+}
+
+.presenca-panel-head small {
+  font-size: 0.82rem;
+}
+
+.presenca-panel-footer {
+  color: var(--presence-accent);
+  border-top-color: rgba(148, 163, 184, 0.18);
+}
+
+.presenca-panel-link:hover .presenca-panel.is-clickable,
+.presenca-panel-link:focus-visible .presenca-panel.is-clickable,
+.presenca-section-nav-link:hover,
+.presenca-section-nav-link:focus-visible,
+.presenca-occurrence-card--interactive:hover,
+.presenca-occurrence-card--interactive:focus-visible {
+  box-shadow: var(--presence-shadow-float);
+}
+
+.presenca-section-nav {
+  gap: 8px;
+  padding: 10px;
+}
+
+.presenca-section-nav-link {
+  min-height: 52px;
+  border-color: var(--presence-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--presence-text);
+}
+
+.presenca-section-nav-link strong {
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--presence-accent);
+}
+
+.presenca-section-nav-link.is-active {
+  border-color: rgba(15, 118, 110, 0.24);
+  background: rgba(15, 118, 110, 0.06);
+  color: var(--presence-accent-strong);
+}
+
+.presenca-section-nav-link.is-active strong {
+  background: var(--presence-accent);
+  color: #fff;
+}
+
+.presenca-detail-toolbar {
+  padding: 16px;
+}
+
+.presenca-detail-filter-form {
+  gap: 10px;
+}
+
+.presenca-detail-filter-actions .btn {
+  min-height: 42px;
+  border-radius: 12px;
+}
+
+.presenca-week-card,
+.presenca-prof-card,
+.presenca-occurrence-card {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.presenca-week-bar {
+  background: rgba(226, 232, 240, 0.8);
+}
+
+.presenca-table th {
+  color: var(--presence-soft);
+}
+
+.presenca-table th,
+.presenca-table td {
+  border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+.presenca-table tr.is-top td {
+  background: rgba(15, 118, 110, 0.05);
+}
+
+.presenca-inline-link {
+  color: var(--presence-accent);
+}
+
+.pill {
+  font-weight: 700;
+}
+
+.pill.is-presente {
+  color: var(--presence-success);
+  background: var(--presence-success-soft);
+}
+
+.pill.is-falta {
+  color: var(--presence-danger);
+  background: var(--presence-danger-soft);
+}
+
+.pill.is-justificada {
+  color: var(--presence-warning);
+  background: var(--presence-warning-soft);
+}
+
+.pill.is-muted {
+  color: #475569;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.presenca-page a:focus-visible,
+.presenca-page button:focus-visible,
+.presenca-page select:focus-visible,
+.presenca-page input:focus-visible,
+.presenca-page textarea:focus-visible,
+.presenca-detail-page a:focus-visible,
+.presenca-detail-page button:focus-visible,
+.presenca-detail-page select:focus-visible,
+.presenca-detail-page input:focus-visible,
+.presenca-detail-page textarea:focus-visible {
+  outline: 2px solid rgba(15, 118, 110, 0.32);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1280px) {
+  .presenca-calendar-board {
+    grid-template-columns: 1fr;
+  }
+
+  .presenca-day-panel {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .presenca-inline-filters {
+    align-items: stretch;
+  }
+
+  .presenca-inline-filters .field-wrap {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .presenca-inline-clear {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .presenca-hero {
+    padding: 18px;
+  }
+
+  .presenca-calendar-panel {
+    padding: 14px;
+  }
+
+  .presenca-inline-filters .field-wrap,
+  .presenca-inline-clear {
+    flex: 1 1 100%;
+  }
+
+  .presenca-calendar-meta {
+    align-items: flex-start;
+  }
+
+  .presenca-calendar-panel .agenda-day-cell {
+    min-height: 92px;
+    padding: 9px;
+  }
+}
+
+.presenca-mobile-shell,
+.presenca-mobile-sheet-backdrop,
+.presenca-mobile-fab {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .presenca-page {
+    gap: 14px;
+  }
+
+  .presenca-hero,
+  .presenca-kpi-grid,
+  .presenca-active-filters,
+  .presenca-grid-main,
+  .presenca-grid-secondary {
+    display: none;
+  }
+
+  .presenca-calendar-board {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .presenca-calendar-panel {
+    padding: 14px;
+  }
+
+  .presenca-mobile-shell {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .presenca-mobile-toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .presenca-mobile-toolbar strong {
+    display: block;
+    color: var(--presence-text);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .presenca-mobile-toolbar small {
+    display: block;
+    margin-top: 4px;
+    color: var(--presence-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .presenca-mobile-filter-toggle {
+    min-height: 44px;
+    border-radius: 14px;
+    border: 1px solid var(--presence-line-strong);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--presence-accent);
+    font-weight: 700;
+  }
+
+  .presenca-mobile-week-strip {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(44px, 1fr));
+    gap: 8px;
+    padding: 2px 0;
+  }
+
+  .presenca-mobile-day-card {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    min-height: 88px;
+    padding: 10px 6px;
+    border: 1px solid var(--presence-line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--presence-text);
+    text-decoration: none;
+    box-shadow: none;
+    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .presenca-mobile-day-card:active {
+    transform: scale(0.98);
+  }
+
+  .presenca-mobile-day-card.is-selected {
+    border-color: var(--presence-accent);
+    box-shadow: 0 0 0 2px var(--presence-accent-soft);
+  }
+
+  .presenca-mobile-day-card.is-today .presenca-mobile-day-number {
+    box-shadow: inset 0 0 0 1.5px rgba(15, 118, 110, 0.32);
+    color: var(--presence-accent);
+  }
+
+  .presenca-mobile-day-card.is-selected .presenca-mobile-day-number {
+    background: var(--presence-accent);
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .presenca-mobile-day-card.is-placeholder {
+    min-height: 88px;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .presenca-mobile-day-name {
+    font-size: 0.64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--presence-soft);
+  }
+
+  .presenca-mobile-day-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--presence-text);
+  }
+
+  .presenca-mobile-day-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 10px;
+  }
+
+  .presenca-mobile-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.28);
+  }
+
+  .presenca-mobile-dot.is-presente {
+    background: var(--presence-success);
+  }
+
+  .presenca-mobile-dot.is-falta {
+    background: var(--presence-danger);
+  }
+
+  .presenca-mobile-dot.is-justificada {
+    background: var(--presence-warning);
+  }
+
+  .presenca-mobile-dot.is-pendente {
+    background: var(--presence-accent);
+  }
+
+  .presenca-mobile-dot.is-cancelado {
+    background: #64748b;
+  }
+
+  .presenca-calendar-head,
+  .presenca-calendar-panel .agenda-weekdays,
+  .presenca-calendar-panel .agenda-calendar-grid {
+    display: none;
+  }
+
+  .presenca-day-panel {
+    min-height: 0;
+    border-radius: 20px;
+  }
+
+  .presenca-day-panel .agenda-day-head {
+    padding: 16px;
+  }
+
+  .presenca-day-panel .agenda-day-list {
+    padding: 14px;
+  }
+
+  .presenca-day-head-kpis {
+    gap: 6px;
+  }
+
+  .presenca-mobile-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: grid;
+    align-items: end;
+    background: rgba(15, 23, 42, 0.28);
+    padding: 0;
+  }
+
+  .presenca-mobile-sheet-backdrop[hidden] {
+    display: none !important;
+  }
+
+  .presenca-mobile-sheet {
+    width: 100%;
+    padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 -18px 36px rgba(15, 23, 42, 0.14);
+    display: grid;
+    gap: 14px;
+  }
+
+  .presenca-mobile-sheet-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .presenca-mobile-sheet-head h3 {
+    margin: 0;
+    color: var(--presence-text);
+    font-size: 1.08rem;
+  }
+
+  .presenca-mobile-filter-form {
+    display: grid;
+    gap: 12px;
+  }
+
+  .presenca-mobile-filter-form .input-control {
+    min-height: 46px;
+    border: 1px solid var(--presence-line-strong);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .presenca-mobile-sheet-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .presenca-mobile-sheet-actions .btn {
+    min-height: 44px;
+    border-radius: 14px;
+  }
+
+  .presenca-mobile-fab {
+    position: fixed;
+    right: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    z-index: 110;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--presence-accent) 0%, var(--presence-accent-strong) 100%);
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 18px 28px rgba(15, 118, 110, 0.28);
+  }
+
+.presenca-mobile-fab i {
+  font-size: 1.12rem;
+}
+}
+
+.presenca-active-filter-chip {
+  text-decoration: none;
+}

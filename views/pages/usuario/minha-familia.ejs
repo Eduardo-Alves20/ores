@@ -46,6 +46,77 @@
       </div>
     </section>
 
+    <section class="module-card usuario-familia-agenda">
+      <header class="usuario-familia-historico-head">
+        <h3>Proximos agendamentos</h3>
+        <span class="badge-soft"><%= proximosAgendamentos?.length || 0 %> compromisso(s)</span>
+      </header>
+
+      <% if (!proximosAgendamentos || !proximosAgendamentos.length) { %>
+        <p class="empty-hint">Nenhum agendamento futuro vinculado a sua familia no momento.</p>
+      <% } else { %>
+        <div class="usuario-agenda-list">
+          <% proximosAgendamentos.forEach((item) => { %>
+            <article class="usuario-agenda-card">
+              <header class="usuario-agenda-card-head">
+                <div>
+                  <h4><%= item.titulo %></h4>
+                  <p><%= item.dataHoraLabel %></p>
+                </div>
+                <div class="usuario-agenda-statuses">
+                  <span class="status-badge status-active"><%= item.statusAgendamentoLabel %></span>
+                  <span class="status-badge status-neutral"><%= item.statusPresencaLabel %></span>
+                </div>
+              </header>
+              <div class="usuario-agenda-card-grid">
+                <p><strong>Profissional:</strong> <%= item.profissionalNome %></p>
+                <p><strong>Sala:</strong> <%= item.salaNome %></p>
+                <p><strong>Local:</strong> <%= item.local %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="module-card usuario-familia-agenda">
+      <header class="usuario-familia-historico-head">
+        <h3>Historico de agendamentos</h3>
+        <span class="badge-soft"><%= historicoAgendamentos?.length || 0 %> registro(s)</span>
+      </header>
+
+      <% if (!historicoAgendamentos || !historicoAgendamentos.length) { %>
+        <p class="empty-hint">Ainda nao ha historico de agenda para esta familia.</p>
+      <% } else { %>
+        <div class="usuario-agenda-list">
+          <% historicoAgendamentos.forEach((item) => { %>
+            <article class="usuario-agenda-card is-history">
+              <header class="usuario-agenda-card-head">
+                <div>
+                  <h4><%= item.titulo %></h4>
+                  <p><%= item.dataHoraLabel %></p>
+                </div>
+                <div class="usuario-agenda-statuses">
+                  <span class="status-badge status-muted"><%= item.statusAgendamentoLabel %></span>
+                  <span class="status-badge status-neutral"><%= item.statusPresencaLabel %></span>
+                </div>
+              </header>
+              <div class="usuario-agenda-card-grid">
+                <p><strong>Profissional:</strong> <%= item.profissionalNome %></p>
+                <p><strong>Sala:</strong> <%= item.salaNome %></p>
+                <p><strong>Local:</strong> <%= item.local %></p>
+              </div>
+              <% if (item.presencaObservacao) { %>
+                <div class="usuario-agenda-note">
+                  <strong>Observacao:</strong> <%= item.presencaObservacao %>
+                </div>
+              <% } %>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
     <section class="module-card usuario-familia-historico">
       <header class="usuario-familia-historico-head">
         <h3>Historico de atendimentos</h3>

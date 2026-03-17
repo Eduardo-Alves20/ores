@@ -5,12 +5,15 @@ const {
   AgendaEvento,
   TIPOS_AGENDA,
   AGENDA_ROOM_REQUIRED_TYPES,
+  AGENDA_PRESENCA_STATUS_LIST,
 } = require("../../schemas/social/AgendaEvento");
 const { AgendaSala } = require("../../schemas/social/AgendaSala");
 const { PERFIS } = require("../../config/roles");
 const { PERMISSIONS } = require("../../config/permissions");
 const { registrarAuditoria } = require("../../services/auditService");
+const { registrarHistoricoAgenda, listarHistoricoAgenda } = require("../../services/agendaHistoryService");
 const { hasAnyPermission } = require("../../services/accessControlService");
+const { notify, resolveAdminRecipients } = require("../../services/notificationService");
 const {
   AGENDA_DEFAULT_DURATION_MINUTES,
   asObjectId,
@@ -20,6 +23,24 @@ const {
   getEffectiveEnd,
   parseAgendaDate,
 } = require("../../services/agendaAvailabilityService");
+const { resolvePresenceReasonByKey } = require("../../services/systemConfigService");
+
+const PRESENCA_LABELS = Object.freeze({
+  pendente: "Pendente",
+  presente: "Presente",
+  falta: "Falta",
+  falta_justificada: "Falta justificada",
+  cancelado_antecipadamente: "Cancelado antecipadamente",
+});
+
+const AGENDAMENTO_LABELS = Object.freeze({
+  agendado: "Agendado",
+  encerrado: "Encerrado",
+  cancelado: "Cancelado",
+  em_analise_cancelamento: "Em analise de cancelamento",
+  em_negociacao_remarcacao: "Em negociacao de remarcacao",
+  remarcado: "Remarcado",
+});
 
 function parseBoolean(value) {
   if (value === true || value === "true") return true;
@@ -41,6 +62,10 @@ function canAssignOthers(user) {
 
 function canManageRooms(user) {
   return canViewAll(user);
+}
+
+function canRegisterAttendance(user, evento) {
+  return hasAnyPermission(user?.permissions || [], [PERMISSIONS.AGENDA_ATTENDANCE]) && canMutateEvent(user, evento);
 }
 
 function parseDateInput(value) {
@@ -71,6 +96,38 @@ function toTimeString(dateLike) {
   const dt = new Date(dateLike);
   if (Number.isNaN(dt.getTime())) return "";
   return dt.toISOString().slice(11, 16);
+}
+
+function toDateTimeLabel(dateLike) {
+  const dt = new Date(dateLike);
+  if (Number.isNaN(dt.getTime())) return "-";
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(dt);
+}
+
+function getStatusAgendamentoForPresence(currentStatusAgendamento, statusPresenca) {
+  if (statusPresenca === "cancelado_antecipadamente") return "cancelado";
+  if (statusPresenca === "presente" || statusPresenca === "falta" || statusPresenca === "falta_justificada") {
+    return "encerrado";
+  }
+  if (currentStatusAgendamento === "remarcado") return "remarcado";
+  return "agendado";
+}
+
+function mapHistorico(doc) {
+  return {
+    _id: doc?._id,
+    tipo: doc?.tipo || "",
+    titulo: doc?.titulo || "",
+    descricao: doc?.descricao || "",
+    visibilidade: doc?.visibilidade || "interna",
+    atorNome: doc?.atorNome || "",
+    atorPerfil: doc?.atorPerfil || "",
+    createdAt: doc?.createdAt || null,
+    createdAtLabel: doc?.createdAt ? toDateTimeLabel(doc.createdAt) : "-",
+  };
 }
 
 function canMutateEvent(user, evento) {
@@ -163,6 +220,15 @@ function mapEvento(doc) {
     fim: fim || null,
     local: evento?.local || "",
     observacoes: evento?.observacoes || "",
+    statusAgendamento: evento?.statusAgendamento || "agendado",
+    statusAgendamentoLabel:
+      AGENDAMENTO_LABELS[evento?.statusAgendamento || "agendado"] || "Agendado",
+    statusPresenca: evento?.statusPresenca || "pendente",
+    statusPresencaLabel:
+      PRESENCA_LABELS[evento?.statusPresenca || "pendente"] || "Pendente",
+    presencaObservacao: evento?.presencaObservacao || "",
+    presencaJustificativaKey: evento?.presencaJustificativaKey || "",
+    presencaJustificativaLabel: evento?.presencaJustificativaLabel || "",
     ativo: !!evento?.ativo,
     dia: inicio ? toDayDateString(inicio) : "",
     hora: inicio ? toTimeString(inicio) : "",
@@ -180,11 +246,23 @@ function mapEvento(doc) {
           nome: evento.pacienteId?.nome || "",
         }
       : null,
+    presencaRegistradaPor: evento?.presencaRegistradaPor
+      ? {
+          _id: evento.presencaRegistradaPor._id || evento.presencaRegistradaPor,
+          nome: evento.presencaRegistradaPor?.nome || "",
+        }
+      : null,
+    presencaRegistradaEm: evento?.presencaRegistradaEm || null,
+    presencaRegistradaEmLabel: evento?.presencaRegistradaEm
+      ? toDateTimeLabel(evento.presencaRegistradaEm)
+      : "-",
     responsavel: evento?.responsavelId
       ? {
           _id: evento.responsavelId._id || evento.responsavelId,
           nome: evento.responsavelId?.nome || "",
           perfil: evento.responsavelId?.perfil || "",
+          email: evento.responsavelId?.email || "",
+          telefone: evento.responsavelId?.telefone || "",
         }
       : null,
   };
@@ -192,11 +270,75 @@ function mapEvento(doc) {
 
 async function loadEventoById(eventoId) {
   return AgendaEvento.findById(eventoId)
-    .populate("responsavelId", "_id nome perfil")
+    .populate("responsavelId", "_id nome perfil email telefone")
     .populate("familiaId", "_id responsavel endereco")
     .populate("pacienteId", "_id nome")
     .populate("salaId", "_id nome descricao ativo")
+    .populate("presencaRegistradaPor", "_id nome")
     .lean();
+}
+
+async function carregarEventoDetalhado(eventoId) {
+  const [evento, historico] = await Promise.all([loadEventoById(eventoId), listarHistoricoAgenda(eventoId, 12)]);
+  return {
+    evento,
+    historico: historico.map(mapHistorico),
+  };
+}
+
+async function dispatchPresenceNotifications(evento) {
+  if (!evento) return [];
+
+  const recipients = [];
+
+  if (evento?.responsavelId?._id) {
+    recipients.push({
+      usuarioId: evento.responsavelId._id,
+      nome: evento.responsavelId.nome,
+      email: evento.responsavelId.email,
+      telefone: evento.responsavelId.telefone,
+      channels: ["sistema", "email", "whatsapp"],
+    });
+  }
+
+  const admins = await resolveAdminRecipients();
+  admins.forEach((admin) => {
+    recipients.push({
+      ...admin,
+      channels: ["sistema", "email", "whatsapp"],
+    });
+  });
+
+  const familiaResponsavel = evento?.familiaId?.responsavel || null;
+  if (familiaResponsavel?.email || familiaResponsavel?.telefone) {
+    recipients.push({
+      nome: familiaResponsavel?.nome || "Familia",
+      email: familiaResponsavel?.email || "",
+      telefone: familiaResponsavel?.telefone || "",
+      channels: ["email", "whatsapp"],
+    });
+  }
+
+  const meta = {
+    statusPresenca: PRESENCA_LABELS[evento?.statusPresenca || "pendente"] || "Atualizado",
+    tituloEvento: evento?.titulo || "Agendamento",
+    inicioLabel: toDateTimeLabel(evento?.inicio),
+    responsavelNome: evento?.responsavelId?.nome || "",
+    justificativa: evento?.presencaJustificativaLabel || "",
+  };
+
+  return notify({
+    categoria: "agenda",
+    evento: "agenda.presenca_registrada",
+    titulo: "Atualizacao de presenca do agendamento",
+    mensagem: `O agendamento "${meta.tituloEvento}" foi atualizado para ${meta.statusPresenca.toLowerCase()}.`,
+    recipients,
+    referenciaTipo: "agenda_evento",
+    referenciaId: evento?._id,
+    payload: {
+      meta,
+    },
+  });
 }
 
 async function resolveSalaSelection({
@@ -279,10 +421,11 @@ class AgendaController {
 
       const eventos = await AgendaEvento.find(filtro)
         .sort({ inicio: 1, createdAt: 1 })
-        .populate("responsavelId", "_id nome perfil")
+        .populate("responsavelId", "_id nome perfil email telefone")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
         .populate("salaId", "_id nome descricao ativo")
+        .populate("presencaRegistradaPor", "_id nome")
         .lean();
 
       return res.status(200).json({
@@ -293,6 +436,33 @@ class AgendaController {
     } catch (error) {
       console.error("Erro ao listar agenda:", error);
       return res.status(500).json({ erro: "Erro interno ao listar agenda." });
+    }
+  }
+
+  static async detalhe(req, res) {
+    try {
+      const user = getSessionUser(req);
+      if (!user || !hasAnyPermission(user.permissions || [], [PERMISSIONS.AGENDA_VIEW])) {
+        return res.status(403).json({ erro: "Acesso negado para agenda." });
+      }
+
+      const evento = await AgendaEvento.findById(req.params?.id);
+      if (!evento) {
+        return res.status(404).json({ erro: "Evento de agenda nao encontrado." });
+      }
+
+      if (!canMutateEvent(user, evento) && !canViewAll(user)) {
+        return res.status(403).json({ erro: "Sem permissao para visualizar este evento." });
+      }
+
+      const detalhe = await carregarEventoDetalhado(evento._id);
+      return res.status(200).json({
+        evento: mapEvento(detalhe.evento),
+        historico: detalhe.historico,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar detalhe do evento:", error);
+      return res.status(500).json({ erro: "Erro interno ao buscar o evento." });
     }
   }
 
@@ -627,6 +797,22 @@ class AgendaController {
         },
       });
 
+      await registrarHistoricoAgenda({
+        req,
+        eventoId: evento._id,
+        tipo: "agendamento_criado",
+        visibilidade: relation.familiaId ? "todos" : "interna",
+        titulo: "Agendamento criado",
+        descricao: `O agendamento "${titulo}" foi criado para ${toDateTimeLabel(intervalo.inicio)}.`,
+        detalhes: {
+          tipoAtendimento,
+          responsavelId,
+          familiaId: relation.familiaId || null,
+          pacienteId: relation.pacienteId || null,
+          salaId: salaSelection.salaId || null,
+        },
+      });
+
       const loaded = await loadEventoById(evento._id);
 
       return res.status(201).json({
@@ -775,16 +961,29 @@ class AgendaController {
         new: true,
         runValidators: true,
       })
-        .populate("responsavelId", "_id nome perfil")
+        .populate("responsavelId", "_id nome perfil email telefone")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
         .populate("salaId", "_id nome descricao ativo")
+        .populate("presencaRegistradaPor", "_id nome")
         .lean();
 
       await registrarAuditoria(req, {
         acao: "AGENDA_EVENTO_ATUALIZADO",
         entidade: "agenda_evento",
         entidadeId: evento._id,
+      });
+
+      await registrarHistoricoAgenda({
+        req,
+        eventoId: evento._id,
+        tipo: "agendamento_atualizado",
+        visibilidade: updated?.familiaId ? "todos" : "interna",
+        titulo: "Agendamento atualizado",
+        descricao: `O agendamento "${updated?.titulo || evento.titulo}" foi atualizado.`,
+        detalhes: {
+          tipoAtendimento: updated?.tipoAtendimento || evento.tipoAtendimento,
+        },
       });
 
       return res.status(200).json({
@@ -879,10 +1078,11 @@ class AgendaController {
           runValidators: true,
         }
       )
-        .populate("responsavelId", "_id nome perfil")
+        .populate("responsavelId", "_id nome perfil email telefone")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
         .populate("salaId", "_id nome descricao ativo")
+        .populate("presencaRegistradaPor", "_id nome")
         .lean();
 
       await registrarAuditoria(req, {
@@ -892,6 +1092,21 @@ class AgendaController {
         detalhes: {
           de: evento.inicio,
           para: novoInicio,
+        },
+      });
+
+      await registrarHistoricoAgenda({
+        req,
+        eventoId: evento._id,
+        tipo: "agendamento_movido",
+        visibilidade: updated?.familiaId ? "todos" : "interna",
+        titulo: "Agendamento movido",
+        descricao: `O agendamento "${updated?.titulo || evento.titulo}" foi remanejado para ${toDateTimeLabel(
+          updated?.inicio || novoInicio
+        )}.`,
+        detalhes: {
+          de: evento.inicio,
+          para: updated?.inicio || novoInicio,
         },
       });
 
@@ -941,16 +1156,31 @@ class AgendaController {
           runValidators: true,
         }
       )
-        .populate("responsavelId", "_id nome perfil")
+        .populate("responsavelId", "_id nome perfil email telefone")
         .populate("familiaId", "_id responsavel endereco")
         .populate("pacienteId", "_id nome")
         .populate("salaId", "_id nome descricao ativo")
+        .populate("presencaRegistradaPor", "_id nome")
         .lean();
 
       await registrarAuditoria(req, {
         acao: ativo ? "AGENDA_EVENTO_REATIVADO" : "AGENDA_EVENTO_INATIVADO",
         entidade: "agenda_evento",
         entidadeId: evento._id,
+      });
+
+      await registrarHistoricoAgenda({
+        req,
+        eventoId: evento._id,
+        tipo: "agendamento_status_alterado",
+        visibilidade: updated?.familiaId ? "todos" : "interna",
+        titulo: ativo ? "Agendamento reativado" : "Agendamento inativado",
+        descricao: ativo
+          ? `O agendamento "${updated?.titulo || evento.titulo}" foi reativado.`
+          : `O agendamento "${updated?.titulo || evento.titulo}" foi inativado.`,
+        detalhes: {
+          ativo,
+        },
       });
 
       return res.status(200).json({
@@ -960,6 +1190,111 @@ class AgendaController {
     } catch (error) {
       console.error("Erro ao alterar status do evento de agenda:", error);
       return res.status(500).json({ erro: "Erro interno ao alterar status do agendamento." });
+    }
+  }
+
+  static async registrarPresenca(req, res) {
+    try {
+      const user = getSessionUser(req);
+      if (!user || !hasAnyPermission(user.permissions || [], [PERMISSIONS.AGENDA_ATTENDANCE])) {
+        return res.status(403).json({ erro: "Acesso negado para registrar presenca." });
+      }
+
+      const evento = await AgendaEvento.findById(req.params?.id);
+      if (!evento) {
+        return res.status(404).json({ erro: "Evento de agenda nao encontrado." });
+      }
+
+      if (!evento.ativo) {
+        return res.status(400).json({ erro: "Nao e possivel registrar presenca em um agendamento inativo." });
+      }
+
+      if (!canRegisterAttendance(user, evento)) {
+        return res.status(403).json({ erro: "Sem permissao para registrar presenca neste agendamento." });
+      }
+
+      const statusPresenca = String(req.body?.statusPresenca || "").trim();
+      if (!AGENDA_PRESENCA_STATUS_LIST.includes(statusPresenca)) {
+        return res.status(400).json({ erro: "Status de presenca invalido." });
+      }
+
+      const actorId = asObjectId(user.id);
+      const presencaObservacao = String(req.body?.observacao || "").trim().slice(0, 1000);
+      const justificativaKey = String(req.body?.justificativaKey || "").trim();
+      const statusAgendamento = getStatusAgendamentoForPresence(evento.statusAgendamento, statusPresenca);
+      const canUseJustificativa = ["falta", "falta_justificada", "cancelado_antecipadamente"].includes(statusPresenca);
+      const justificativa =
+        justificativaKey && canUseJustificativa
+          ? await resolvePresenceReasonByKey(justificativaKey, statusPresenca)
+          : null;
+
+      if (canUseJustificativa && justificativaKey && !justificativa) {
+        return res.status(400).json({ erro: "Justificativa de presenca invalida." });
+      }
+
+      const updated = await AgendaEvento.findByIdAndUpdate(
+        evento._id,
+        {
+          statusPresenca,
+          statusAgendamento,
+          presencaObservacao,
+          presencaJustificativaKey: canUseJustificativa && justificativa ? justificativaKey : "",
+          presencaJustificativaLabel: justificativa?.nome || "",
+          presencaRegistradaEm: new Date(),
+          presencaRegistradaPor: actorId,
+          atualizadoPor: actorId,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      )
+        .populate("responsavelId", "_id nome perfil email telefone")
+        .populate("familiaId", "_id responsavel endereco")
+        .populate("pacienteId", "_id nome")
+        .populate("salaId", "_id nome descricao ativo")
+        .populate("presencaRegistradaPor", "_id nome")
+        .lean();
+
+      await registrarAuditoria(req, {
+        acao: "AGENDA_PRESENCA_REGISTRADA",
+        entidade: "agenda_evento",
+        entidadeId: evento._id,
+        detalhes: {
+          statusPresenca,
+          statusAgendamento,
+        },
+      });
+
+      await registrarHistoricoAgenda({
+        req,
+        eventoId: evento._id,
+        tipo: "presenca_registrada",
+        visibilidade: updated?.familiaId ? "todos" : "interna",
+        titulo: "Presenca atualizada",
+        descricao: `O agendamento "${updated?.titulo || evento.titulo}" foi marcado como ${
+          PRESENCA_LABELS[statusPresenca] || "Atualizado"
+        }.`,
+        detalhes: {
+          statusPresenca,
+          statusAgendamento,
+          justificativa: justificativa?.nome || "",
+          observacao: presencaObservacao || "",
+        },
+      });
+
+      await dispatchPresenceNotifications(updated);
+
+      const detalhe = await carregarEventoDetalhado(evento._id);
+
+      return res.status(200).json({
+        mensagem: "Presenca atualizada com sucesso.",
+        evento: mapEvento(detalhe.evento),
+        historico: detalhe.historico,
+      });
+    } catch (error) {
+      console.error("Erro ao registrar presenca:", error);
+      return res.status(500).json({ erro: "Erro interno ao registrar presenca." });
     }
   }
 }

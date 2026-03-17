@@ -1,0 +1,768 @@
+<%
+  const pct = (part, total) => (Number(total || 0) > 0 ? Math.max(0, Math.min(100, Math.round((Number(part || 0) / Number(total || 1)) * 100))) : 0);
+  const topFaltas = Array.isArray(rankingAssistidos)
+    ? rankingAssistidos.find((item) => Number(item?.faltas || 0) > 0)
+    : null;
+  const topJustificadas = Array.isArray(rankingAssistidos)
+    ? [...rankingAssistidos]
+        .sort((a, b) => Number(b?.justificadas || 0) - Number(a?.justificadas || 0))
+        .find((item) => Number(item?.justificadas || 0) > 0)
+    : null;
+  const buildPresencaHref = (overrides = {}) => {
+    const params = new URLSearchParams();
+    const merged = {
+      dataInicio: filtros?.dataInicio || "",
+      dataFim: filtros?.dataFim || "",
+      mes: filtros?.mes || "",
+      dia: filtros?.dia || "",
+      responsavelId: filtros?.responsavelId || "",
+      statusPresenca: filtros?.statusPresenca || "todos",
+      buscaUsuario: filtros?.buscaUsuario || "",
+      ...overrides,
+    };
+
+    Object.entries(merged).forEach(([key, value]) => {
+      const normalized = String(value ?? "").trim();
+      if (!normalized) return;
+      if (key === "statusPresenca" && normalized === "todos") return;
+      params.set(key, normalized);
+    });
+
+    const query = params.toString();
+    return query ? `/agenda/presencas?${query}` : "/agenda/presencas";
+  };
+  const buildDetailHref = (section, overrides = {}) => {
+    const params = new URLSearchParams();
+    const merged = {
+      dataInicio: filtros?.dataInicio || "",
+      dataFim: filtros?.dataFim || "",
+      mes: filtros?.mes || "",
+      dia: filtros?.dia || "",
+      responsavelId: filtros?.responsavelId || "",
+      statusPresenca: filtros?.statusPresenca || "todos",
+      ...overrides,
+    };
+
+    Object.entries(merged).forEach(([key, value]) => {
+      const normalized = String(value ?? "").trim();
+      if (!normalized) return;
+      if (key === "statusPresenca" && normalized === "todos") return;
+      params.set(key, normalized);
+    });
+
+    const query = params.toString();
+    return query ? `/agenda/presencas/analise/${section}?${query}` : `/agenda/presencas/analise/${section}`;
+  };
+  const calendarDays = Array.isArray(calendario?.days) ? calendario.days : [];
+  const calendarWeeks = [];
+  calendarDays.forEach((cell, index) => {
+    if (index % 7 === 0) calendarWeeks.push([]);
+    calendarWeeks[calendarWeeks.length - 1].push(cell);
+  });
+  const selectedWeekIndex = Math.max(
+    0,
+    calendarWeeks.findIndex((week) => week.some((cell) => cell && !cell.isPlaceholder && cell.isSelected))
+  );
+  const selectedWeek = calendarWeeks[selectedWeekIndex] || [];
+  const getFirstWeekDay = (week = []) => week.find((cell) => cell && !cell.isPlaceholder) || null;
+  const getLastWeekDay = (week = []) => [...week].reverse().find((cell) => cell && !cell.isPlaceholder) || null;
+  const previousWeek = calendarWeeks[selectedWeekIndex - 1] || null;
+  const nextWeek = calendarWeeks[selectedWeekIndex + 1] || null;
+  const previousWeekTarget = getLastWeekDay(previousWeek) || getFirstWeekDay(previousWeek);
+  const nextWeekTarget = getFirstWeekDay(nextWeek) || getLastWeekDay(nextWeek);
+  const previousWeekHref = previousWeekTarget
+    ? buildPresencaHref({ mes: String(previousWeekTarget.key || '').slice(0, 7), dia: previousWeekTarget.key || '' })
+    : buildPresencaHref({ mes: calendario?.prevMonth || '', dia: '' });
+  const nextWeekHref = nextWeekTarget
+    ? buildPresencaHref({ mes: String(nextWeekTarget.key || '').slice(0, 7), dia: nextWeekTarget.key || '' })
+    : buildPresencaHref({ mes: calendario?.nextMonth || '', dia: '' });
+  const firstMobileActionEvent = (calendario?.selectedDayEvents || []).find((evento) =>
+    ["pendente", "falta", "falta_justificada"].includes(String(evento?.statusPresenca || "").trim())
+  ) || (calendario?.selectedDayEvents || [])[0] || null;
+%>
+
+<div class="presenca-app-shell" data-presenca-app>
+<section class="page-shell presenca-page">
+  <header class="presenca-hero card-elevated">
+    <div class="presenca-hero-copy">
+      <p class="presenca-overline">Relatorio de comparecimento</p>
+      <h2>Presencas, faltas e justificativas em um lugar so</h2>
+      <p>
+        Acompanhe quem compareceu, quem mais faltou e filtre a agenda diretamente pelo cabecalho do calendario.
+      </p>
+    </div>
+    <div class="presenca-hero-side">
+      <div class="agenda-presenca-kpis">
+        <span class="agenda-presenca-kpi is-total"><%= Number(resumo?.total || 0) %> registros</span>
+        <span class="agenda-presenca-kpi is-presente"><%= Number(resumo?.presente || 0) %> presencas</span>
+        <span class="agenda-presenca-kpi is-falta"><%= Number(resumo?.falta || 0) %> faltas</span>
+        <span class="agenda-presenca-kpi is-pendente"><%= Number(resumo?.pendente || 0) %> pendentes</span>
+      </div>
+      <a href="/agenda" class="btn btn-muted">Voltar para agenda</a>
+    </div>
+  </header>
+
+  <section class="presenca-kpi-grid">
+    <article class="presenca-kpi-card is-total card-elevated">
+      <span class="presenca-kpi-label">Atendimentos no periodo</span>
+      <strong><%= Number(resumo?.total || 0) %></strong>
+      <small>Total de agendas consideradas no relatorio.</small>
+    </article>
+
+    <article class="presenca-kpi-card is-presente card-elevated">
+      <span class="presenca-kpi-label">Comparecimento</span>
+      <strong><%= Number(resumo?.presente || 0) %></strong>
+      <small><%= Number(resumo?.taxaComparecimento || 0) %>% de presenca no periodo.</small>
+    </article>
+
+    <article class="presenca-kpi-card is-falta card-elevated">
+      <span class="presenca-kpi-label">Faltas sem justificativa</span>
+      <strong><%= Number(resumo?.falta || 0) %></strong>
+      <small>Casos que exigem mais acompanhamento interno.</small>
+    </article>
+
+    <article class="presenca-kpi-card is-justificada card-elevated">
+      <span class="presenca-kpi-label">Faltas justificadas</span>
+      <strong><%= Number(resumo?.faltaJustificada || 0) %></strong>
+      <small>Ausencias registradas com contexto na ficha.</small>
+    </article>
+
+    <article class="presenca-kpi-card is-highlight card-elevated">
+      <span class="presenca-kpi-label">Quem mais faltou</span>
+      <strong><%= topFaltas?.nome || 'Sem recorrencia' %></strong>
+      <small>
+        <%= topFaltas ? `${topFaltas.faltas} falta(s) no periodo` : 'Nenhum assistido com falta registrada.' %>
+      </small>
+    </article>
+
+    <article class="presenca-kpi-card is-highlight-alt card-elevated">
+      <span class="presenca-kpi-label">Quem mais justificou</span>
+      <strong><%= topJustificadas?.nome || 'Sem justificativas' %></strong>
+      <small>
+        <%= topJustificadas ? `${topJustificadas.justificadas} justificativa(s) no periodo` : 'Nenhuma justificativa registrada.' %>
+      </small>
+    </article>
+  </section>
+
+  <% if (Array.isArray(filtrosResumo) && filtrosResumo.length) { %>
+    <section class="presenca-active-filters card-elevated">
+      <div>
+        <p class="presenca-overline">Filtros ativos</p>
+        <h3>Agenda de presença filtrada com estes critérios</h3>
+      </div>
+      <div class="presenca-active-filter-list">
+        <% filtrosResumo.forEach((chip) => { %>
+          <span class="presenca-active-filter-chip is-<%= chip.tone || 'neutral' %>"><%= chip.label %></span>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <% if (Array.isArray(quickFilters) && quickFilters.length) { %>
+    <section class="presenca-active-filters card-elevated">
+      <div>
+        <p class="presenca-overline">Filtros rapidos</p>
+        <h3>Atalhos configurados pela administracao</h3>
+      </div>
+      <div class="presenca-active-filter-list">
+        <% quickFilters.forEach((chip) => { %>
+          <a href="<%= chip.href %>" class="presenca-active-filter-chip is-neutral" data-presenca-nav><%= chip.nome %></a>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="agenda-board presenca-calendar-board card-elevated">
+    <section class="agenda-calendar-panel presenca-calendar-panel">
+      <section
+        class="presenca-mobile-shell"
+        data-presenca-mobile-week
+        data-prev-week-href="<%= previousWeekHref %>"
+        data-next-week-href="<%= nextWeekHref %>"
+      >
+        <header class="presenca-mobile-toolbar">
+          <div>
+            <p class="presenca-overline">Agenda mobile</p>
+            <strong><%= calendario?.monthLabel || '-' %></strong>
+            <small><%= calendario?.selectedDayLabel || '-' %></small>
+          </div>
+
+          <button type="button" class="btn btn-muted presenca-mobile-filter-toggle" data-presenca-mobile-filters-open>
+            <i class="fa-solid fa-sliders"></i>
+            Filtros
+          </button>
+        </header>
+
+        <div class="presenca-mobile-week-strip" role="list" aria-label="Semana selecionada">
+          <% selectedWeek.forEach((cell) => { %>
+            <% if (cell?.isPlaceholder) { %>
+              <div class="presenca-mobile-day-card is-placeholder" aria-hidden="true"></div>
+            <% } else { %>
+              <a
+                href="<%= buildPresencaHref({ mes: String(cell?.key || '').slice(0, 7), dia: cell?.key || '' }) %>"
+                class="presenca-mobile-day-card <%= cell?.isSelected ? 'is-selected' : '' %> <%= cell?.isToday ? 'is-today' : '' %>"
+                data-presenca-nav
+                role="listitem"
+                aria-label="Abrir dia <%= cell?.dayNumber %>"
+              >
+                <span class="presenca-mobile-day-name">
+                  <%= ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'][new Date(String(cell?.key || '') + 'T12:00:00').getDay()] %>
+                </span>
+                <span class="presenca-mobile-day-number"><%= Number(cell?.dayNumber || 0) %></span>
+                <span class="presenca-mobile-day-dots" aria-hidden="true">
+                  <% if (Number(cell?.presente || 0) > 0) { %><span class="presenca-mobile-dot is-presente"></span><% } %>
+                  <% if (Number(cell?.falta || 0) > 0) { %><span class="presenca-mobile-dot is-falta"></span><% } %>
+                  <% if (Number(cell?.faltaJustificada || 0) > 0) { %><span class="presenca-mobile-dot is-justificada"></span><% } %>
+                  <% if (Number(cell?.pendente || 0) > 0) { %><span class="presenca-mobile-dot is-pendente"></span><% } %>
+                  <% if (Number(cell?.cancelado || 0) > 0) { %><span class="presenca-mobile-dot is-cancelado"></span><% } %>
+                </span>
+              </a>
+            <% } %>
+          <% }) %>
+        </div>
+      </section>
+
+      <header class="agenda-calendar-head presenca-calendar-head">
+        <div class="presenca-calendar-title-block">
+          <p class="presenca-overline">Agenda de presenca</p>
+          <p class="presenca-calendar-support">Navegue por mes, refine os filtros e acompanhe os registros do dia sem sair desta tela.</p>
+          <div class="presenca-month-year-selectors">
+            <label class="field-wrap">
+              <span class="sr-only">Mes</span>
+              <select class="input-control presenca-month-select" data-presenca-month-select>
+                <% (calendarControls?.monthOptions || []).forEach((option) => { %>
+                  <option value="<%= option.value %>" <%= String(calendarControls?.selectedMonth || '') === String(option.value) ? 'selected' : '' %>>
+                    <%= option.label %>
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+
+            <label class="field-wrap">
+              <span class="sr-only">Ano</span>
+              <select class="input-control presenca-year-select" data-presenca-year-select>
+                <% (calendarControls?.yearOptions || []).forEach((year) => { %>
+                  <option value="<%= year %>" <%= String(calendarControls?.selectedYear || '') === String(year) ? 'selected' : '' %>>
+                    <%= year %>
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="presenca-calendar-head-tools">
+          <form method="get" action="/agenda/presencas" class="presenca-inline-filters" data-presenca-filter-form>
+            <input type="hidden" name="dia" value="<%= filtros?.dia || '' %>" />
+            <input type="hidden" name="mes" value="<%= filtros?.mes || '' %>" data-presenca-month-hidden />
+
+            <% if (canViewAll) { %>
+              <label class="field-wrap">
+                <span class="sr-only">Profissional</span>
+                <select class="input-control" name="responsavelId">
+                  <option value="">Todos os profissionais</option>
+                  <% (profissionais || []).forEach((profissional) => { %>
+                    <option
+                      value="<%= profissional._id %>"
+                      <%= String(filtros?.responsavelId || '') === String(profissional._id) ? 'selected' : '' %>
+                    >
+                      <%= profissional.nome %>
+                    </option>
+                  <% }) %>
+                </select>
+              </label>
+            <% } %>
+
+            <label class="field-wrap">
+              <span class="sr-only">Status</span>
+              <select class="input-control" name="statusPresenca">
+                <% (statusOptions || []).forEach((option) => { %>
+                  <option value="<%= option.value %>" <%= String(filtros?.statusPresenca || 'todos') === String(option.value) ? 'selected' : '' %>>
+                    <%= option.label %>
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+
+            <a href="<%= buildPresencaHref({ statusPresenca: 'todos', buscaUsuario: '', responsavelId: '', dia: filtros?.dia || '' }) %>" class="btn btn-muted presenca-inline-clear" data-presenca-nav>
+              Limpar
+            </a>
+          </form>
+
+          <div class="presenca-calendar-meta">
+            <div class="agenda-presenca-kpis presenca-calendar-kpis">
+              <span class="agenda-presenca-kpi is-total"><%= Number(calendario?.monthSummary?.total || 0) %> registros</span>
+              <span class="agenda-presenca-kpi is-presente"><%= Number(calendario?.monthSummary?.presente || 0) %> presencas</span>
+              <span class="agenda-presenca-kpi is-falta"><%= Number(calendario?.monthSummary?.falta || 0) + Number(calendario?.monthSummary?.faltaJustificada || 0) %> faltas</span>
+              <span class="agenda-presenca-kpi is-pendente"><%= Number(calendario?.monthSummary?.pendente || 0) %> pendentes</span>
+            </div>
+
+            <div class="agenda-calendar-actions presenca-calendar-actions">
+              <a href="<%= buildPresencaHref({ mes: calendario?.prevMonth || '', dia: '' }) %>" class="btn btn-muted" aria-label="Mes anterior" data-presenca-nav>
+                <i class="fa-solid fa-chevron-left"></i>
+              </a>
+              <a href="<%= buildPresencaHref({ mes: calendario?.nextMonth || '', dia: '' }) %>" class="btn btn-muted" aria-label="Proximo mes" data-presenca-nav>
+                <i class="fa-solid fa-chevron-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="agenda-weekdays">
+        <span>Dom</span>
+        <span>Seg</span>
+        <span>Ter</span>
+        <span>Qua</span>
+        <span>Qui</span>
+        <span>Sex</span>
+        <span>Sab</span>
+      </div>
+
+      <div class="agenda-calendar-grid">
+        <% (calendario?.days || []).forEach((cell) => { %>
+          <% if (cell?.isPlaceholder) { %>
+            <div class="agenda-day-cell presenca-calendar-cell is-placeholder" aria-hidden="true"></div>
+          <% } else { %>
+            <a
+              href="<%= buildPresencaHref({ mes: String(cell?.key || '').slice(0, 7), dia: cell?.key || '' }) %>"
+              class="agenda-day-cell presenca-calendar-cell <%= cell?.isToday ? 'is-today' : '' %> <%= cell?.isSelected ? 'is-selected' : '' %>"
+              data-presenca-nav
+            >
+              <div class="agenda-day-number"><%= Number(cell?.dayNumber || 0) %></div>
+              <div class="agenda-day-meta">
+                <% if (Number(cell?.total || 0) > 0) { %>
+                  <span class="agenda-day-pill"><%= Number(cell?.total || 0) %> registro(s)</span>
+                  <div class="agenda-day-presence-inline">
+                    <% if (Number(cell?.presente || 0) > 0) { %>
+                      <span class="agenda-day-presence-pill is-presente"><%= Number(cell?.presente || 0) %> pres</span>
+                    <% } %>
+                    <% if (Number(cell?.falta || 0) > 0) { %>
+                      <span class="agenda-day-presence-pill is-falta"><%= Number(cell?.falta || 0) %> falt</span>
+                    <% } %>
+                    <% if (Number(cell?.faltaJustificada || 0) > 0) { %>
+                      <span class="agenda-day-presence-pill is-falta-justificada"><%= Number(cell?.faltaJustificada || 0) %> just</span>
+                    <% } %>
+                    <% if (Number(cell?.pendente || 0) > 0) { %>
+                      <span class="agenda-day-presence-pill is-pendente"><%= Number(cell?.pendente || 0) %> pend</span>
+                    <% } %>
+                    <% if (Number(cell?.cancelado || 0) > 0) { %>
+                      <span class="agenda-day-presence-pill is-cancelado"><%= Number(cell?.cancelado || 0) %> canc</span>
+                    <% } %>
+                  </div>
+                <% } else { %>
+                  <span class="agenda-day-empty-dot" aria-hidden="true"></span>
+                <% } %>
+              </div>
+            </a>
+          <% } %>
+        <% }) %>
+      </div>
+    </section>
+
+    <aside class="agenda-day-panel presenca-day-panel">
+      <header class="agenda-day-head">
+        <div>
+          <p class="agenda-day-overline">Movimentacao do dia</p>
+          <h3><%= calendario?.selectedDayLabel || '-' %></h3>
+        </div>
+
+        <div class="presenca-day-head-kpis">
+          <span class="agenda-presenca-kpi is-total"><%= Number(calendario?.selectedDaySummary?.total || 0) %> agenda(s)</span>
+          <span class="agenda-presenca-kpi is-presente"><%= Number(calendario?.selectedDaySummary?.presente || 0) %> pres</span>
+          <span class="agenda-presenca-kpi is-falta"><%= Number(calendario?.selectedDaySummary?.falta || 0) + Number(calendario?.selectedDaySummary?.faltaJustificada || 0) %> faltas</span>
+          <span class="agenda-presenca-kpi is-pendente"><%= Number(calendario?.selectedDaySummary?.pendente || 0) %> pend</span>
+        </div>
+      </header>
+
+      <div class="agenda-day-list">
+        <% if ((calendario?.selectedDayEvents || []).length > 0) { %>
+          <% (calendario?.selectedDayEvents || []).forEach((evento) => { %>
+            <article
+              class="agenda-event-card presenca-event-card"
+              data-presenca-event-id="<%= evento.id %>"
+              role="button"
+              tabindex="0"
+              aria-label="Abrir ficha de presenca de <%= evento.pacienteNome %>"
+            >
+              <div class="presenca-event-card-top">
+                <div>
+                  <strong><%= evento.horaLabel %> · <%= evento.titulo %></strong>
+                  <p class="agenda-event-line"><strong>Paciente:</strong> <%= evento.pacienteNome %></p>
+                </div>
+                <span class="agenda-event-badge status-<%= evento.statusPresenca %>"><%= evento.statusPresencaLabel %></span>
+              </div>
+
+              <p class="agenda-event-line"><strong>Familia:</strong> <%= evento.familiaNome %></p>
+              <p class="agenda-event-line"><strong>Profissional:</strong> <%= evento.profissionalNome %></p>
+              <% if (evento.salaNome && evento.salaNome !== '-') { %>
+                <p class="agenda-event-line"><strong>Sala:</strong> <%= evento.salaNome %></p>
+              <% } %>
+              <% if (evento.observacao) { %>
+                <p class="agenda-event-note"><strong>Observacao:</strong> <%= evento.observacao %></p>
+              <% } %>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <div class="presenca-empty-state">
+            <div class="presenca-empty-icon" aria-hidden="true">
+              <i class="fa-regular fa-calendar-xmark"></i>
+            </div>
+            <strong>Nenhum registro encontrado</strong>
+            <p class="empty-hint">Esse dia esta livre com os filtros atuais. Troque a data ou ajuste o recorte para localizar movimentacoes.</p>
+          </div>
+        <% } %>
+      </div>
+    </aside>
+  </section>
+
+  <section class="presenca-grid-main">
+    <a href="<%= buildDetailHref('semanas') %>" class="presenca-panel-link">
+    <article class="presenca-panel card-elevated is-clickable">
+      <header class="presenca-panel-head">
+        <div>
+          <p class="presenca-overline">Evolucao semanal</p>
+          <h3>Presenca por semana</h3>
+        </div>
+        <small>Ultimas <%= Math.max(1, Number((serieSemanal || []).length || 0)) %> semanas com eventos</small>
+      </header>
+
+      <% if ((serieSemanal || []).length > 0) { %>
+        <div class="presenca-week-list">
+          <% (serieSemanal || []).forEach((semana) => { %>
+            <article class="presenca-week-card">
+              <div class="presenca-week-head">
+                <strong><%= semana.label %></strong>
+                <span><%= semana.total %> agenda(s)</span>
+              </div>
+
+              <div class="presenca-week-bar" aria-hidden="true">
+                <span class="is-presente" style="width: <%= pct(semana.presentes, semana.total) %>%"></span>
+                <span class="is-falta" style="width: <%= pct(semana.faltas, semana.total) %>%"></span>
+                <span class="is-justificada" style="width: <%= pct(semana.justificadas, semana.total) %>%"></span>
+              </div>
+
+              <div class="presenca-week-stats">
+                <span class="pill is-presente"><%= semana.presentes %> presentes</span>
+                <span class="pill is-falta"><%= semana.faltas %> faltas</span>
+                <span class="pill is-justificada"><%= semana.justificadas %> justificadas</span>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty-hint">Ainda nao existem registros de presenca para o periodo selecionado.</p>
+      <% } %>
+      <footer class="presenca-panel-footer">
+        <span>Explorar analise semanal</span>
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </footer>
+    </article>
+    </a>
+
+    <a href="<%= buildDetailHref('assistidos') %>" class="presenca-panel-link">
+    <article class="presenca-panel card-elevated is-clickable">
+      <header class="presenca-panel-head">
+        <div>
+          <p class="presenca-overline">Ranking</p>
+          <h3>Assistidos com mais ausencias</h3>
+        </div>
+        <small>Top 10 por faltas e justificativas</small>
+      </header>
+
+      <% if ((rankingAssistidos || []).length > 0) { %>
+        <div class="presenca-ranking-table-wrap">
+          <table class="presenca-table">
+            <thead>
+              <tr>
+                <th>Assistido</th>
+                <th>Familia</th>
+                <th>Presentes</th>
+                <th>Faltas</th>
+                <th>Justificadas</th>
+                <th>Ultima ocorrencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% (rankingAssistidos || []).forEach((item, index) => { %>
+                <tr class="<%= index === 0 ? 'is-top' : '' %>">
+                  <td>
+                    <strong><%= item.nome %></strong>
+                    <small><%= item.total %> agenda(s)</small>
+                  </td>
+                  <td><%= item.familiaNome || '-' %></td>
+                  <td><span class="pill is-presente"><%= item.presentes %></span></td>
+                  <td><span class="pill is-falta"><%= item.faltas %></span></td>
+                  <td><span class="pill is-justificada"><%= item.justificadas %></span></td>
+                  <td><%= item.ultimaOcorrenciaLabel || '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p class="empty-hint">Nenhum assistido com movimentacao de presenca nesse periodo.</p>
+      <% } %>
+      <footer class="presenca-panel-footer">
+        <span>Ver assistidos com mais detalhes</span>
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </footer>
+    </article>
+    </a>
+  </section>
+
+  <section class="presenca-grid-secondary">
+    <% if (canViewAll) { %>
+      <a href="<%= buildDetailHref('profissionais') %>" class="presenca-panel-link">
+      <article class="presenca-panel card-elevated is-clickable">
+        <header class="presenca-panel-head">
+          <div>
+            <p class="presenca-overline">Visao da equipe</p>
+            <h3>Profissionais no periodo</h3>
+          </div>
+          <small>Resumo por responsavel</small>
+        </header>
+
+        <% if ((rankingProfissionais || []).length > 0) { %>
+          <div class="presenca-ranking-cards">
+            <% (rankingProfissionais || []).forEach((item) => { %>
+              <article class="presenca-prof-card">
+                <strong><%= item.nome %></strong>
+                <div class="presenca-prof-stats">
+                  <span><b><%= item.total %></b> agenda(s)</span>
+                  <span><b><%= item.presentes %></b> presencas</span>
+                  <span><b><%= item.faltas %></b> faltas</span>
+                  <span><b><%= item.justificadas %></b> justificadas</span>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="empty-hint">Nenhum profissional com dados suficientes para ranking nesse periodo.</p>
+        <% } %>
+        <footer class="presenca-panel-footer">
+          <span>Explorar desempenho da equipe</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </footer>
+      </article>
+      </a>
+    <% } else { %>
+      <a href="<%= buildDetailHref('profissionais') %>" class="presenca-panel-link">
+      <article class="presenca-panel card-elevated is-clickable">
+        <header class="presenca-panel-head">
+          <div>
+            <p class="presenca-overline">Escopo atual</p>
+            <h3>Seu relatorio esta focado na sua agenda</h3>
+          </div>
+        </header>
+        <p class="presenca-scope-copy">
+          Voce esta vendo somente os atendimentos ligados ao seu usuario. Isso ajuda a acompanhar rapidamente
+          suas presencas, faltas e justificativas sem misturar agendas de outras pessoas.
+        </p>
+        <footer class="presenca-panel-footer">
+          <span>Abrir analise da minha agenda</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </footer>
+      </article>
+      </a>
+    <% } %>
+
+    <a href="<%= buildDetailHref('ocorrencias') %>" class="presenca-panel-link">
+    <article class="presenca-panel card-elevated is-clickable">
+      <header class="presenca-panel-head">
+        <div>
+          <p class="presenca-overline">Ocorrencias recentes</p>
+          <h3>Ultimas faltas e justificativas</h3>
+        </div>
+        <small>Detalhes do que mais precisa de acompanhamento</small>
+      </header>
+
+      <% if ((ultimasOcorrencias || []).length > 0) { %>
+        <div class="presenca-occurrence-list">
+          <% (ultimasOcorrencias || []).forEach((ocorrencia) => { %>
+            <article class="presenca-occurrence-card">
+              <div class="presenca-occurrence-top">
+                <div>
+                  <strong><%= ocorrencia.pacienteNome %></strong>
+                  <span><%= ocorrencia.titulo %></span>
+                </div>
+                <span
+                  class="pill <%= ocorrencia.statusPresencaLabel === 'Falta justificada' ? 'is-justificada' : 'is-falta' %>"
+                >
+                  <%= ocorrencia.statusPresencaLabel %>
+                </span>
+              </div>
+
+              <div class="presenca-occurrence-meta">
+                <span><i class="fa-regular fa-clock"></i> <%= ocorrencia.dataHoraLabel %></span>
+                <span><i class="fa-regular fa-user"></i> <%= ocorrencia.profissionalNome %></span>
+                <span><i class="fa-regular fa-heart"></i> <%= ocorrencia.familiaNome %></span>
+              </div>
+
+              <p><%= ocorrencia.observacao || '-' %></p>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty-hint">Nenhuma falta ou justificativa registrada no periodo.</p>
+      <% } %>
+      <footer class="presenca-panel-footer">
+        <span>Abrir fila de ocorrencias</span>
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </footer>
+    </article>
+    </a>
+  </section>
+</section>
+
+<div class="presenca-mobile-sheet-backdrop" id="presenca-mobile-sheet-backdrop" hidden>
+  <section class="presenca-mobile-sheet" role="dialog" aria-modal="true" aria-labelledby="presenca-mobile-sheet-title">
+    <header class="presenca-mobile-sheet-head">
+      <div>
+        <p class="presenca-overline">Filtros</p>
+        <h3 id="presenca-mobile-sheet-title">Refinar agenda de presenca</h3>
+      </div>
+      <button type="button" class="btn btn-muted btn-icon" data-presenca-mobile-filters-close aria-label="Fechar filtros">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <form method="get" action="/agenda/presencas" class="presenca-mobile-filter-form" data-presenca-mobile-filter-form>
+      <input type="hidden" name="dia" value="<%= filtros?.dia || '' %>" />
+      <input type="hidden" name="dataInicio" value="<%= filtros?.dataInicio || '' %>" />
+      <input type="hidden" name="dataFim" value="<%= filtros?.dataFim || '' %>" />
+      <input type="hidden" name="mes" value="<%= filtros?.mes || '' %>" data-presenca-month-hidden />
+
+      <label class="field-wrap">
+        <span class="input-label">Mes</span>
+        <select class="input-control" data-presenca-mobile-month-select>
+          <% (calendarControls?.monthOptions || []).forEach((option) => { %>
+            <option value="<%= option.value %>" <%= String(calendarControls?.selectedMonth || '') === String(option.value) ? 'selected' : '' %>>
+              <%= option.label %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Ano</span>
+        <select class="input-control" data-presenca-mobile-year-select>
+          <% (calendarControls?.yearOptions || []).forEach((year) => { %>
+            <option value="<%= year %>" <%= String(calendarControls?.selectedYear || '') === String(year) ? 'selected' : '' %>>
+              <%= year %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+
+      <% if (canViewAll) { %>
+        <label class="field-wrap">
+          <span class="input-label">Profissional</span>
+          <select class="input-control" name="responsavelId">
+            <option value="">Todos os profissionais</option>
+            <% (profissionais || []).forEach((profissional) => { %>
+              <option
+                value="<%= profissional._id %>"
+                <%= String(filtros?.responsavelId || '') === String(profissional._id) ? 'selected' : '' %>
+              >
+                <%= profissional.nome %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+      <% } %>
+
+      <label class="field-wrap">
+        <span class="input-label">Status</span>
+        <select class="input-control" name="statusPresenca">
+          <% (statusOptions || []).forEach((option) => { %>
+            <option value="<%= option.value %>" <%= String(filtros?.statusPresenca || 'todos') === String(option.value) ? 'selected' : '' %>>
+              <%= option.label %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+
+      <div class="presenca-mobile-sheet-actions">
+        <a href="<%= buildPresencaHref({ statusPresenca: 'todos', responsavelId: '', dia: filtros?.dia || '' }) %>" class="btn btn-muted" data-presenca-nav>
+          Limpar
+        </a>
+        <button type="submit" class="btn btn-primary">Aplicar</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<% if (firstMobileActionEvent?.id) { %>
+  <button
+    type="button"
+    class="presenca-mobile-fab"
+    data-presenca-event-id="<%= firstMobileActionEvent.id %>"
+    aria-label="Abrir ficha principal do dia"
+    title="Abrir ficha principal do dia"
+  >
+    <i class="fa-solid fa-plus"></i>
+  </button>
+<% } else { %>
+  <a href="/agenda" class="presenca-mobile-fab" aria-label="Abrir agenda principal" title="Abrir agenda principal">
+    <i class="fa-solid fa-plus"></i>
+  </a>
+<% } %>
+
+<div class="agenda-modal-backdrop" id="agenda-presenca-backdrop" hidden>
+  <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-presenca-title">
+    <header class="agenda-modal-head">
+      <div>
+        <h3 id="agenda-presenca-title">Ficha da presenca</h3>
+        <p class="agenda-modal-subtitle" id="agenda-presenca-subtitle">Carregando detalhes do agendamento...</p>
+      </div>
+      <button type="button" class="btn btn-muted btn-icon" id="agenda-presenca-close" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="agenda-presenca-shell">
+      <section class="agenda-presenca-status-box">
+        <p class="agenda-presenca-label">Status atual</p>
+        <div class="agenda-presenca-badges">
+          <span class="status-badge status-neutral" id="agenda-presenca-status-agendamento">Agendado</span>
+          <span class="status-badge status-neutral" id="agenda-presenca-status-presenca">Pendente</span>
+        </div>
+      </section>
+
+      <label class="field-wrap">
+        <span class="input-label">Justificativa oficial</span>
+        <select class="input-control" id="agenda-presenca-justificativa">
+          <option value="">Sem justificativa oficial</option>
+          <% (attendanceJustifications || []).forEach((item) => { %>
+            <option value="<%= item.nome %>"><%= item.nome %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Observacao interna</span>
+        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: familia avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
+      </label>
+
+      <div class="agenda-presenca-actions">
+        <button type="button" class="btn btn-primary" data-agenda-presenca-action="presente">Marcar Presente</button>
+        <button type="button" class="btn btn-warning" data-agenda-presenca-action="falta">Marcar Falta</button>
+        <button type="button" class="btn btn-muted" data-agenda-presenca-action="falta_justificada">Falta Justificada</button>
+        <button type="button" class="btn btn-muted" data-agenda-presenca-action="pendente">Voltar para Pendente</button>
+      </div>
+
+      <section class="agenda-presenca-history">
+        <header class="agenda-presenca-history-head">
+          <h4>Historico do agendamento</h4>
+        </header>
+        <div class="agenda-presenca-history-list" id="agenda-presenca-history-list">
+          <p class="empty-hint">Nenhum historico carregado.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+</div>
+
+<script id="agenda-presenca-justificativas" type="application/json"><%- JSON.stringify(attendanceJustifications || []) %></script>

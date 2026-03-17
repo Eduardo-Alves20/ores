@@ -113,6 +113,15 @@
     }).format(dt);
   }
 
+  function formatDateTime(dateLike) {
+    const dt = new Date(dateLike);
+    if (Number.isNaN(dt.getTime())) return "-";
+    return new Intl.DateTimeFormat("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(dt);
+  }
+
   function toDateInputValue(dateLike) {
     return toDayString(dateLike);
   }
@@ -223,6 +232,9 @@
     hojeBtn: document.getElementById("agenda-hoje-btn"),
     salasBtn: document.getElementById("agenda-salas-btn"),
     responsavelFiltro: document.getElementById("agenda-responsavel-filtro"),
+    presencaSemanaTitulo: document.getElementById("agenda-presenca-semana-titulo"),
+    presencaKpis: document.getElementById("agenda-presenca-kpis"),
+    presencaSemanaLista: document.getElementById("agenda-presenca-semana-lista"),
     diaTitulo: document.getElementById("agenda-dia-titulo"),
     diaLista: document.getElementById("agenda-dia-lista"),
     novoBtn: document.getElementById("agenda-novo-btn"),
@@ -240,6 +252,14 @@
     familiaBusca: document.getElementById("agenda-familia-busca"),
     familiaSelect: document.getElementById("agenda-familia-select"),
     pacienteSelect: document.getElementById("agenda-paciente-select"),
+    presencaBackdrop: document.getElementById("agenda-presenca-backdrop"),
+    presencaCloseBtn: document.getElementById("agenda-presenca-close"),
+    presencaSubtitle: document.getElementById("agenda-presenca-subtitle"),
+    presencaStatusAgendamento: document.getElementById("agenda-presenca-status-agendamento"),
+    presencaStatusPresenca: document.getElementById("agenda-presenca-status-presenca"),
+    presencaJustificativa: document.getElementById("agenda-presenca-justificativa"),
+    presencaObservacao: document.getElementById("agenda-presenca-observacao"),
+    presencaHistoryList: document.getElementById("agenda-presenca-history-list"),
     salasBackdrop: document.getElementById("agenda-salas-backdrop"),
     salasCloseBtn: document.getElementById("agenda-salas-close"),
     salaForm: document.getElementById("agenda-sala-form"),
@@ -264,11 +284,261 @@
     salaRequestId: 0,
     availableSalas: [],
     salasCatalogo: [],
+    attendanceEventId: "",
+    attendanceEvent: null,
+    attendanceHistory: [],
   };
 
   function canMutateEvent(evento) {
     if (permissions.canViewAll) return true;
     return String(evento?.responsavel?._id || "") === String(user?.id || "");
+  }
+
+  function canManageAttendance(evento) {
+    return permissions.canRegisterAttendance && canMutateEvent(evento);
+  }
+
+  function buildAttendanceQuickActions(evento) {
+    if (!canManageAttendance(evento)) return "";
+
+    const currentStatus = String(evento?.statusPresenca || "pendente").trim();
+    const actionButtons = [
+      {
+        action: "marcar-presente",
+        tone: "presente",
+        icon: "fa-thumbs-up",
+        label: "Marcar presente",
+        active: currentStatus === "presente",
+      },
+      {
+        action: "marcar-falta",
+        tone: "falta",
+        icon: "fa-thumbs-down",
+        label: "Marcar falta",
+        active: currentStatus === "falta",
+      },
+      {
+        action: "marcar-falta-justificada",
+        tone: "justificada",
+        icon: "fa-file-circle-check",
+        label: "Marcar falta justificada",
+        active: currentStatus === "falta_justificada",
+      },
+      {
+        action: "presenca",
+        tone: "detalhe",
+        icon: "fa-clipboard-list",
+        label: "Abrir ficha de presenca",
+        active: false,
+      },
+    ];
+
+    return `
+      <div class="agenda-attendance-quick">
+        <span class="agenda-attendance-quick-label">Registrar:</span>
+        <div class="agenda-attendance-quick-buttons">
+          ${actionButtons
+            .map(
+              (button) => `
+                <button
+                  type="button"
+                  class="agenda-attendance-quick-btn is-${button.tone} ${button.active ? "is-active" : ""}"
+                  data-action="${button.action}"
+                  data-id="${evento._id}"
+                  title="${button.label}"
+                  aria-label="${button.label}"
+                >
+                  <i class="fa-solid ${button.icon}" aria-hidden="true"></i>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function startOfWeek(dateLike) {
+    const base = parseDayKeyLocal(dateLike) || new Date(dateLike);
+    if (Number.isNaN(base.getTime())) return new Date();
+    const normalized = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 12, 0, 0, 0);
+    const day = normalized.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    normalized.setDate(normalized.getDate() + diff);
+    return normalized;
+  }
+
+  function endOfWeek(dateLike) {
+    const start = startOfWeek(dateLike);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return end;
+  }
+
+  function buildPresenceCounters(events) {
+    const counters = {
+      total: 0,
+      presente: 0,
+      falta: 0,
+      faltaJustificada: 0,
+      pendente: 0,
+    };
+
+    (Array.isArray(events) ? events : []).forEach((evento) => {
+      counters.total += 1;
+      const status = String(evento?.statusPresenca || "pendente").trim();
+      if (status === "presente") {
+        counters.presente += 1;
+      } else if (status === "falta") {
+        counters.falta += 1;
+      } else if (status === "falta_justificada") {
+        counters.faltaJustificada += 1;
+      } else {
+        counters.pendente += 1;
+      }
+    });
+
+    return counters;
+  }
+
+  function buildPresenceInlineBadges(counters) {
+    const badges = [];
+    if (counters.presente) badges.push(`<span class="agenda-day-presence-pill is-presente">${counters.presente} P</span>`);
+    if (counters.falta) badges.push(`<span class="agenda-day-presence-pill is-falta">${counters.falta} F</span>`);
+    if (counters.faltaJustificada) {
+      badges.push(`<span class="agenda-day-presence-pill is-falta-justificada">${counters.faltaJustificada} J</span>`);
+    }
+    if (counters.pendente) badges.push(`<span class="agenda-day-presence-pill is-pendente">${counters.pendente} Pend</span>`);
+    return badges.join("");
+  }
+
+  function toShortDayLabel(dateLike) {
+    const dt = parseDayKeyLocal(dateLike) || new Date(dateLike);
+    if (Number.isNaN(dt.getTime())) return "-";
+    return new Intl.DateTimeFormat("pt-BR", {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit",
+    }).format(dt);
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function formatHistoryItems(items) {
+    const list = Array.isArray(items) ? items : [];
+    if (!list.length) {
+      elements.presencaHistoryList.innerHTML = '<p class="empty-hint">Nenhum historico registrado ainda.</p>';
+      return;
+    }
+
+    elements.presencaHistoryList.innerHTML = list
+      .map(
+        (item) => `
+          <article class="agenda-history-card">
+            <header>
+              <strong>${escapeHtml(item?.titulo || "Atualizacao")}</strong>
+              <span>${escapeHtml(item?.createdAtLabel || "-")}</span>
+            </header>
+            <p>${escapeHtml(item?.descricao || "-")}</p>
+            <small>${escapeHtml(item?.atorNome || "Sistema")}</small>
+          </article>
+        `
+      )
+      .join("");
+  }
+
+  function fillAttendanceModal(evento, historico) {
+    state.attendanceEvent = evento || null;
+    state.attendanceHistory = Array.isArray(historico) ? historico : [];
+    elements.presencaSubtitle.textContent = evento
+      ? `${evento.titulo || "Agendamento"} · ${formatDateTime(evento.inicio)}`
+      : "Agendamento";
+    elements.presencaStatusAgendamento.textContent = evento?.statusAgendamentoLabel || "Agendado";
+    elements.presencaStatusPresenca.textContent = evento?.statusPresencaLabel || "Pendente";
+    if (elements.presencaJustificativa) {
+      elements.presencaJustificativa.value = evento?.presencaJustificativaLabel || "";
+    }
+    elements.presencaObservacao.value = evento?.presencaObservacao || "";
+    formatHistoryItems(state.attendanceHistory);
+  }
+
+  function closeAttendanceModal() {
+    state.attendanceEventId = "";
+    state.attendanceEvent = null;
+    state.attendanceHistory = [];
+    elements.presencaBackdrop.hidden = true;
+    if (elements.presencaJustificativa) {
+      elements.presencaJustificativa.value = "";
+    }
+    elements.presencaObservacao.value = "";
+    elements.presencaHistoryList.innerHTML = '<p class="empty-hint">Nenhum historico carregado.</p>';
+    document.body.style.overflow =
+      !elements.modalBackdrop.hidden || (elements.salasBackdrop && !elements.salasBackdrop.hidden) ? "hidden" : "";
+  }
+
+  async function openAttendanceModal(eventId) {
+    if (!eventId) return;
+
+    state.attendanceEventId = String(eventId);
+    elements.presencaBackdrop.hidden = false;
+    document.body.style.overflow = "hidden";
+    elements.presencaSubtitle.textContent = "Carregando detalhes do agendamento...";
+    elements.presencaStatusAgendamento.textContent = "Carregando";
+    elements.presencaStatusPresenca.textContent = "Carregando";
+    elements.presencaHistoryList.innerHTML = '<p class="empty-hint">Carregando historico...</p>';
+
+    try {
+      const data = await requestJson(`/api/agenda/eventos/${eventId}`);
+      fillAttendanceModal(data?.evento || null, data?.historico || []);
+    } catch (error) {
+      showToast(error.message || "Nao foi possivel carregar o historico do agendamento.", "error");
+      closeAttendanceModal();
+    }
+  }
+
+  async function submitAttendance(statusPresenca, options = {}) {
+    const eventId = options.eventId || state.attendanceEventId || state.attendanceEvent?._id;
+    if (!eventId) return;
+
+    const observacao =
+      typeof options.observacao === "string"
+        ? String(options.observacao).trim()
+        : String(elements.presencaObservacao?.value || "").trim();
+    const justificativaKey = String(elements.presencaJustificativa?.value || "").trim();
+
+    try {
+      const data = await requestJson(`/api/agenda/eventos/${eventId}/presenca`, {
+        method: "PATCH",
+        body: {
+          statusPresenca,
+          observacao,
+          justificativaKey,
+        },
+      });
+
+      if (data?.evento?._id) {
+        state.eventosById.set(String(data.evento._id), data.evento);
+        state.eventos = state.eventos.map((item) =>
+          String(item._id) === String(data.evento._id) ? data.evento : item
+        );
+      }
+
+      if (state.attendanceEventId && String(state.attendanceEventId) === String(eventId)) {
+        fillAttendanceModal(data?.evento || null, data?.historico || []);
+      }
+      renderCalendar();
+      renderSelectedDay();
+      showSuccess(data?.mensagem || "Presenca registrada com sucesso.");
+    } catch (error) {
+      showToast(error.message || "Nao foi possivel atualizar a presenca.");
+    }
   }
 
   function buildEventosByDay() {
@@ -286,6 +556,66 @@
     }
 
     return map;
+  }
+
+  function renderWeeklyPresence() {
+    if (!elements.presencaSemanaTitulo || !elements.presencaSemanaLista || !elements.presencaKpis) return;
+
+    const selectedBase = parseDayKeyLocal(state.selectedDay) || new Date();
+    const weekStart = startOfWeek(selectedBase);
+    const weekEnd = endOfWeek(selectedBase);
+    const weekDays = [];
+
+    for (let index = 0; index < 7; index += 1) {
+      const current = new Date(weekStart);
+      current.setDate(weekStart.getDate() + index);
+      const dayKey = toDayString(current);
+      const eventos = state.eventos
+        .filter((evento) => toDayString(evento.inicio) === dayKey)
+        .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
+      weekDays.push({
+        dayKey,
+        date: current,
+        eventos,
+        counters: buildPresenceCounters(eventos),
+      });
+    }
+
+    const weekCounters = buildPresenceCounters(weekDays.flatMap((item) => item.eventos));
+    elements.presencaSemanaTitulo.textContent = `${toShortDayLabel(weekStart)} a ${toShortDayLabel(weekEnd)}`;
+    elements.presencaKpis.innerHTML = `
+      <span class="agenda-presenca-kpi is-total">${weekCounters.total} agendados</span>
+      <span class="agenda-presenca-kpi is-presente">${weekCounters.presente} presentes</span>
+      <span class="agenda-presenca-kpi is-falta">${weekCounters.falta + weekCounters.faltaJustificada} faltas</span>
+      <span class="agenda-presenca-kpi is-pendente">${weekCounters.pendente} pendentes</span>
+    `;
+
+    elements.presencaSemanaLista.innerHTML = weekDays
+      .map((item) => {
+        const badges = buildPresenceInlineBadges(item.counters);
+        return `
+          <button
+            type="button"
+            class="agenda-presenca-day-card ${item.dayKey === state.selectedDay ? "is-active" : ""}"
+            data-presenca-day="${item.dayKey}"
+          >
+            <div class="agenda-presenca-day-top">
+              <strong>${toShortDayLabel(item.date)}</strong>
+              <span>${item.counters.total} agenda(s)</span>
+            </div>
+            <div class="agenda-presenca-day-stats">
+              <span><b>${item.counters.presente}</b> presentes</span>
+              <span><b>${item.counters.falta}</b> faltas</span>
+              <span><b>${item.counters.faltaJustificada}</b> justificadas</span>
+              <span><b>${item.counters.pendente}</b> pendentes</span>
+            </div>
+            <div class="agenda-presenca-day-badges">
+              ${badges || '<span class="agenda-day-presence-pill is-empty">Sem registros</span>'}
+            </div>
+          </button>
+        `;
+      })
+      .join("");
   }
 
   function ensureSelectedDayVisible() {
@@ -316,6 +646,7 @@
       day.setDate(gridStart.getDate() + i);
       const dayKey = toDayString(day);
       const dayEvents = eventosByDay.get(dayKey) || [];
+      const dayCounters = buildPresenceCounters(dayEvents);
       const hasMultipleEvents = dayEvents.length > 1;
       const movableEvents = dayEvents.filter((evento) => canMutateEvent(evento) && permissions.canMove);
       const dragCandidate = !hasMultipleEvents && movableEvents.length === 1 ? movableEvents[0] : null;
@@ -331,6 +662,7 @@
         <div class="agenda-day-number">${day.getDate()}</div>
         <div class="agenda-day-meta">
           ${dayEvents.length ? `<span class="agenda-day-pill">${dayEvents.length} evento(s)</span>` : ""}
+          ${dayEvents.length ? `<div class="agenda-day-presence-inline">${buildPresenceInlineBadges(dayCounters)}</div>` : ""}
         </div>
       `;
 
@@ -507,6 +839,7 @@
       .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
 
     elements.diaTitulo.textContent = toDayLabel(dayDate);
+    renderWeeklyPresence();
 
     if (!eventos.length) {
       elements.diaLista.innerHTML = '<p class="empty-hint">Nenhum evento para este dia.</p>';
@@ -529,12 +862,20 @@
               <span class="agenda-event-type">${normalizeTypeLabel(evento.tipoAtendimento)}</span>
             </div>
             <h4 class="agenda-event-title">${evento.titulo}</h4>
+            <div class="agenda-event-status-row">
+              <span class="agenda-event-badge status-${evento.statusAgendamento || "agendado"}">${evento.statusAgendamentoLabel || "Agendado"}</span>
+              <span class="agenda-event-badge status-${evento.statusPresenca || "pendente"}">${evento.statusPresencaLabel || "Pendente"}</span>
+            </div>
             <p class="agenda-event-line"><strong>Responsável:</strong> ${responsavelNome}</p>
             <p class="agenda-event-line"><strong>Paciente:</strong> ${pacienteNome}</p>
             <p class="agenda-event-line"><strong>Família:</strong> ${familiaNome}</p>
             ${salaNome ? `<p class="agenda-event-line"><strong>Sala:</strong> ${salaNome}</p>` : ""}
             ${evento.local ? `<p class="agenda-event-line"><strong>Local:</strong> ${evento.local}</p>` : ""}
+            ${evento.presencaRegistradaEmLabel && evento.presencaRegistradaEmLabel !== "-" ? `<p class="agenda-event-line"><strong>Ultimo registro:</strong> ${evento.presencaRegistradaEmLabel}${evento?.presencaRegistradaPor?.nome ? ` · ${evento.presencaRegistradaPor.nome}` : ""}</p>` : ""}
+            ${buildAttendanceQuickActions(evento)}
+            ${evento.presencaObservacao ? `<p class="agenda-event-note"><strong>Obs. presenca:</strong> ${evento.presencaObservacao}</p>` : ""}
             <div class="agenda-event-actions">
+              ${canManageAttendance(evento) ? `<button type="button" class="btn-ghost" data-action="presenca" data-id="${evento._id}">Ficha da presenca</button>` : ""}
               ${canMutateEvent(evento) ? `<button type="button" class="btn-ghost" data-action="editar" data-id="${evento._id}">Editar</button>` : ""}
               ${canMutateEvent(evento) ? `<button type="button" class="btn-ghost" data-action="status" data-id="${evento._id}" data-next="${String(!evento.ativo)}">${statusLabel}</button>` : ""}
             </div>
@@ -1070,6 +1411,44 @@
       return;
     }
 
+    if (action === "presenca") {
+      await openAttendanceModal(id);
+      return;
+    }
+
+    if (["marcar-presente", "marcar-falta", "marcar-falta-justificada"].includes(action)) {
+      const evento = state.eventosById.get(String(id));
+      if (!evento) return;
+
+      const nextStatus =
+        action === "marcar-presente"
+          ? "presente"
+          : action === "marcar-falta"
+            ? "falta"
+            : "falta_justificada";
+
+      const actionLabel =
+        nextStatus === "presente"
+          ? "presente"
+          : nextStatus === "falta"
+            ? "falta"
+            : "falta justificada";
+
+      const ok = await confirmAction({
+        title: `Marcar como ${actionLabel}?`,
+        text: `Deseja registrar "${evento.titulo || "Agendamento"}" como ${actionLabel}?`,
+        icon: nextStatus === "presente" ? "question" : "warning",
+        confirmButtonText: "Confirmar",
+      });
+      if (!ok) return;
+
+      await submitAttendance(nextStatus, {
+        eventId: id,
+        observacao: String(evento?.presencaObservacao || ""),
+      });
+      return;
+    }
+
     if (action === "status") {
       const next = target.getAttribute("data-next") === "true";
       const ok = await confirmAction({
@@ -1232,6 +1611,19 @@
       if (event.target === elements.modalBackdrop) closeModal();
     });
 
+    if (elements.presencaCloseBtn) {
+      elements.presencaCloseBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        closeAttendanceModal();
+      });
+    }
+
+    if (elements.presencaBackdrop) {
+      elements.presencaBackdrop.addEventListener("click", (event) => {
+        if (event.target === elements.presencaBackdrop) closeAttendanceModal();
+      });
+    }
+
     if (elements.salasCloseBtn) {
       elements.salasCloseBtn.addEventListener("click", (event) => {
         event.preventDefault();
@@ -1247,6 +1639,22 @@
 
     elements.form.addEventListener("submit", handleFormSubmit);
     elements.diaLista.addEventListener("click", handleDayListActions);
+    if (elements.presencaSemanaLista) {
+      elements.presencaSemanaLista.addEventListener("click", (event) => {
+        const card = event.target.closest("[data-presenca-day]");
+        if (!card) return;
+        const dayKey = String(card.getAttribute("data-presenca-day") || "");
+        if (!dayKey) return;
+        state.selectedDay = dayKey;
+        renderCalendar();
+        renderSelectedDay();
+      });
+    }
+    document.querySelectorAll("[data-agenda-presenca-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        submitAttendance(button.getAttribute("data-agenda-presenca-action")).catch((error) => showToast(error.message));
+      });
+    });
     if (elements.salaForm) elements.salaForm.addEventListener("submit", handleSalaFormSubmit);
     if (elements.salaReset) {
       elements.salaReset.addEventListener("click", (event) => {

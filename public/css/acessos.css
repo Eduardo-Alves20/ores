@@ -9,6 +9,50 @@
   min-width: 0;
 }
 
+.acessos-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.acessos-switcher-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid #dfcfc5;
+  background: rgba(255, 255, 255, 0.92);
+  color: #7c4330;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 18px rgba(62, 34, 24, 0.04);
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    color 0.16s ease;
+}
+
+.acessos-switcher-link:hover {
+  transform: translateY(-1px);
+  background: #fff7f2;
+  border-color: #ccab9e;
+  box-shadow: 0 12px 22px rgba(62, 34, 24, 0.08);
+  color: #6f3524;
+}
+
+.acessos-switcher-link.is-active {
+  background: linear-gradient(135deg, #b24a32 0%, #9f3f29 100%);
+  border-color: #9f3f29;
+  color: #fff;
+  box-shadow: 0 14px 24px rgba(159, 63, 41, 0.22);
+}
+
 .acessos-hero {
   display: flex;
   justify-content: space-between;
@@ -236,6 +280,23 @@
 .acessos-table tbody tr:hover td {
   background: #fffaf7;
   border-color: #e5d4ca;
+}
+
+.acessos-table tbody tr.acessos-row-clickable {
+  cursor: pointer;
+}
+
+.acessos-table tbody tr.acessos-row-clickable:hover td {
+  background: #fff4ee;
+  border-color: #dbb8a9;
+}
+
+.acessos-table tbody tr.acessos-row-clickable:focus td,
+.acessos-table tbody tr.acessos-row-clickable:focus-visible td {
+  background: #fff4ee;
+  border-color: #cf9f8d;
+  box-shadow: inset 0 0 0 2px rgba(178, 74, 50, 0.14);
+  outline: none;
 }
 
 .acessos-actions-col {
@@ -633,11 +694,49 @@
   line-height: 1.45;
 }
 
+.acessos-password-reset-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid #e6d8cf;
+  background: linear-gradient(180deg, #fffdfb 0%, #f8f2ee 100%);
+}
+
+.acessos-password-reset-box strong {
+  display: block;
+  color: #703524;
+  font-size: 0.9rem;
+}
+
+.acessos-password-reset-box p {
+  margin: 4px 0 0;
+  color: #7d7069;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 .acessos-create-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.acessos-reset-modal-dialog {
+  width: min(640px, calc(100% - 22px));
+}
+
+.acessos-reset-password-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.acessos-reset-password-grid .field-wrap {
+  margin: 0;
 }
 
 .aprovacao-modal-dialog {
@@ -797,6 +896,25 @@ body.acessos-modal-open {
   overflow: hidden;
 }
 
+.acessos-quick-filter-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.acessos-quick-filter-link {
+  text-decoration: none;
+}
+
+.acessos-custom-fields {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(224, 203, 192, 0.6);
+  background: rgba(255, 252, 250, 0.92);
+}
+
 @media (max-width: 980px) {
   .acessos-hero,
   .acessos-panel-head {
@@ -813,6 +931,11 @@ body.acessos-modal-open {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .acessos-password-reset-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .acessos-filtros,
   .aprovacoes-filtros {
     grid-template-columns: 1fr;
@@ -823,6 +946,10 @@ body.acessos-modal-open {
   }
 
   .acessos-create-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .acessos-reset-password-grid {
     grid-template-columns: 1fr;
   }
 

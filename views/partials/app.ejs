@@ -22,11 +22,18 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
-    <link rel="stylesheet" href="/css/index.css" />
-    <link rel="stylesheet" href="/css/app.css" />
+    <%
+      const appendAssetVersion = (href) => {
+        const rawHref = String(href || "");
+        if (!rawHref.startsWith("/")) return rawHref;
+        return `${rawHref}${rawHref.includes("?") ? "&" : "?"}v=${assetVersion || "1"}`;
+      };
+    %>
+    <link rel="stylesheet" href="<%= appendAssetVersion('/css/index.css') %>" />
+    <link rel="stylesheet" href="<%= appendAssetVersion('/css/app.css') %>" />
     <% if (typeof extraCss !== "undefined" && Array.isArray(extraCss)) { %>
       <% extraCss.forEach((href) => { %>
-        <link rel="stylesheet" href="<%= href %>" />
+        <link rel="stylesheet" href="<%= appendAssetVersion(href) %>" />
       <% }) %>
     <% } %>
   </head>
@@ -56,6 +63,7 @@
         const userPerms = Array.isArray(currentUser?.permissions) ? currentUser.permissions : [];
         const hasPerm = (perm) => userPerms.includes("*") || userPerms.includes(perm);
         const normalizedProfile = String(currentUser?.perfil || "").toLowerCase();
+        const canOpenAdminCenter = ["admin", "superadmin"].includes(normalizedProfile);
         const profileLabel = normalizedProfile === "admin"
           ? "admin_alento"
           : normalizedProfile === "superadmin"
@@ -68,6 +76,7 @@
         const moduleBadge = ["admin", "superadmin"].includes(normalizedProfile) ? "Admin" : "Usuario";
         const helpDeskHref = moduleLinks?.helpDeskUrl ? "/modulos/help-desk/acessar" : "/modulos/help-desk";
         const hdiHref = moduleLinks?.hdiUrl ? "/modulos/hdi/acessar" : "/modulos/hdi";
+        const usuariosGroupOpen = ["usuarios-familia", "usuarios-voluntario"].includes(navKey);
       %>
       <nav class="sidebar-nav">
         <% if (currentUser?.perfil === 'usuario') { %>
@@ -97,14 +106,28 @@
             </a>
           <% } %>
           <% if (hasPerm("acessos.view")) { %>
-            <a href="/acessos/familias" class="sidebar-link <%= navKey === 'usuarios-familia' ? 'is-active' : '' %>">
-              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-address-card"></i></span>
-              <span>Usuarios Familia</span>
-            </a>
-            <a href="/acessos/voluntarios" class="sidebar-link <%= navKey === 'usuarios-voluntario' ? 'is-active' : '' %>">
-              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-group"></i></span>
-              <span>Usuarios Voluntario</span>
-            </a>
+            <div class="sidebar-group <%= usuariosGroupOpen ? 'is-open' : '' %>" data-sidebar-group>
+              <button
+                type="button"
+                class="sidebar-link sidebar-group-toggle <%= usuariosGroupOpen ? 'is-active' : '' %>"
+                data-sidebar-group-toggle
+                aria-expanded="<%= usuariosGroupOpen ? 'true' : 'false' %>"
+              >
+                <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-address-book"></i></span>
+                <span>Usuarios</span>
+                <span class="sidebar-group-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+              </button>
+              <div class="sidebar-submenu" data-sidebar-group-panel <%= usuariosGroupOpen ? '' : 'hidden' %>>
+                <a href="/acessos/familias" class="sidebar-link sidebar-link-child <%= navKey === 'usuarios-familia' ? 'is-active' : '' %>">
+                  <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-people-roof"></i></span>
+                  <span>Familias</span>
+                </a>
+                <a href="/acessos/voluntarios" class="sidebar-link sidebar-link-child <%= navKey === 'usuarios-voluntario' ? 'is-active' : '' %>">
+                  <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-group"></i></span>
+                  <span>Voluntarios</span>
+                </a>
+              </div>
+            </div>
           <% } %>
           <% if (hasPerm("acessos.approve")) { %>
             <a href="/acessos/aprovacoes" class="sidebar-link <%= navKey === 'aprovacoes' ? 'is-active' : '' %>">
@@ -126,8 +149,12 @@
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
               <span>Agenda</span>
             </a>
+            <a href="/agenda/presencas" class="sidebar-link <%= navKey === 'agenda-presencas' ? 'is-active' : '' %>">
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-check"></i></span>
+              <span>Presencas</span>
+            </a>
           <% } %>
-          <% if (hasPerm("dashboard.view")) { %>
+          <% if (canOpenAdminCenter) { %>
             <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-gear"></i></span>
               <span>Administracao</span>
@@ -218,11 +245,11 @@
       window.__APP_FLASH = <%- JSON.stringify(__appFlashPayload) %>;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/ui-alerts.js" defer></script>
-    <script src="/js/app-shell.js" defer></script>
+    <script src="<%= appendAssetVersion('/js/ui-alerts.js') %>" defer></script>
+    <script src="<%= appendAssetVersion('/js/app-shell.js') %>" defer></script>
     <% if (typeof extraJs !== "undefined" && Array.isArray(extraJs)) { %>
       <% extraJs.forEach((src) => { %>
-        <script src="<%= src %>" defer></script>
+        <script src="<%= appendAssetVersion(src) %>" defer></script>
       <% }) %>
     <% } %>
   </body>

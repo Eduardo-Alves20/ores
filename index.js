@@ -16,8 +16,10 @@ const { PERMISSIONS } = require("./config/permissions");
 const { hasAnyPermission } = require("./services/accessControlService");
 const { ensureAdminFromEnv, ensureSuperAdminFromEnv } = require("./services/bootstrapAdminService");
 const { ensureDemoUsers } = require("./services/bootstrapDemoUsersService");
+const { ensureDemoClinicData } = require("./services/bootstrapDemoClinicDataService");
 
 const app = express();
+const ASSET_VERSION = process.env.ASSET_VERSION || new Date().getTime().toString();
 
 const {
   PORT,
@@ -88,6 +90,7 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(async (req, res, next) => {
   try {
     res.locals.ambiente = AMBIENTE;
+    res.locals.assetVersion = ASSET_VERSION;
     res.locals.lastCommitDate = `Ultima atualizacao em: ${new Date().toLocaleString("pt-BR")}`;
     res.locals.alert = null;
     res.locals.moduleLinks = {
@@ -254,6 +257,7 @@ function startServer() {
     await ensureSuperAdminFromEnv();
     await ensureAdminFromEnv();
     await ensureDemoUsers();
+    await ensureDemoClinicData();
 
     mountRoutes();
     startServer();

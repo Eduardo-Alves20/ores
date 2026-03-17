@@ -1,9 +1,11 @@
 ﻿const Familia = require("../../schemas/social/Familia");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { Atendimento } = require("../../schemas/social/Atendimento");
+const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const Usuario = require("../../schemas/core/Usuario");
 const { PERFIS } = require("../../config/roles");
 const { registrarAuditoria } = require("../../services/auditService");
+const { normalizeCustomFieldValues } = require("../../services/systemConfigService");
 const {
   hasOwnAssistidosScope,
   resolveScopedFamilyIds,
@@ -26,6 +28,60 @@ function getActorId(req) {
 
 function getSessionUser(req) {
   return req?.session?.user || null;
+}
+
+const AGENDA_STATUS_LABELS = Object.freeze({
+  agendado: "Agendado",
+  encerrado: "Encerrado",
+  cancelado: "Cancelado",
+  em_analise_cancelamento: "Em analise de cancelamento",
+  em_negociacao_remarcacao: "Em negociacao de remarcacao",
+  remarcado: "Remarcado",
+});
+
+const PRESENCA_STATUS_LABELS = Object.freeze({
+  pendente: "Pendente",
+  presente: "Presente",
+  falta: "Falta",
+  falta_justificada: "Falta justificada",
+  cancelado_antecipadamente: "Cancelado antecipadamente",
+});
+
+function toDateTimeLabel(dateLike) {
+  const dt = new Date(dateLike);
+  if (Number.isNaN(dt.getTime())) return "-";
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(dt);
+}
+
+function mapAgendaPresenca(doc) {
+  return {
+    _id: doc?._id,
+    titulo: doc?.titulo || "Consulta",
+    inicio: doc?.inicio || null,
+    inicioLabel: doc?.inicio ? toDateTimeLabel(doc.inicio) : "-",
+    tipoAtendimento: doc?.tipoAtendimento || "outro",
+    statusAgendamento: doc?.statusAgendamento || "agendado",
+    statusAgendamentoLabel:
+      AGENDA_STATUS_LABELS[doc?.statusAgendamento || "agendado"] || "Agendado",
+    statusPresenca: doc?.statusPresenca || "pendente",
+    statusPresencaLabel:
+      PRESENCA_STATUS_LABELS[doc?.statusPresenca || "pendente"] || "Pendente",
+    presencaObservacao: doc?.presencaObservacao || "",
+    presencaJustificativaLabel: doc?.presencaJustificativaLabel || "",
+    local: doc?.local || "",
+    salaNome: doc?.salaId?.nome || "",
+    pacienteNome: doc?.pacienteId?.nome || "",
+    responsavelNome: doc?.responsavelId?.nome || "",
+    presencaRegistradaEm: doc?.presencaRegistradaEm || null,
+    presencaRegistradaEmLabel: doc?.presencaRegistradaEm
+      ? toDateTimeLabel(doc.presencaRegistradaEm)
+      : "-",
+    presencaRegistradaPorNome: doc?.presencaRegistradaPor?.nome || "",
+    ativo: !!doc?.ativo,
+  };
 }
 
 class FamiliaController {
@@ -107,7 +163,7 @@ class FamiliaController {
         return res.status(404).json({ erro: "Familia nao encontrada." });
       }
 
-      const [pacientes, atendimentos, voluntarios] = await Promise.all([
+      const [pacientes, atendimentos, voluntarios, presencasAgenda] = await Promise.all([
         Paciente.find({
           familiaId: id,
           ...(incluirInativos ? {} : { ativo: true }),
@@ -141,6 +197,17 @@ class FamiliaController {
               .sort({ nome: 1 })
               .select("_id nome login email")
               .lean(),
+        AgendaEvento.find({
+          familiaId: id,
+          ...(incluirInativos ? {} : { ativo: true }),
+        })
+          .sort({ inicio: -1 })
+          .limit(200)
+          .populate("responsavelId", "_id nome")
+          .populate("pacienteId", "_id nome")
+          .populate("salaId", "_id nome")
+          .populate("presencaRegistradaPor", "_id nome")
+          .lean(),
       ]);
 
       return res.status(200).json({
@@ -148,6 +215,7 @@ class FamiliaController {
         pacientes,
         atendimentos,
         voluntarios,
+        presencasAgenda: (presencasAgenda || []).map(mapAgendaPresenca),
       });
     } catch (error) {
       console.error("Erro ao detalhar familia:", error);
@@ -157,7 +225,7 @@ class FamiliaController {
 
   static async criar(req, res) {
     try {
-      const { responsavel = {}, endereco = {}, observacoes } = req.body || {};
+      const { responsavel = {}, endereco = {}, observacoes, camposExtras = {} } = req.body || {};
       const nome = String(responsavel.nome || "").trim();
       const telefone = String(responsavel.telefone || "").trim();
       const email = String(responsavel.email || "").trim().toLowerCase();
@@ -171,6 +239,8 @@ class FamiliaController {
 
       const actorId = getActorId(req);
 
+      const normalizedCamposExtras = await normalizeCustomFieldValues("familia", camposExtras);
+
       const familia = await Familia.create({
         responsavel: {
           nome,
@@ -180,6 +250,7 @@ class FamiliaController {
         },
         endereco,
         observacoes,
+        camposExtras: normalizedCamposExtras,
         ativo: true,
         criadoPor: actorId,
         atualizadoPor: actorId,
@@ -205,7 +276,7 @@ class FamiliaController {
     try {
       const { id } = req.params;
       const actorId = getActorId(req);
-      const { responsavel, endereco, observacoes } = req.body || {};
+      const { responsavel, endereco, observacoes, camposExtras } = req.body || {};
 
       const patch = {
         atualizadoPor: actorId,
@@ -220,6 +291,9 @@ class FamiliaController {
 
       if (typeof observacoes !== "undefined") patch.observacoes = observacoes;
       if (typeof endereco !== "undefined") patch.endereco = endereco;
+      if (typeof camposExtras !== "undefined") {
+        patch.camposExtras = await normalizeCustomFieldValues("familia", camposExtras || {});
+      }
 
       const familia = await Familia.findByIdAndUpdate(id, patch, {
         new: true,

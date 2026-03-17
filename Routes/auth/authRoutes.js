@@ -2,7 +2,6 @@
 const rateLimit = require("express-rate-limit");
 const AuthController = require("../../Controllers/auth/AuthController");
 const { requireAuth } = require("../../middlewares/authSession");
-const { PERFIS } = require("../../config/roles");
 
 const router = express.Router();
 const isDevLike = ["dev", "development", "local", "test", "teste"].includes(
@@ -32,13 +31,6 @@ router.get("/cadastro", AuthController.cadastroPage);
 router.post("/cadastro", cadastroLimiter, AuthController.cadastro);
 router.post("/logout", requireAuth, AuthController.logout);
 router.get("/me", requireAuth, AuthController.me);
-router.get("/administracao", requireAuth, (req, res) => {
-  if (req?.session?.user?.perfil === PERFIS.USUARIO) {
-    return res.redirect("/meus-dados");
-  }
-  return res.redirect("/painel");
-});
-
 module.exports = router;
 
 

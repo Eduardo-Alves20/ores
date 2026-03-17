@@ -1,4 +1,5 @@
-﻿const Familia = require("../../schemas/social/Familia");
+const Familia = require("../../schemas/social/Familia");
+const { listCustomFields, listQuickFilters } = require("../../services/systemConfigService");
 
 function buildViewBase(title) {
   return {
@@ -14,8 +15,11 @@ function buildViewBase(title) {
 
 class FamiliaPageController {
   static async listar(req, res) {
+    const quickFilters = await listQuickFilters("assistidos_familias", { includeInactive: false });
+
     return res.status(200).render("pages/familias/lista", {
       ...buildViewBase("Familias"),
+      quickFilters,
       filtros: {
         busca: String(req.query.busca || ""),
         ativo: String(req.query.ativo || ""),
@@ -32,6 +36,7 @@ class FamiliaPageController {
       ...buildViewBase("Nova Familia"),
       modo: "criar",
       familia: null,
+      customFields: await listCustomFields("familia", { includeInactive: false }),
     });
   }
 
@@ -47,6 +52,7 @@ class FamiliaPageController {
       ...buildViewBase("Editar Familia"),
       modo: "editar",
       familia,
+      customFields: await listCustomFields("familia", { includeInactive: false }),
     });
   }
 
@@ -66,5 +72,3 @@ class FamiliaPageController {
 }
 
 module.exports = FamiliaPageController;
-
-

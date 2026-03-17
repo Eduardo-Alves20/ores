@@ -16,6 +16,25 @@
     </div>
   </header>
 
+  <section class="agenda-presenca-overview card-elevated">
+    <header class="agenda-presenca-overview-head">
+      <div>
+        <p class="agenda-day-overline">Presenca da Semana</p>
+        <h3 id="agenda-presenca-semana-titulo">Carregando semana...</h3>
+      </div>
+      <div class="agenda-presenca-kpis" id="agenda-presenca-kpis">
+        <span class="agenda-presenca-kpi is-total">0 agendados</span>
+        <span class="agenda-presenca-kpi is-presente">0 presentes</span>
+        <span class="agenda-presenca-kpi is-falta">0 faltas</span>
+        <span class="agenda-presenca-kpi is-pendente">0 pendentes</span>
+      </div>
+    </header>
+
+    <div class="agenda-presenca-week-grid" id="agenda-presenca-semana-lista">
+      <p class="empty-hint">Carregando resumo semanal...</p>
+    </div>
+  </section>
+
   <section class="agenda-board card-elevated">
     <section class="agenda-calendar-panel">
       <header class="agenda-calendar-head">
@@ -176,6 +195,63 @@
     </form>
   </section>
 </div>
+
+<div class="agenda-modal-backdrop" id="agenda-presenca-backdrop" hidden>
+  <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-presenca-title">
+    <header class="agenda-modal-head">
+      <div>
+        <h3 id="agenda-presenca-title">Registrar Presenca</h3>
+        <p class="agenda-modal-subtitle" id="agenda-presenca-subtitle">Carregando detalhes do agendamento...</p>
+      </div>
+      <button type="button" class="btn btn-muted btn-icon" id="agenda-presenca-close" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="agenda-presenca-shell">
+      <section class="agenda-presenca-status-box">
+        <p class="agenda-presenca-label">Status atual</p>
+        <div class="agenda-presenca-badges">
+          <span class="status-badge status-neutral" id="agenda-presenca-status-agendamento">Agendado</span>
+          <span class="status-badge status-neutral" id="agenda-presenca-status-presenca">Pendente</span>
+        </div>
+      </section>
+
+      <label class="field-wrap">
+        <span class="input-label">Justificativa oficial</span>
+        <select class="input-control" id="agenda-presenca-justificativa">
+          <option value="">Sem justificativa oficial</option>
+          <% (agendaConfig?.attendanceJustifications || []).forEach((item) => { %>
+            <option value="<%= item.nome %>"><%= item.nome %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Observacao interna</span>
+        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: familia avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
+      </label>
+
+      <div class="agenda-presenca-actions">
+        <button type="button" class="btn btn-primary" data-agenda-presenca-action="presente">Marcar Presente</button>
+        <button type="button" class="btn btn-warning" data-agenda-presenca-action="falta">Marcar Falta</button>
+        <button type="button" class="btn btn-muted" data-agenda-presenca-action="falta_justificada">Falta Justificada</button>
+        <button type="button" class="btn btn-muted" data-agenda-presenca-action="pendente">Voltar para Pendente</button>
+      </div>
+
+      <section class="agenda-presenca-history">
+        <header class="agenda-presenca-history-head">
+          <h4>Historico do agendamento</h4>
+        </header>
+        <div class="agenda-presenca-history-list" id="agenda-presenca-history-list">
+          <p class="empty-hint">Nenhum historico carregado.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+
+<script id="agenda-presenca-justificativas" type="application/json"><%- JSON.stringify(agendaConfig?.attendanceJustifications || []) %></script>
 
 <div class="agenda-modal-backdrop" id="agenda-salas-backdrop" hidden>
   <section class="agenda-modal agenda-salas-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-salas-title">

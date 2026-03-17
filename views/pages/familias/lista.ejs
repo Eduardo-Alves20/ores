@@ -26,6 +26,20 @@
     </div>
   </header>
 
+  <% if (Array.isArray(quickFilters) && quickFilters.length) { %>
+    <section class="familias-filtros-rapidos card-elevated">
+      <div class="section-title-wrap">
+        <h2 class="section-title">Filtros rapidos</h2>
+        <p class="section-subtitle">Atalhos criados pela administracao para acelerar buscas frequentes.</p>
+      </div>
+      <div class="familias-quick-filter-row">
+        <% quickFilters.forEach((filter) => { %>
+          <a href="<%= filter.href %>" class="badge-soft familias-quick-filter-link"><%= filter.nome %></a>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
   <section class="familias-filtros card-elevated">
     <div class="section-title-wrap">
       <h2 class="section-title">Encontrar assistidos</h2>

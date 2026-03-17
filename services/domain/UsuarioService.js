@@ -8,6 +8,7 @@ const {
   hashSenha,
   compararSenha,
 } = require("../security/passwordService");
+const { normalizeCustomFieldValues } = require("../systemConfigService");
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;
@@ -83,7 +84,7 @@ function isValidCpf(cpf) {
 
 function sanitizeUser(usuario) {
   if (!usuario) return null;
-  const u = usuario.toObject ? usuario.toObject() : usuario;
+  const u = usuario.toObject ? usuario.toObject({ flattenMaps: true }) : { ...usuario };
   delete u.senha;
   return u;
 }
@@ -176,7 +177,8 @@ class UsuarioService {
   }
 
   static async buscarPorId(id) {
-    return Usuario.findById(id).select("-senha");
+    const usuario = await Usuario.findById(id).select("-senha");
+    return sanitizeUser(usuario);
   }
 
   static async buscarPorEmail(email, includeSenha = false) {
@@ -204,6 +206,7 @@ class UsuarioService {
       perfilNormalized === PERFIS.USUARIO
         ? APPROVAL_ROLES.MEMBRO
         : normalizeApprovalRole(dados.papelAprovacao, APPROVAL_ROLES.MEMBRO);
+    const camposExtras = await normalizeCustomFieldValues("usuario", dados.camposExtras || {});
 
     if (!dados.nome || !email || !senha) {
       throw createServiceError("Campos obrigatorios: nome, email e senha.", 400, "VALIDATION_ERROR");
@@ -251,6 +254,7 @@ class UsuarioService {
       aprovadoEm: statusAprovacao === "aprovado" ? new Date() : null,
       aprovadoPor: statusAprovacao === "aprovado" ? contexto.usuarioId || null : null,
       motivoAprovacao: String(dados.motivoAprovacao || "").trim(),
+      camposExtras,
       ultimoLoginEm: null,
       criadoPor: contexto.usuarioId || null,
       atualizadoPor: contexto.usuarioId || null,
@@ -326,6 +330,9 @@ class UsuarioService {
       ativo: typeof ativoParsed !== "undefined" ? ativoParsed : undefined,
       atualizadoPor: contexto.usuarioId || undefined,
       votosAprovacao: Array.isArray(dados.votosAprovacao) ? dados.votosAprovacao : undefined,
+      camposExtras: Object.prototype.hasOwnProperty.call(dados, "camposExtras")
+        ? await normalizeCustomFieldValues("usuario", dados.camposExtras || {})
+        : undefined,
     };
 
     if (statusAprovacao === "aprovado") {
@@ -354,7 +361,7 @@ class UsuarioService {
       runValidators: true,
     }).select("-senha");
 
-    return updated;
+    return sanitizeUser(updated);
   }
 
   static async atualizarSenha(id, novaSenha, contexto = {}) {
@@ -366,7 +373,7 @@ class UsuarioService {
       );
     }
 
-    return Usuario.findByIdAndUpdate(
+    const updated = await Usuario.findByIdAndUpdate(
       id,
       {
         senha: await hashSenha(novaSenha),
@@ -374,6 +381,8 @@ class UsuarioService {
       },
       { new: true, runValidators: true }
     ).select("-senha");
+
+    return sanitizeUser(updated);
   }
 
   static async alterarStatus(id, ativo, contexto = {}) {
@@ -390,10 +399,12 @@ class UsuarioService {
       patch.inativadoPor = null;
     }
 
-    return Usuario.findByIdAndUpdate(id, patch, {
+    const updated = await Usuario.findByIdAndUpdate(id, patch, {
       new: true,
       runValidators: true,
     }).select("-senha");
+
+    return sanitizeUser(updated);
   }
 
   static async remover(id, contexto = {}) {

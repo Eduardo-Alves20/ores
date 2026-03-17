@@ -15,9 +15,11 @@ const portalUsuarioRoutes = require("./Routes/portal/portalUsuarioRoutes");
 const contaRoutes = require("./Routes/conta/contaRoutes");
 const acessoPageRoutes = require("./Routes/admin/acessoPageRoutes");
 const segurancaRoutes = require("./Routes/admin/segurancaRoutes");
+const administracaoRoutes = require("./Routes/admin/administracaoRoutes");
 const modulosRoutes = require("./Routes/modulos/modulosRoutes");
 const DashboardController = require("./Controllers/admin/DashboardController");
 const AgendaPageController = require("./Controllers/agenda/AgendaPageController");
+const AgendaPresencaPageController = require("./Controllers/agenda/AgendaPresencaPageController");
 const { PERFIS } = require("./config/roles");
 const { PERMISSIONS } = require("./config/permissions");
 
@@ -64,9 +66,20 @@ router.use(requireAuth);
 router.use("/", contaRoutes);
 router.use("/", acessoPageRoutes);
 router.use("/", segurancaRoutes);
+router.use("/", administracaoRoutes);
 
 router.get("/painel", requirePermission(PERMISSIONS.DASHBOARD_VIEW), DashboardController.index);
 router.get("/agenda", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaPageController.index);
+router.get(
+  "/agenda/presencas",
+  requirePermission(PERMISSIONS.AGENDA_VIEW),
+  AgendaPresencaPageController.index
+);
+router.get(
+  "/agenda/presencas/analise/:section",
+  requirePermission(PERMISSIONS.AGENDA_VIEW),
+  AgendaPresencaPageController.detail
+);
 router.use("/familias", requirePermission(PERMISSIONS.FAMILIAS_VIEW), familiaPageRoutes);
 
 router.use("/admin/usuarios", limiter, usuarioRoutes);

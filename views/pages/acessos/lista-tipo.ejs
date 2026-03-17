@@ -29,6 +29,20 @@
 %>
 
 <section class="acessos-page" data-default-tipo-cadastro="<%= tipoCadastro || 'voluntario' %>">
+  <% if (Array.isArray(tipoTabs) && tipoTabs.length) { %>
+    <nav class="acessos-switcher" aria-label="Tipos de acesso">
+      <% tipoTabs.forEach((tab) => { %>
+        <a
+          href="<%= tab.href %>"
+          class="acessos-switcher-link <%= tab.isActive ? 'is-active' : '' %>"
+          aria-current="<%= tab.isActive ? 'page' : 'false' %>"
+        >
+          <span><%= tab.label %></span>
+        </a>
+      <% }) %>
+    </nav>
+  <% } %>
+
   <header class="acessos-hero module-card">
     <div class="acessos-hero-main">
       <span class="acessos-hero-eyebrow">Gestao de acessos</span>
@@ -53,6 +67,22 @@
       <% } %>
     </div>
   </header>
+
+  <% if (Array.isArray(quickFilters) && quickFilters.length) { %>
+    <section class="module-card acessos-panel">
+      <div class="acessos-panel-head">
+        <div>
+          <h3>Filtros rapidos</h3>
+          <p>Atalhos definidos pela administracao para acelerar consultas frequentes.</p>
+        </div>
+      </div>
+      <div class="acessos-quick-filter-row">
+        <% quickFilters.forEach((filter) => { %>
+          <a href="<%= filter.href %>" class="badge-soft acessos-quick-filter-link"><%= filter.nome %></a>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
 
   <% if (errorMessage && errorMessage.length) { %>
     <div class="conta-error"><%= errorMessage[0] %></div>
@@ -160,7 +190,15 @@
             </tr>
           <% } else { %>
             <% usuarios.forEach((item) => { %>
-              <tr>
+              <tr
+                class="<%= item.canEdit ? 'acessos-row-clickable' : '' %>"
+                <% if (item.canEdit) { %>
+                  data-user-row-open="<%= String(item._id || '') %>"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Abrir ficha de <%= item.nome || 'usuario' %>"
+                <% } %>
+              >
                 <td data-label="Nome">
                   <strong><%= item.nome || "-" %></strong>
                   <div class="acesso-row-hint">Login: <%= item.login || "-" %></div>
@@ -431,12 +469,58 @@
               <input class="input-control" type="text" name="telefone" maxlength="20" />
             </label>
 
-            <label class="field-wrap">
+            <% if (Array.isArray(customFields) && customFields.length) { %>
+              <div class="acessos-custom-fields span-2">
+                <div class="section-title-wrap">
+                  <h4 class="section-title">Campos extras do cadastro</h4>
+                  <p class="section-subtitle">Configurados pela central de administracao.</p>
+                </div>
+                <div class="acessos-create-grid">
+                  <% customFields.forEach((field) => { %>
+                    <% if (field.tipo === 'textarea') { %>
+                      <label class="field-wrap span-2">
+                        <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+                        <textarea class="input-control textarea-control" name="campoExtra_<%= field.chave %>" rows="3" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>"></textarea>
+                        <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                      </label>
+                    <% } else if (field.tipo === 'select') { %>
+                      <label class="field-wrap">
+                        <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+                        <select class="input-control" name="campoExtra_<%= field.chave %>" <%= field.obrigatorio ? 'required' : '' %> data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>">
+                          <option value="">Selecione</option>
+                          <% (field.opcoes || []).forEach((option) => { %>
+                            <option value="<%= option %>"><%= option %></option>
+                          <% }) %>
+                        </select>
+                        <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                      </label>
+                    <% } else if (field.tipo === 'booleano') { %>
+                      <label class="field-wrap">
+                        <span class="input-label"><%= field.label %></span>
+                        <select class="input-control" name="campoExtra_<%= field.chave %>" data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>">
+                          <option value="false">Nao</option>
+                          <option value="true">Sim</option>
+                        </select>
+                        <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                      </label>
+                    <% } else { %>
+                      <label class="field-wrap">
+                        <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+                        <input class="input-control" type="<%= field.tipo === 'numero' ? 'number' : field.tipo === 'data' ? 'date' : 'text' %>" name="campoExtra_<%= field.chave %>" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>" />
+                        <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                      </label>
+                    <% } %>
+                  <% }) %>
+                </div>
+              </div>
+            <% } %>
+
+            <label class="field-wrap" data-user-password-field>
               <span class="input-label">Senha *</span>
               <input class="input-control" type="password" name="senha" required />
             </label>
 
-            <label class="field-wrap">
+            <label class="field-wrap" data-user-password-field>
               <span class="input-label">Confirmar senha *</span>
               <input class="input-control" type="password" name="confirmarSenha" required />
             </label>
@@ -446,6 +530,17 @@
             Defina uma senha inicial para esse acesso.
           </p>
 
+          <section class="acessos-password-reset-box" data-user-password-reset-wrap hidden>
+            <div>
+              <strong>Redefinicao de senha</strong>
+              <p>Use este fluxo quando precisar trocar a senha de familia ou voluntario e registrar o motivo na auditoria.</p>
+            </div>
+            <button type="button" class="btn btn-muted" data-user-password-reset-open>
+              <i class="fa-solid fa-key" aria-hidden="true"></i>
+              <span>Redefinir senha</span>
+            </button>
+          </section>
+
           <p class="acessos-create-hint" data-create-user-hint>
             Perfis internos sao aprovados automaticamente e podem nao aparecer nesta lista filtrada.
           </p>
@@ -453,6 +548,66 @@
           <div class="acessos-create-actions">
             <button type="submit" class="btn btn-primary" data-user-modal-submit>Salvar usuario</button>
             <button type="button" class="btn btn-muted" data-create-user-close="true">Cancelar</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="acessos-modal" hidden data-reset-password-modal>
+      <div class="acessos-modal-backdrop" data-reset-password-close="true"></div>
+
+      <section
+        class="acessos-modal-dialog acessos-reset-modal-dialog card-elevated"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="acessos-reset-password-title"
+      >
+        <header class="acessos-modal-head">
+          <div>
+            <h3 id="acessos-reset-password-title">Redefinir senha</h3>
+            <p data-reset-password-description>Informe a nova senha e o motivo da redefinicao para auditoria.</p>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-muted btn-icon-sm"
+            data-reset-password-close="true"
+            aria-label="Fechar redefinicao de senha"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="acessos-modal-error" data-reset-password-error hidden></div>
+
+        <form class="acessos-create-form" data-reset-password-form autocomplete="off">
+          <div class="acessos-reset-password-grid">
+            <label class="field-wrap">
+              <span class="input-label">Nova senha *</span>
+              <input class="input-control" type="password" name="senha" required />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Confirmar nova senha *</span>
+              <input class="input-control" type="password" name="confirmarSenha" required />
+            </label>
+
+            <label class="field-wrap span-2">
+              <span class="input-label">Motivo da redefinicao *</span>
+              <textarea
+                class="input-control textarea-control"
+                name="motivo"
+                rows="4"
+                maxlength="500"
+                placeholder="Ex.: familia perdeu o acesso, troca solicitada pela equipe, senha provisoria para primeiro login..."
+                required
+              ></textarea>
+            </label>
+          </div>
+
+          <div class="acessos-create-actions">
+            <button type="submit" class="btn btn-primary" data-reset-password-submit>Salvar nova senha</button>
+            <button type="button" class="btn btn-muted" data-reset-password-close="true">Cancelar</button>
           </div>
         </form>
       </section>

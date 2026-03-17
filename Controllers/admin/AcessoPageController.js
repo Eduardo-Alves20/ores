@@ -21,6 +21,10 @@ const {
   hasAnyPermission,
   resolvePermissionsForUserId,
 } = require("../../services/accessControlService");
+const {
+  listCustomFields,
+  listQuickFilters,
+} = require("../../services/systemConfigService");
 
 function parseBoolean(value) {
   if (value === true || value === "true") return true;
@@ -624,8 +628,8 @@ class AcessoPageController {
     return AcessoPageController.listarPorTipo(req, res, {
       tipoCadastro: "familia",
       defaultLimit: 10,
-      title: "Usuarios Familia",
-      sectionTitle: "Usuarios Familia",
+      title: "Familias",
+      sectionTitle: "Familias",
       navKey: "usuarios-familia",
       subtitle: "Familiares cadastrados para eventual acesso ao sistema.",
       basePath: "/acessos/familias",
@@ -637,8 +641,8 @@ class AcessoPageController {
       tipoCadastro: "voluntario",
       showAllUsers: true,
       defaultLimit: 10,
-      title: "Usuarios e Voluntarios",
-      sectionTitle: "Usuarios e Voluntarios",
+      title: "Voluntarios",
+      sectionTitle: "Voluntarios",
       navKey: "usuarios-voluntario",
       subtitle: "Todos os acessos do sistema, inclusive portal, equipe interna e administradores.",
       basePath: "/acessos/voluntarios",
@@ -652,6 +656,7 @@ class AcessoPageController {
       const busca = String(req.query.busca || "").trim().slice(0, 100);
       const status = parseStatus(req.query.status, "todos");
       const ativo = parseBoolean(req.query.ativo);
+      const perfilFiltro = String(req.query.perfil || "").trim().toLowerCase();
 
       const filtro = config.showAllUsers
         ? {}
@@ -686,7 +691,12 @@ class AcessoPageController {
         filtro.ativo = ativo;
       }
 
-      const [resultado, resumo] = await Promise.all([
+      if (perfilFiltro) {
+        filtro.perfil = perfilFiltro;
+      }
+
+      const quickFilterArea = config.navKey === "usuarios-familia" ? "acessos_familias" : "acessos_voluntarios";
+      const [resultado, resumo, customFields, quickFilters] = await Promise.all([
         Usuario.paginate(filtro, {
           page,
           limit,
@@ -695,6 +705,8 @@ class AcessoPageController {
           lean: true,
         }),
         buildResumo(config),
+        listCustomFields("usuario", { includeInactive: false }),
+        listQuickFilters(quickFilterArea, { includeInactive: false }),
       ]);
 
       const usuarios = (resultado.docs || []).map((doc) => ({
@@ -719,7 +731,22 @@ class AcessoPageController {
         subtitle: config.subtitle,
         basePath: config.basePath,
         tipoCadastro: config.tipoCadastro,
+        tipoTabs: [
+          {
+            key: "usuarios-familia",
+            label: "Familias",
+            href: "/acessos/familias",
+            isActive: config.navKey === "usuarios-familia",
+          },
+          {
+            key: "usuarios-voluntario",
+            label: "Voluntarios",
+            href: "/acessos/voluntarios",
+            isActive: config.navKey === "usuarios-voluntario",
+          },
+        ],
         resumo,
+        quickFilters,
         usuarios,
         paginacao: {
           page: resultado.page || 1,
@@ -741,6 +768,7 @@ class AcessoPageController {
         canManageUsers: canManageUsers(req),
         createProfileOptions: buildCreateProfileOptions(req),
         volunteerAccessOptions: VOLUNTARIO_ACCESS_OPTIONS,
+        customFields,
         approvalRoleOptions: buildApprovalRoleOptions(),
         successMessage: req.flash("success"),
         errorMessage: req.flash("error"),

@@ -194,11 +194,18 @@ class UsuarioController {
   static async atualizarSenha(req, res) {
     try {
       const { id } = req.params;
-      const { senha } = req.body;
+      const { senha, motivo } = req.body;
 
       if (!senha) {
         return res.status(400).json({
           erro: "Campo senha e obrigatorio.",
+        });
+      }
+
+      const motivoNormalizado = String(motivo || "").trim();
+      if (!motivoNormalizado) {
+        return res.status(400).json({
+          erro: "Informe o motivo da redefinicao para auditoria.",
         });
       }
 
@@ -218,13 +225,19 @@ class UsuarioController {
       }
 
       await registrarAuditoria(req, {
-        acao: "USUARIO_SENHA_ATUALIZADA",
+        acao: "USUARIO_SENHA_REDEFINIDA",
         entidade: "usuario",
         entidadeId: id,
+        detalhes: {
+          motivo: motivoNormalizado,
+          usuarioAlvo: alvo?.nome || "",
+          loginAlvo: alvo?.login || "",
+          tipoCadastro: alvo?.tipoCadastro || "",
+        },
       });
 
       return res.status(200).json({
-        mensagem: "Senha atualizada com sucesso.",
+        mensagem: "Senha redefinida com sucesso.",
         usuario,
       });
     } catch (error) {

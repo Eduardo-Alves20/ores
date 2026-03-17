@@ -5,6 +5,7 @@ const {
   AGENDA_DEFAULT_DURATION_MINUTES,
 } = require("../../schemas/social/AgendaEvento");
 const { hasAnyPermission } = require("../../services/accessControlService");
+const { listPresenceReasons } = require("../../services/systemConfigService");
 
 function buildPermissions(user) {
   const permissionList = user?.permissions || [];
@@ -12,6 +13,7 @@ function buildPermissions(user) {
   const canAssignOthers = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_ASSIGN_OTHERS]);
   const canCreate = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_CREATE]);
   const canMove = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_MOVE]);
+  const canRegisterAttendance = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_ATTENDANCE]);
   const canManageRooms = canViewAll;
 
   return {
@@ -19,6 +21,7 @@ function buildPermissions(user) {
     canAssignOthers,
     canCreate,
     canMove,
+    canRegisterAttendance,
     canManageRooms,
   };
 }
@@ -26,6 +29,7 @@ function buildPermissions(user) {
 class AgendaPageController {
   static async index(req, res) {
     const user = req?.session?.user || null;
+    const attendanceJustifications = await listPresenceReasons({ includeInactive: false });
 
     return res.status(200).render("pages/agenda/index", {
       title: "Agenda",
@@ -45,6 +49,7 @@ class AgendaPageController {
         tiposAtendimento: TIPOS_AGENDA,
         roomRequiredTypes: AGENDA_ROOM_REQUIRED_TYPES,
         slotMinutes: AGENDA_DEFAULT_DURATION_MINUTES,
+        attendanceJustifications,
       },
     });
   }

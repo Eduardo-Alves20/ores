@@ -71,6 +71,18 @@
     return labels[normalized] || "Outro";
   }
 
+  function formatAgendaTipoLabel(tipo) {
+    const labels = {
+      visita_domiciliar: "Visita domiciliar",
+      atendimento_sede: "Atendimento na sede",
+      entrega_beneficio: "Entrega de beneficio",
+      reuniao_equipe: "Reuniao de equipe",
+      outro: "Outro",
+    };
+    const normalized = String(tipo || "").toLowerCase().trim();
+    return labels[normalized] || "Outro";
+  }
+
   function showToast(message) {
     if (typeof window.appNotifyError === "function") {
       window.appNotifyError(message);
@@ -404,6 +416,18 @@
     }
 
     function collectPayload() {
+      const camposExtras = {};
+      form.querySelectorAll("[data-custom-field-key]").forEach((field) => {
+        const key = String(field.getAttribute("data-custom-field-key") || "").trim();
+        const type = String(field.getAttribute("data-custom-field-type") || "texto").trim();
+        if (!key) return;
+        if (type === "booleano") {
+          camposExtras[key] = String(field.value || "").trim() === "true";
+          return;
+        }
+        camposExtras[key] = String(field.value || "").trim();
+      });
+
       return {
         responsavel: {
           nome: form.elements.responsavel_nome.value.trim(),
@@ -421,6 +445,7 @@
           complemento: form.elements.endereco_complemento.value.trim(),
         },
         observacoes: form.elements.observacoes.value.trim(),
+        camposExtras,
       };
     }
 
@@ -482,6 +507,7 @@
     const panelPacientes = document.getElementById("panel-pacientes");
     const panelDependente = document.getElementById("panel-dependente");
     const panelHistorico = document.getElementById("panel-historico");
+    const panelPresencas = document.getElementById("panel-presencas");
     const panelAtendimento = document.getElementById("panel-atendimento");
     const panelRegistro = document.getElementById("panel-registro");
     const historicoRegistrarBtn = document.getElementById("historico-registrar-btn");
@@ -489,13 +515,18 @@
     const registroPanelTitle = document.getElementById("registro-panel-title");
     const pacientesLista = document.getElementById("pacientes-lista");
     const atendimentosLista = document.getElementById("atendimentos-lista");
+    const presencasLista = document.getElementById("presencas-lista");
+    const presencasResumo = document.getElementById("presencas-resumo");
+    const presencasFilterLabel = document.getElementById("presencas-filter-label");
     const atendimentoDetalhe = document.getElementById("atendimento-detalhe");
     const atendimentoEditarBtn = document.getElementById("atendimento-editar-btn");
     const pacientesCount = document.getElementById("pacientes-count");
     const atendimentosCount = document.getElementById("atendimentos-count");
+    const presencasCount = document.getElementById("presencas-count");
     const familiaStatusPill = document.getElementById("familia-status-pill");
     const familiaPacientesPill = document.getElementById("familia-pacientes-pill");
     const familiaAtendimentosPill = document.getElementById("familia-atendimentos-pill");
+    const familiaPresencasPill = document.getElementById("familia-presencas-pill");
     const statusBadge = document.getElementById("resumo-status");
     const statusBtn = document.getElementById("familia-toggle-status");
     const pacienteNovoBtn = document.getElementById("paciente-novo-btn");
@@ -515,7 +546,9 @@
     let currentFamilia = null;
     let currentPacientes = [];
     let currentAtendimentos = [];
+    let currentPresencasAgenda = [];
     let currentVoluntarios = [];
+    let currentPresencaFilter = "all";
     let selectedDependenteId = null;
     let selectedAtendimentoId = null;
     let activeView = "pacientes";
@@ -746,12 +779,14 @@
       panelPacientes.hidden = view !== "pacientes";
       panelDependente.hidden = view !== "dependente";
       panelHistorico.hidden = view !== "historico";
+      panelPresencas.hidden = view !== "presencas";
       panelAtendimento.hidden = view !== "atendimento";
       panelRegistro.hidden = view !== "registro";
 
       panelPacientes.classList.toggle("is-active", view === "pacientes");
       panelDependente.classList.toggle("is-active", view === "dependente");
       panelHistorico.classList.toggle("is-active", view === "historico");
+      panelPresencas.classList.toggle("is-active", view === "presencas");
       panelAtendimento.classList.toggle("is-active", view === "atendimento");
       panelRegistro.classList.toggle("is-active", view === "registro");
 
@@ -775,6 +810,11 @@
         workflowMainBtn.textContent = "Registrar atendimento";
         workflowBackBtn.hidden = false;
         workflowBackBtn.textContent = "Ficha de dependentes";
+      } else if (view === "presencas") {
+        workflowTitle.textContent = "Controle de Presenca";
+        workflowSubtitle.textContent = "Consultas da agenda com faltas, presencas e justificativas desta familia.";
+        workflowMainBtn.hidden = true;
+        workflowBackBtn.hidden = true;
       } else if (view === "atendimento") {
         workflowTitle.textContent = "Ficha do Atendimento";
         workflowSubtitle.textContent = "Detalhes completos do atendimento selecionado.";
@@ -791,7 +831,11 @@
         workflowBackBtn.textContent = registroOrigin === "atendimento" ? "Voltar ao atendimento" : "Voltar ao historico";
       }
 
-      const activeTab = view === "pacientes" || view === "dependente" ? "pacientes" : "historico";
+      const activeTab = view === "pacientes" || view === "dependente"
+        ? "pacientes"
+        : view === "presencas"
+          ? "presencas"
+          : "historico";
       workflowTabs.forEach((tab) => {
         tab.classList.toggle("is-active", tab.dataset.workflowTab === activeTab);
       });
@@ -934,6 +978,154 @@
       renderAtendimentoFicha();
     }
 
+    function buildPresencaCounters(items) {
+      return (Array.isArray(items) ? items : []).reduce(
+        (acc, item) => {
+          acc.total += 1;
+          const status = String(item?.statusPresenca || "pendente").trim();
+          if (status === "presente") acc.presente += 1;
+          else if (status === "falta") acc.falta += 1;
+          else if (status === "falta_justificada") acc.justificada += 1;
+          else if (status === "cancelado_antecipadamente") acc.cancelada += 1;
+          else acc.pendente += 1;
+          return acc;
+        },
+        {
+          total: 0,
+          presente: 0,
+          falta: 0,
+          justificada: 0,
+          pendente: 0,
+          cancelada: 0,
+        }
+      );
+    }
+
+    function filterPresencas(items, filter) {
+      const list = Array.isArray(items) ? items : [];
+      const normalizedFilter = String(filter || "all").trim();
+      if (normalizedFilter === "all") return list;
+      if (normalizedFilter === "pendentes_canceladas") {
+        return list.filter((item) => {
+          const status = String(item?.statusPresenca || "pendente").trim();
+          return status === "pendente" || status === "cancelado_antecipadamente";
+        });
+      }
+      return list.filter((item) => String(item?.statusPresenca || "pendente").trim() === normalizedFilter);
+    }
+
+    function getPresencaFilterLabel(filter, totalFiltrado, totalGeral) {
+      const labels = {
+        all: "Mostrando todas as consultas da agenda desta familia.",
+        presente: "Mostrando somente as consultas com presenca confirmada.",
+        falta: "Mostrando somente as consultas com falta registrada.",
+        falta_justificada: "Mostrando somente as consultas com falta justificada.",
+        pendentes_canceladas: "Mostrando consultas pendentes ou canceladas antecipadamente.",
+      };
+      const base = labels[String(filter || "all")] || labels.all;
+      return `${base} ${totalFiltrado} de ${totalGeral} registro(s).`;
+    }
+
+    function renderPresencas(items) {
+      currentPresencasAgenda = Array.isArray(items) ? items : [];
+      const counters = buildPresencaCounters(currentPresencasAgenda);
+      const filteredPresencas = filterPresencas(currentPresencasAgenda, currentPresencaFilter);
+
+      if (presencasCount) {
+        presencasCount.textContent = String(filteredPresencas.length);
+      }
+
+      if (familiaPresencasPill) {
+        familiaPresencasPill.textContent = `${counters.total} consulta${counters.total === 1 ? "" : "s"} agenda`;
+      }
+
+      if (presencasResumo) {
+        presencasResumo.innerHTML = `
+          <article class="presenca-resumo-card is-total ${currentPresencaFilter === "all" ? "is-active" : ""}" data-presenca-filter="all" role="button" tabindex="0" aria-label="Mostrar todas as consultas">
+            <span>Consultas</span>
+            <strong>${counters.total}</strong>
+          </article>
+          <article class="presenca-resumo-card is-presente ${currentPresencaFilter === "presente" ? "is-active" : ""}" data-presenca-filter="presente" role="button" tabindex="0" aria-label="Mostrar consultas com presenca">
+            <span>Presentes</span>
+            <strong>${counters.presente}</strong>
+          </article>
+          <article class="presenca-resumo-card is-falta ${currentPresencaFilter === "falta" ? "is-active" : ""}" data-presenca-filter="falta" role="button" tabindex="0" aria-label="Mostrar consultas com falta">
+            <span>Faltas</span>
+            <strong>${counters.falta}</strong>
+          </article>
+          <article class="presenca-resumo-card is-justificada ${currentPresencaFilter === "falta_justificada" ? "is-active" : ""}" data-presenca-filter="falta_justificada" role="button" tabindex="0" aria-label="Mostrar consultas com falta justificada">
+            <span>Justificadas</span>
+            <strong>${counters.justificada}</strong>
+          </article>
+          <article class="presenca-resumo-card is-pendente ${currentPresencaFilter === "pendentes_canceladas" ? "is-active" : ""}" data-presenca-filter="pendentes_canceladas" role="button" tabindex="0" aria-label="Mostrar consultas pendentes ou canceladas">
+            <span>Pendentes / canceladas</span>
+            <strong>${counters.pendente + counters.cancelada}</strong>
+          </article>
+        `;
+      }
+
+      if (presencasFilterLabel) {
+        presencasFilterLabel.textContent = getPresencaFilterLabel(
+          currentPresencaFilter,
+          filteredPresencas.length,
+          counters.total
+        );
+      }
+
+      if (!presencasLista) return;
+
+      if (!currentPresencasAgenda.length) {
+        presencasLista.innerHTML = '<p class="empty-hint">Nenhuma consulta de agenda vinculada a esta familia.</p>';
+        return;
+      }
+
+      if (!filteredPresencas.length) {
+        presencasLista.innerHTML = '<p class="empty-hint">Nenhuma consulta encontrada para esse filtro.</p>';
+        return;
+      }
+
+      presencasLista.innerHTML = filteredPresencas
+        .map((item) => {
+          const pacienteNome = escapeHtml(item?.pacienteNome || "Sem dependente especifico");
+          const responsavelNome = escapeHtml(item?.responsavelNome || "Sem profissional");
+          const tipoLabel = escapeHtml(formatAgendaTipoLabel(item?.tipoAtendimento));
+          const statusClass = `is-${String(item?.statusPresenca || "pendente").trim()}`;
+          const observacao = String(item?.presencaObservacao || "").trim();
+          const justificativa = String(item?.presencaJustificativaLabel || "").trim();
+          const registroMeta =
+            item?.presencaRegistradaEmLabel && item.presencaRegistradaEmLabel !== "-"
+              ? `Registrado em ${escapeHtml(item.presencaRegistradaEmLabel)}${
+                  item?.presencaRegistradaPorNome ? ` por ${escapeHtml(item.presencaRegistradaPorNome)}` : ""
+                }`
+              : "";
+
+          return `
+            <article class="presenca-card">
+              <header class="presenca-card-head">
+                <div>
+                  <p class="familias-overline">Consulta ${tipoLabel}</p>
+                  <h4>${escapeHtml(item?.titulo || "Consulta")}</h4>
+                </div>
+                <div class="presenca-card-badges">
+                  <span class="status-badge presenca-status-badge ${statusClass}">${escapeHtml(item?.statusPresencaLabel || "Pendente")}</span>
+                  <span class="status-badge">${escapeHtml(item?.statusAgendamentoLabel || "Agendado")}</span>
+                </div>
+              </header>
+              <div class="presenca-card-grid">
+                <p><strong>Data:</strong> ${escapeHtml(item?.inicioLabel || "-")}</p>
+                <p><strong>Dependente:</strong> ${pacienteNome}</p>
+                <p><strong>Profissional:</strong> ${responsavelNome}</p>
+                <p><strong>Sala / local:</strong> ${escapeHtml(item?.salaNome || item?.local || "-")}</p>
+              </div>
+              ${justificativa ? `<div class="presenca-card-note"><strong>Justificativa:</strong> ${escapeHtml(justificativa)}</div>` : ""}
+              ${observacao ? `<div class="presenca-card-note"><strong>Observacao:</strong> ${escapeHtml(observacao)}</div>` : ""}
+              ${registroMeta ? `<p class="presenca-card-meta">${registroMeta}</p>` : ""}
+            </article>
+          `;
+        })
+        .join("");
+    }
+
     function openDependenteViewById(id) {
       if (!id) return;
       selectedDependenteId = String(id);
@@ -960,6 +1152,10 @@
     workflowTabs.forEach((tab) => {
       tab.addEventListener("click", () => {
         const target = String(tab.dataset.workflowTab || "").trim();
+        if (target === "presencas") {
+          setView("presencas");
+          return;
+        }
         if (target === "historico") {
           setView("historico");
           return;
@@ -967,6 +1163,27 @@
         setView(selectedDependenteId ? "dependente" : "pacientes");
       });
     });
+
+    if (presencasResumo) {
+      const handlePresencaFilterSelection = (target) => {
+        const card = target.closest("[data-presenca-filter]");
+        if (!card) return;
+        currentPresencaFilter = String(card.getAttribute("data-presenca-filter") || "all").trim() || "all";
+        renderPresencas(currentPresencasAgenda);
+      };
+
+      presencasResumo.addEventListener("click", (event) => {
+        handlePresencaFilterSelection(event.target);
+      });
+
+      presencasResumo.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const card = event.target.closest("[data-presenca-filter]");
+        if (!card) return;
+        event.preventDefault();
+        handlePresencaFilterSelection(card);
+      });
+    }
 
     workflowBackBtn.addEventListener("click", () => {
       if (activeView === "dependente") {
@@ -1028,6 +1245,7 @@
         renderPacientes(payload.pacientes || []);
         renderDependenteFicha();
         renderAtendimentos(payload.atendimentos || []);
+        renderPresencas(payload.presencasAgenda || []);
       } catch (error) {
         showToast(error.message);
       }

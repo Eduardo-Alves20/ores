@@ -29,9 +29,24 @@
     setSidebarState(false);
   });
 
+  const groupToggles = Array.from(document.querySelectorAll("[data-sidebar-group-toggle]"));
+  groupToggles.forEach(function (groupToggle) {
+    groupToggle.addEventListener("click", function () {
+      const group = groupToggle.closest("[data-sidebar-group]");
+      const panel = group?.querySelector("[data-sidebar-group-panel]");
+      if (!group || !panel) return;
+
+      const willOpen = panel.hidden;
+      panel.hidden = !willOpen;
+      group.classList.toggle("is-open", willOpen);
+      groupToggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    });
+  });
+
   sidebar.addEventListener("click", function (event) {
     const target = event.target;
     if (!(target instanceof Element)) return;
+    if (target.closest(".sidebar-group-toggle")) return;
     if (!target.closest(".sidebar-link")) return;
     if (!mobileQuery.matches) return;
     setSidebarState(false);

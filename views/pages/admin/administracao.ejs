@@ -1,0 +1,472 @@
+<%
+  const snapshot = adminSnapshot?.snapshot || {};
+  const options = adminSnapshot?.options || {};
+  const salas = Array.isArray(adminSnapshot?.salas) ? adminSnapshot.salas : [];
+  const justificativas = Array.isArray(snapshot?.justificativasPresenca) ? snapshot.justificativasPresenca : [];
+  const campos = Array.isArray(snapshot?.camposCustomizados) ? snapshot.camposCustomizados : [];
+  const filtros = Array.isArray(snapshot?.filtrosRapidos) ? snapshot.filtrosRapidos : [];
+  const metrics = snapshot?.metrics || {};
+%>
+
+<section class="page-shell administracao-page" data-page="administracao">
+  <header class="administracao-hero card-elevated">
+    <div class="administracao-hero-copy">
+      <p class="administracao-eyebrow">Central de gestao</p>
+      <h1>Administracao do ecossistema</h1>
+      <p>
+        Configure o que governa o sistema: salas, justificativas de presenca, campos extras dos cadastros e filtros
+        rapidos que aceleram o trabalho da equipe.
+      </p>
+    </div>
+
+    <div class="administracao-kpis">
+      <article class="administracao-kpi">
+        <span>Salas</span>
+        <strong><%= salas.length %></strong>
+        <small><%= salas.filter((item) => item.ativo).length %> ativas</small>
+      </article>
+      <article class="administracao-kpi">
+        <span>Justificativas</span>
+        <strong><%= justificativas.length %></strong>
+        <small><%= metrics.justificativasAtivas || 0 %> ativas</small>
+      </article>
+      <article class="administracao-kpi">
+        <span>Campos extras</span>
+        <strong><%= campos.length %></strong>
+        <small><%= metrics.camposAtivos || 0 %> ativos</small>
+      </article>
+      <article class="administracao-kpi">
+        <span>Filtros rapidos</span>
+        <strong><%= filtros.length %></strong>
+        <small><%= metrics.filtrosAtivos || 0 %> ativos</small>
+      </article>
+    </div>
+  </header>
+
+  <section class="administracao-grid">
+    <article class="administracao-panel card-elevated">
+      <header class="administracao-panel-head">
+        <div>
+          <p class="administracao-panel-eyebrow">Agenda</p>
+          <h2>Salas de atendimento</h2>
+          <p>Crie, edite e organize as salas usadas no agendamento central.</p>
+        </div>
+        <span class="badge-soft"><%= salas.filter((item) => item.ativo).length %> ativas</span>
+      </header>
+
+      <form class="administracao-form" data-admin-room-form>
+        <input type="hidden" name="id" value="" />
+        <div class="administracao-form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Nome da sala *</span>
+            <input class="input-control" type="text" name="nome" maxlength="120" required />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Ativa</span>
+            <select class="input-control" name="ativo">
+              <option value="true">Sim</option>
+              <option value="false">Nao</option>
+            </select>
+          </label>
+
+          <label class="field-wrap span-2">
+            <span class="input-label">Descricao</span>
+            <textarea class="input-control textarea-control" name="descricao" rows="3" maxlength="240" placeholder="Ex.: sala silenciosa, atendimento infantil, acessibilidade..."></textarea>
+          </label>
+        </div>
+
+        <div class="administracao-form-actions">
+          <button type="submit" class="btn btn-primary" data-admin-room-submit>Salvar sala</button>
+          <button type="button" class="btn btn-muted" data-admin-room-reset>Limpar</button>
+        </div>
+      </form>
+
+      <div class="administracao-list" data-admin-room-list>
+        <% if (!salas.length) { %>
+          <p class="empty-hint">Nenhuma sala cadastrada ainda.</p>
+        <% } else { %>
+          <% salas.forEach((sala) => { %>
+            <article class="administracao-item-card <%= sala.ativo ? '' : 'is-inactive' %>">
+              <div>
+                <strong><%= sala.nome %></strong>
+                <p><%= sala.descricao || 'Sem descricao registrada.' %></p>
+              </div>
+              <div class="administracao-item-meta">
+                <span class="status-badge <%= sala.ativo ? 'status-active' : 'status-inactive' %>"><%= sala.ativo ? 'Ativa' : 'Inativa' %></span>
+                <div class="administracao-item-actions">
+                  <button
+                    type="button"
+                    class="table-action-btn table-action-btn-edit"
+                    data-room-edit
+                    data-room-payload="<%= encodeURIComponent(JSON.stringify(sala)) %>"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="table-action-btn <%= sala.ativo ? 'table-action-btn-danger' : 'table-action-btn-success' %>"
+                    data-room-toggle
+                    data-room-id="<%= sala._id %>"
+                    data-room-next="<%= sala.ativo ? 'false' : 'true' %>"
+                  >
+                    <i class="fa-solid <%= sala.ativo ? 'fa-user-slash' : 'fa-power-off' %>"></i>
+                    <span><%= sala.ativo ? 'Inativar' : 'Ativar' %></span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+    </article>
+
+    <article class="administracao-panel card-elevated">
+      <header class="administracao-panel-head">
+        <div>
+          <p class="administracao-panel-eyebrow">Presenca</p>
+          <h2>Justificativas de presenca</h2>
+          <p>Monte a biblioteca oficial de justificativas usadas nas faltas e cancelamentos.</p>
+        </div>
+        <span class="badge-soft"><%= metrics.justificativasAtivas || 0 %> ativas</span>
+      </header>
+
+      <form class="administracao-form" data-admin-reason-form>
+        <input type="hidden" name="id" value="" />
+        <div class="administracao-form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Nome *</span>
+            <input class="input-control" type="text" name="nome" maxlength="120" required />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Ativa</span>
+            <select class="input-control" name="ativo">
+              <option value="true">Sim</option>
+              <option value="false">Nao</option>
+            </select>
+          </label>
+
+          <label class="field-wrap span-2">
+            <span class="input-label">Descricao</span>
+            <textarea class="input-control textarea-control" name="descricao" rows="3" maxlength="320" placeholder="Quando essa justificativa deve ser usada?"></textarea>
+          </label>
+
+          <fieldset class="administracao-checklist span-2">
+            <legend>Aplicar em</legend>
+            <% (options.presenceStatuses || []).forEach((status) => { %>
+              <label class="check-card">
+                <input type="checkbox" name="aplicaEm" value="<%= status.value %>" />
+                <span><%= status.label %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+
+          <label class="field-wrap">
+            <span class="input-label">Ordem</span>
+            <input class="input-control" type="number" name="ordem" min="0" step="1" value="0" />
+          </label>
+        </div>
+
+        <div class="administracao-form-actions">
+          <button type="submit" class="btn btn-primary" data-admin-reason-submit>Salvar justificativa</button>
+          <button type="button" class="btn btn-muted" data-admin-reason-reset>Limpar</button>
+        </div>
+      </form>
+
+      <div class="administracao-list" data-admin-reason-list>
+        <% if (!justificativas.length) { %>
+          <p class="empty-hint">Nenhuma justificativa cadastrada ainda.</p>
+        <% } else { %>
+          <% justificativas.forEach((item) => { %>
+            <article class="administracao-item-card <%= item.ativo ? '' : 'is-inactive' %>">
+              <div>
+                <strong><%= item.nome %></strong>
+                <p><%= item.descricao || 'Sem descricao registrada.' %></p>
+                <div class="administracao-tag-row">
+                  <% (item.aplicaEmLabels || []).forEach((label) => { %>
+                    <span class="badge-soft"><%= label %></span>
+                  <% }) %>
+                </div>
+              </div>
+              <div class="administracao-item-meta">
+                <span class="status-badge <%= item.ativo ? 'status-active' : 'status-inactive' %>"><%= item.ativo ? 'Ativa' : 'Inativa' %></span>
+                <div class="administracao-item-actions">
+                  <button
+                    type="button"
+                    class="table-action-btn table-action-btn-edit"
+                    data-reason-edit
+                    data-reason-payload="<%= encodeURIComponent(JSON.stringify(item)) %>"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="table-action-btn <%= item.ativo ? 'table-action-btn-danger' : 'table-action-btn-success' %>"
+                    data-reason-toggle
+                    data-reason-id="<%= item._id %>"
+                    data-reason-next="<%= item.ativo ? 'false' : 'true' %>"
+                  >
+                    <i class="fa-solid <%= item.ativo ? 'fa-user-slash' : 'fa-power-off' %>"></i>
+                    <span><%= item.ativo ? 'Inativar' : 'Ativar' %></span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+    </article>
+
+    <article class="administracao-panel card-elevated">
+      <header class="administracao-panel-head">
+        <div>
+          <p class="administracao-panel-eyebrow">Cadastro</p>
+          <h2>Campos extras</h2>
+          <p>Crie campos dinamicos para familia e usuario sem mexer no formulario toda vez.</p>
+        </div>
+        <span class="badge-soft"><%= metrics.camposAtivos || 0 %> ativos</span>
+      </header>
+
+      <form class="administracao-form" data-admin-field-form>
+        <input type="hidden" name="id" value="" />
+        <div class="administracao-form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Area *</span>
+            <select class="input-control" name="area" required>
+              <% (options.customFieldAreas || []).forEach((item) => { %>
+                <option value="<%= item.value %>"><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Tipo *</span>
+            <select class="input-control" name="tipo" required data-admin-field-type>
+              <% (options.customFieldTypes || []).forEach((item) => { %>
+                <option value="<%= item.value %>"><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Nome do campo *</span>
+            <input class="input-control" type="text" name="label" maxlength="120" required />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Chave tecnica</span>
+            <input class="input-control" type="text" name="chave" maxlength="80" placeholder="Opcional. Ex.: convenio_social" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Ativo</span>
+            <select class="input-control" name="ativo">
+              <option value="true">Sim</option>
+              <option value="false">Nao</option>
+            </select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Ordem</span>
+            <input class="input-control" type="number" name="ordem" min="0" step="1" value="0" />
+          </label>
+
+          <label class="field-wrap span-2">
+            <span class="input-label">Placeholder</span>
+            <input class="input-control" type="text" name="placeholder" maxlength="180" />
+          </label>
+
+          <label class="field-wrap span-2">
+            <span class="input-label">Ajuda</span>
+            <input class="input-control" type="text" name="ajuda" maxlength="240" placeholder="Texto auxiliar visivel no formulario" />
+          </label>
+
+          <label class="field-wrap span-2" data-admin-field-options-wrap hidden>
+            <span class="input-label">Opcoes do select</span>
+            <textarea class="input-control textarea-control" name="opcoes" rows="4" placeholder="Uma opcao por linha"></textarea>
+          </label>
+
+          <label class="check-card check-card-inline">
+            <input type="checkbox" name="obrigatorio" value="true" />
+            <span>Campo obrigatorio</span>
+          </label>
+        </div>
+
+        <div class="administracao-form-actions">
+          <button type="submit" class="btn btn-primary" data-admin-field-submit>Salvar campo</button>
+          <button type="button" class="btn btn-muted" data-admin-field-reset>Limpar</button>
+        </div>
+      </form>
+
+      <div class="administracao-list" data-admin-field-list>
+        <% if (!campos.length) { %>
+          <p class="empty-hint">Nenhum campo extra configurado ainda.</p>
+        <% } else { %>
+          <% campos.forEach((item) => { %>
+            <article class="administracao-item-card <%= item.ativo ? '' : 'is-inactive' %>">
+              <div>
+                <strong><%= item.label %></strong>
+                <p><%= item.areaLabel %> - <%= item.tipoLabel %> - chave <code><%= item.chave %></code></p>
+                <% if (item.ajuda) { %>
+                  <p><%= item.ajuda %></p>
+                <% } %>
+                <% if (item.opcoes && item.opcoes.length) { %>
+                  <div class="administracao-tag-row">
+                    <% item.opcoes.forEach((opcao) => { %>
+                      <span class="badge-soft"><%= opcao %></span>
+                    <% }) %>
+                  </div>
+                <% } %>
+              </div>
+              <div class="administracao-item-meta">
+                <span class="status-badge <%= item.ativo ? 'status-active' : 'status-inactive' %>"><%= item.ativo ? 'Ativo' : 'Inativo' %></span>
+                <div class="administracao-item-actions">
+                  <button
+                    type="button"
+                    class="table-action-btn table-action-btn-edit"
+                    data-field-edit
+                    data-field-payload="<%= encodeURIComponent(JSON.stringify(item)) %>"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="table-action-btn <%= item.ativo ? 'table-action-btn-danger' : 'table-action-btn-success' %>"
+                    data-field-toggle
+                    data-field-id="<%= item._id %>"
+                    data-field-next="<%= item.ativo ? 'false' : 'true' %>"
+                  >
+                    <i class="fa-solid <%= item.ativo ? 'fa-user-slash' : 'fa-power-off' %>"></i>
+                    <span><%= item.ativo ? 'Inativar' : 'Ativar' %></span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+    </article>
+
+    <article class="administracao-panel card-elevated">
+      <header class="administracao-panel-head">
+        <div>
+          <p class="administracao-panel-eyebrow">Navegacao</p>
+          <h2>Filtros rapidos</h2>
+          <p>Crie atalhos de filtro para aparecer nas telas mais usadas da operacao.</p>
+        </div>
+        <span class="badge-soft"><%= metrics.filtrosAtivos || 0 %> ativos</span>
+      </header>
+
+      <form class="administracao-form" data-admin-filter-form>
+        <input type="hidden" name="id" value="" />
+        <input type="hidden" name="valor" value="" />
+        <div class="administracao-form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Area *</span>
+            <select class="input-control" name="area" required data-admin-filter-area>
+              <% (options.quickFilterAreas || []).forEach((item) => { %>
+                <option value="<%= item.value %>"><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Campo *</span>
+            <select class="input-control" name="campo" required data-admin-filter-field></select>
+          </label>
+
+          <label class="field-wrap" data-admin-filter-value-wrap>
+            <span class="input-label">Valor *</span>
+            <input class="input-control" type="text" name="valorInput" required data-admin-filter-value-input />
+            <select class="input-control" name="valorSelect" hidden data-admin-filter-value-select></select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Nome do atalho *</span>
+            <input class="input-control" type="text" name="nome" maxlength="100" required />
+          </label>
+
+          <label class="field-wrap span-2">
+            <span class="input-label">Descricao</span>
+            <input class="input-control" type="text" name="descricao" maxlength="220" placeholder="Texto curto para orientar a equipe" />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Ativo</span>
+            <select class="input-control" name="ativo">
+              <option value="true">Sim</option>
+              <option value="false">Nao</option>
+            </select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Ordem</span>
+            <input class="input-control" type="number" name="ordem" min="0" step="1" value="0" />
+          </label>
+
+          <label class="check-card check-card-inline">
+            <input type="checkbox" name="destaque" value="true" />
+            <span>Mostrar como destaque</span>
+          </label>
+        </div>
+
+        <div class="administracao-form-actions">
+          <button type="submit" class="btn btn-primary" data-admin-filter-submit>Salvar filtro</button>
+          <button type="button" class="btn btn-muted" data-admin-filter-reset>Limpar</button>
+        </div>
+      </form>
+
+      <div class="administracao-list" data-admin-filter-list>
+        <% if (!filtros.length) { %>
+          <p class="empty-hint">Nenhum filtro rapido cadastrado ainda.</p>
+        <% } else { %>
+          <% filtros.forEach((item) => { %>
+            <article class="administracao-item-card <%= item.ativo ? '' : 'is-inactive' %>">
+              <div>
+                <strong><%= item.nome %></strong>
+                <p><%= item.areaLabel %> - <%= item.campoLabel %>: <%= item.valorLabel %></p>
+                <% if (item.descricao) { %>
+                  <p><%= item.descricao %></p>
+                <% } %>
+              </div>
+              <div class="administracao-item-meta">
+                <span class="status-badge <%= item.ativo ? 'status-active' : 'status-inactive' %>"><%= item.ativo ? 'Ativo' : 'Inativo' %></span>
+                <div class="administracao-item-actions">
+                  <a href="<%= item.href %>" class="table-action-btn table-action-btn-neutral" target="_blank" rel="noreferrer">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <span>Ver</span>
+                  </a>
+                  <button
+                    type="button"
+                    class="table-action-btn table-action-btn-edit"
+                    data-filter-edit
+                    data-filter-payload="<%= encodeURIComponent(JSON.stringify(item)) %>"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="table-action-btn <%= item.ativo ? 'table-action-btn-danger' : 'table-action-btn-success' %>"
+                    data-filter-toggle
+                    data-filter-id="<%= item._id %>"
+                    data-filter-next="<%= item.ativo ? 'false' : 'true' %>"
+                  >
+                    <i class="fa-solid <%= item.ativo ? 'fa-user-slash' : 'fa-power-off' %>"></i>
+                    <span><%= item.ativo ? 'Inativar' : 'Ativar' %></span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+    </article>
+  </section>
+</section>
+
+<script id="administracao-initial" type="application/json"><%- JSON.stringify(adminSnapshot || {}) %></script>

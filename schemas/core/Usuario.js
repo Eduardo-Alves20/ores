@@ -90,6 +90,11 @@ const UsuarioSchema = new mongoose.Schema(
       default: "",
       maxlength: 500,
     },
+    camposExtras: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
 
     votosAprovacao: [
       {

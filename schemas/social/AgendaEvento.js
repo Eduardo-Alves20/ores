@@ -11,6 +11,21 @@ const TIPOS_AGENDA = [
 
 const AGENDA_ROOM_REQUIRED_TYPES = ["atendimento_sede"];
 const AGENDA_DEFAULT_DURATION_MINUTES = 30;
+const AGENDA_STATUS_LIST = [
+  "agendado",
+  "encerrado",
+  "cancelado",
+  "em_analise_cancelamento",
+  "em_negociacao_remarcacao",
+  "remarcado",
+];
+const AGENDA_PRESENCA_STATUS_LIST = [
+  "pendente",
+  "presente",
+  "falta",
+  "falta_justificada",
+  "cancelado_antecipadamente",
+];
 
 const AgendaEventoSchema = new mongoose.Schema(
   {
@@ -50,6 +65,45 @@ const AgendaEventoSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 3000,
+    },
+    statusAgendamento: {
+      type: String,
+      enum: AGENDA_STATUS_LIST,
+      default: "agendado",
+      index: true,
+    },
+    statusPresenca: {
+      type: String,
+      enum: AGENDA_PRESENCA_STATUS_LIST,
+      default: "pendente",
+      index: true,
+    },
+    presencaObservacao: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 1000,
+    },
+    presencaJustificativaKey: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 160,
+    },
+    presencaJustificativaLabel: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: 160,
+    },
+    presencaRegistradaEm: {
+      type: Date,
+      default: null,
+    },
+    presencaRegistradaPor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      default: null,
     },
     familiaId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -110,4 +164,6 @@ module.exports = {
   TIPOS_AGENDA,
   AGENDA_ROOM_REQUIRED_TYPES,
   AGENDA_DEFAULT_DURATION_MINUTES,
+  AGENDA_STATUS_LIST,
+  AGENDA_PRESENCA_STATUS_LIST,
 };

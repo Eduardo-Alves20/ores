@@ -1,10 +1,12 @@
-﻿const UsuarioService = require("../../services/domain/UsuarioService");
+const UsuarioService = require("../../services/domain/UsuarioService");
 const Familia = require("../../schemas/social/Familia");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { Atendimento, TIPOS_ATENDIMENTO } = require("../../schemas/social/Atendimento");
+const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const { PERFIS } = require("../../config/roles");
 
 const USER_FAMILIA_LIMIT_OPTIONS = [9, 12, 18, 30, 60];
+const USER_AGENDA_LIMIT = 12;
 
 function mapTipoCadastroLabel(tipoCadastro) {
   if (tipoCadastro === "familia") return "Familia";
@@ -56,6 +58,29 @@ function mapMonthLabel(dateLike) {
   return label.replace(/^\w/, (c) => c.toUpperCase());
 }
 
+function mapAgendaStatusLabel(status) {
+  const labels = {
+    agendado: "Agendado",
+    encerrado: "Encerrado",
+    cancelado: "Cancelado",
+    em_analise_cancelamento: "Em analise de cancelamento",
+    em_negociacao_remarcacao: "Em negociacao de remarcacao",
+    remarcado: "Remarcado",
+  };
+  return labels[String(status || "").trim()] || "Agendado";
+}
+
+function mapPresenceStatusLabel(status) {
+  const labels = {
+    pendente: "Pendente",
+    presente: "Presente",
+    falta: "Falta",
+    falta_justificada: "Falta justificada",
+    cancelado_antecipadamente: "Cancelado antecipadamente",
+  };
+  return labels[String(status || "").trim()] || "Pendente";
+}
+
 function escapeRegex(value) {
   return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -82,6 +107,40 @@ function parseFiltroLimit(raw) {
   const parsed = Number.parseInt(String(raw || ""), 10);
   if (USER_FAMILIA_LIMIT_OPTIONS.includes(parsed)) return parsed;
   return 18;
+}
+
+function mapAgendaCard(item) {
+  return {
+    id: String(item?._id || ""),
+    titulo: item?.titulo || "Agendamento",
+    dataHoraIso: item?.inicio ? new Date(item.inicio).toISOString() : "",
+    dataHoraLabel: mapDateTimeLabel(item?.inicio),
+    diaLabel: mapDayLabel(item?.inicio),
+    profissionalNome: item?.responsavelId?.nome || "Nao informado",
+    salaNome: item?.salaId?.nome || "-",
+    local: item?.local || "-",
+    statusAgendamento: item?.statusAgendamento || "agendado",
+    statusAgendamentoLabel: mapAgendaStatusLabel(item?.statusAgendamento),
+    statusPresenca: item?.statusPresenca || "pendente",
+    statusPresencaLabel: mapPresenceStatusLabel(item?.statusPresenca),
+    observacoes: item?.observacoes || "-",
+    presencaObservacao: item?.presencaObservacao || "",
+  };
+}
+
+async function findLinkedFamily(usuario) {
+  const email = String(usuario?.email || "").toLowerCase().trim();
+  const telefone = String(usuario?.telefone || "").trim();
+
+  const filtroFamilia = {
+    $or: [{ "responsavel.email": email }],
+  };
+
+  if (telefone) {
+    filtroFamilia.$or.push({ "responsavel.telefone": telefone });
+  }
+
+  return Familia.findOne(filtroFamilia).lean();
 }
 
 class PortalUsuarioController {
@@ -160,9 +219,12 @@ class PortalUsuarioController {
         filtros.dataInicio = filtros.dataFim;
         filtros.dataFim = aux;
       }
+
       let familia = null;
       let cards = [];
       let cardsPorMes = [];
+      let proximosAgendamentos = [];
+      let historicoAgendamentos = [];
       const totais = {
         total: 0,
         ativos: 0,
@@ -170,19 +232,7 @@ class PortalUsuarioController {
       };
 
       if (isFamilia) {
-        const email = String(usuario?.email || "").toLowerCase().trim();
-        const telefone = String(usuario?.telefone || "").trim();
-        const filtroFamilia = {
-          $or: [
-            { "responsavel.email": email },
-          ],
-        };
-
-        if (telefone) {
-          filtroFamilia.$or.push({ "responsavel.telefone": telefone });
-        }
-
-        familia = await Familia.findOne(filtroFamilia).lean();
+        familia = await findLinkedFamily(usuario);
 
         if (familia?._id) {
           const filtroAtendimento = {
@@ -232,15 +282,47 @@ class PortalUsuarioController {
             filtroAtendimento.$or = orBusca;
           }
 
-          const atendimentos = await Atendimento.find(filtroAtendimento)
-            .populate("pacienteId", "_id nome")
-            .sort({ dataHora: -1 })
-            .limit(filtros.limit)
-            .lean();
+          const inicioHoje = new Date();
+          inicioHoje.setHours(0, 0, 0, 0);
+
+          const [atendimentos, agendaFutura, agendaHistorico] = await Promise.all([
+            Atendimento.find(filtroAtendimento)
+              .populate("pacienteId", "_id nome")
+              .sort({ dataHora: -1 })
+              .limit(filtros.limit)
+              .lean(),
+            AgendaEvento.find({
+              familiaId: familia._id,
+              ativo: true,
+              inicio: { $gte: inicioHoje },
+              statusAgendamento: { $ne: "cancelado" },
+            })
+              .populate("responsavelId", "_id nome")
+              .populate("salaId", "_id nome")
+              .sort({ inicio: 1 })
+              .limit(USER_AGENDA_LIMIT)
+              .lean(),
+            AgendaEvento.find({
+              familiaId: familia._id,
+              $or: [
+                { inicio: { $lt: inicioHoje } },
+                { statusPresenca: { $ne: "pendente" } },
+                { statusAgendamento: { $in: ["cancelado", "encerrado", "remarcado"] } },
+              ],
+            })
+              .populate("responsavelId", "_id nome")
+              .populate("salaId", "_id nome")
+              .sort({ inicio: -1 })
+              .limit(USER_AGENDA_LIMIT)
+              .lean(),
+          ]);
 
           totais.total = atendimentos.length;
           totais.ativos = atendimentos.filter((item) => !!item?.ativo).length;
           totais.inativos = Math.max(totais.total - totais.ativos, 0);
+
+          proximosAgendamentos = agendaFutura.map(mapAgendaCard);
+          historicoAgendamentos = agendaHistorico.map(mapAgendaCard);
 
           cards = atendimentos.map((item) => ({
             id: String(item?._id || ""),
@@ -285,7 +367,7 @@ class PortalUsuarioController {
         navKey: "minha-familia",
         layout: "partials/app.ejs",
         pageClass: "page-usuario-minha-familia",
-        extraCss: ["/css/familias.css", "/css/usuario-familia.css"],
+        extraCss: ["/css/usuario-familia.css"],
         extraJs: ["/js/usuario-familia.js"],
         usuario,
         tipoCadastroLabel: mapTipoCadastroLabel(usuario?.tipoCadastro),
@@ -293,6 +375,8 @@ class PortalUsuarioController {
         familia,
         cards,
         cardsPorMes,
+        proximosAgendamentos,
+        historicoAgendamentos,
         totais,
         filtros,
       });
@@ -310,5 +394,3 @@ class PortalUsuarioController {
 }
 
 module.exports = PortalUsuarioController;
-
-

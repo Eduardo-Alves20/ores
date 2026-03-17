@@ -1,0 +1,514 @@
+<%
+  const renderBaseHiddenFilters = () => `
+    <input type="hidden" name="dataInicio" value="${filtros?.dataInicio || ""}" />
+    <input type="hidden" name="dataFim" value="${filtros?.dataFim || ""}" />
+    <input type="hidden" name="mes" value="${filtros?.mes || ""}" />
+    <input type="hidden" name="dia" value="${filtros?.dia || ""}" />
+    <input type="hidden" name="responsavelId" value="${filtros?.responsavelId || ""}" />
+    <input type="hidden" name="statusPresenca" value="${filtros?.statusPresenca || "todos"}" />
+  `;
+%>
+
+<div class="presenca-app-shell" data-presenca-app>
+<section class="page-shell presenca-page presenca-detail-page">
+  <header class="presenca-hero card-elevated">
+    <div class="presenca-hero-copy">
+      <p class="presenca-overline">Analise detalhada</p>
+      <h2><%= detail?.title || 'Analise de presencas' %></h2>
+      <p><%= detail?.subtitle || 'Aprofunde a leitura do comparecimento e encontre rapidamente o que exige acao.' %></p>
+    </div>
+    <div class="presenca-hero-side">
+      <div class="agenda-presenca-kpis">
+        <span class="agenda-presenca-kpi is-total"><%= Number(resumo?.total || 0) %> registros</span>
+        <span class="agenda-presenca-kpi is-presente"><%= Number(resumo?.presente || 0) %> presencas</span>
+        <span class="agenda-presenca-kpi is-falta"><%= Number(resumo?.falta || 0) %> faltas</span>
+        <span class="agenda-presenca-kpi is-pendente"><%= Number(resumo?.faltaJustificada || 0) %> justificadas</span>
+      </div>
+      <a href="<%= detail?.backHref || '/agenda/presencas' %>" class="btn btn-muted">
+        <i class="fa-solid fa-arrow-left"></i>
+        Voltar para painel
+      </a>
+    </div>
+  </header>
+
+  <nav class="presenca-section-nav card-elevated" aria-label="Areas de analise da presenca">
+    <% (detail?.sectionNav || []).forEach((item) => { %>
+      <a href="<%= item.href %>" class="presenca-section-nav-link <%= item.key === detail?.key ? 'is-active' : '' %>">
+        <span><%= item.label %></span>
+        <strong><%= Number(item.count || 0) %></strong>
+      </a>
+    <% }) %>
+  </nav>
+
+  <% if (Array.isArray(filtrosResumo) && filtrosResumo.length) { %>
+    <section class="presenca-active-filters card-elevated">
+      <div>
+        <p class="presenca-overline">Filtro base do painel</p>
+        <h3>Esta analise respeita o recorte que voce definiu na agenda de presenca</h3>
+      </div>
+      <div class="presenca-active-filter-list">
+        <% filtrosResumo.forEach((chip) => { %>
+          <span class="presenca-active-filter-chip is-<%= chip.tone || 'neutral' %>"><%= chip.label %></span>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="presenca-detail-toolbar card-elevated">
+    <header class="presenca-panel-head">
+      <div>
+        <p class="presenca-overline">Filtro da area</p>
+        <h3>Refine a leitura desta analise</h3>
+      </div>
+      <small>Esses filtros nao alteram o recorte base da agenda, so a forma como a area atual e exibida.</small>
+    </header>
+
+    <form method="get" action="/agenda/presencas/analise/<%= detail?.key %>" class="presenca-detail-filter-form">
+      <%- renderBaseHiddenFilters() %>
+
+      <% if (detail?.key === 'semanas') { %>
+        <label class="field-wrap">
+          <span class="input-label">Ordenar foco</span>
+          <select class="input-control" name="focoSemanal">
+            <option value="faltas" <%= detail?.filters?.focus === 'faltas' ? 'selected' : '' %>>Semanas com mais ausencias</option>
+            <option value="comparecimento" <%= detail?.filters?.focus === 'comparecimento' ? 'selected' : '' %>>Melhor comparecimento</option>
+            <option value="justificadas" <%= detail?.filters?.focus === 'justificadas' ? 'selected' : '' %>>Mais justificativas</option>
+            <option value="volume" <%= detail?.filters?.focus === 'volume' ? 'selected' : '' %>>Maior volume de agenda</option>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Minimo de agendas</span>
+          <select class="input-control" name="minEventosSemanal">
+            <% [1, 2, 3, 5].forEach((value) => { %>
+              <option value="<%= value %>" <%= Number(detail?.filters?.minEventos || 1) === value ? 'selected' : '' %>><%= value %> ou mais</option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Recorte</span>
+          <select class="input-control" name="somenteSemanasCriticas">
+            <option value="0" <%= detail?.filters?.somenteSemanasCriticas ? '' : 'selected' %>>Todas as semanas</option>
+            <option value="1" <%= detail?.filters?.somenteSemanasCriticas ? 'selected' : '' %>>Somente semanas com ausencia</option>
+          </select>
+        </label>
+      <% } %>
+
+      <% if (detail?.key === 'assistidos') { %>
+        <label class="field-wrap">
+          <span class="input-label">Ordenar por</span>
+          <select class="input-control" name="ordenarAssistidos">
+            <option value="faltas" <%= detail?.filters?.ordenar === 'faltas' ? 'selected' : '' %>>Mais faltas</option>
+            <option value="justificadas" <%= detail?.filters?.ordenar === 'justificadas' ? 'selected' : '' %>>Mais justificativas</option>
+            <option value="taxa_ausencia" <%= detail?.filters?.ordenar === 'taxa_ausencia' ? 'selected' : '' %>>Maior taxa de ausencia</option>
+            <option value="sequencia" <%= detail?.filters?.ordenar === 'sequencia' ? 'selected' : '' %>>Maior sequencia atual</option>
+            <option value="volume" <%= detail?.filters?.ordenar === 'volume' ? 'selected' : '' %>>Maior volume de agenda</option>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Minimo de agendas</span>
+          <select class="input-control" name="minEventosAssistidos">
+            <% [1, 2, 3, 5, 8].forEach((value) => { %>
+              <option value="<%= value %>" <%= Number(detail?.filters?.minEventos || 1) === value ? 'selected' : '' %>><%= value %> ou mais</option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Mostrar</span>
+          <select class="input-control" name="somenteComAusenciaAssistidos">
+            <option value="0" <%= detail?.filters?.somenteComAusencia ? '' : 'selected' %>>Todos os assistidos</option>
+            <option value="1" <%= detail?.filters?.somenteComAusencia ? 'selected' : '' %>>Somente com ausencia</option>
+          </select>
+        </label>
+      <% } %>
+
+      <% if (detail?.key === 'profissionais') { %>
+        <label class="field-wrap">
+          <span class="input-label">Ordenar por</span>
+          <select class="input-control" name="ordenarProfissionais">
+            <option value="faltas" <%= detail?.filters?.ordenar === 'faltas' ? 'selected' : '' %>>Mais ausencias</option>
+            <option value="justificadas" <%= detail?.filters?.ordenar === 'justificadas' ? 'selected' : '' %>>Mais justificativas</option>
+            <option value="taxa_comparecimento" <%= detail?.filters?.ordenar === 'taxa_comparecimento' ? 'selected' : '' %>>Melhor comparecimento</option>
+            <option value="volume" <%= detail?.filters?.ordenar === 'volume' ? 'selected' : '' %>>Maior volume</option>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Minimo de agendas</span>
+          <select class="input-control" name="minEventosProfissionais">
+            <% [1, 2, 3, 5, 8].forEach((value) => { %>
+              <option value="<%= value %>" <%= Number(detail?.filters?.minEventos || 1) === value ? 'selected' : '' %>><%= value %> ou mais</option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Mostrar</span>
+          <select class="input-control" name="somenteComAusenciaProfissionais">
+            <option value="0" <%= detail?.filters?.somenteComAusencia ? '' : 'selected' %>>Todos os profissionais</option>
+            <option value="1" <%= detail?.filters?.somenteComAusencia ? 'selected' : '' %>>Somente com ausencia</option>
+          </select>
+        </label>
+      <% } %>
+
+      <% if (detail?.key === 'ocorrencias') { %>
+        <label class="field-wrap">
+          <span class="input-label">Tipo de ocorrencia</span>
+          <select class="input-control" name="tipoOcorrencia">
+            <option value="todos" <%= detail?.filters?.tipoOcorrencia === 'todos' ? 'selected' : '' %>>Faltas, justificativas e cancelamentos</option>
+            <option value="falta" <%= detail?.filters?.tipoOcorrencia === 'falta' ? 'selected' : '' %>>Somente faltas</option>
+            <option value="falta_justificada" <%= detail?.filters?.tipoOcorrencia === 'falta_justificada' ? 'selected' : '' %>>Somente justificadas</option>
+            <option value="cancelado_antecipadamente" <%= detail?.filters?.tipoOcorrencia === 'cancelado_antecipadamente' ? 'selected' : '' %>>Somente canceladas</option>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Detalhe</span>
+          <select class="input-control" name="somenteComObservacaoOcorrencias">
+            <option value="0" <%= detail?.filters?.somenteComObservacao ? '' : 'selected' %>>Com ou sem observacao</option>
+            <option value="1" <%= detail?.filters?.somenteComObservacao ? 'selected' : '' %>>Somente com observacao</option>
+          </select>
+        </label>
+
+        <label class="field-wrap">
+          <span class="input-label">Quantidade</span>
+          <select class="input-control" name="limiteOcorrencias">
+            <% [20, 50, 100].forEach((value) => { %>
+              <option value="<%= value %>" <%= Number(detail?.filters?.limite || 20) === value ? 'selected' : '' %>><%= value %> ocorrencias</option>
+            <% }) %>
+          </select>
+        </label>
+      <% } %>
+
+      <div class="presenca-detail-filter-actions">
+        <button type="submit" class="btn btn-primary">Aplicar analise</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="presenca-detail-summary-grid">
+    <% (detail?.summaryCards || []).forEach((card) => { %>
+      <article class="presenca-detail-summary-card card-elevated is-<%= card.tone || 'neutral' %>">
+        <span class="presenca-kpi-label"><%= card.label %></span>
+        <strong><%= card.value %></strong>
+        <small><%= card.meta %></small>
+      </article>
+    <% }) %>
+  </section>
+
+  <% if (detail?.key === 'semanas') { %>
+    <section class="presenca-detail-layout">
+      <article class="presenca-panel card-elevated">
+        <header class="presenca-panel-head">
+          <div>
+            <p class="presenca-overline">Leitura rapida</p>
+            <h3>Semanas que mais merecem atencao</h3>
+          </div>
+          <small>O topo muda conforme o filtro de ordenacao escolhido.</small>
+        </header>
+
+        <% if ((detail?.rows || []).length > 0) { %>
+          <div class="presenca-week-list">
+            <% (detail?.rows || []).slice(0, 8).forEach((semana) => { %>
+              <article class="presenca-week-card">
+                <div class="presenca-week-head">
+                  <strong><%= semana.label %></strong>
+                  <span><%= semana.total %> agenda(s)</span>
+                </div>
+                <div class="presenca-week-bar" aria-hidden="true">
+                  <span class="is-presente" style="width: <%= semana.taxaComparecimento %>%"></span>
+                  <span class="is-falta" style="width: <%= semana.total ? Math.round((semana.faltas / semana.total) * 100) : 0 %>%"></span>
+                  <span class="is-justificada" style="width: <%= semana.total ? Math.round((semana.justificadas / semana.total) * 100) : 0 %>%"></span>
+                </div>
+                <div class="presenca-week-stats">
+                  <span class="pill is-presente"><%= semana.presentes %> presentes</span>
+                  <span class="pill is-falta"><%= semana.faltas %> faltas</span>
+                  <span class="pill is-justificada"><%= semana.justificadas %> justificadas</span>
+                </div>
+                <p class="presenca-week-footnote">
+                  <strong>Assistido mais critico:</strong> <%= semana.assistidoCriticoNome %>
+                  <% if (semana.assistidoCriticoQtd) { %>
+                    (<%= semana.assistidoCriticoQtd %>)
+                  <% } %>
+                </p>
+              </article>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="empty-hint">Nenhuma semana encontrada com esse recorte.</p>
+        <% } %>
+      </article>
+
+      <article class="presenca-panel card-elevated">
+        <header class="presenca-panel-head">
+          <div>
+            <p class="presenca-overline">Tabela completa</p>
+            <h3>Comparativo por semana</h3>
+          </div>
+        </header>
+
+        <% if ((detail?.rows || []).length > 0) { %>
+          <div class="presenca-ranking-table-wrap">
+            <table class="presenca-table">
+              <thead>
+                <tr>
+                  <th>Semana</th>
+                  <th>Agendas</th>
+                  <th>Presencas</th>
+                  <th>Ausencias</th>
+                  <th>Taxa de presenca</th>
+                  <th>Assistido critico</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% (detail?.rows || []).forEach((semana) => { %>
+                  <tr>
+                    <td><strong><%= semana.label %></strong></td>
+                    <td><%= semana.total %></td>
+                    <td><span class="pill is-presente"><%= semana.presentes %></span></td>
+                    <td><span class="pill is-falta"><%= semana.totalAusencias %></span></td>
+                    <td><%= semana.taxaComparecimento %>%</td>
+                    <td><%= semana.assistidoCriticoNome %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p class="empty-hint">Sem semanas para comparar nesse recorte.</p>
+        <% } %>
+      </article>
+    </section>
+  <% } %>
+
+  <% if (detail?.key === 'assistidos') { %>
+    <section class="presenca-detail-layout is-single">
+      <article class="presenca-panel card-elevated">
+        <header class="presenca-panel-head">
+          <div>
+            <p class="presenca-overline">Ranking operacional</p>
+            <h3>Assistidos com mais risco de ausencia</h3>
+          </div>
+          <small>Use a sequencia atual e a taxa de ausencia para decidir quem precisa de retorno primeiro.</small>
+        </header>
+
+        <% if ((detail?.rows || []).length > 0) { %>
+          <div class="presenca-ranking-table-wrap">
+            <table class="presenca-table">
+              <thead>
+                <tr>
+                  <th>Assistido</th>
+                  <th>Familia</th>
+                  <th>Profissional principal</th>
+                  <th>Presentes</th>
+                  <th>Faltas</th>
+                  <th>Justificadas</th>
+                  <th>Taxa de ausencia</th>
+                  <th>Sequencia</th>
+                  <th>Ultima ausencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% (detail?.rows || []).forEach((item) => { %>
+                  <tr class="<%= item.sequenciaAusencias >= 2 ? 'is-top' : '' %>">
+                    <td>
+                      <strong><%= item.nome %></strong>
+                      <small><%= item.total %> agenda(s) · status atual <%= item.ultimoStatusLabel %></small>
+                    </td>
+                    <td>
+                      <% if (item.familiaId) { %>
+                        <a href="/familias/<%= item.familiaId %>" class="presenca-inline-link"><%= item.familiaNome || '-' %></a>
+                      <% } else { %>
+                        <%= item.familiaNome || '-' %>
+                      <% } %>
+                    </td>
+                    <td><%= item.profissionalPrincipal %></td>
+                    <td><span class="pill is-presente"><%= item.presentes %></span></td>
+                    <td><span class="pill is-falta"><%= item.faltas %></span></td>
+                    <td><span class="pill is-justificada"><%= item.justificadas %></span></td>
+                    <td><%= item.taxaAusencia %>%</td>
+                    <td><%= item.sequenciaAusencias %></td>
+                    <td><%= item.ultimaAusenciaLabel %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p class="empty-hint">Nenhum assistido encontrado com os filtros atuais.</p>
+        <% } %>
+      </article>
+    </section>
+  <% } %>
+
+  <% if (detail?.key === 'profissionais') { %>
+    <section class="presenca-detail-layout is-single">
+      <article class="presenca-panel card-elevated">
+        <header class="presenca-panel-head">
+          <div>
+            <p class="presenca-overline"><%= canViewAll ? 'Comparativo da equipe' : 'Minha consolidacao' %></p>
+            <h3><%= canViewAll ? 'Profissionais por desempenho no periodo' : 'Minha agenda e comparecimento no periodo' %></h3>
+          </div>
+          <small>Compare taxa de comparecimento, volume e pacientes mais sensiveis por responsavel.</small>
+        </header>
+
+        <% if ((detail?.rows || []).length > 0) { %>
+          <div class="presenca-ranking-table-wrap">
+            <table class="presenca-table">
+              <thead>
+                <tr>
+                  <th>Profissional</th>
+                  <th>Agendas</th>
+                  <th>Presencas</th>
+                  <th>Ausencias</th>
+                  <th>Taxa de presenca</th>
+                  <th>Assistido critico</th>
+                  <th>Ultima ocorrencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% (detail?.rows || []).forEach((item) => { %>
+                  <tr>
+                    <td><strong><%= item.nome %></strong></td>
+                    <td><%= item.total %></td>
+                    <td><span class="pill is-presente"><%= item.presentes %></span></td>
+                    <td><span class="pill is-falta"><%= item.totalAusencias %></span></td>
+                    <td><%= item.taxaComparecimento %>%</td>
+                    <td>
+                      <%= item.assistidoCritico %>
+                      <% if (item.assistidoCriticoQtd) { %>
+                        <small><%= item.assistidoCriticoQtd %> ausencia(s)</small>
+                      <% } %>
+                    </td>
+                    <td><%= item.ultimaOcorrenciaLabel %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p class="empty-hint">Nenhum profissional encontrado com esse filtro.</p>
+        <% } %>
+      </article>
+    </section>
+  <% } %>
+
+  <% if (detail?.key === 'ocorrencias') { %>
+    <section class="presenca-detail-layout is-single">
+      <article class="presenca-panel card-elevated">
+        <header class="presenca-panel-head">
+          <div>
+            <p class="presenca-overline">Fila de acompanhamento</p>
+            <h3>Ocorrencias mais recentes para agir</h3>
+          </div>
+          <small>Clique em uma ocorrencia para abrir a ficha da presenca e registre observacoes ou status final.</small>
+        </header>
+
+        <% if ((detail?.rows || []).length > 0) { %>
+          <div class="presenca-occurrence-list">
+            <% (detail?.rows || []).forEach((ocorrencia) => { %>
+              <article
+                class="presenca-occurrence-card presenca-occurrence-card--interactive"
+                data-presenca-event-id="<%= ocorrencia.id %>"
+                role="button"
+                tabindex="0"
+                aria-label="Abrir ficha da ocorrencia de <%= ocorrencia.pacienteNome %>"
+              >
+                <div class="presenca-occurrence-top">
+                  <div>
+                    <strong><%= ocorrencia.pacienteNome %></strong>
+                    <span><%= ocorrencia.titulo %></span>
+                  </div>
+                  <span class="pill <%= ocorrencia.statusPresenca === 'falta_justificada' ? 'is-justificada' : ocorrencia.statusPresenca === 'cancelado_antecipadamente' ? 'is-muted' : 'is-falta' %>">
+                    <%= ocorrencia.statusPresencaLabel %>
+                  </span>
+                </div>
+
+                <div class="presenca-occurrence-meta">
+                  <span><i class="fa-regular fa-clock"></i> <%= ocorrencia.dataHoraLabel %></span>
+                  <span><i class="fa-regular fa-user"></i> <%= ocorrencia.profissionalNome %></span>
+                  <span><i class="fa-regular fa-heart"></i> <%= ocorrencia.familiaNome %></span>
+                  <% if (ocorrencia.salaNome && ocorrencia.salaNome !== '-') { %>
+                    <span><i class="fa-regular fa-building"></i> <%= ocorrencia.salaNome %></span>
+                  <% } %>
+                </div>
+
+                <p><%= ocorrencia.observacao || 'Sem observacao registrada para esta ocorrencia.' %></p>
+
+                <div class="presenca-occurrence-actions">
+                  <% if (ocorrencia.familiaId) { %>
+                    <a href="/familias/<%= ocorrencia.familiaId %>" class="btn btn-muted">Ver familia</a>
+                  <% } %>
+                  <span class="presenca-inline-link">Abrir ficha da presenca</span>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="empty-hint">Nenhuma ocorrencia localizada com esse recorte.</p>
+        <% } %>
+      </article>
+    </section>
+  <% } %>
+</section>
+
+<div class="agenda-modal-backdrop" id="agenda-presenca-backdrop" hidden>
+  <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-presenca-title">
+    <header class="agenda-modal-head">
+      <div>
+        <h3 id="agenda-presenca-title">Ficha da presenca</h3>
+        <p class="agenda-modal-subtitle" id="agenda-presenca-subtitle">Carregando detalhes do agendamento...</p>
+      </div>
+      <button type="button" class="btn btn-muted btn-icon" id="agenda-presenca-close" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="agenda-presenca-shell">
+      <section class="agenda-presenca-status-box">
+        <p class="agenda-presenca-label">Status atual</p>
+        <div class="agenda-presenca-badges">
+          <span class="status-badge status-neutral" id="agenda-presenca-status-agendamento">Agendado</span>
+          <span class="status-badge status-neutral" id="agenda-presenca-status-presenca">Pendente</span>
+        </div>
+      </section>
+
+      <label class="field-wrap">
+        <span class="input-label">Justificativa oficial</span>
+        <select class="input-control" id="agenda-presenca-justificativa">
+          <option value="">Sem justificativa oficial</option>
+          <% (attendanceJustifications || []).forEach((item) => { %>
+            <option value="<%= item.nome %>"><%= item.nome %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Observacao interna</span>
+        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: familia avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
+      </label>
+
+      <div class="agenda-presenca-actions">
+        <button type="button" class="btn btn-primary" data-agenda-presenca-action="presente">Marcar Presente</button>
+        <button type="button" class="btn btn-warning" data-agenda-presenca-action="falta">Marcar Falta</button>
+        <button type="button" class="btn btn-muted" data-agenda-presenca-action="falta_justificada">Falta Justificada</button>
+        <button type="button" class="btn btn-muted" data-agenda-presenca-action="pendente">Voltar para Pendente</button>
+      </div>
+
+      <section class="agenda-presenca-history">
+        <header class="agenda-presenca-history-head">
+          <h4>Historico do agendamento</h4>
+        </header>
+        <div class="agenda-presenca-history-list" id="agenda-presenca-history-list">
+          <p class="empty-hint">Nenhum historico carregado.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+</div>
+
+<script id="agenda-presenca-justificativas" type="application/json"><%- JSON.stringify(attendanceJustifications || []) %></script>

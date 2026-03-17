@@ -597,6 +597,178 @@
   border-radius: 16px;
 }
 
+.presenca-familiar-hero {
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #ead9cf;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at right center, rgba(22, 163, 74, 0.1), transparent 28%),
+    linear-gradient(135deg, #fffdfb 0%, #f7f4ef 100%);
+}
+
+.presenca-familiar-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.presenca-familiar-copy h3 {
+  margin: 0;
+  color: #6d3322;
+  font-size: clamp(1.18rem, 2vw, 1.42rem);
+}
+
+.presenca-familiar-copy p:last-child {
+  margin: 0;
+  color: #7c6f67;
+  line-height: 1.55;
+}
+
+.presenca-resumo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.presenca-resumo-card {
+  border: 1px solid #ead9cf;
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 20px rgba(62, 34, 24, 0.05);
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.presenca-resumo-card:hover,
+.presenca-resumo-card:focus {
+  transform: translateY(-1px);
+  border-color: #d09a86;
+  box-shadow: 0 14px 24px rgba(83, 47, 34, 0.1);
+  outline: none;
+}
+
+.presenca-resumo-card.is-active {
+  border-color: #b24a32;
+  box-shadow: 0 0 0 3px rgba(178, 74, 50, 0.12), 0 14px 26px rgba(83, 47, 34, 0.1);
+  background: linear-gradient(180deg, #fffaf7 0%, #fff2ec 100%);
+}
+
+.presenca-resumo-card span {
+  color: #8c7b73;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.presenca-resumo-card strong {
+  color: #38241d;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.presenca-resumo-card.is-presente strong {
+  color: #15803d;
+}
+
+.presenca-resumo-card.is-falta strong {
+  color: #b91c1c;
+}
+
+.presenca-resumo-card.is-justificada strong {
+  color: #b45309;
+}
+
+.presenca-resumo-card.is-pendente strong {
+  color: #1d4ed8;
+}
+
+.presenca-cards-list {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.presenca-card {
+  border: 1px solid #eadbd1;
+  border-radius: 22px;
+  padding: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #fcf7f3 100%);
+  box-shadow: 0 14px 28px rgba(62, 34, 24, 0.08);
+  display: grid;
+  gap: 14px;
+}
+
+.presenca-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.presenca-card-head h4 {
+  margin: 0;
+  color: #3c261e;
+  font-size: 1.02rem;
+}
+
+.presenca-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.presenca-status-badge.is-presente {
+  color: #15803d;
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.16);
+}
+
+.presenca-status-badge.is-falta {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.16);
+}
+
+.presenca-status-badge.is-falta_justificada {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.18);
+}
+
+.presenca-status-badge.is-pendente,
+.presenca-status-badge.is-cancelado_antecipadamente {
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.16);
+}
+
+.presenca-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.presenca-card-grid p,
+.presenca-card-meta {
+  margin: 0;
+  color: #726661;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.presenca-card-note {
+  border-radius: 16px;
+  background: rgba(59, 130, 246, 0.08);
+  color: #324350;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .panel-head-actions {
   display: flex;
   gap: 8px;
@@ -811,6 +983,16 @@
   font-size: 0.86rem;
 }
 
+.familias-quick-filter-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.familias-quick-filter-link {
+  text-decoration: none;
+}
+
 @media (max-width: 1024px) {
   .filtro-grid,
   .form-grid {
@@ -893,6 +1075,11 @@
   .historico-spotlight-btn {
     width: 100%;
     min-width: 0;
+  }
+
+  .presenca-resumo-grid,
+  .presenca-card-grid {
+    grid-template-columns: 1fr;
   }
 
   .familias-table {

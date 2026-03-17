@@ -64,6 +64,16 @@
       return;
     }
 
+    const row = event.target.closest("[data-user-row-open]");
+    if (row) {
+      if (event.target.closest("button, a, form, input, select, textarea, label")) return;
+      event.preventDefault();
+      event.stopPropagation();
+      closeAllMenus();
+      openEditModal(String(row.getAttribute("data-user-row-open") || "").trim());
+      return;
+    }
+
     const toggleBtn = event.target.closest("[data-action='menu-toggle']");
     if (!toggleBtn) return;
 
@@ -85,6 +95,14 @@
   });
 
   document.addEventListener("keydown", (event) => {
+    const row = event.target.closest?.("[data-user-row-open]");
+    if (row && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      closeAllMenus();
+      openEditModal(String(row.getAttribute("data-user-row-open") || "").trim());
+      return;
+    }
+
     if (event.key !== "Escape") return;
     closeAllMenus();
   });
@@ -102,7 +120,11 @@
     const titleEl = modal.querySelector("[data-user-modal-title]");
     const descriptionEl = modal.querySelector("[data-user-modal-description]");
     const passwordHintEl = modal.querySelector("[data-user-password-hint]");
+    const passwordFields = Array.from(modal.querySelectorAll("[data-user-password-field]"));
+    const passwordResetWrap = modal.querySelector("[data-user-password-reset-wrap]");
+    const passwordResetOpenButton = modal.querySelector("[data-user-password-reset-open]");
     const submitButton = modal.querySelector("[data-user-modal-submit]");
+    const customFieldInputs = Array.from(modal.querySelectorAll("[data-user-custom-field]"));
     const defaultTipoCadastro = String(root.dataset.defaultTipoCadastro || "voluntario")
       .trim()
       .toLowerCase();
@@ -110,6 +132,15 @@
     let isSubmitting = false;
     let currentMode = "create";
     let editingUserId = null;
+    let editingUserName = "";
+
+    const resetPasswordModal = root.querySelector("[data-reset-password-modal]");
+    const resetPasswordForm = resetPasswordModal?.querySelector("[data-reset-password-form]") || null;
+    const resetPasswordError = resetPasswordModal?.querySelector("[data-reset-password-error]") || null;
+    const resetPasswordDescription = resetPasswordModal?.querySelector("[data-reset-password-description]") || null;
+    const resetPasswordCloseButtons = resetPasswordModal?.querySelectorAll("[data-reset-password-close]") || [];
+    const resetPasswordSubmit = resetPasswordModal?.querySelector("[data-reset-password-submit]") || null;
+    let isResettingPassword = false;
 
     function showError(message) {
       if (!errorBox) return;
@@ -132,18 +163,26 @@
 
       if (descriptionEl) {
         descriptionEl.textContent = isEdit
-          ? "Atualize os dados do acesso selecionado. A senha so muda se voce preencher os campos abaixo."
+          ? "Atualize os dados do acesso selecionado. Se precisar trocar a senha, use o botao de redefinicao com motivo de auditoria."
           : "Preencha os dados abaixo para liberar um novo acesso manualmente.";
       }
 
       if (passwordHintEl) {
         passwordHintEl.textContent = isEdit
-          ? "Senha opcional na edicao. Deixe em branco para manter a senha atual."
+          ? "A senha nao e alterada nesta edicao. Use o fluxo de redefinicao quando precisar trocar o acesso."
           : "Defina uma senha inicial para esse acesso.";
       }
 
       if (submitButton) {
         submitButton.textContent = isEdit ? "Salvar alteracoes" : "Salvar usuario";
+      }
+
+      passwordFields.forEach((field) => {
+        field.hidden = isEdit;
+      });
+
+      if (passwordResetWrap) {
+        passwordResetWrap.hidden = !isEdit;
       }
 
       if (form?.elements?.senha) {
@@ -218,8 +257,86 @@
       if (form.elements.nivelAcessoVoluntario) {
         form.elements.nivelAcessoVoluntario.value = "";
       }
+      customFieldInputs.forEach((field) => {
+        const type = String(field.getAttribute("data-user-custom-type") || "texto").trim();
+        if (type === "booleano") {
+          field.value = "false";
+          return;
+        }
+        field.value = "";
+      });
       showError("");
       applyProfileRules();
+    }
+
+    function collectCustomFieldPayload() {
+      const camposExtras = {};
+      customFieldInputs.forEach((field) => {
+        const key = String(field.getAttribute("data-user-custom-field") || "").trim();
+        const type = String(field.getAttribute("data-user-custom-type") || "texto").trim();
+        if (!key) return;
+        if (type === "booleano") {
+          camposExtras[key] = String(field.value || "").trim() === "true";
+          return;
+        }
+        camposExtras[key] = String(field.value || "").trim();
+      });
+      return camposExtras;
+    }
+
+    function populateCustomFields(values = {}) {
+      customFieldInputs.forEach((field) => {
+        const key = String(field.getAttribute("data-user-custom-field") || "").trim();
+        const type = String(field.getAttribute("data-user-custom-type") || "texto").trim();
+        if (!key) return;
+        const value = values?.[key];
+        if (type === "booleano") {
+          field.value = value === true ? "true" : "false";
+          return;
+        }
+        field.value = typeof value === "undefined" || value === null ? "" : String(value);
+      });
+    }
+
+    function showResetPasswordError(message) {
+      if (!resetPasswordError) return;
+      const text = String(message || "").trim();
+      if (!text) {
+        resetPasswordError.hidden = true;
+        resetPasswordError.textContent = "";
+        return;
+      }
+      resetPasswordError.hidden = false;
+      resetPasswordError.textContent = text;
+    }
+
+    function closeResetPasswordModal(force = false) {
+      if (!resetPasswordModal) return;
+      if (isResettingPassword && !force) return;
+      resetPasswordModal.hidden = true;
+      if (resetPasswordForm) {
+        resetPasswordForm.reset();
+      }
+      showResetPasswordError("");
+      syncBodyModalState();
+    }
+
+    function openResetPasswordModal() {
+      if (!resetPasswordModal || !editingUserId || currentMode !== "edit") return;
+      if (resetPasswordForm) {
+        resetPasswordForm.reset();
+      }
+      if (resetPasswordDescription) {
+        resetPasswordDescription.textContent = editingUserName
+          ? `Defina a nova senha de ${editingUserName} e registre o motivo para auditoria.`
+          : "Defina a nova senha e registre o motivo para auditoria.";
+      }
+      showResetPasswordError("");
+      resetPasswordModal.hidden = false;
+      syncBodyModalState();
+      window.setTimeout(() => {
+        resetPasswordForm?.elements?.senha?.focus();
+      }, 30);
     }
 
     function openCreateUserModal() {
@@ -233,6 +350,7 @@
     function closeCreateUserModal(force = false) {
       if (isSubmitting && !force) return;
       modal.hidden = true;
+      closeResetPasswordModal(true);
       syncBodyModalState();
       showError("");
     }
@@ -240,6 +358,7 @@
     function openCreateModal() {
       currentMode = "create";
       editingUserId = null;
+      editingUserName = "";
       closeAllMenus();
       resetForm();
       setModalTexts("create");
@@ -250,6 +369,7 @@
       if (!userId) return;
       currentMode = "edit";
       editingUserId = userId;
+      editingUserName = "";
       resetForm();
       setModalTexts("edit");
       showError("");
@@ -274,6 +394,8 @@
         form.elements.ativo.value = String(
           typeof usuario?.ativo === "boolean" ? usuario.ativo : true
         );
+        populateCustomFields(usuario?.camposExtras || {});
+        editingUserName = String(usuario?.nome || "").trim();
         form.elements.senha.value = "";
         form.elements.confirmarSenha.value = "";
 
@@ -298,7 +420,27 @@
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !modal.hidden) {
+        if (resetPasswordModal && !resetPasswordModal.hidden) {
+          closeResetPasswordModal();
+          return;
+        }
         closeCreateUserModal();
+      }
+    });
+
+    if (passwordResetOpenButton) {
+      passwordResetOpenButton.addEventListener("click", () => {
+        openResetPasswordModal();
+      });
+    }
+
+    resetPasswordCloseButtons.forEach((button) => {
+      button.addEventListener("click", () => closeResetPasswordModal());
+    });
+
+    resetPasswordModal?.addEventListener("click", (event) => {
+      if (event.target === resetPasswordModal.querySelector(".acessos-modal-backdrop")) {
+        closeResetPasswordModal(true);
       }
     });
 
@@ -333,6 +475,7 @@
         nivelAcessoVoluntario: String(form.elements.nivelAcessoVoluntario?.value || "").trim(),
         statusAprovacao: String(form.elements.statusAprovacao?.value || "aprovado").trim(),
         ativo: String(form.elements.ativo?.value || "true").trim() === "true",
+        camposExtras: collectCustomFieldPayload(),
       };
 
       if (String(payload.perfil || "").toLowerCase() !== "usuario") {
@@ -404,6 +547,57 @@
         setModalTexts(currentMode);
         if (submitButton) {
           submitButton.disabled = false;
+        }
+      }
+    });
+
+    resetPasswordForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (isResettingPassword || !editingUserId) return;
+
+      const senha = String(resetPasswordForm.elements.senha?.value || "");
+      const confirmarSenha = String(resetPasswordForm.elements.confirmarSenha?.value || "");
+      const motivo = String(resetPasswordForm.elements.motivo?.value || "").trim();
+
+      if (!senha || !confirmarSenha) {
+        showResetPasswordError("Preencha e confirme a nova senha.");
+        return;
+      }
+
+      if (senha !== confirmarSenha) {
+        showResetPasswordError("As senhas informadas nao conferem.");
+        return;
+      }
+
+      if (!motivo) {
+        showResetPasswordError("Informe o motivo da redefinicao para auditoria.");
+        return;
+      }
+
+      isResettingPassword = true;
+      showResetPasswordError("");
+      if (resetPasswordSubmit) {
+        resetPasswordSubmit.disabled = true;
+        resetPasswordSubmit.textContent = "Salvando...";
+      }
+
+      try {
+        await requestJson(`/usuarios/${editingUserId}/senha`, {
+          method: "PATCH",
+          body: JSON.stringify({ senha, motivo }),
+        });
+
+        closeResetPasswordModal(true);
+        await window.appNotifySuccess(
+          "Senha redefinida com sucesso e motivo registrado na auditoria."
+        );
+      } catch (error) {
+        showResetPasswordError(error?.message || "Erro ao redefinir a senha.");
+      } finally {
+        isResettingPassword = false;
+        if (resetPasswordSubmit) {
+          resetPasswordSubmit.disabled = false;
+          resetPasswordSubmit.textContent = "Salvar nova senha";
         }
       }
     });

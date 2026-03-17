@@ -22,11 +22,18 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
-    <link rel="stylesheet" href="/css/index.css" />
-    <link rel="stylesheet" href="/css/auth.css" />
+    <%
+      const appendAssetVersion = (href) => {
+        const rawHref = String(href || "");
+        if (!rawHref.startsWith("/")) return rawHref;
+        return `${rawHref}${rawHref.includes("?") ? "&" : "?"}v=${assetVersion || "1"}`;
+      };
+    %>
+    <link rel="stylesheet" href="<%= appendAssetVersion('/css/index.css') %>" />
+    <link rel="stylesheet" href="<%= appendAssetVersion('/css/auth.css') %>" />
     <% if (typeof extraCss !== "undefined" && Array.isArray(extraCss)) { %>
       <% extraCss.forEach((href) => { %>
-        <link rel="stylesheet" href="<%= href %>" />
+        <link rel="stylesheet" href="<%= appendAssetVersion(href) %>" />
       <% }) %>
     <% } %>
   </head>
@@ -58,11 +65,11 @@
       window.__APP_FLASH = <%- JSON.stringify(__appFlashPayload) %>;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/ui-alerts.js" defer></script>
-    <script src="/js/auth.js" defer></script>
+    <script src="<%= appendAssetVersion('/js/ui-alerts.js') %>" defer></script>
+    <script src="<%= appendAssetVersion('/js/auth.js') %>" defer></script>
     <% if (typeof extraJs !== "undefined" && Array.isArray(extraJs)) { %>
       <% extraJs.forEach((src) => { %>
-        <script src="<%= src %>" defer></script>
+        <script src="<%= appendAssetVersion(src) %>" defer></script>
       <% }) %>
     <% } %>
   </body>

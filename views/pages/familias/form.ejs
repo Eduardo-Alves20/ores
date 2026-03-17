@@ -87,6 +87,48 @@
       <textarea class="input-control textarea-control" name="observacoes" rows="5" placeholder="Necessidades, contexto da familia e observacoes de apoio..."><%= familia?.observacoes || '' %></textarea>
     </label>
 
+    <% if (Array.isArray(customFields) && customFields.length) { %>
+      <h2 class="section-title">Campos extras</h2>
+      <div class="form-grid">
+        <% customFields.forEach((field) => { %>
+          <% const fieldValue = familia?.camposExtras?.[field.chave]; %>
+          <% if (field.tipo === 'textarea') { %>
+            <label class="field-wrap span-2">
+              <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+              <textarea class="input-control textarea-control" name="campoExtra_<%= field.chave %>" rows="4" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>"><%= fieldValue || '' %></textarea>
+              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+            </label>
+          <% } else if (field.tipo === 'select') { %>
+            <label class="field-wrap">
+              <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+              <select class="input-control" name="campoExtra_<%= field.chave %>" <%= field.obrigatorio ? 'required' : '' %> data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>">
+                <option value="">Selecione</option>
+                <% (field.opcoes || []).forEach((option) => { %>
+                  <option value="<%= option %>" <%= String(fieldValue || '') === String(option) ? 'selected' : '' %>><%= option %></option>
+                <% }) %>
+              </select>
+              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+            </label>
+          <% } else if (field.tipo === 'booleano') { %>
+            <label class="field-wrap">
+              <span class="input-label"><%= field.label %></span>
+              <select class="input-control" name="campoExtra_<%= field.chave %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>">
+                <option value="false" <%= fieldValue === true ? '' : 'selected' %>>Nao</option>
+                <option value="true" <%= fieldValue === true ? 'selected' : '' %>>Sim</option>
+              </select>
+              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+            </label>
+          <% } else { %>
+            <label class="field-wrap">
+              <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+              <input class="input-control" type="<%= field.tipo === 'numero' ? 'number' : field.tipo === 'data' ? 'date' : 'text' %>" name="campoExtra_<%= field.chave %>" value="<%= fieldValue || '' %>" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" />
+              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+            </label>
+          <% } %>
+        <% }) %>
+      </div>
+    <% } %>
+
     <% if (modo === "editar") { %>
       <h2 class="section-title">Status</h2>
       <label class="field-wrap field-inline">
@@ -108,4 +150,3 @@
 </section>
 
 <script id="familia-form-initial" type="application/json"><%- JSON.stringify(familia || null) %></script>
-

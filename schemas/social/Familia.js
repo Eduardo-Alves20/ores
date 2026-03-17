@@ -39,6 +39,11 @@ const FamiliaSchema = new mongoose.Schema(
       trim: true,
       maxlength: 3000,
     },
+    camposExtras: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
     ativo: {
       type: Boolean,
       default: true,
@@ -75,4 +80,3 @@ FamiliaSchema.index({ "responsavel.nome": "text", "responsavel.telefone": "text"
 FamiliaSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("Familia", FamiliaSchema);
-

@@ -16,6 +16,7 @@
         </span>
         <span class="familias-hero-tag" id="familia-pacientes-pill">0 dependentes</span>
         <span class="familias-hero-tag" id="familia-atendimentos-pill">0 atendimentos</span>
+        <span class="familias-hero-tag" id="familia-presencas-pill">0 consultas agenda</span>
       </div>
     </div>
     <div class="familias-header-actions">
@@ -77,6 +78,10 @@
       <button type="button" class="workflow-tab" data-workflow-tab="historico">
         <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
         <span>Historico de atendimento</span>
+      </button>
+      <button type="button" class="workflow-tab" data-workflow-tab="presencas">
+        <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+        <span>Presencas</span>
       </button>
     </nav>
 
@@ -195,6 +200,48 @@
           <span class="badge-soft" id="atendimentos-count">0</span>
         </div>
         <div id="atendimentos-lista" class="timeline-list consulta-cards-list"></div>
+      </section>
+
+      <section id="panel-presencas" class="workflow-panel" hidden>
+        <section class="presenca-familiar-hero">
+          <div class="presenca-familiar-copy">
+            <p class="familias-overline">Controle de comparecimento</p>
+            <h3>Consultas, faltas e justificativas desta familia</h3>
+            <p>Veja rapidamente quem compareceu, onde houve falta e quais consultas tiveram justificativa registrada.</p>
+          </div>
+        </section>
+
+        <div class="presenca-resumo-grid" id="presencas-resumo">
+          <article class="presenca-resumo-card is-total is-active" data-presenca-filter="all" role="button" tabindex="0" aria-label="Mostrar todas as consultas">
+            <span>Consultas</span>
+            <strong>0</strong>
+          </article>
+          <article class="presenca-resumo-card is-presente" data-presenca-filter="presente" role="button" tabindex="0" aria-label="Mostrar consultas com presenca">
+            <span>Presentes</span>
+            <strong>0</strong>
+          </article>
+          <article class="presenca-resumo-card is-falta" data-presenca-filter="falta" role="button" tabindex="0" aria-label="Mostrar consultas com falta">
+            <span>Faltas</span>
+            <strong>0</strong>
+          </article>
+          <article class="presenca-resumo-card is-justificada" data-presenca-filter="falta_justificada" role="button" tabindex="0" aria-label="Mostrar consultas com falta justificada">
+            <span>Justificadas</span>
+            <strong>0</strong>
+          </article>
+          <article class="presenca-resumo-card is-pendente" data-presenca-filter="pendentes_canceladas" role="button" tabindex="0" aria-label="Mostrar consultas pendentes ou canceladas">
+            <span>Pendentes</span>
+            <strong>0</strong>
+          </article>
+        </div>
+
+        <div class="listagem-head">
+          <div>
+            <h3 class="section-title panel-title">Linha do tempo das consultas</h3>
+            <p class="section-subtitle" id="presencas-filter-label">Mostrando todas as consultas da agenda desta familia.</p>
+          </div>
+          <span class="badge-soft" id="presencas-count">0</span>
+        </div>
+        <div id="presencas-lista" class="timeline-list presenca-cards-list"></div>
       </section>
 
       <section id="panel-atendimento" class="workflow-panel" hidden>
