@@ -6,21 +6,14 @@ const Usuario = require("../../schemas/core/Usuario");
 const { PERFIS } = require("../../config/roles");
 const { registrarAuditoria } = require("../../services/auditService");
 const { normalizeCustomFieldValues } = require("../../services/systemConfigService");
+const { parseBoolean } = require("../../services/shared/valueParsingService");
+const { toDateTimeLabel } = require("../../services/shared/dateFormattingService");
+const { escapeRegex } = require("../../services/shared/searchUtilsService");
 const {
   hasOwnAssistidosScope,
   resolveScopedFamilyIds,
   canAccessFamily,
 } = require("../../services/volunteerScopeService");
-
-function parseBoolean(value) {
-  if (value === true || value === "true") return true;
-  if (value === false || value === "false") return false;
-  return undefined;
-}
-
-function escapeRegex(input) {
-  return String(input || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 
 function getActorId(req) {
   return req?.session?.user?.id || null;
@@ -46,15 +39,6 @@ const PRESENCA_STATUS_LABELS = Object.freeze({
   falta_justificada: "Falta justificada",
   cancelado_antecipadamente: "Cancelado antecipadamente",
 });
-
-function toDateTimeLabel(dateLike) {
-  const dt = new Date(dateLike);
-  if (Number.isNaN(dt.getTime())) return "-";
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(dt);
-}
 
 function mapAgendaPresenca(doc) {
   return {

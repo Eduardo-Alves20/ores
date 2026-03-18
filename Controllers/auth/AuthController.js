@@ -2,23 +2,16 @@
 const { registrarAuditoria } = require("../../services/auditService");
 const { PERFIS } = require("../../config/roles");
 const { resolvePermissionsForUserId } = require("../../services/accessControlService");
+const { resolveLandingRouteForUser } = require("../../services/shared/navigationService");
 
 function isHtmlRequest(req) {
   return !!req.accepts("html");
 }
 
-function resolveLandingRoute(perfil, tipoCadastro) {
-  if (perfil === PERFIS.USUARIO) {
-    if (String(tipoCadastro || "").toLowerCase() === "familia") return "/minha-familia";
-    return "/meus-dados";
-  }
-  return "/painel";
-}
-
 class AuthController {
   static async loginPage(req, res) {
     if (req?.session?.user) {
-      return res.redirect(resolveLandingRoute(req.session.user.perfil, req.session.user.tipoCadastro));
+      return res.redirect(resolveLandingRouteForUser(req.session.user));
     }
 
     const successMessage = req.flash("success");
@@ -40,7 +33,7 @@ class AuthController {
 
   static async cadastroPage(req, res) {
     if (req?.session?.user) {
-      return res.redirect(resolveLandingRoute(req.session.user.perfil, req.session.user.tipoCadastro));
+      return res.redirect(resolveLandingRouteForUser(req.session.user));
     }
 
     return res.status(200).render("pages/auth/cadastro", {
@@ -173,7 +166,7 @@ class AuthController {
           });
 
           if (isHtmlRequest(req)) {
-            return res.redirect(resolveLandingRoute(usuario.perfil, usuario.tipoCadastro));
+            return res.redirect(resolveLandingRouteForUser(req.session.user));
           }
 
           return res.status(200).json({

@@ -1,117 +1,135 @@
-﻿const Familia = require("../../schemas/social/Familia");
-const { Paciente } = require("../../schemas/social/Paciente");
-const { Atendimento } = require("../../schemas/social/Atendimento");
-
-function monthRange(baseDate = new Date(), shiftMonths = 0) {
-  const ref = new Date(baseDate.getFullYear(), baseDate.getMonth() + shiftMonths, 1, 0, 0, 0, 0);
-  const start = new Date(ref.getFullYear(), ref.getMonth(), 1, 0, 0, 0, 0);
-  const end = new Date(ref.getFullYear(), ref.getMonth() + 1, 1, 0, 0, 0, 0);
-  return { start, end };
-}
-
-function dayRange(baseDate = new Date()) {
-  const start = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), 0, 0, 0, 0);
-  const end = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1, 0, 0, 0, 0);
-  return { start, end };
-}
-
-function formatShortDate(dateLike) {
-  const dt = new Date(dateLike);
-  if (Number.isNaN(dt.getTime())) return "-";
-  const dia = String(dt.getDate()).padStart(2, "0");
-  const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  return `${dia} ${meses[dt.getMonth()]}, ${dt.getFullYear()}`;
-}
+const { buildDashboardViewModel } = require("../../services/admin/dashboardPageService");
 
 class DashboardController {
   static async index(req, res) {
     try {
-      const now = new Date();
-      const mesAtual = monthRange(now, 0);
-      const mesAnterior = monthRange(now, -1);
-      const hoje = dayRange(now);
-
-      const [totalDependentesAtivos, cadastrosMesAtual, cadastrosMesAnterior, atendimentosHoje, familiasRecentes] =
-        await Promise.all([
-          Paciente.countDocuments({ ativo: true }),
-          Familia.countDocuments({ createdAt: { $gte: mesAtual.start, $lt: mesAtual.end } }),
-          Familia.countDocuments({ createdAt: { $gte: mesAnterior.start, $lt: mesAnterior.end } }),
-          Atendimento.countDocuments({ ativo: true, dataHora: { $gte: hoje.start, $lt: hoje.end } }),
-          Familia.find({})
-            .sort({ createdAt: -1 })
-            .limit(14)
-            .select("_id responsavel createdAt ativo")
-            .lean(),
-        ]);
-
-      let hintCadastros = "Sem base comparativa no mes anterior";
-      if (cadastrosMesAnterior > 0) {
-        const delta = ((cadastrosMesAtual - cadastrosMesAnterior) / cadastrosMesAnterior) * 100;
-        const sinal = delta >= 0 ? "+" : "";
-        hintCadastros = `${sinal}${delta.toFixed(1)}% vs mes anterior`;
-      } else if (cadastrosMesAtual === 0) {
-        hintCadastros = "Sem novos cadastros no periodo";
-      }
-
-      const cards = [
-        {
-          icon: "fa-solid fa-users",
-          title: "Total de Dependentes Ativos",
-          value: Number(totalDependentesAtivos || 0).toLocaleString("pt-BR"),
-          hint: "Total acumulado ativo na base",
-        },
-        {
-          icon: "fa-solid fa-user-plus",
-          title: "Novos cadastros (mes)",
-          value: Number(cadastrosMesAtual || 0).toLocaleString("pt-BR"),
-          hint: hintCadastros,
-        },
-        {
-          icon: "fa-solid fa-calendar-check",
-          title: "Atendimentos hoje",
-          value: Number(atendimentosHoje || 0).toLocaleString("pt-BR"),
-          hint: "Agenda do dia",
-        },
-      ];
-
-      const cadastros = (familiasRecentes || []).map((familia) => ({
-        nome: String(familia?.responsavel?.nome || "SEM NOME").toUpperCase(),
-        status: familia?.ativo ? "ATIVO" : "INATIVO",
-        data: formatShortDate(familia?.createdAt),
-        responsavel: String(familia?.responsavel?.nome || "-").toUpperCase(),
-      }));
-
-      return res.status(200).render("pages/painel/index", {
-        title: "Painel",
-        sectionTitle: "Tela de Inicio",
-        navKey: "home",
-        layout: "partials/app.ejs",
-        pageClass: "page-dashboard",
-        user: req?.session?.user || null,
-        cards,
-        cadastros,
-      });
+      const viewModel = await buildDashboardViewModel(req);
+      return res.status(200).render("pages/painel/index", viewModel);
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
       return res.status(500).render("pages/painel/index", {
         title: "Painel",
-        sectionTitle: "Tela de Inicio",
+        sectionTitle: "Painel Administrativo",
         navKey: "home",
         layout: "partials/app.ejs",
         pageClass: "page-dashboard",
-        user: req?.session?.user || null,
-        cards: [
-          { icon: "fa-solid fa-users", title: "Total de Dependentes Ativos", value: "0", hint: "Falha ao carregar" },
-          { icon: "fa-solid fa-user-plus", title: "Novos cadastros (mes)", value: "0", hint: "Falha ao carregar" },
-          { icon: "fa-solid fa-calendar-check", title: "Atendimentos hoje", value: "0", hint: "Falha ao carregar" },
+        extraCss: ["/css/dashboard.css"],
+        extraJs: ["/js/dashboard-home.js"],
+        hero: {
+          greeting: "Painel temporariamente indisponivel",
+          subtitle: "Nao foi possivel montar os indicadores agora. Tente novamente em instantes.",
+          stats: [
+            { label: "Atualizado em", value: "-" },
+            { label: "Compromissos hoje", value: "0" },
+            { label: "Pendencias do dia", value: "0" },
+          ],
+          search: {
+            enabled: false,
+            action: "/familias",
+            placeholder: "Buscar responsavel, assistido ou telefone...",
+            canUseSuggestions: false,
+          },
+          quickActions: [],
+        },
+        summaryCards: [
+          {
+            key: "dependentes-ativos",
+            icon: "fa-solid fa-people-group",
+            title: "Dependentes ativos",
+            value: "0",
+            caption: "Falha ao carregar os indicadores da base",
+            trend: { direction: "flat", tone: "neutral", label: "Falha ao carregar" },
+            progress: null,
+            href: "",
+          },
+          {
+            key: "cadastros-mes",
+            icon: "fa-solid fa-user-plus",
+            title: "Novos cadastros no mes",
+            value: "0",
+            caption: "Falha ao carregar os indicadores do periodo",
+            trend: { direction: "flat", tone: "neutral", label: "Falha ao carregar" },
+            progress: null,
+            href: "",
+          },
+          {
+            key: "atendimentos-hoje",
+            icon: "fa-solid fa-calendar-check",
+            title: "Atendimentos hoje",
+            value: "0",
+            caption: "Falha ao carregar a agenda do dia",
+            trend: null,
+            progress: { value: 0, label: "Falha ao carregar" },
+            href: "",
+          },
+          {
+            key: "comparecimento",
+            icon: "fa-solid fa-user-check",
+            title: "Taxa de comparecimento",
+            value: "0%",
+            caption: "Falha ao carregar o indicador de presenca",
+            trend: { direction: "flat", tone: "neutral", label: "Falha ao carregar" },
+            progress: null,
+            href: "",
+          },
         ],
-        cadastros: [],
+        alerts: [
+          {
+            icon: "fa-solid fa-triangle-exclamation",
+            tone: "warning",
+            value: "0",
+            label: "Erro ao carregar painel",
+            description: "Os blocos foram exibidos em modo de contingencia.",
+            href: "",
+          },
+        ],
+        charts: {
+          timeline: {
+            title: "Evolucao de cadastros e atendimentos",
+            subtitle: "Dados indisponiveis no momento.",
+            series6: [],
+            series12: [],
+            totals: {
+              cadastros6: 0,
+              atendimentos6: 0,
+            },
+          },
+          distribution: {
+            title: "Status da agenda do mes",
+            subtitle: "Dados indisponiveis no momento.",
+            total: 0,
+            gradient: "conic-gradient(#dbe4f0 0 100%)",
+            items: [],
+          },
+          teamLoad: {
+            title: "Carga da equipe nos ultimos 30 dias",
+            subtitle: "Dados indisponiveis no momento.",
+            items: [],
+          },
+        },
+        highlights: [],
+        recentRows: [],
+        viewFlags: {
+          canViewFamilies: false,
+        },
+        emptyStates: {
+          recentRows: "Nao foi possivel carregar os cadastros recentes.",
+          teamLoad: "Nao foi possivel carregar a carga da equipe.",
+          distribution: "Nao foi possivel carregar a distribuicao da agenda.",
+        },
+        dashboardData: {
+          timeline: {
+            series6: [],
+            series12: [],
+          },
+          search: {
+            enabled: false,
+            endpoint: "/busca",
+          },
+        },
       });
     }
   }
 }
 
 module.exports = DashboardController;
-
-
-

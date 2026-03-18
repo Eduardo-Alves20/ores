@@ -12,7 +12,9 @@ function buildPermissions(user) {
   const canViewAll = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_VIEW_ALL]);
   const canAssignOthers = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_ASSIGN_OTHERS]);
   const canCreate = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_CREATE]);
+  const canUpdate = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_UPDATE]);
   const canMove = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_MOVE]);
+  const canChangeStatus = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_STATUS]);
   const canRegisterAttendance = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_ATTENDANCE]);
   const canManageRooms = canViewAll;
 
@@ -20,7 +22,9 @@ function buildPermissions(user) {
     canViewAll,
     canAssignOthers,
     canCreate,
+    canUpdate,
     canMove,
+    canChangeStatus,
     canRegisterAttendance,
     canManageRooms,
   };
@@ -38,7 +42,13 @@ class AgendaPageController {
       layout: "partials/app.ejs",
       pageClass: "page-agenda agenda-page",
       extraCss: ["/css/agenda.css"],
-      extraJs: ["/js/agenda.js"],
+      extraJs: [
+        "/js/agenda-shared.js",
+        "/js/agenda-attendance.js",
+        "/js/agenda-calendar.js",
+        "/js/agenda-form.js",
+        "/js/agenda.js",
+      ],
       agendaConfig: {
         user: {
           id: user?.id || null,

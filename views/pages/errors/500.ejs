@@ -1,0 +1,32 @@
+<%
+  locals.title = `Erro ${status || 500}`;
+  locals.pageClass = "page-auth";
+%>
+
+<section class="auth-viewport">
+  <div class="auth-bubble bubble-a"></div>
+  <div class="auth-bubble bubble-b"></div>
+  <div class="auth-bubble bubble-c"></div>
+  <div class="auth-bubble bubble-d"></div>
+  <div class="auth-bubble bubble-e"></div>
+
+  <article class="auth-card card-elevated" style="width:min(100%, 760px);">
+    <span class="badge-soft">Erro <%= status || 500 %></span>
+    <h1 class="auth-brand" style="margin-top:18px; text-align:left;">Algo saiu do esperado</h1>
+    <p class="auth-subtitle" style="text-align:left; max-width:58ch;">
+      <%= message || "Ocorreu um erro interno no servidor." %>
+    </p>
+
+    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:24px;">
+      <a class="btn btn-primary" href="/">Voltar ao inicio</a>
+      <a class="btn btn-muted" href="/login">Ir para o login</a>
+    </div>
+
+    <% if (err && err.stack) { %>
+      <details style="margin-top:20px; border:1px solid var(--line); border-radius:14px; background:#f7f4f2; padding:12px 14px;">
+        <summary style="cursor:pointer; font-weight:800; color:#4d433e;">Detalhes tecnicos</summary>
+        <pre style="margin:12px 0 0; white-space:pre-wrap; word-break:break-word; font-size:0.78rem; line-height:1.5; color:#6e635d;"><%= err.stack %></pre>
+      </details>
+    <% } %>
+  </article>
+</section>

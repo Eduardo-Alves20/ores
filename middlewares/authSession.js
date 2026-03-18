@@ -3,6 +3,7 @@ const {
   hasAnyPermission,
   resolvePermissionsFromSession,
 } = require("../services/accessControlService");
+const { resolveLandingRouteForUser } = require("../services/shared/navigationService");
 
 function getSessionUser(req) {
   return req?.session?.user || null;
@@ -52,10 +53,7 @@ function requireRole(...allowedRoles) {
     if (perfil !== PERFIS.SUPERADMIN && !allowedRoles.includes(perfil)) {
       if (isHtmlRequest(req)) {
         if (user.perfil === PERFIS.USUARIO) {
-          if (String(user.tipoCadastro || "").toLowerCase() === "familia") {
-            return res.redirect("/minha-familia");
-          }
-          return res.redirect("/meus-dados");
+          return res.redirect(resolveLandingRouteForUser(user));
         }
 
         const err = new Error("Acesso negado para este perfil.");
@@ -87,10 +85,7 @@ function requirePermission(...requiredPermissions) {
 
       if (isHtmlRequest(req)) {
         if (user.perfil === PERFIS.USUARIO) {
-          if (String(user.tipoCadastro || "").toLowerCase() === "familia") {
-            return res.redirect("/minha-familia");
-          }
-          return res.redirect("/meus-dados");
+          return res.redirect(resolveLandingRouteForUser(user));
         }
 
         const err = new Error("Acesso negado para esta permissao.");

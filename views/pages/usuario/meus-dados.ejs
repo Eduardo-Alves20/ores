@@ -1,49 +1,116 @@
-<section class="meus-dados-page">
-  <header class="meus-dados-header">
-    <h2>Meus Dados</h2>
-    <p>Visualizacao do seu cadastro no sistema.</p>
-  </header>
+<section class="portal-profile-page">
+  <section class="portal-profile-hero card-elevated">
+    <div class="portal-profile-hero-main">
+      <span class="badge-soft">Area do Usuario</span>
+      <h2><%= usuario?.nome || "Usuario" %></h2>
+      <p>Confira seus dados cadastrais, o tipo de acesso liberado e os atalhos principais do seu perfil.</p>
 
-  <section class="module-card">
-    <div class="table-wrap">
-      <table class="data-table meus-dados-table">
-        <tbody>
-          <tr>
-            <th>Nome</th>
-            <td><%= usuario?.nome || "-" %></td>
-          </tr>
-          <tr>
-            <th>Email</th>
-            <td><%= usuario?.email || "-" %></td>
-          </tr>
-          <tr>
-            <th>Usuario de login</th>
-            <td><%= usuario?.login || "-" %></td>
-          </tr>
-          <tr>
-            <th>CPF</th>
-            <td><%= usuario?.cpf || "-" %></td>
-          </tr>
-          <tr>
-            <th>Telefone</th>
-            <td><%= usuario?.telefone || "-" %></td>
-          </tr>
-          <tr>
-            <th>Tipo de cadastro</th>
-            <td><%= tipoCadastroLabel %></td>
-          </tr>
-          <tr>
-            <th>Status</th>
-            <td>
-              <% if (usuario?.ativo) { %>
-                <span class="status-badge status-active">ATIVO</span>
-              <% } else { %>
-                <span class="status-badge status-inactive">INATIVO</span>
-              <% } %>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="portal-profile-badges">
+        <span class="status-badge status-neutral"><%= perfilLabel || "Usuario" %></span>
+        <span class="status-badge status-neutral"><%= tipoCadastroLabel || "-" %></span>
+        <% if (nivelAcessoVoluntarioLabel) { %>
+          <span class="status-badge status-active"><%= nivelAcessoVoluntarioLabel %></span>
+        <% } %>
+        <% if (usuario?.ativo) { %>
+          <span class="status-badge status-active">Ativo</span>
+        <% } else { %>
+          <span class="status-badge status-inactive">Inativo</span>
+        <% } %>
+      </div>
     </div>
+
+    <div class="portal-profile-hero-side">
+      <article class="portal-profile-highlight">
+        <span class="portal-profile-highlight-label">Ultimo login</span>
+        <strong><%= usuario?.ultimoLoginEm ? new Date(usuario.ultimoLoginEm).toLocaleString("pt-BR") : "Primeiro acesso" %></strong>
+      </article>
+      <article class="portal-profile-highlight">
+        <span class="portal-profile-highlight-label">Acessos disponiveis</span>
+        <strong><%= accessHighlights?.length || 0 %> recurso(s)</strong>
+      </article>
+      <a href="/perfil" class="btn btn-primary">Abrir Perfil Completo</a>
+    </div>
+  </section>
+
+  <section class="portal-profile-grid">
+    <article class="module-card portal-profile-card">
+      <header class="portal-profile-card-head">
+        <div>
+          <h3>Cadastro</h3>
+          <p>Informacoes basicas vinculadas ao seu acesso.</p>
+        </div>
+      </header>
+
+      <div class="portal-profile-details">
+        <div class="portal-profile-detail">
+          <span>Nome</span>
+          <strong><%= usuario?.nome || "-" %></strong>
+        </div>
+        <div class="portal-profile-detail">
+          <span>Email</span>
+          <strong><%= usuario?.email || "-" %></strong>
+        </div>
+        <div class="portal-profile-detail">
+          <span>Usuario de login</span>
+          <strong><%= usuario?.login || "-" %></strong>
+        </div>
+        <div class="portal-profile-detail">
+          <span>Telefone</span>
+          <strong><%= usuario?.telefone || "-" %></strong>
+        </div>
+        <div class="portal-profile-detail">
+          <span>CPF</span>
+          <strong><%= usuario?.cpf || "-" %></strong>
+        </div>
+        <div class="portal-profile-detail">
+          <span>Criado em</span>
+          <strong><%= usuario?.createdAt ? new Date(usuario.createdAt).toLocaleString("pt-BR") : "-" %></strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="module-card portal-profile-card">
+      <header class="portal-profile-card-head">
+        <div>
+          <h3>Recursos liberados</h3>
+          <p>Resumo rapido do que este usuario ja pode acessar.</p>
+        </div>
+      </header>
+
+      <% if (!accessHighlights || !accessHighlights.length) { %>
+        <p class="empty-hint">Este perfil esta com acesso basico. Se precisar ampliar o uso do sistema, fale com a administracao.</p>
+      <% } else { %>
+        <div class="portal-profile-feature-list">
+          <% accessHighlights.forEach((item) => { %>
+            <span class="portal-profile-feature-pill"><%= item %></span>
+          <% }) %>
+        </div>
+      <% } %>
+    </article>
+  </section>
+
+  <section class="module-card portal-profile-card">
+    <header class="portal-profile-card-head">
+      <div>
+        <h3>Atalhos rapidos</h3>
+        <p>Entradas principais para navegar com mais facilidade na apresentacao e no uso diario.</p>
+      </div>
+    </header>
+
+    <% if (!quickLinks || !quickLinks.length) { %>
+      <p class="empty-hint">Nenhum atalho disponivel para este perfil no momento.</p>
+    <% } else { %>
+      <div class="portal-profile-links">
+        <% quickLinks.forEach((item) => { %>
+          <a href="<%= item.href %>" class="portal-profile-link-card">
+            <span class="portal-profile-link-icon" aria-hidden="true"><i class="fa-solid <%= item.icon %>"></i></span>
+            <div>
+              <strong><%= item.label %></strong>
+              <p><%= item.description %></p>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
   </section>
 </section>

@@ -2,12 +2,7 @@ const Familia = require("../../schemas/social/Familia");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { registrarAuditoria } = require("../../services/auditService");
 const { canAccessFamily } = require("../../services/volunteerScopeService");
-
-function parseBoolean(value) {
-  if (value === true || value === "true") return true;
-  if (value === false || value === "false") return false;
-  return undefined;
-}
+const { parseBoolean } = require("../../services/shared/valueParsingService");
 
 function getActorId(req) {
   return req?.session?.user?.id || null;

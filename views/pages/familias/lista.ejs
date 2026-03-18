@@ -22,7 +22,9 @@
     </div>
     <div class="familias-header-actions">
       <a href="/painel" class="btn btn-muted">Voltar ao Painel</a>
-      <a href="/familias/nova" class="btn btn-primary">Nova Familia</a>
+      <% if (viewFlags?.canCreateFamily) { %>
+        <a href="/familias/nova" class="btn btn-primary">Nova Familia</a>
+      <% } %>
     </div>
   </header>
 
@@ -124,3 +126,4 @@
 </section>
 
 <script id="familias-initial" type="application/json"><%- JSON.stringify(filtros || {}) %></script>
+<script id="familias-view-flags" type="application/json"><%- JSON.stringify(viewFlags || {}) %></script>

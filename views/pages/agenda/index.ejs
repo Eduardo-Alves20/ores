@@ -97,7 +97,11 @@
           <p class="agenda-day-overline">Eventos do Dia</p>
           <h3 id="agenda-dia-titulo">-</h3>
         </div>
-        <button type="button" class="btn btn-primary" id="agenda-novo-btn">Novo Agendamento</button>
+        <% if (agendaConfig?.permissions?.canCreate) { %>
+          <button type="button" class="btn btn-primary" id="agenda-novo-btn">Novo Agendamento</button>
+        <% } else { %>
+          <span class="badge-soft">Modo visualizacao</span>
+        <% } %>
       </header>
 
       <div class="agenda-day-list" id="agenda-dia-lista">
@@ -232,12 +236,16 @@
         <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: familia avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
       </label>
 
-      <div class="agenda-presenca-actions">
-        <button type="button" class="btn btn-primary" data-agenda-presenca-action="presente">Marcar Presente</button>
-        <button type="button" class="btn btn-warning" data-agenda-presenca-action="falta">Marcar Falta</button>
-        <button type="button" class="btn btn-muted" data-agenda-presenca-action="falta_justificada">Falta Justificada</button>
-        <button type="button" class="btn btn-muted" data-agenda-presenca-action="pendente">Voltar para Pendente</button>
-      </div>
+      <% if (agendaConfig?.permissions?.canRegisterAttendance) { %>
+        <div class="agenda-presenca-actions">
+          <button type="button" class="btn btn-primary" data-agenda-presenca-action="presente">Marcar Presente</button>
+          <button type="button" class="btn btn-warning" data-agenda-presenca-action="falta">Marcar Falta</button>
+          <button type="button" class="btn btn-muted" data-agenda-presenca-action="falta_justificada">Falta Justificada</button>
+          <button type="button" class="btn btn-muted" data-agenda-presenca-action="pendente">Voltar para Pendente</button>
+        </div>
+      <% } else { %>
+        <p class="agenda-form-hint">Modo visualizacao. Somente perfis autorizados registram presenca.</p>
+      <% } %>
 
       <section class="agenda-presenca-history">
         <header class="agenda-presenca-history-head">

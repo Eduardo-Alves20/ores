@@ -1,9 +1,6 @@
 ﻿const Familia = require("../../schemas/social/Familia");
 const { Paciente } = require("../../schemas/social/Paciente");
-
-function escapeRegex(input) {
-  return String(input || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+const { escapeRegex } = require("../../services/shared/searchUtilsService");
 
 class BuscaController {
   static async buscar(req, res) {

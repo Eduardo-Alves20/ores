@@ -1,5 +1,6 @@
 const { AgendaSala } = require("../../schemas/social/AgendaSala");
 const { registrarAuditoria } = require("../../services/auditService");
+const { parseBoolean } = require("../../services/shared/valueParsingService");
 const {
   buildAdministrationSnapshot,
   getAdministrationOptions,
@@ -13,12 +14,6 @@ const {
 
 function getActorId(req) {
   return req?.session?.user?.id || null;
-}
-
-function parseBoolean(value) {
-  if (value === true || value === "true") return true;
-  if (value === false || value === "false") return false;
-  return undefined;
 }
 
 function mapSala(doc) {
@@ -59,7 +54,12 @@ class AdministracaoController {
         layout: "partials/app.ejs",
         pageClass: "page-administracao",
         extraCss: ["/css/administracao.css"],
-        extraJs: ["/js/administracao.js"],
+        extraJs: [
+          "/js/administracao-shared.js",
+          "/js/administracao-forms.js",
+          "/js/administracao-actions.js",
+          "/js/administracao.js",
+        ],
         adminSnapshot: context,
       });
     } catch (error) {

@@ -8,16 +8,8 @@ const {
 } = require("../../config/permissions");
 const { registrarAuditoria } = require("../../services/auditService");
 const { refreshSessionPermissions } = require("../../services/accessControlService");
-
-function parseBoolean(value) {
-  if (value === true || value === "true") return true;
-  if (value === false || value === "false") return false;
-  return undefined;
-}
-
-function escapeRegex(value) {
-  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+const { parseBoolean } = require("../../services/shared/valueParsingService");
+const { escapeRegex } = require("../../services/shared/searchUtilsService");
 
 function toArray(value) {
   if (Array.isArray(value)) return value;

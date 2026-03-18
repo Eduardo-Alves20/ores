@@ -1,6 +1,7 @@
 ﻿const Usuario = require("../schemas/core/Usuario");
 const { PERFIS } = require("../config/roles");
 const {
+  PERMISSIONS,
   getDefaultPermissionsForProfile,
   normalizePermissionList,
 } = require("../config/permissions");
@@ -77,12 +78,27 @@ async function resolvePermissionsForUserId(userId, fallbackPerfil = "") {
     return mapPermissoesDeFuncoes(funcoesAtivas);
   }
 
-  if (
-    perfil === PERFIS.USUARIO &&
-    String(user.tipoCadastro || "").toLowerCase() === "voluntario" &&
-    user.nivelAcessoVoluntario
-  ) {
-    return getPermissionsForVolunteerAccessLevel(user.nivelAcessoVoluntario);
+  if (perfil === PERFIS.USUARIO) {
+    const tipoCadastro = String(user.tipoCadastro || "").toLowerCase();
+
+    if (tipoCadastro === "voluntario") {
+      if (user.nivelAcessoVoluntario) {
+        return getPermissionsForVolunteerAccessLevel(user.nivelAcessoVoluntario);
+      }
+
+      return normalizePermissionList([
+        PERMISSIONS.PORTAL_MEUS_DADOS,
+        PERMISSIONS.NOTIFICACOES_VIEW,
+      ]);
+    }
+
+    if (tipoCadastro === "familia") {
+      return normalizePermissionList([
+        PERMISSIONS.PORTAL_MEUS_DADOS,
+        PERMISSIONS.PORTAL_MINHA_FAMILIA,
+        PERMISSIONS.NOTIFICACOES_VIEW,
+      ]);
+    }
   }
 
   return getDefaultPermissionsForProfile(perfil);
@@ -92,7 +108,14 @@ async function resolvePermissionsFromSession(req) {
   const sessionUser = req?.session?.user || null;
   if (!sessionUser) return [];
 
-  if (Array.isArray(sessionUser.permissions) && sessionUser.permissions.length) {
+  const shouldRefreshUsuarioPermissions =
+    String(sessionUser.perfil || "").toLowerCase() === PERFIS.USUARIO;
+
+  if (
+    Array.isArray(sessionUser.permissions) &&
+    sessionUser.permissions.length &&
+    !shouldRefreshUsuarioPermissions
+  ) {
     return normalizePermissionList(sessionUser.permissions);
   }
 

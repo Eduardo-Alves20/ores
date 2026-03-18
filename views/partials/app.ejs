@@ -56,7 +56,13 @@
     ></button>
 
     <aside class="sidebar" data-sidebar>
-      <div class="sidebar-brand">GESA</div>
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-mark">G</span>
+        <div class="sidebar-brand-copy">
+          <strong>GESA</strong>
+          <small>gestao social assistencial</small>
+        </div>
+      </div>
 
       <%
         const userPerms = Array.isArray(currentUser?.permissions) ? currentUser.permissions : [];
@@ -76,9 +82,28 @@
         const helpDeskHref = moduleLinks?.helpDeskUrl ? "/modulos/help-desk/acessar" : "/modulos/help-desk";
         const hdiHref = moduleLinks?.hdiUrl ? "/modulos/hdi/acessar" : "/modulos/hdi";
         const usuariosGroupOpen = ["usuarios-familia", "usuarios-voluntario"].includes(navKey);
+        const showPortalMenu = normalizedProfile === "usuario" && (
+          hasPerm("portal.meus_dados") || hasPerm("portal.minha_familia")
+        );
+        const showWorkspaceMenu = normalizedProfile !== "usuario" || [
+          "dashboard.view",
+          "familias.view",
+          "agenda.view",
+          "relatorios.view",
+          "busca.global",
+          "acessos.view",
+          "usuarios.manage",
+        ].some((perm) => hasPerm(perm));
+        const userInitials = String(currentUser?.nome || "Admin Gesa")
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part.charAt(0).toUpperCase())
+          .join("") || "AG";
       %>
       <nav class="sidebar-nav">
-        <% if (currentUser?.perfil === 'usuario') { %>
+        <% if (showPortalMenu) { %>
           <% if (hasPerm("portal.minha_familia")) { %>
             <a href="/minha-familia" class="sidebar-link <%= navKey === 'minha-familia' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>
@@ -91,7 +116,8 @@
               <span>Meus Dados</span>
             </a>
           <% } %>
-        <% } else { %>
+        <% } %>
+        <% if (showWorkspaceMenu) { %>
           <% if (hasPerm("dashboard.view")) { %>
             <a href="/painel" class="sidebar-link <%= navKey === 'home' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
@@ -190,7 +216,10 @@
 
     <div class="app-main">
       <header class="topbar">
-        <h1 class="topbar-title"><%= sectionTitle || title || "Tela" %></h1>
+        <div class="topbar-heading">
+          <span class="topbar-kicker">Operacao social</span>
+          <h1 class="topbar-title"><%= sectionTitle || title || "Tela" %></h1>
+        </div>
         <div class="topbar-actions">
           <% if (hasPerm("notificacoes.view")) { %>
             <a
@@ -203,11 +232,11 @@
             </a>
           <% } %>
           <a href="/perfil" class="topbar-user topbar-profile-link <%= navKey === 'perfil' ? 'is-active' : '' %>">
+            <span class="topbar-user-avatar"><%= userInitials %></span>
             <div class="topbar-user-meta">
               <strong><%= currentUser?.nome || 'Admin Gesa' %></strong>
               <small><%= profileLabel || 'Gestor Social' %></small>
             </div>
-            <span class="user-dot"></span>
           </a>
         </div>
       </header>

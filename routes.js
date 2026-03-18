@@ -20,9 +20,9 @@ const modulosRoutes = require("./Routes/modulos/modulosRoutes");
 const DashboardController = require("./Controllers/admin/DashboardController");
 const AgendaPageController = require("./Controllers/agenda/AgendaPageController");
 const AgendaPresencaPageController = require("./Controllers/agenda/AgendaPresencaPageController");
-const { PERFIS } = require("./config/roles");
 const { PERMISSIONS } = require("./config/permissions");
 const { buildRobotsTxt, buildSitemapXml } = require("./services/seoService");
+const { resolveLandingRouteForUser } = require("./services/shared/navigationService");
 
 const { requireAuth, requirePermission } = require("./middlewares/authSession");
 
@@ -39,13 +39,7 @@ const limiter = rateLimit({
 
 router.get("/", (req, res) => {
   if (req?.session?.user) {
-    if (req.session.user.perfil === PERFIS.USUARIO) {
-      if (String(req.session.user.tipoCadastro || "").toLowerCase() === "familia") {
-        return res.redirect("/minha-familia");
-      }
-      return res.redirect("/meus-dados");
-    }
-    return res.redirect("/painel");
+    return res.redirect(resolveLandingRouteForUser(req.session.user));
   }
   return res.redirect("/login");
 });
@@ -87,7 +81,8 @@ router.use(requireAuth);
 router.use("/", contaRoutes);
 router.use("/", acessoPageRoutes);
 router.use("/", segurancaRoutes);
-router.use("/", administracaoRoutes);
+router.use("/administracao", administracaoRoutes);
+router.use("/api/administracao", administracaoRoutes);
 
 router.get("/painel", requirePermission(PERMISSIONS.DASHBOARD_VIEW), DashboardController.index);
 router.get("/agenda", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaPageController.index);

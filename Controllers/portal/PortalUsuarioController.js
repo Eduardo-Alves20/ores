@@ -3,7 +3,11 @@ const Familia = require("../../schemas/social/Familia");
 const { Paciente } = require("../../schemas/social/Paciente");
 const { Atendimento, TIPOS_ATENDIMENTO } = require("../../schemas/social/Atendimento");
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
-const { PERFIS } = require("../../config/roles");
+const { PERFIS, getProfileLabel } = require("../../config/roles");
+const { PERMISSIONS } = require("../../config/permissions");
+const { getVolunteerAccessLabel } = require("../../config/volunteerAccess");
+const { hasAnyPermission } = require("../../services/accessControlService");
+const { escapeRegex } = require("../../services/shared/searchUtilsService");
 
 const USER_FAMILIA_LIMIT_OPTIONS = [9, 12, 18, 30, 60];
 const USER_AGENDA_LIMIT = 12;
@@ -81,10 +85,6 @@ function mapPresenceStatusLabel(status) {
   return labels[String(status || "").trim()] || "Pendente";
 }
 
-function escapeRegex(value) {
-  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function parseFiltroTipo(raw) {
   const value = String(raw || "todos").toLowerCase().trim();
   if (TIPOS_ATENDIMENTO.includes(value)) return value;
@@ -107,6 +107,75 @@ function parseFiltroLimit(raw) {
   const parsed = Number.parseInt(String(raw || ""), 10);
   if (USER_FAMILIA_LIMIT_OPTIONS.includes(parsed)) return parsed;
   return 18;
+}
+
+function hasPerm(user, permission) {
+  return hasAnyPermission(user?.permissions || [], [permission]);
+}
+
+function buildPortalQuickLinks(user) {
+  const links = [];
+
+  if (hasPerm(user, PERMISSIONS.PORTAL_MEUS_DADOS)) {
+    links.push({
+      href: "/meus-dados",
+      label: "Meus Dados",
+      description: "Veja seus dados cadastrais e o tipo de acesso liberado.",
+      icon: "fa-address-card",
+    });
+  }
+
+  if (hasPerm(user, PERMISSIONS.PORTAL_MINHA_FAMILIA)) {
+    links.push({
+      href: "/minha-familia",
+      label: "Minha Familia",
+      description: "Acompanhe atendimentos, agenda e registros da familia.",
+      icon: "fa-heart",
+    });
+  }
+
+  if (hasPerm(user, PERMISSIONS.DASHBOARD_VIEW)) {
+    links.push({
+      href: "/painel",
+      label: "Painel",
+      description: "Acesse indicadores e a visao geral da operacao social.",
+      icon: "fa-chart-line",
+    });
+  }
+
+  if (hasPerm(user, PERMISSIONS.FAMILIAS_VIEW)) {
+    links.push({
+      href: "/familias",
+      label: "Assistidos",
+      description: "Consulte familias, dependentes e acompanhamentos.",
+      icon: "fa-people-group",
+    });
+  }
+
+  if (hasPerm(user, PERMISSIONS.AGENDA_VIEW)) {
+    links.push({
+      href: "/agenda",
+      label: "Agenda",
+      description: "Visualize compromissos e a organizacao dos atendimentos.",
+      icon: "fa-calendar-days",
+    });
+  }
+
+  return links;
+}
+
+function buildAccessHighlights(user) {
+  const highlights = [];
+
+  if (hasPerm(user, PERMISSIONS.DASHBOARD_VIEW)) highlights.push("Painel executivo");
+  if (hasPerm(user, PERMISSIONS.FAMILIAS_VIEW)) highlights.push("Consulta de assistidos");
+  if (hasPerm(user, PERMISSIONS.ATENDIMENTOS_CREATE)) highlights.push("Registro de atendimentos");
+  if (hasPerm(user, PERMISSIONS.AGENDA_VIEW)) highlights.push("Agenda");
+  if (hasPerm(user, PERMISSIONS.AGENDA_ATTENDANCE)) highlights.push("Presencas");
+  if (hasPerm(user, PERMISSIONS.RELATORIOS_VIEW)) highlights.push("Relatorios");
+  if (hasPerm(user, PERMISSIONS.BUSCA_GLOBAL)) highlights.push("Busca global");
+
+  return highlights;
 }
 
 function mapAgendaCard(item) {
@@ -167,8 +236,13 @@ class PortalUsuarioController {
         navKey: "meus-dados",
         layout: "partials/app.ejs",
         pageClass: "page-usuario-meus-dados",
+        extraCss: ["/css/usuario-portal.css"],
         usuario,
+        perfilLabel: getProfileLabel(usuario?.perfil),
         tipoCadastroLabel: mapTipoCadastroLabel(usuario?.tipoCadastro),
+        nivelAcessoVoluntarioLabel: getVolunteerAccessLabel(usuario?.nivelAcessoVoluntario),
+        quickLinks: buildPortalQuickLinks(req?.session?.user),
+        accessHighlights: buildAccessHighlights(req?.session?.user),
       });
     } catch (error) {
       console.error("Erro ao carregar meus dados:", error);

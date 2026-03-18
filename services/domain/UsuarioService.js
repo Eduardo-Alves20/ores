@@ -9,6 +9,8 @@ const {
   compararSenha,
 } = require("../security/passwordService");
 const { normalizeCustomFieldValues } = require("../systemConfigService");
+const { parseBoolean } = require("../shared/valueParsingService");
+const { escapeRegex } = require("../shared/searchUtilsService");
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;
@@ -56,10 +58,6 @@ function isValidLogin(login) {
   return /^[a-z0-9._-]{3,40}$/.test(String(login || ""));
 }
 
-function escapeRegex(value) {
-  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function isValidCpf(cpf) {
   const value = normalizeCpf(cpf);
   if (!value || value.length !== 11) return false;
@@ -87,12 +85,6 @@ function sanitizeUser(usuario) {
   const u = usuario.toObject ? usuario.toObject({ flattenMaps: true }) : { ...usuario };
   delete u.senha;
   return u;
-}
-
-function parseBoolean(value) {
-  if (value === true || value === "true") return true;
-  if (value === false || value === "false") return false;
-  return undefined;
 }
 
 async function buscarUsuarioPorIdentificador(identificador) {

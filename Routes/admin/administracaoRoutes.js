@@ -7,19 +7,19 @@ const router = express.Router();
 
 router.use(requireAdmin);
 
-router.get("/administracao", AdministracaoController.page);
-router.get("/api/administracao/configuracoes", AdministracaoController.config);
+router.get("/", AdministracaoController.page);
+router.get("/configuracoes", AdministracaoController.config);
 
-router.post("/api/administracao/justificativas", AdministracaoController.criarJustificativa);
-router.put("/api/administracao/justificativas/:id", AdministracaoController.atualizarJustificativa);
-router.patch("/api/administracao/justificativas/:id/status", AdministracaoController.alterarStatusJustificativa);
+router.post("/justificativas", AdministracaoController.criarJustificativa);
+router.put("/justificativas/:id", AdministracaoController.atualizarJustificativa);
+router.patch("/justificativas/:id/status", AdministracaoController.alterarStatusJustificativa);
 
-router.post("/api/administracao/campos", AdministracaoController.criarCampo);
-router.put("/api/administracao/campos/:id", AdministracaoController.atualizarCampo);
-router.patch("/api/administracao/campos/:id/status", AdministracaoController.alterarStatusCampo);
+router.post("/campos", AdministracaoController.criarCampo);
+router.put("/campos/:id", AdministracaoController.atualizarCampo);
+router.patch("/campos/:id/status", AdministracaoController.alterarStatusCampo);
 
-router.post("/api/administracao/filtros", AdministracaoController.criarFiltro);
-router.put("/api/administracao/filtros/:id", AdministracaoController.atualizarFiltro);
-router.patch("/api/administracao/filtros/:id/status", AdministracaoController.alterarStatusFiltro);
+router.post("/filtros", AdministracaoController.criarFiltro);
+router.put("/filtros/:id", AdministracaoController.atualizarFiltro);
+router.patch("/filtros/:id/status", AdministracaoController.alterarStatusFiltro);
 
 module.exports = router;

@@ -21,7 +21,9 @@
     </div>
     <div class="familias-header-actions">
       <a href="/familias" class="btn btn-muted">Voltar</a>
-      <a href="/familias/<%= familia._id %>/editar" class="btn btn-primary">Editar Familia</a>
+      <% if (viewFlags?.canEditFamily) { %>
+        <a href="/familias/<%= familia._id %>/editar" class="btn btn-primary">Editar Familia</a>
+      <% } %>
     </div>
   </header>
 
@@ -50,9 +52,13 @@
       <article class="resumo-item">
         <h2>Status</h2>
         <p><span class="status-badge <%= familia?.ativo ? 'status-active' : 'status-inactive' %>" id="resumo-status"><%= familia?.ativo ? "Ativa" : "Inativa" %></span></p>
-        <button class="btn btn-muted" id="familia-toggle-status" type="button">
-          <%= familia?.ativo ? "Inativar Familia" : "Reativar Familia" %>
-        </button>
+        <% if (viewFlags?.canToggleFamilyStatus) { %>
+          <button class="btn btn-muted" id="familia-toggle-status" type="button">
+            <%= familia?.ativo ? "Inativar Familia" : "Reativar Familia" %>
+          </button>
+        <% } else { %>
+          <small class="section-subtitle">Somente administracao pode alterar o status da familia.</small>
+        <% } %>
       </article>
     </div>
     <p class="observacao-livre"><strong>Observacoes:</strong> <span id="resumo-observacoes"><%= familia?.observacoes || "-" %></span></p>
@@ -92,9 +98,15 @@
           <span class="badge-soft" id="pacientes-count">0</span>
         </div>
         <div id="pacientes-lista" class="stack-list"></div>
-        <div class="panel-actions">
-          <button type="button" class="btn btn-primary" id="paciente-novo-btn">Registrar Dependente</button>
-        </div>
+        <% if (viewFlags?.canCreatePatient) { %>
+          <div class="panel-actions">
+            <button type="button" class="btn btn-primary" id="paciente-novo-btn">Registrar Dependente</button>
+          </div>
+        <% } else { %>
+          <div class="panel-actions">
+            <small class="section-subtitle">Perfil em modo visualizacao. Somente administracao registra ou altera dependentes.</small>
+          </div>
+        <% } %>
 
         <form id="paciente-form" class="form-stack panel-inline-form" hidden>
           <h3 class="section-title panel-title">Novo Dependente</h3>
@@ -132,12 +144,14 @@
       <section id="panel-dependente" class="workflow-panel" hidden>
         <div class="listagem-head">
           <h3 class="section-title panel-title">Ficha do Dependente</h3>
-          <div class="panel-head-actions">
-            <button type="button" class="btn btn-muted" id="dependente-editar-btn">
-              <i class="fa-solid fa-pen-to-square"></i>
-              Editar
-            </button>
-          </div>
+          <% if (viewFlags?.canEditPatient) { %>
+            <div class="panel-head-actions">
+              <button type="button" class="btn btn-muted" id="dependente-editar-btn">
+                <i class="fa-solid fa-pen-to-square"></i>
+                Editar
+              </button>
+            </div>
+          <% } %>
         </div>
 
         <div id="dependente-detalhe" class="stack-card">
@@ -189,10 +203,12 @@
         <section class="historico-spotlight">
           <div class="historico-spotlight-copy">
             <p class="familias-overline">Registro social</p>
-            <h3>Registrar atendimento sem perder o contexto</h3>
-            <p>Salve resumo, proximos passos e o voluntario atendido direto da linha do tempo da familia.</p>
+            <h3><%= viewFlags?.canCreateAttendance ? "Registrar atendimento sem perder o contexto" : "Consultar historico sem alterar registros" %></h3>
+            <p><%= viewFlags?.canCreateAttendance ? "Salve resumo, proximos passos e o voluntario atendido direto da linha do tempo da familia." : "Acompanhe o historico da familia em modo de leitura, sem alterar registros existentes." %></p>
           </div>
-          <button type="button" class="btn btn-primary historico-spotlight-btn" id="historico-registrar-btn">Registrar Atendimento</button>
+          <% if (viewFlags?.canCreateAttendance) { %>
+            <button type="button" class="btn btn-primary historico-spotlight-btn" id="historico-registrar-btn">Registrar Atendimento</button>
+          <% } %>
         </section>
 
         <div class="listagem-head">
@@ -247,12 +263,14 @@
       <section id="panel-atendimento" class="workflow-panel" hidden>
         <div class="listagem-head">
           <h3 class="section-title panel-title">Ficha do Atendimento</h3>
-          <div class="panel-head-actions">
-            <button type="button" class="btn btn-muted" id="atendimento-editar-btn">
-              <i class="fa-solid fa-pen-to-square"></i>
-              Editar
-            </button>
-          </div>
+          <% if (viewFlags?.canEditAttendance) { %>
+            <div class="panel-head-actions">
+              <button type="button" class="btn btn-muted" id="atendimento-editar-btn">
+                <i class="fa-solid fa-pen-to-square"></i>
+                Editar
+              </button>
+            </div>
+          <% } %>
         </div>
         <div id="atendimento-detalhe" class="timeline-card consulta-card-detail-wrap">
           <p class="empty-hint">Selecione um atendimento no historico para visualizar a ficha.</p>
@@ -306,3 +324,4 @@
     </div>
   </section>
 </section>
+<script id="familia-detail-flags" type="application/json"><%- JSON.stringify(viewFlags || {}) %></script>

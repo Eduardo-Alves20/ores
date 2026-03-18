@@ -1,6 +1,7 @@
 const Usuario = require("../schemas/core/Usuario");
 const { PERFIS } = require("../config/roles");
 const { APPROVAL_ROLES } = require("../config/approvalRoles");
+const { VOLUNTARIO_ACCESS_LEVELS } = require("../config/volunteerAccess");
 const { hashSenha } = require("./security/passwordService");
 
 function isDevLike() {
@@ -38,6 +39,7 @@ async function upsertDemoUser({
   perfil,
   tipoCadastro = "voluntario",
   papelAprovacao = APPROVAL_ROLES.MEMBRO,
+  nivelAcessoVoluntario = null,
 }) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
   const passwordHash = await hashSenha(String(senha || ""));
@@ -50,6 +52,7 @@ async function upsertDemoUser({
     senha: passwordHash,
     perfil,
     tipoCadastro,
+    nivelAcessoVoluntario: tipoCadastro === "voluntario" ? nivelAcessoVoluntario : null,
     papelAprovacao,
     ativo: true,
     statusAprovacao: "aprovado",
@@ -98,6 +101,7 @@ async function ensureDemoUsers() {
       nome: process.env.DEMO_USER_NAME || "Usuario Demo",
       senha: process.env.DEMO_USER_PASSWORD || "usuario123",
       perfil: PERFIS.USUARIO,
+      nivelAcessoVoluntario: VOLUNTARIO_ACCESS_LEVELS.SERVICO_SOCIAL,
     }),
     upsertDemoUser({
       email: "admin1@alento.local",

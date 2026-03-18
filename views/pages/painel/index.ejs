@@ -1,57 +1,355 @@
-<section class="dashboard-page">
-  <header class="dashboard-welcome">
-    <h2>Bem-vindo de volta!</h2>
-    <p>Aqui está o resumo dos atendimentos sociais hoje.</p>
+<%
+  const timelineChart = charts?.timeline || {};
+  const distributionChart = charts?.distribution || {};
+  const teamLoadChart = charts?.teamLoad || {};
+  const summaryTrendIcons = {
+    up: "fa-solid fa-arrow-trend-up",
+    down: "fa-solid fa-arrow-trend-down",
+    flat: "fa-solid fa-minus",
+  };
+%>
+
+<section class="dashboard-home">
+  <header class="dashboard-hero card-elevated">
+    <div class="dashboard-hero-main">
+      <p class="dashboard-overline">Painel operacional</p>
+      <h2 class="dashboard-hero-title"><%= hero?.greeting || "Painel Administrativo" %></h2>
+      <p class="dashboard-hero-subtitle"><%= hero?.subtitle || "Resumo rapido da operacao social." %></p>
+
+      <div class="dashboard-hero-stats">
+        <% (hero?.stats || []).forEach((item) => { %>
+          <article class="dashboard-hero-stat">
+            <span><%= item.label %></span>
+            <strong><%= item.value %></strong>
+          </article>
+        <% }) %>
+      </div>
+
+      <% if (hero?.search?.enabled) { %>
+        <form
+          class="dashboard-search"
+          method="get"
+          action="<%= hero.search.action %>"
+          data-dashboard-search
+        >
+          <label class="dashboard-search-field">
+            <span class="dashboard-search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input
+              class="dashboard-search-input"
+              type="search"
+              name="busca"
+              placeholder="<%= hero.search.placeholder %>"
+              autocomplete="off"
+              data-dashboard-search-input
+            />
+            <button type="submit" class="btn btn-primary dashboard-search-submit">Buscar</button>
+          </label>
+          <div class="dashboard-search-results" hidden data-dashboard-search-results></div>
+        </form>
+      <% } %>
+
+      <% if (Array.isArray(hero?.quickActions) && hero.quickActions.length) { %>
+        <div class="dashboard-action-grid">
+          <% hero.quickActions.forEach((action) => { %>
+            <a href="<%= action.href %>" class="dashboard-action-card">
+              <span class="dashboard-action-icon" aria-hidden="true"><i class="<%= action.icon %>"></i></span>
+              <span class="dashboard-action-copy">
+                <strong><%= action.label %></strong>
+                <small><%= action.description %></small>
+              </span>
+              <% if (action.badge) { %>
+                <span class="dashboard-action-badge"><%= action.badge %></span>
+              <% } %>
+            </a>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <aside class="dashboard-priority-panel">
+      <div class="dashboard-panel-head compact">
+        <div>
+          <p class="dashboard-panel-overline">Prioridades</p>
+          <h3>O que merece acao agora</h3>
+        </div>
+      </div>
+
+      <div class="dashboard-alert-list">
+        <% (alerts || []).forEach((item) => { %>
+          <% if (item.href) { %>
+            <a href="<%= item.href %>" class="dashboard-alert-card tone-<%= item.tone %>">
+              <span class="dashboard-alert-icon" aria-hidden="true"><i class="<%= item.icon %>"></i></span>
+              <span class="dashboard-alert-copy">
+                <strong><%= item.label %></strong>
+                <small><%= item.description %></small>
+              </span>
+              <span class="dashboard-alert-value"><%= item.value %></span>
+            </a>
+          <% } else { %>
+            <article class="dashboard-alert-card tone-<%= item.tone %> is-static">
+              <span class="dashboard-alert-icon" aria-hidden="true"><i class="<%= item.icon %>"></i></span>
+              <span class="dashboard-alert-copy">
+                <strong><%= item.label %></strong>
+                <small><%= item.description %></small>
+              </span>
+              <span class="dashboard-alert-value"><%= item.value %></span>
+            </article>
+          <% } %>
+        <% }) %>
+      </div>
+    </aside>
   </header>
 
-  <section class="stats-grid">
-    <% cards.forEach((card) => { %>
-      <article class="stat-card">
-        <span class="stat-icon">
-          <i class="<%= card.icon %>"></i>
-        </span>
-        <span class="stat-title"><%= card.title %></span>
-        <strong class="stat-value"><%= card.value %></strong>
-        <small class="stat-hint"><%= card.hint %></small>
-      </article>
+  <section class="dashboard-summary-grid">
+    <% (summaryCards || []).forEach((card) => { %>
+      <% const trend = card?.trend || null; %>
+      <% const cardInner = `
+        <div class="dashboard-summary-icon" aria-hidden="true"><i class="${card.icon}"></i></div>
+        <div class="dashboard-summary-copy">
+          <span class="dashboard-summary-title">${card.title}</span>
+          <strong class="dashboard-summary-value">${card.value}</strong>
+          <small class="dashboard-summary-caption">${card.caption || ""}</small>
+        </div>
+        ${trend ? `
+          <span class="dashboard-summary-trend tone-${trend.tone}">
+            <i class="${summaryTrendIcons[trend.direction] || summaryTrendIcons.flat}" aria-hidden="true"></i>
+            <span>${trend.label}</span>
+          </span>
+        ` : ""}
+        ${card?.progress ? `
+          <div class="dashboard-summary-progress">
+            <div class="dashboard-summary-progress-bar">
+              <span style="width:${card.progress.value}%;"></span>
+            </div>
+            <small>${card.progress.label}</small>
+          </div>
+        ` : ""}
+      `; %>
+
+      <% if (card?.href) { %>
+        <a href="<%= card.href %>" class="dashboard-summary-card card-elevated">
+          <%- cardInner %>
+        </a>
+      <% } else { %>
+        <article class="dashboard-summary-card card-elevated">
+          <%- cardInner %>
+        </article>
+      <% } %>
     <% }) %>
   </section>
 
-  <section class="module-card">
-    <header class="module-header">
-      <span class="module-title">Cadastros Recentes</span>
-      <a href="/familias" class="module-link">Ver todos</a>
+  <section class="dashboard-grid dashboard-grid-primary">
+    <article class="dashboard-panel card-elevated dashboard-panel-timeline">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline">Tendencia</p>
+          <h3><%= timelineChart?.title %></h3>
+          <p><%= timelineChart?.subtitle %></p>
+        </div>
+        <div class="dashboard-range-switch" data-dashboard-range-switch>
+          <button type="button" class="dashboard-range-btn is-active" data-dashboard-range="6">6 meses</button>
+          <button type="button" class="dashboard-range-btn" data-dashboard-range="12">12 meses</button>
+        </div>
+      </header>
+
+      <div class="dashboard-chart-kpis">
+        <article class="dashboard-chart-kpi">
+          <span>Cadastros em 6 meses</span>
+          <strong><%= Number(timelineChart?.totals?.cadastros6 || 0).toLocaleString("pt-BR") %></strong>
+        </article>
+        <article class="dashboard-chart-kpi">
+          <span>Atendimentos em 6 meses</span>
+          <strong><%= Number(timelineChart?.totals?.atendimentos6 || 0).toLocaleString("pt-BR") %></strong>
+        </article>
+      </div>
+
+      <div class="dashboard-line-chart-shell">
+        <div class="dashboard-chart-tooltip" hidden data-dashboard-tooltip></div>
+        <div class="dashboard-line-chart" data-dashboard-line-chart></div>
+      </div>
+
+      <div class="dashboard-chart-legend">
+        <span><i style="background:#b24a32;"></i>Cadastros</span>
+        <span><i style="background:#d19984;"></i>Atendimentos</span>
+      </div>
+    </article>
+
+    <article class="dashboard-panel card-elevated">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline">Distribuicao</p>
+          <h3><%= distributionChart?.title %></h3>
+          <p><%= distributionChart?.subtitle %></p>
+        </div>
+      </header>
+
+      <% if (Number(distributionChart?.total || 0) > 0) { %>
+        <div class="dashboard-donut-layout">
+          <div class="dashboard-donut-chart" style="--dashboard-donut:<%= distributionChart.gradient %>;">
+            <div class="dashboard-donut-center">
+              <strong><%= Number(distributionChart.total || 0).toLocaleString("pt-BR") %></strong>
+              <span>agenda(s)</span>
+            </div>
+          </div>
+
+          <div class="dashboard-donut-legend">
+            <% (distributionChart?.items || []).forEach((item) => { %>
+              <article class="dashboard-donut-item">
+                <span class="dashboard-donut-swatch" style="background:<%= item.color %>;"></span>
+                <span class="dashboard-donut-copy">
+                  <strong><%= item.label %></strong>
+                  <small><%= Number(item.value || 0).toLocaleString("pt-BR") %> registro(s)</small>
+                </span>
+                <span class="dashboard-donut-share"><%= item.share %>%</span>
+              </article>
+            <% }) %>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="dashboard-empty-state">
+          <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+          <p><%= emptyStates?.distribution %></p>
+        </div>
+      <% } %>
+    </article>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-secondary">
+    <article class="dashboard-panel card-elevated">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline">Equipe</p>
+          <h3><%= teamLoadChart?.title %></h3>
+          <p><%= teamLoadChart?.subtitle %></p>
+        </div>
+      </header>
+
+      <% if (Array.isArray(teamLoadChart?.items) && teamLoadChart.items.length) { %>
+        <div class="dashboard-bar-list">
+          <% teamLoadChart.items.forEach((item) => { %>
+            <article class="dashboard-bar-card" title="<%= item.hint %>">
+              <div class="dashboard-bar-top">
+                <div class="dashboard-bar-person">
+                  <span class="dashboard-avatar soft"><%= item.initials %></span>
+                  <div>
+                    <strong><%= item.label %></strong>
+                    <small><%= item.hint %></small>
+                  </div>
+                </div>
+                <strong class="dashboard-bar-value"><%= Number(item.value || 0).toLocaleString("pt-BR") %></strong>
+              </div>
+              <div class="dashboard-bar-track">
+                <span class="dashboard-bar-fill" style="width:<%= item.share %>%;"></span>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="dashboard-empty-state">
+          <i class="fa-solid fa-users" aria-hidden="true"></i>
+          <p><%= emptyStates?.teamLoad %></p>
+        </div>
+      <% } %>
+    </article>
+
+    <article class="dashboard-panel card-elevated">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline">Leituras rapidas</p>
+          <h3>Insights para a decisao</h3>
+          <p>Atalhos visuais que ajudam a entender volume, carga e comportamento recente da operacao.</p>
+        </div>
+      </header>
+
+      <% if (Array.isArray(highlights) && highlights.length) { %>
+        <div class="dashboard-highlight-list">
+          <% highlights.forEach((item) => { %>
+            <article class="dashboard-highlight-card">
+              <span class="dashboard-highlight-icon" aria-hidden="true"><i class="<%= item.icon %>"></i></span>
+              <div>
+                <strong><%= item.title %></strong>
+                <h4><%= item.value %></h4>
+                <p><%= item.description %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="dashboard-empty-state">
+          <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+          <p>Assim que houver volume suficiente, os destaques analiticos aparecem aqui.</p>
+        </div>
+      <% } %>
+    </article>
+  </section>
+
+  <section class="dashboard-panel card-elevated dashboard-table-panel">
+    <header class="dashboard-panel-head">
+      <div>
+        <p class="dashboard-panel-overline">Cadastros recentes</p>
+        <h3>Ultimos registros incluidos na base</h3>
+        <p>Consulte responsavel, status, volume de dependentes e quem abriu o cadastro sem sair da home.</p>
+      </div>
+      <% if (viewFlags?.canViewFamilies) { %>
+        <a href="/familias" class="btn btn-muted dashboard-table-link">Ver todos</a>
+      <% } %>
     </header>
 
-    <div class="table-wrap">
-      <table class="data-table" data-stack-mobile="true">
+    <div class="dashboard-table-wrap">
+      <table class="dashboard-table" data-stack-mobile="true">
         <thead>
           <tr>
-            <th>Nome</th>
+            <th>Familia</th>
             <th>Status</th>
-            <th>Data Cadastro</th>
-            <th>Responsável</th>
+            <th>Dependentes</th>
+            <th>Cidade</th>
+            <th>Cadastro</th>
+            <th>Responsavel</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
-          <% cadastros.forEach((row) => { %>
+          <% if (Array.isArray(recentRows) && recentRows.length) { %>
+            <% recentRows.forEach((row) => { %>
+              <tr>
+                <td data-label="Familia">
+                  <a href="<%= row.href %>" class="dashboard-table-person">
+                    <span class="dashboard-avatar"><%= row.initials %></span>
+                    <span class="dashboard-table-person-copy">
+                      <strong><%= row.nome %></strong>
+                      <small><%= row.telefone %></small>
+                    </span>
+                  </a>
+                </td>
+                <td data-label="Status">
+                  <span class="status-badge <%= row.statusTone === 'active' ? 'status-active' : 'status-inactive' %>"><%= row.status %></span>
+                </td>
+                <td data-label="Dependentes">
+                  <span class="dashboard-table-metric"><strong><%= row.dependentes %></strong> total</span>
+                  <small class="dashboard-table-note"><%= row.dependentesAtivos %> ativo(s)</small>
+                </td>
+                <td data-label="Cidade"><%= row.cidade %></td>
+                <td data-label="Cadastro"><%= row.data %></td>
+                <td data-label="Responsavel">
+                  <span class="dashboard-table-owner">
+                    <span class="dashboard-avatar soft"><%= row.responsavelCadastroInitials %></span>
+                    <span><%= row.responsavelCadastro %></span>
+                  </span>
+                </td>
+                <td data-label="Acoes">
+                  <a href="<%= row.href %>" class="dashboard-table-action">Abrir</a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
             <tr>
-              <td data-label="Nome"><%= row.nome %></td>
-              <td data-label="Status">
-                <% if (row.status === "ATIVO") { %>
-                  <span class="status-badge status-active">ATIVO</span>
-                <% } else if (row.status === "PENDENTE") { %>
-                  <span class="status-badge status-pending">PENDENTE</span>
-                <% } else { %>
-                  <span class="status-badge status-inactive">INATIVO</span>
-                <% } %>
-              </td>
-              <td data-label="Data Cadastro"><%= row.data %></td>
-              <td data-label="Responsavel"><%= row.responsavel %></td>
+              <td colspan="7" class="dashboard-table-empty"><%= emptyStates?.recentRows %></td>
             </tr>
-          <% }) %>
+          <% } %>
         </tbody>
       </table>
     </div>
   </section>
 </section>
+
+<script id="dashboard-data" type="application/json"><%- JSON.stringify(dashboardData || {}) %></script>
