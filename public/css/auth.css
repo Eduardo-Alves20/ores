@@ -80,6 +80,14 @@
   font-size: 0.9rem;
 }
 
+.auth-supporting-copy {
+  margin: -10px 0 22px;
+  text-align: center;
+  color: #5f5651;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
 .auth-error {
   margin-bottom: 12px;
   border-radius: 10px;

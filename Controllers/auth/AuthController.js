@@ -28,9 +28,11 @@ class AuthController {
     }
 
     return res.status(200).render("pages/auth/login", {
-      title: "Login",
+      title: "Login do GESA",
       layout: "partials/login.ejs",
       pageClass: "page-auth",
+      metaDescription:
+        "Acesse o GESA, sistema de gestao social da Fundacao Alento para familias, voluntarios, atendimentos e agenda institucional.",
       errorMessage: req.flash("error"),
       successMessage,
     });
@@ -42,9 +44,11 @@ class AuthController {
     }
 
     return res.status(200).render("pages/auth/cadastro", {
-      title: "Criar Conta",
+      title: "Criar conta no GESA",
       layout: "partials/login.ejs",
       pageClass: "page-auth",
+      metaDescription:
+        "Solicite seu acesso ao GESA para acompanhar dados, atendimentos e processos da Fundacao Alento como familia ou voluntario.",
       errorMessage: req.flash("error"),
       successMessage: req.flash("success"),
       formData: {
@@ -250,4 +254,3 @@ class AuthController {
 }
 
 module.exports = AuthController;
-

@@ -1,0 +1,34 @@
+<%
+  const seoMeta = buildSeo({
+    title,
+    description: typeof metaDescription !== "undefined" ? metaDescription : undefined,
+    canonicalPath: typeof canonicalPath !== "undefined" ? canonicalPath : undefined,
+    noindex: typeof noindex !== "undefined" ? noindex : undefined,
+    imagePath: typeof seoImagePath !== "undefined" ? seoImagePath : undefined,
+    imageAlt: typeof seoImageAlt !== "undefined" ? seoImageAlt : undefined,
+    type: typeof seoType !== "undefined" ? seoType : undefined,
+    themeColor: typeof themeColor !== "undefined" ? themeColor : undefined,
+    schemas: typeof seoSchemas !== "undefined" ? seoSchemas : undefined,
+  });
+%>
+<title><%= seoMeta.title %></title>
+<meta name="description" content="<%= seoMeta.description %>" />
+<meta name="robots" content="<%= seoMeta.robots %>" />
+<meta name="application-name" content="GESA" />
+<meta name="theme-color" content="<%= seoMeta.themeColor %>" />
+<link rel="canonical" href="<%= seoMeta.canonicalUrl %>" />
+<meta property="og:locale" content="<%= seoMeta.locale %>" />
+<meta property="og:type" content="<%= seoMeta.type %>" />
+<meta property="og:title" content="<%= seoMeta.title %>" />
+<meta property="og:description" content="<%= seoMeta.description %>" />
+<meta property="og:url" content="<%= seoMeta.canonicalUrl %>" />
+<meta property="og:site_name" content="<%= seoMeta.siteName %>" />
+<meta property="og:image" content="<%= seoMeta.imageUrl %>" />
+<meta property="og:image:alt" content="<%= seoMeta.imageAlt %>" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="<%= seoMeta.title %>" />
+<meta name="twitter:description" content="<%= seoMeta.description %>" />
+<meta name="twitter:image" content="<%= seoMeta.imageUrl %>" />
+<% seoMeta.schemas.forEach((schema) => { %>
+  <script type="application/ld+json"><%- JSON.stringify(schema) %></script>
+<% }) %>

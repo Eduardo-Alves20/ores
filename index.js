@@ -10,6 +10,7 @@ const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const http = require("http");
 const { attachCurrentUser } = require("./middlewares/authSession");
+const { buildSeo } = require("./services/seoService");
 const Usuario = require("./schemas/core/Usuario");
 const { PERFIS } = require("./config/roles");
 const { PERMISSIONS } = require("./config/permissions");
@@ -120,6 +121,12 @@ app.use(async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.use((req, res, next) => {
+  res.locals.buildSeo = (overrides = {}) => buildSeo(req, overrides);
+  res.set("X-Robots-Tag", buildSeo(req).robots);
+  next();
 });
 
 app.use(

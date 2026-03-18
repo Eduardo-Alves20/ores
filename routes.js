@@ -22,6 +22,7 @@ const AgendaPageController = require("./Controllers/agenda/AgendaPageController"
 const AgendaPresencaPageController = require("./Controllers/agenda/AgendaPresencaPageController");
 const { PERFIS } = require("./config/roles");
 const { PERMISSIONS } = require("./config/permissions");
+const { buildRobotsTxt, buildSitemapXml } = require("./services/seoService");
 
 const { requireAuth, requirePermission } = require("./middlewares/authSession");
 
@@ -55,6 +56,26 @@ router.get("/health", (req, res) => {
     status: "ok",
     now: new Date().toISOString(),
   });
+});
+
+router.get("/robots.txt", (req, res) => {
+  return res.type("text/plain").send(buildRobotsTxt(req));
+});
+
+router.get("/sitemap.xml", (req, res) => {
+  return res.type("application/xml").send(buildSitemapXml(req));
+});
+
+router.get("/auth", (req, res) => {
+  return res.redirect(301, "/login");
+});
+
+router.get("/auth/login", (req, res) => {
+  return res.redirect(301, "/login");
+});
+
+router.get("/auth/cadastro", (req, res) => {
+  return res.redirect(301, "/cadastro");
 });
 
 router.use("/", authRoutes);
