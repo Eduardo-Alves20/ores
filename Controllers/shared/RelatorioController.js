@@ -1,5 +1,17 @@
 ﻿const Familia = require("../../schemas/social/Familia");
 const { Atendimento } = require("../../schemas/social/Atendimento");
+const {
+  buildConsultationAnalyticsViewModel,
+  buildConsultationAnalyticsFallbackViewModel,
+} = require("../../services/admin/consultationAnalyticsPageService");
+const {
+  buildProfessionalConsultationDetailViewModel,
+  buildProfessionalDetailFallbackViewModel,
+} = require("../../services/admin/consultationProfessionalDetailPageService");
+const {
+  buildConsultationWeekdayDetailViewModel,
+  buildConsultationWeekdayFallbackViewModel,
+} = require("../../services/admin/consultationWeekdayDetailPageService");
 
 function getPeriodo(req) {
   const meses = Math.min(Math.max(Number(req.query.meses) || 12, 1), 36);
@@ -79,9 +91,52 @@ class RelatorioController {
       return res.status(500).json({ erro: "Erro interno no relatorio de atendimentos." });
     }
   }
+
+  static async dashboardConsultas(req, res) {
+    try {
+      const viewModel = await buildConsultationAnalyticsViewModel(req);
+      return res.status(200).render("pages/relatorios/consultas-dashboard", viewModel);
+    } catch (error) {
+      console.error("Erro ao carregar dashboard de consultas:", error);
+      return res.status(500).render(
+        "pages/relatorios/consultas-dashboard",
+        buildConsultationAnalyticsFallbackViewModel(
+          req,
+          "N\u00e3o foi poss\u00edvel montar o dashboard de consultas agora."
+        )
+      );
+    }
+  }
+
+  static async dashboardConsultasProfissional(req, res) {
+    try {
+      const viewModel = await buildProfessionalConsultationDetailViewModel(req);
+      return res.status(200).render("pages/relatorios/consultas-profissional", viewModel);
+    } catch (error) {
+      console.error("Erro ao carregar análise detalhada do profissional:", error);
+      return res.status(500).render(
+        "pages/relatorios/consultas-profissional",
+        buildProfessionalDetailFallbackViewModel(
+          "Não foi possível carregar a análise detalhada do profissional."
+        )
+      );
+    }
+  }
+
+  static async dashboardConsultasDistribuicaoSemana(req, res) {
+    try {
+      const viewModel = await buildConsultationWeekdayDetailViewModel(req);
+      return res.status(200).render("pages/relatorios/consultas-distribuicao-semana", viewModel);
+    } catch (error) {
+      console.error("Erro ao carregar análise semanal de consultas:", error);
+      return res.status(500).render(
+        "pages/relatorios/consultas-distribuicao-semana",
+        buildConsultationWeekdayFallbackViewModel(
+          "Não foi possível carregar a distribuição semanal de consultas."
+        )
+      );
+    }
+  }
 }
 
 module.exports = RelatorioController;
-
-
-

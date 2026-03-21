@@ -207,6 +207,12 @@
               <span>Presenças</span>
             </a>
           <% } %>
+          <% if (hasPerm("relatorios.view")) { %>
+            <a href="/relatorios/consultas" class="sidebar-link <%= navKey === 'relatorios-consultas' ? 'is-active' : '' %>">
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span>
+              <span>Consultas</span>
+            </a>
+          <% } %>
           <% if (canOpenAdminCenter) { %>
             <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-gear"></i></span>

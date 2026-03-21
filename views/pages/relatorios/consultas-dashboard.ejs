@@ -1,0 +1,417 @@
+﻿<%
+  const summaryTrendIcons = {
+    up: "fa-solid fa-arrow-trend-up",
+    down: "fa-solid fa-arrow-trend-down",
+    flat: "fa-solid fa-minus",
+  };
+%>
+
+<section class="dashboard-home consultation-dashboard-page" data-page="relatorios-consultas">
+  <header class="dashboard-hero consulta-hero card-elevated">
+    <div class="consulta-hero-copy">
+      <p class="dashboard-overline">Relatórios analíticos</p>
+      <h2 class="dashboard-hero-title"><%= header?.title || "Dashboard de Consultas" %></h2>
+      <p class="dashboard-hero-subtitle"><%= header?.subtitle || "Leitura operacional das consultas da equipe." %></p>
+
+      <div class="dashboard-hero-stats">
+        <% (header?.stats || []).forEach((item) => { %>
+          <article class="dashboard-hero-stat">
+            <span><%= item.label %></span>
+            <strong><%= item.value %></strong>
+          </article>
+        <% }) %>
+      </div>
+
+      <% if (Array.isArray(header?.chips) && header.chips.length) { %>
+        <div class="consulta-chip-row">
+          <% header.chips.forEach((item) => { %>
+            <span class="consulta-chip">
+              <small><%= item.label %></small>
+              <strong><%= item.value %></strong>
+            </span>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <aside class="consulta-filter-card">
+      <div class="dashboard-panel-head compact">
+        <div>
+          <p class="dashboard-panel-overline">Filtros</p>
+          <h3>Refine o recorte</h3>
+          <p>Filtre por profissional ou ajuste o período para puxar o comportamento certo.</p>
+        </div>
+      </div>
+
+      <form class="consulta-filter-form" method="get" action="<%= filters?.action || '/relatorios/consultas' %>">
+        <div class="consulta-filter-grid">
+          <% if (filters?.canViewAll) { %>
+            <label class="input-group">
+              <span>Profissional</span>
+              <select class="input-control" name="responsavelId">
+                <option value="">Toda a equipe</option>
+                <% (filters?.professionalOptions || []).forEach((item) => { %>
+                  <option value="<%= item.value %>" <%= String(filters?.professionalId || "") === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+                <% }) %>
+              </select>
+            </label>
+          <% } else { %>
+            <label class="input-group">
+              <span>Profissional</span>
+              <input class="input-control" type="text" value="<%= header?.stats?.[1]?.value || 'Profissional' %>" readonly />
+            </label>
+          <% } %>
+
+          <label class="input-group">
+            <span>Período</span>
+            <select class="input-control" name="periodo">
+              <% (filters?.periodoOptions || []).forEach((item) => { %>
+                <option value="<%= item.value %>" <%= String(filters?.periodo || "") === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="input-group">
+            <span>Data inicial</span>
+            <input class="input-control" type="date" name="dataInicio" value="<%= filters?.dataInicio || '' %>" />
+          </label>
+
+          <label class="input-group">
+            <span>Data final</span>
+            <input class="input-control" type="date" name="dataFim" value="<%= filters?.dataFim || '' %>" />
+          </label>
+        </div>
+
+        <div class="consulta-filter-actions">
+          <button type="submit" class="btn btn-primary">Atualizar painel</button>
+          <a href="/relatorios/consultas" class="btn btn-muted">Limpar filtros</a>
+        </div>
+        <p class="consulta-filter-note">Dica: em período customizado o painel compara com a janela imediatamente anterior.</p>
+      </form>
+    </aside>
+  </header>
+
+  <section class="dashboard-summary-grid">
+    <% (summaryCards || []).forEach((card) => { %>
+      <% const trend = card?.trend || null; %>
+      <% const cardInner = `
+        <div class="dashboard-summary-icon" aria-hidden="true"><i class="${card.icon}"></i></div>
+        <div class="dashboard-summary-copy">
+          <span class="dashboard-summary-title">${card.title}</span>
+          <strong class="dashboard-summary-value">${card.value}</strong>
+          <small class="dashboard-summary-caption">${card.caption || ""}</small>
+        </div>
+        ${trend ? `
+          <span class="dashboard-summary-trend tone-${trend.tone}">
+            <i class="${summaryTrendIcons[trend.direction] || summaryTrendIcons.flat}" aria-hidden="true"></i>
+            <span>${trend.label}</span>
+          </span>
+        ` : ""}
+        ${card?.progress ? `
+          <div class="dashboard-summary-progress">
+            <div class="dashboard-summary-progress-bar">
+              <span style="width:${card.progress.value}%;"></span>
+            </div>
+            <small>${card.progress.label}</small>
+          </div>
+        ` : ""}
+      `; %>
+
+      <% if (card?.href) { %>
+        <a href="<%= card.href %>" class="dashboard-summary-card card-elevated">
+          <%- cardInner %>
+        </a>
+      <% } else { %>
+        <article class="dashboard-summary-card card-elevated">
+          <%- cardInner %>
+        </article>
+      <% } %>
+    <% }) %>
+  </section>
+
+  <section class="consulta-highlight-grid">
+    <% if (Array.isArray(highlights) && highlights.length) { %>
+      <% highlights.forEach((item) => { %>
+        <article class="dashboard-highlight-card card-elevated">
+          <span class="dashboard-highlight-icon" aria-hidden="true"><i class="<%= item.icon %>"></i></span>
+          <div>
+            <strong><%= item.title %></strong>
+            <h4><%= item.value %></h4>
+            <p><%= item.description %></p>
+          </div>
+        </article>
+      <% }) %>
+    <% } %>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-primary">
+    <article class="dashboard-panel card-elevated">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline">Tendência</p>
+          <h3><%= timelinePanel?.title %></h3>
+          <p><%= timelinePanel?.subtitle %></p>
+        </div>
+      </header>
+
+      <div class="dashboard-chart-kpis">
+        <% (timelinePanel?.kpis || []).forEach((item) => { %>
+          <article class="dashboard-chart-kpi">
+            <span><%= item.label %></span>
+            <strong><%= item.value %></strong>
+          </article>
+        <% }) %>
+      </div>
+
+      <div class="dashboard-line-chart-shell">
+        <div class="dashboard-chart-tooltip" hidden data-consulta-line-tooltip></div>
+        <div class="dashboard-line-chart" data-consulta-line-chart></div>
+      </div>
+
+      <div class="dashboard-chart-legend">
+        <% (timelinePanel?.legend || []).forEach((item) => { %>
+          <span><i style="background:<%= item.color %>;"></i><%= item.label %></span>
+        <% }) %>
+      </div>
+    </article>
+
+    <article class="dashboard-panel card-elevated">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline">Distribuição</p>
+          <h3>Status das consultas</h3>
+          <p>Entenda rapidamente quantas consultas viraram presença, ausência, pendência ou cancelamento.</p>
+        </div>
+      </header>
+
+      <% if (Number(statusDistribution?.total || 0) > 0) { %>
+        <div class="dashboard-donut-layout">
+          <div class="dashboard-donut-chart" style="--dashboard-donut:<%= statusDistribution.gradient %>;">
+            <div class="dashboard-donut-center">
+              <strong><%= statusDistribution.totalLabel %></strong>
+              <span>consulta(s)</span>
+            </div>
+          </div>
+
+          <div class="dashboard-donut-legend">
+            <% (statusDistribution?.items || []).forEach((item) => { %>
+              <article class="dashboard-donut-item">
+                <span class="dashboard-donut-swatch" style="background:<%= item.color %>;"></span>
+                <span class="dashboard-donut-copy">
+                  <strong><%= item.label %></strong>
+                  <small><%= item.valueLabel %> registro(s)</small>
+                </span>
+                <span class="dashboard-donut-share"><%= item.share %>%</span>
+              <% if (item.href) { %>
+                </a>
+              <% } else { %>
+                </article>
+              <% } %>
+            <% }) %>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="dashboard-empty-state">
+          <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+          <p><%= emptyStates?.distribution || 'Nenhuma consulta encontrada no período.' %></p>
+        </div>
+      <% } %>
+    </article>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-secondary">
+    <article class="dashboard-panel card-elevated">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline"><%= rankingPanel?.overline %></p>
+          <h3><%= rankingPanel?.title %></h3>
+          <p><%= rankingPanel?.subtitle %></p>
+        </div>
+      </header>
+
+      <% if (Array.isArray(rankingPanel?.items) && rankingPanel.items.length) { %>
+        <div class="dashboard-bar-list">
+          <% rankingPanel.items.forEach((item) => { %>
+            <% const rankingHref = item.detailHref || item.href || ''; %>
+            <% const rankingInner = `
+              <div class="dashboard-bar-top">
+                <div class="dashboard-bar-person">
+                  <span class="dashboard-avatar soft">${item.initials}</span>
+                  <div>
+                    <strong>${item.label}</strong>
+                    <small>${item.hint}</small>
+                  </div>
+                </div>
+                <strong class="dashboard-bar-value">${item.totalLabel}</strong>
+              </div>
+              <div class="consulta-bar-meta">
+                <span><b>${item.comparecimentoLabel}</b> comparecimento</span>
+                <span><b>${item.faltasTotalLabel}</b> faltas</span>
+                <span><b>${item.relatoriosLabel}</b> relatórios</span>
+              </div>
+              <div class="dashboard-bar-track">
+                <span class="dashboard-bar-fill" style="width:${item.share}%;"></span>
+              </div>
+            `; %>
+            <% if (rankingHref) { %>
+              <a href="<%= rankingHref %>" class="dashboard-bar-card consulta-bar-link" title="<%= item.hint %>">
+                <%- rankingInner %>
+              </a>
+            <% } else { %>
+              <article class="dashboard-bar-card" title="<%= item.hint %>">
+                <%- rankingInner %>
+              </article>
+            <% } %>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="dashboard-empty-state">
+          <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+          <p><%= rankingPanel?.emptyMessage || emptyStates?.ranking %></p>
+        </div>
+      <% } %>
+    </article>
+
+    <div class="consulta-panel-stack">
+      <article class="dashboard-panel card-elevated">
+        <header class="dashboard-panel-head compact">
+          <div>
+            <p class="dashboard-panel-overline">Semana</p>
+            <h3>Distribuição por dia</h3>
+          </div>
+          <% if (weekdayDetailHref) { %>
+            <a href="<%= weekdayDetailHref %>" class="dashboard-table-action">Abrir anÃ¡lise</a>
+          <% } %>
+        </header>
+
+        <% if (Array.isArray(weekdayRows) && weekdayRows.some((item) => Number(item.total || 0) > 0)) { %>
+          <div class="consulta-weekday-grid">
+            <% weekdayRows.forEach((item) => { %>
+              <% if (item.href) { %>
+                <a href="<%= item.href %>" class="consulta-weekday-card consulta-weekday-link">
+              <% } else { %>
+                <article class="consulta-weekday-card">
+              <% } %>
+                <div class="consulta-weekday-top">
+                  <strong><%= item.shortLabel %></strong>
+                  <span><%= item.totalLabel %> consulta(s)</span>
+                </div>
+                <div class="consulta-weekday-stats">
+                  <span><b><%= item.presentesLabel %></b> presenças</span>
+                  <span><b><%= item.faltasLabel %></b> ausências</span>
+                  <span><b><%= item.ajusteLabel %></b> em ajuste</span>
+                  <span><b><%= item.comparecimentoLabel %></b> de comparecimento</span>
+                </div>
+              <% if (item.href) { %>
+                </a>
+              <% } else { %>
+                </article>
+              <% } %>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="dashboard-empty-state compact">
+            <i class="fa-solid fa-calendar-week" aria-hidden="true"></i>
+            <p><%= emptyStates?.weekday %></p>
+          </div>
+        <% } %>
+      </article>
+
+      <article class="dashboard-panel card-elevated">
+        <header class="dashboard-panel-head compact">
+          <div>
+            <p class="dashboard-panel-overline">Tipos</p>
+            <h3>Atendimento por modalidade</h3>
+          </div>
+        </header>
+
+        <% if (Array.isArray(typeRows) && typeRows.length) { %>
+          <div class="dashboard-bar-list">
+            <% typeRows.forEach((item) => { %>
+              <article class="dashboard-bar-card" title="<%= item.hint %>">
+                <div class="dashboard-bar-top">
+                  <div class="dashboard-bar-person">
+                    <span class="dashboard-avatar soft"><%= item.initials %></span>
+                    <div>
+                      <strong><%= item.label %></strong>
+                      <small><%= item.hint %></small>
+                    </div>
+                  </div>
+                  <strong class="dashboard-bar-value"><%= item.totalLabel %></strong>
+                </div>
+                <div class="dashboard-bar-track">
+                  <span class="dashboard-bar-fill" style="width:<%= item.share %>%;"></span>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="dashboard-empty-state compact">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            <p><%= emptyStates?.type %></p>
+          </div>
+        <% } %>
+      </article>
+    </div>
+  </section>
+
+  <section class="dashboard-panel card-elevated dashboard-table-panel">
+    <header class="dashboard-panel-head">
+      <div>
+        <p class="dashboard-panel-overline"><%= detailTable?.overline %></p>
+        <h3><%= detailTable?.title %></h3>
+        <p><%= detailTable?.subtitle %></p>
+      </div>
+      <span class="consulta-mode-badge"><%= detailTable?.modeLabel %></span>
+    </header>
+
+    <div class="dashboard-table-wrap consulta-table-wrap">
+      <table class="dashboard-table consulta-table" data-stack-mobile="true">
+        <thead>
+          <tr>
+            <th>Referência</th>
+            <th>Consultas</th>
+            <th>Presenças</th>
+            <th>Faltas / Just.</th>
+            <th>Em ajuste</th>
+            <th>Relatórios</th>
+            <th>Comparecimento</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (Array.isArray(detailTable?.rows) && detailTable.rows.length) { %>
+            <% detailTable.rows.forEach((row) => { %>
+              <tr>
+                <td data-label="Referência">
+                  <a href="<%= row.href %>" class="dashboard-table-person">
+                    <span class="dashboard-avatar"><%= row.initials %></span>
+                    <span class="dashboard-table-person-copy">
+                      <strong><%= row.label %></strong>
+                      <small><%= row.subtitle %></small>
+                    </span>
+                  </a>
+                </td>
+                <td data-label="Consultas"><%= row.totalLabel %></td>
+                <td data-label="Presenças"><%= row.presentesLabel %></td>
+                <td data-label="Faltas / Just."><%= row.faltasLabel %></td>
+                <td data-label="Em ajuste"><%= row.ajusteLabel %></td>
+                <td data-label="Relatórios"><%= row.relatoriosLabel %></td>
+                <td data-label="Comparecimento"><%= row.comparecimentoLabel %></td>
+                <td data-label="Ação">
+                  <a href="<%= row.detailHref || row.href %>" class="dashboard-table-action consulta-detail-link"><%= row.detailHref ? 'Análise' : 'Abrir' %></a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" class="dashboard-table-empty"><%= detailTable?.emptyMessage || emptyStates?.table %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<script id="consultation-dashboard-data" type="application/json"><%- JSON.stringify(consultationDashboardData || {}) %></script>

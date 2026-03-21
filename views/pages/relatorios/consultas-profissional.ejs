@@ -1,0 +1,400 @@
+﻿<section class="dashboard-home consultation-dashboard-page consultation-professional-page" data-page="relatorios-consultas-profissional">
+  <header class="dashboard-hero consulta-hero card-elevated">
+    <div class="consulta-hero-copy">
+      <p class="dashboard-overline">Drill-down profissional</p>
+      <h2 class="dashboard-hero-title"><%= header?.title || "Análise detalhada" %></h2>
+      <p class="dashboard-hero-subtitle"><%= header?.subtitle || "Detalhes operacionais do profissional selecionado." %></p>
+
+      <div class="dashboard-hero-stats">
+        <% (header?.stats || []).forEach((item) => { %>
+          <article class="dashboard-hero-stat">
+            <span><%= item.label %></span>
+            <strong><%= item.value %></strong>
+          </article>
+        <% }) %>
+      </div>
+
+      <div class="consulta-detail-actions">
+        <a href="<%= header?.backHref || '/relatorios/consultas' %>" class="btn btn-muted">Voltar para equipe</a>
+        <a href="<%= header?.agendaHref || '/agenda' %>" class="btn btn-primary">Abrir agenda do profissional</a>
+      </div>
+    </div>
+
+    <aside class="consulta-filter-card">
+      <div class="dashboard-panel-head compact">
+        <div>
+          <p class="dashboard-panel-overline">Filtros finos</p>
+          <h3>Aprofunde o recorte</h3>
+          <p>Combine período, status, tipo e relatório para enxergar o comportamento do profissional.</p>
+        </div>
+      </div>
+
+      <form class="consulta-filter-form" method="get" action="<%= filters?.action || '' %>">
+        <input type="hidden" name="tableBusca" value="<%= filters?.tableBusca || '' %>" />
+        <input type="hidden" name="tableStatus" value="<%= filters?.tableStatus || '' %>" />
+        <input type="hidden" name="tableRelatorio" value="<%= filters?.tableRelatorio || '' %>" />
+        <input type="hidden" name="tableOrdem" value="<%= filters?.tableOrdem || '' %>" />
+        <input type="hidden" name="tableLimite" value="<%= filters?.tableLimite || '' %>" />
+        <input type="hidden" name="tablePagina" value="1" />
+
+        <div class="consulta-filter-grid consulta-filter-grid-compact">
+          <label class="input-group">
+            <span>Período</span>
+            <select class="input-control" name="periodo">
+              <% (filters?.periodoOptions || []).forEach((item) => { %>
+                <option value="<%= item.value %>" <%= String(filters?.periodo || '') === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="input-group">
+            <span>Status</span>
+            <select class="input-control" name="status">
+              <% (filters?.statusOptions || []).forEach((item) => { %>
+                <option value="<%= item.value %>" <%= String(filters?.status || '') === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="input-group">
+            <span>Tipo</span>
+            <select class="input-control" name="tipoAtendimento">
+              <% (filters?.typeOptions || []).forEach((item) => { %>
+                <option value="<%= item.value %>" <%= String(filters?.tipoAtendimento || '') === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="input-group">
+            <span>Relatório</span>
+            <select class="input-control" name="relatorio">
+              <% (filters?.reportOptions || []).forEach((item) => { %>
+                <option value="<%= item.value %>" <%= String(filters?.relatorio || '') === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="input-group">
+            <span>Data inicial</span>
+            <input class="input-control" type="date" name="dataInicio" value="<%= filters?.dataInicio || '' %>" />
+          </label>
+
+          <label class="input-group">
+            <span>Data final</span>
+            <input class="input-control" type="date" name="dataFim" value="<%= filters?.dataFim || '' %>" />
+          </label>
+        </div>
+
+        <div class="consulta-filter-actions">
+          <button type="submit" class="btn btn-primary">Aplicar análise</button>
+          <a href="<%= filters?.action || '' %>" class="btn btn-muted">Limpar</a>
+        </div>
+      </form>
+    </aside>
+  </header>
+
+  <section class="consulta-quick-grid">
+    <% (quickCards || []).forEach((item) => { %>
+      <a href="<%= item.href %>" class="consulta-quick-card <%= item.active ? 'is-active' : '' %>">
+        <small><%= item.label %></small>
+        <strong><%= item.valueLabel %></strong>
+        <span><%= item.description %></span>
+      </a>
+    <% }) %>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-primary">
+    <article class="dashboard-panel card-elevated">
+      <header class="dashboard-panel-head">
+        <div>
+          <p class="dashboard-panel-overline">Tendência</p>
+          <h3><%= timelinePanel?.title %></h3>
+          <p><%= timelinePanel?.subtitle %></p>
+        </div>
+      </header>
+
+      <div class="dashboard-chart-kpis">
+        <% (timelinePanel?.kpis || []).forEach((item) => { %>
+          <article class="dashboard-chart-kpi">
+            <span><%= item.label %></span>
+            <strong><%= item.value %></strong>
+          </article>
+        <% }) %>
+      </div>
+
+      <div class="dashboard-line-chart-shell">
+        <div class="dashboard-chart-tooltip" hidden data-consulta-line-tooltip></div>
+        <div class="dashboard-line-chart" data-consulta-line-chart></div>
+      </div>
+
+      <div class="dashboard-chart-legend">
+        <% (timelinePanel?.legend || []).forEach((item) => { %>
+          <span><i style="background:<%= item.color %>;"></i><%= item.label %></span>
+        <% }) %>
+      </div>
+    </article>
+
+    <div class="consulta-panel-stack">
+      <article class="dashboard-panel card-elevated">
+        <header class="dashboard-panel-head compact">
+          <div>
+            <p class="dashboard-panel-overline">Distribuição</p>
+            <h3>Status do recorte</h3>
+          </div>
+        </header>
+
+        <% if (Number(statusDistribution?.total || 0) > 0) { %>
+          <div class="dashboard-donut-layout">
+            <div class="dashboard-donut-chart" style="--dashboard-donut:<%= statusDistribution.gradient %>;">
+              <div class="dashboard-donut-center">
+                <strong><%= statusDistribution.totalLabel %></strong>
+                <span>consulta(s)</span>
+              </div>
+            </div>
+
+            <div class="dashboard-donut-legend">
+              <% (statusDistribution?.items || []).forEach((item) => { %>
+                <article class="dashboard-donut-item">
+                  <span class="dashboard-donut-swatch" style="background:<%= item.color %>;"></span>
+                  <span class="dashboard-donut-copy">
+                    <strong><%= item.label %></strong>
+                    <small><%= item.valueLabel %> registro(s)</small>
+                  </span>
+                  <span class="dashboard-donut-share"><%= item.share %>%</span>
+                </article>
+              <% }) %>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="dashboard-empty-state compact">
+            <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+            <p><%= emptyStateMessage %></p>
+          </div>
+        <% } %>
+      </article>
+
+      <article class="dashboard-panel card-elevated">
+        <header class="dashboard-panel-head compact">
+          <div>
+            <p class="dashboard-panel-overline">Insights</p>
+            <h3>Leituras rápidas</h3>
+          </div>
+        </header>
+
+        <% if (Array.isArray(insights) && insights.length) { %>
+          <div class="dashboard-highlight-list">
+            <% insights.forEach((item) => { %>
+              <article class="dashboard-highlight-card">
+                <span class="dashboard-highlight-icon" aria-hidden="true"><i class="<%= item.icon %>"></i></span>
+                <div>
+                  <strong><%= item.title %></strong>
+                  <h4><%= item.value %></h4>
+                  <p><%= item.description %></p>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </article>
+    </div>
+  </section>
+
+  <section class="dashboard-panel card-elevated">
+    <header class="dashboard-panel-head">
+      <div>
+        <p class="dashboard-panel-overline">Assistidos e famílias</p>
+        <h3>Carteira em destaque</h3>
+        <p>Os cards abaixo mostram quem mais passou pela agenda do profissional dentro do recorte atual.</p>
+      </div>
+    </header>
+
+    <% if (Array.isArray(focusCards) && focusCards.length) { %>
+      <div class="consulta-focus-grid">
+        <% focusCards.forEach((item) => { %>
+          <a href="<%= item.href %>" class="consulta-focus-card">
+            <div class="consulta-focus-top">
+              <span class="dashboard-avatar soft"><%= item.initials %></span>
+              <div>
+                <strong><%= item.label %></strong>
+                <small><%= item.subtitle %></small>
+              </div>
+            </div>
+            <div class="consulta-focus-metrics">
+              <span><b><%= item.totalLabel %></b> consultas</span>
+              <span><b><%= item.comparecimentoLabel %></b> comparecimento</span>
+              <span><b><%= item.faltasLabel %></b> faltas</span>
+              <span><b><%= item.relatoriosLabel %></b> relatórios</span>
+            </div>
+            <div class="consulta-focus-dates">
+              <small>Próxima: <%= item.nextDateLabel %></small>
+              <small>Última: <%= item.lastDateLabel %></small>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="dashboard-empty-state compact">
+        <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+        <p><%= emptyStateMessage %></p>
+      </div>
+    <% } %>
+  </section>
+
+  <% const detailTableModel = detailTable || {}; %>
+  <% const tablePagination = detailTableModel.pagination || {}; %>
+  <section class="dashboard-panel card-elevated dashboard-table-panel">
+    <header class="dashboard-panel-head">
+      <div>
+        <p class="dashboard-panel-overline">Consultas filtradas</p>
+        <h3>Agenda detalhada do profissional</h3>
+        <p>Lista das consultas mais recentes no recorte atual, já com status e indicação de relatório.</p>
+      </div>
+      <span class="consulta-mode-badge">Página <%= tablePagination.page || 1 %> de <%= tablePagination.totalPages || 1 %></span>
+    </header>
+
+    <form class="consulta-table-filters" method="get" action="<%= detailTableModel.action || filters?.action || '' %>">
+      <input type="hidden" name="periodo" value="<%= filters?.periodo || '' %>" />
+      <input type="hidden" name="dataInicio" value="<%= filters?.dataInicio || '' %>" />
+      <input type="hidden" name="dataFim" value="<%= filters?.dataFim || '' %>" />
+      <input type="hidden" name="status" value="<%= filters?.status || '' %>" />
+      <input type="hidden" name="tipoAtendimento" value="<%= filters?.tipoAtendimento || '' %>" />
+      <input type="hidden" name="relatorio" value="<%= filters?.relatorio || '' %>" />
+      <input type="hidden" name="tablePagina" value="1" />
+
+      <div class="consulta-table-filter-grid">
+        <label class="input-group consulta-table-search">
+          <span>Buscar</span>
+          <input
+            class="input-control"
+            type="search"
+            name="tableBusca"
+            value="<%= detailTableModel.search || '' %>"
+            placeholder="Consulta, assistido, família ou matrícula"
+          />
+        </label>
+
+        <label class="input-group">
+          <span>Status da tabela</span>
+          <select class="input-control" name="tableStatus">
+            <% (detailTableModel.statusOptions || []).forEach((item) => { %>
+              <option value="<%= item.value %>" <%= String(detailTableModel.status || '') === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="input-group">
+          <span>Relatório</span>
+          <select class="input-control" name="tableRelatorio">
+            <% (detailTableModel.reportOptions || []).forEach((item) => { %>
+              <option value="<%= item.value %>" <%= String(detailTableModel.relatorio || '') === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="input-group">
+          <span>Ordenação</span>
+          <select class="input-control" name="tableOrdem">
+            <% (detailTableModel.orderOptions || []).forEach((item) => { %>
+              <option value="<%= item.value %>" <%= String(detailTableModel.ordem || '') === String(item.value) ? 'selected' : '' %>><%= item.label %></option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label class="input-group">
+          <span>Por página</span>
+          <select class="input-control" name="tableLimite">
+            <% (detailTableModel.pageSizeOptions || []).forEach((item) => { %>
+              <option value="<%= item %>" <%= Number(detailTableModel.limite || 0) === Number(item) ? 'selected' : '' %>><%= item %> itens</option>
+            <% }) %>
+          </select>
+        </label>
+
+        <div class="consulta-table-filter-actions">
+          <button type="submit" class="btn btn-primary">Aplicar</button>
+          <a href="<%= detailTableModel.clearHref || (detailTableModel.action || filters?.action || '') %>" class="btn btn-muted">Limpar</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="dashboard-table-wrap consulta-table-wrap">
+      <table class="dashboard-table consulta-table" data-stack-mobile="true">
+        <thead>
+          <tr>
+            <th>Consulta</th>
+            <th>Quando</th>
+            <th>Tipo</th>
+            <th>Status</th>
+            <th>Relatório</th>
+            <th>Família</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (Array.isArray(detailTableModel.rows) && detailTableModel.rows.length) { %>
+            <% detailTableModel.rows.forEach((row) => { %>
+              <tr>
+                <td data-label="Consulta">
+                  <span class="dashboard-table-stack">
+                    <strong><%= row.titulo %></strong>
+                    <small class="dashboard-table-note"><%= row.patientName %><%= row.patientCode ? ` • ${row.patientCode}` : '' %></small>
+                  </span>
+                </td>
+                <td data-label="Quando"><%= row.dateTimeLabel %></td>
+                <td data-label="Tipo"><%= row.typeLabel %></td>
+                <td data-label="Status">
+                  <div class="dashboard-table-status-list">
+                    <span class="status-badge status-<%= row.presenceTone %>"><%= row.presenceLabel %></span>
+                  </div>
+                </td>
+                <td data-label="Relatório">
+                  <span class="status-badge status-<%= row.reportTone %>"><%= row.reportLabel %></span>
+                </td>
+                <td data-label="Família"><%= row.familyName %></td>
+                <td data-label="Ação">
+                  <a href="<%= row.familyHref %>" class="dashboard-table-action consulta-detail-link">Abrir ficha</a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="dashboard-table-empty"><%= detailTableModel.emptyMessage || emptyStateMessage %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="consulta-table-footer">
+      <p class="consulta-table-summary"><%= detailTableModel.summaryLabel || '0 resultados' %></p>
+
+      <% if (Number(tablePagination.totalPages || 1) > 1) { %>
+        <nav class="consulta-pagination" aria-label="Paginação da agenda detalhada">
+          <a
+            class="consulta-pagination-link btn btn-muted <%= !tablePagination.hasPrevPage ? 'is-disabled' : '' %>"
+            href="<%= tablePagination.hasPrevPage ? tablePagination.prevHref : '#' %>"
+          >
+            Anterior
+          </a>
+
+          <% (tablePagination.pages || []).forEach((item) => { %>
+            <a
+              class="consulta-pagination-link btn <%= item.current ? 'btn-primary' : 'btn-muted' %>"
+              href="<%= item.href %>"
+            >
+              <%= item.number %>
+            </a>
+          <% }) %>
+
+          <a
+            class="consulta-pagination-link btn btn-muted <%= !tablePagination.hasNextPage ? 'is-disabled' : '' %>"
+            href="<%= tablePagination.hasNextPage ? tablePagination.nextHref : '#' %>"
+          >
+            Próxima
+          </a>
+        </nav>
+      <% } %>
+    </div>
+  </section>
+</section>
+
+<script id="consultation-dashboard-data" type="application/json"><%- JSON.stringify(consultationDashboardData || {}) %></script>
