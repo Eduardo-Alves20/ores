@@ -28,6 +28,11 @@ const UsuarioSchema = new mongoose.Schema(
 
     telefone: { type: String, trim: true },
 
+    dataNascimento: {
+      type: Date,
+      default: null,
+    },
+
     cpf: {
       type: String,
       trim: true,
@@ -43,7 +48,7 @@ const UsuarioSchema = new mongoose.Schema(
 
     tipoCadastro: {
       type: String,
-      enum: ["voluntario", "familia"],
+      enum: ["voluntario", "familia", "orgao_publico"],
       default: "voluntario",
     },
 
@@ -91,6 +96,12 @@ const UsuarioSchema = new mongoose.Schema(
       maxlength: 500,
     },
     camposExtras: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
+    dadosCadastro: {
       type: Map,
       of: mongoose.Schema.Types.Mixed,
       default: {},

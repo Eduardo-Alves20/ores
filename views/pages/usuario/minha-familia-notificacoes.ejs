@@ -1,0 +1,118 @@
+<section class="family-portal-page">
+  <header class="family-portal-hero module-card">
+    <div class="family-portal-hero-copy">
+      <span class="badge-soft">Notificacoes</span>
+      <h2>Atualizacoes da familia</h2>
+      <p>
+        Veja quando uma consulta for criada, remarcada, cancelada ou quando houver
+        atualizacao de presenca e status.
+      </p>
+    </div>
+    <div class="family-portal-hero-actions">
+      <a href="/minha-familia" class="btn btn-muted">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        <span>Voltar ao portal</span>
+      </a>
+      <% if (Number(totais?.unread || 0) > 0) { %>
+        <form method="post" action="/minha-familia/notificacoes/lidas">
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check-double" aria-hidden="true"></i>
+            <span>Marcar todas como lidas</span>
+          </button>
+        </form>
+      <% } %>
+    </div>
+  </header>
+
+  <section class="family-kpi-grid">
+    <article class="module-card family-kpi-card">
+      <span class="family-kpi-label">Total</span>
+      <strong class="family-kpi-value"><%= totais?.total || 0 %></strong>
+    </article>
+    <article class="module-card family-kpi-card">
+      <span class="family-kpi-label">Nao lidas</span>
+      <strong class="family-kpi-value"><%= totais?.unread || 0 %></strong>
+    </article>
+    <article class="module-card family-kpi-card">
+      <span class="family-kpi-label">Alertas</span>
+      <strong class="family-kpi-value"><%= totais?.alerts || 0 %></strong>
+    </article>
+    <article class="module-card family-kpi-card">
+      <span class="family-kpi-label">Listadas</span>
+      <strong class="family-kpi-value"><%= totais?.listed || 0 %></strong>
+    </article>
+  </section>
+
+  <form class="family-filters module-card" method="get" action="/minha-familia/notificacoes">
+    <label class="field-wrap filtro-item">
+      <span class="input-label">Tipo</span>
+      <select class="input-control" name="tipo">
+        <option value="todos" <%= filtros?.tipo === "todos" ? "selected" : "" %>>Todos</option>
+        <option value="alert" <%= filtros?.tipo === "alert" ? "selected" : "" %>>Alertas</option>
+        <option value="info" <%= filtros?.tipo === "info" ? "selected" : "" %>>Informativas</option>
+      </select>
+    </label>
+
+    <label class="field-wrap filtro-item">
+      <span class="input-label">Leitura</span>
+      <select class="input-control" name="status">
+        <option value="todos" <%= filtros?.status === "todos" ? "selected" : "" %>>Todas</option>
+        <option value="nao_lidas" <%= filtros?.status === "nao_lidas" ? "selected" : "" %>>Nao lidas</option>
+        <option value="lidas" <%= filtros?.status === "lidas" ? "selected" : "" %>>Lidas</option>
+      </select>
+    </label>
+
+    <label class="field-wrap filtro-item">
+      <span class="input-label">Limite</span>
+      <select class="input-control" name="limit">
+        <% (filtros?.limitOptions || []).forEach((item) => { %>
+          <option value="<%= item %>" <%= Number(filtros?.limit) === Number(item) ? "selected" : "" %>><%= item %></option>
+        <% }) %>
+      </select>
+    </label>
+
+    <div class="filtro-actions">
+      <button class="btn btn-primary" type="submit">Aplicar</button>
+      <a href="/minha-familia/notificacoes" class="btn btn-muted">Limpar</a>
+    </div>
+  </form>
+
+  <section class="notificacoes-lista family-notification-page-list">
+    <% if (!notificacoes || !notificacoes.length) { %>
+      <article class="notificacoes-empty module-card">
+        <h3>Nenhuma notificacao encontrada</h3>
+        <p>Novas atualizacoes da agenda aparecerao aqui automaticamente.</p>
+      </article>
+    <% } else { %>
+      <% notificacoes.forEach((item) => { %>
+        <article class="notificacao-card <%= item.lida ? 'is-read' : 'is-unread' %>">
+          <div class="notificacao-top">
+            <div class="notificacao-badges">
+              <span class="notif-tipo"><%= item.tipoLabel %></span>
+              <span class="notif-status"><%= item.eventoLabel %></span>
+            </div>
+            <time class="notif-data" datetime="<%= item.criadoEmIso || '' %>"><%= item.criadoEmLabel %></time>
+          </div>
+
+          <h3 class="notificacao-titulo"><%= item.titulo %></h3>
+          <p class="notificacao-mensagem"><%= item.mensagem %></p>
+
+          <div class="family-notification-actions">
+            <a href="<%= item.href %>" class="btn btn-muted">
+              <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+              <span>Abrir consulta</span>
+            </a>
+            <% if (!item.lida) { %>
+              <form method="post" action="/minha-familia/notificacoes/<%= item.id %>/lida">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  <span>Marcar como lida</span>
+                </button>
+              </form>
+            <% } %>
+          </div>
+        </article>
+      <% }) %>
+    <% } %>
+  </section>
+</section>

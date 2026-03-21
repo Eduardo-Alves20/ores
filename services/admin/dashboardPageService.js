@@ -27,6 +27,11 @@ const SHORT_DATE_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
 });
 
+const SHORT_DAY_MONTH_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "2-digit",
+});
+
 const STATUS_VISUALS = Object.freeze({
   presente: {
     label: "Presente",
@@ -131,6 +136,12 @@ function toPercent(value, total) {
   return Math.round((Number(value || 0) / Number(total || 1)) * 100);
 }
 
+function toStartOfDay(dateLike) {
+  const date = new Date(dateLike);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+}
+
 function toInitials(value, fallback = "GS") {
   const parts = String(value || "")
     .trim()
@@ -143,9 +154,74 @@ function toInitials(value, fallback = "GS") {
   return parts.map((part) => part.charAt(0).toUpperCase()).join("");
 }
 
+function toUserTypeLabel(tipoCadastro) {
+  const value = String(tipoCadastro || "").trim().toLowerCase();
+  if (value === "familia") return "Família";
+  if (value === "orgao_publico") return "Órgão Público";
+  return "Voluntário";
+}
+
+function buildBirthdayOccurrence(referenceDate, birthdayDate) {
+  const reference = toStartOfDay(referenceDate);
+  const birthday = new Date(birthdayDate);
+  if (!reference || Number.isNaN(birthday.getTime())) return null;
+
+  const buildForYear = (year) => {
+    const lastDay = new Date(year, birthday.getMonth() + 1, 0).getDate();
+    return new Date(
+      year,
+      birthday.getMonth(),
+      Math.min(birthday.getDate(), lastDay),
+      12,
+      0,
+      0,
+      0
+    );
+  };
+
+  let occurrence = buildForYear(reference.getFullYear());
+  if (occurrence < reference) {
+    occurrence = buildForYear(reference.getFullYear() + 1);
+  }
+
+  return occurrence;
+}
+
+function buildBirthdayItems(users = [], referenceDate = new Date(), maxDaysAhead = 7) {
+  const reference = toStartOfDay(referenceDate);
+  if (!reference) return [];
+
+  return (Array.isArray(users) ? users : [])
+    .map((item) => {
+      const occurrence = buildBirthdayOccurrence(reference, item?.dataNascimento);
+      if (!occurrence) return null;
+
+      const diffDays = Math.round((occurrence.getTime() - reference.getTime()) / (24 * 60 * 60 * 1000));
+      if (diffDays < 0 || diffDays > maxDaysAhead) return null;
+
+      return {
+        nome: String(item?.nome || "").trim() || "Aniversariante",
+        initials: toInitials(item?.nome, "AN"),
+        tipo: String(item?.tipoCadastro || "voluntario").trim().toLowerCase(),
+        tipoLabel: toUserTypeLabel(item?.tipoCadastro),
+        dataLabel: SHORT_DAY_MONTH_FORMATTER.format(occurrence),
+        dayLabel:
+          diffDays === 0 ? "Hoje" : diffDays === 1 ? "Amanhã" : `Em ${diffDays} dias`,
+        isToday: diffDays === 0,
+        diffDays,
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => {
+      if (left.diffDays !== right.diffDays) return left.diffDays - right.diffDays;
+      return String(left.nome || "").localeCompare(String(right.nome || ""), "pt-BR");
+    })
+    .slice(0, 8);
+}
+
 function buildTrend(current, previous, options = {}) {
   const {
-    suffix = "vs periodo anterior",
+    suffix = "vs período anterior",
     positiveWhen = "up",
     precision = 1,
     neutralLabel = "Sem base comparativa suficiente.",
@@ -389,7 +465,7 @@ async function aggregateTopResponsaveis(baseMatch = {}, limit = 5) {
       initials: toInitials(user?.nome, "EQ"),
       value: total,
       share: max > 0 ? Math.round((total / max) * 100) : 0,
-      hint: `${toLocaleNumber(total)} agendamento(s) nos ultimos 30 dias`,
+      hint: `${toLocaleNumber(total)} agendamento(s) nos últimos 30 dias`,
     };
   });
 }
@@ -406,9 +482,9 @@ function buildHighlights(model = {}) {
     if (busiest) {
       items.push({
         icon: "fa-solid fa-chart-line",
-        title: "Mes mais intenso",
+        title: "Mês mais intenso",
         value: busiest.label,
-        description: `${toLocaleNumber(busiest.atendimentos)} atendimento(s) registrados no periodo.`,
+        description: `${toLocaleNumber(busiest.atendimentos)} atendimento(s) registrados no período.`,
       });
     }
   }
@@ -419,7 +495,7 @@ function buildHighlights(model = {}) {
       icon: "fa-solid fa-user-tie",
       title: "Maior carga da equipe",
       value: lead.label,
-      description: `${toLocaleNumber(lead.value)} agendamento(s) concentrados nos ultimos 30 dias.`,
+      description: `${toLocaleNumber(lead.value)} agendamento(s) concentrados nos últimos 30 dias.`,
     });
   }
 
@@ -429,7 +505,7 @@ function buildHighlights(model = {}) {
       icon: "fa-solid fa-bullseye",
       title: "Status predominante",
       value: dominant.label,
-      description: `${dominant.share}% da agenda do mes esta nessa faixa.`,
+      description: `${dominant.share}% da agenda do mês está nessa faixa.`,
     });
   }
 
@@ -546,6 +622,7 @@ async function buildDashboardViewModel(req) {
     pendingApprovalCount,
     recentFailuresCount,
     recentAbsencesCount,
+    birthdayUsers,
     currentAttendanceDocs,
     previousAttendanceDocs,
     cadastrosSeries,
@@ -615,6 +692,15 @@ async function buildDashboardViewModel(req) {
           statusPresenca: { $in: ["falta", "falta_justificada"] },
         })
       : Promise.resolve(0),
+    Usuario.find({
+      perfil: PERFIS.USUARIO,
+      ativo: true,
+      tipoCadastro: { $in: ["familia", "voluntario", "orgao_publico"] },
+      dataNascimento: { $ne: null },
+      $or: [{ statusAprovacao: "aprovado" }, { statusAprovacao: { $exists: false } }],
+    })
+      .select("nome tipoCadastro dataNascimento")
+      .lean(),
     attendanceRateCurrentMatch
       ? AgendaEvento.find(attendanceRateCurrentMatch).select("statusPresenca").lean()
       : Promise.resolve([]),
@@ -674,20 +760,20 @@ async function buildDashboardViewModel(req) {
       icon: "fa-solid fa-people-group",
       title: "Dependentes ativos",
       value: toLocaleNumber(totalDependentesAtivos),
-      caption: `${toLocaleNumber(totalFamiliasAtivas)} familia(s) ativas na base`,
+      caption: `${toLocaleNumber(totalFamiliasAtivas)} família(s) ativas na base`,
       trend: buildTrend(totalDependentesAtivos, totalDependentesMesAnteriorAtivos, {
-        suffix: "desde o inicio do mes",
+        suffix: "desde o início do mês",
       }),
       href: canViewFamilies ? "/familias" : "",
     }),
     buildCard({
       key: "cadastros-mes",
       icon: "fa-solid fa-user-plus",
-      title: "Novos cadastros no mes",
+      title: "Novos cadastros no mês",
       value: toLocaleNumber(cadastrosMesAtual),
-      caption: "Familias adicionadas no recorte atual",
+      caption: "Famílias adicionadas no recorte atual",
       trend: buildTrend(cadastrosMesAtual, cadastrosMesAnterior, {
-        suffix: "vs mes anterior comparavel",
+        suffix: "vs mês anterior comparável",
       }),
       href: canViewFamilies ? "/familias" : "",
     }),
@@ -699,13 +785,13 @@ async function buildDashboardViewModel(req) {
       caption:
         agendaHojeTotal > 0
           ? `${toLocaleNumber(agendaHojeTotal)} compromisso(s) previstos para hoje`
-          : "Ritmo comparado com a media diaria do mes",
+          : "Ritmo comparado com a média diária do mês",
       progress: {
         value: atendimentoProgress,
         label:
           agendaHojeTotal > 0
-            ? `${atendimentoProgress}% da agenda do dia ja registrada`
-            : `${atendimentoProgress}% da meta diaria estimada`,
+            ? `${atendimentoProgress}% da agenda do dia já registrada`
+            : `${atendimentoProgress}% da meta diária estimada`,
       },
       href: canViewAgenda ? "/agenda" : "",
     }),
@@ -716,8 +802,8 @@ async function buildDashboardViewModel(req) {
       value: `${attendanceRateCurrent}%`,
       caption:
         attendanceCurrentTotal > 0
-          ? `${toLocaleNumber(attendanceCurrentPresentes)} presenca(s) em ${toLocaleNumber(attendanceCurrentTotal)} agenda(s) concluidas`
-          : "Sem base suficiente nos ultimos 30 dias",
+          ? `${toLocaleNumber(attendanceCurrentPresentes)} presença(s) em ${toLocaleNumber(attendanceCurrentTotal)} agenda(s) concluídas`
+          : "Sem base suficiente nos últimos 30 dias",
       trend: buildTrend(attendanceRateCurrent, attendanceRatePrevious, {
         suffix: "vs 30 dias anteriores",
       }),
@@ -733,11 +819,11 @@ async function buildDashboardViewModel(req) {
               icon: "fa-solid fa-circle-check",
               tone: pendingApprovalCount > 0 ? "warning" : "success",
               value: toLocaleNumber(pendingApprovalCount),
-              label: "Aprovacoes pendentes",
+              label: "Aprovações pendentes",
               description:
                 pendingApprovalCount > 0
-                  ? "Cadastros aguardando decisao da administracao."
-                  : "Nenhuma aprovacao aguardando fila neste momento.",
+                  ? "Cadastros aguardando decisão da administração."
+                  : "Nenhuma aprovação aguardando fila neste momento.",
               href: "/acessos/aprovacoes",
             }),
           ]
@@ -750,10 +836,10 @@ async function buildDashboardViewModel(req) {
               icon: "fa-solid fa-user-clock",
               tone: agendaPendentesHoje > 0 ? "danger" : "neutral",
               value: toLocaleNumber(agendaPendentesHoje),
-              label: "Presencas para registrar hoje",
+              label: "Presenças para registrar hoje",
               description:
                 agendaPendentesHoje > 0
-                  ? `${toLocaleNumber(agendaPendentesSemana)} registro(s) pendente(s) na agenda dos proximos 7 dias.`
+                  ? `${toLocaleNumber(agendaPendentesSemana)} registro(s) pendente(s) na agenda dos próximos 7 dias.`
                   : "Rotina do dia sem registros atrasados na agenda.",
               href: "/agenda/presencas",
             }),
@@ -761,11 +847,11 @@ async function buildDashboardViewModel(req) {
               icon: "fa-solid fa-triangle-exclamation",
               tone: recentAbsencesCount > 0 ? "danger" : "neutral",
               value: toLocaleNumber(recentAbsencesCount),
-              label: "Ausencias recentes",
+              label: "Ausências recentes",
               description:
                 recentAbsencesCount > 0
-                  ? "Faltas e justificativas registradas nos ultimos 7 dias."
-                  : "Nenhuma ausencia recente exigindo retorno imediato.",
+                  ? "Faltas e justificativas registradas nos últimos 7 dias."
+                  : "Nenhuma ausência recente exigindo retorno imediato.",
               href: "/agenda/presencas/analise/ocorrencias",
             }),
           ]
@@ -781,7 +867,7 @@ async function buildDashboardViewModel(req) {
               label: "Alertas do sistema",
               description:
                 recentFailuresCount > 0
-                  ? "Falhas operacionais registradas nos ultimos 7 dias."
+                  ? "Falhas operacionais registradas nos últimos 7 dias."
                   : "Sem falhas operacionais recentes no monitoramento.",
               href: "/notificacoes",
             }),
@@ -795,8 +881,8 @@ async function buildDashboardViewModel(req) {
         icon: "fa-solid fa-circle-check",
         tone: "neutral",
         value: "0",
-        label: "Sem pendencias criticas",
-        description: "Nao ha blocos prioritarios disponiveis para o seu perfil neste momento.",
+        label: "Sem pendências críticas",
+        description: "Não há blocos prioritários disponíveis para o seu perfil neste momento.",
         href: "",
       })
     );
@@ -807,15 +893,15 @@ async function buildDashboardViewModel(req) {
       ? buildQuickAction({
           icon: "fa-solid fa-people-group",
           label: "Assistidos",
-          description: "Abrir base social e localizar familias rapidamente.",
+          description: "Abrir base social e localizar famílias rapidamente.",
           href: "/familias",
         })
       : null,
     canCreateFamilies
       ? buildQuickAction({
           icon: "fa-solid fa-user-plus",
-          label: "Nova familia",
-          description: "Cadastrar um novo nucleo assistido.",
+          label: "Nova família",
+          description: "Cadastrar um novo núcleo assistido.",
           href: "/familias/nova",
         })
       : null,
@@ -823,28 +909,36 @@ async function buildDashboardViewModel(req) {
       ? buildQuickAction({
           icon: "fa-solid fa-calendar-days",
           label: "Agenda",
-          description: "Acompanhar compromissos, salas e responsaveis.",
+          description: "Acompanhar compromissos, salas e responsáveis.",
           href: "/agenda",
         })
       : null,
     canViewAgenda
       ? buildQuickAction({
           icon: "fa-solid fa-user-check",
-          label: "Presencas",
-          description: "Conferir comparecimento e registrar ausencias.",
+          label: "Presenças",
+          description: "Conferir comparecimento e registrar ausências.",
           href: "/agenda/presencas",
         })
       : null,
     canApproveAccess
       ? buildQuickAction({
           icon: "fa-solid fa-badge-check",
-          label: "Aprovacoes",
+          label: "Aprovações",
           description: "Revisar novos acessos ao sistema.",
           href: "/acessos/aprovacoes",
           badge: pendingApprovalCount > 0 ? toLocaleNumber(pendingApprovalCount) : "",
         })
       : null,
   ].filter(Boolean);
+
+  const birthdayItems = buildBirthdayItems(birthdayUsers, now, 7);
+  const birthdayWidget = {
+    title: "Aniversariantes",
+    subtitle: "Hoje e próximos 7 dias",
+    items: birthdayItems,
+    emptyMessage: "Nenhum aniversariante no período.",
+  };
 
   const distributionRows = agendaStatusMonth
     .map((item) => ({
@@ -899,7 +993,7 @@ async function buildDashboardViewModel(req) {
       initials: toInitials(familyName, "FA"),
       status: item?.ativo ? "Ativo" : "Inativo",
       statusTone: item?.ativo ? "active" : "inactive",
-      cidade: item?.endereco?.cidade || "Cidade nao informada",
+      cidade: item?.endereco?.cidade || "Cidade não informada",
       telefone: item?.responsavel?.telefone || "-",
       data: toShortDateLabel(item?.createdAt),
       dependentes: Number(patientStats.total || 0),
@@ -933,7 +1027,7 @@ async function buildDashboardViewModel(req) {
       value: toLocaleNumber(agendaHojeTotal),
     },
     {
-      label: "Pendencias do dia",
+      label: "Pendências do dia",
       value: toLocaleNumber(totalCritical),
     },
   ];
@@ -958,23 +1052,24 @@ async function buildDashboardViewModel(req) {
     hero: {
       greeting,
       subtitle:
-        "Uma visao mais clara da operacao social para decidir rapido, acompanhar gargalos e agir antes que o atraso apareca na ponta.",
+        "Uma visão mais clara da operação social para decidir rápido, acompanhar gargalos e agir antes que o atraso apareça na ponta.",
       stats: heroStats,
       search: {
         enabled: canViewFamilies,
         action: "/familias",
-        placeholder: "Buscar responsavel, assistido ou telefone...",
+        placeholder: "Buscar responsável, assistido ou telefone...",
         canUseSuggestions: canViewFamilies && canUseGlobalSearch,
       },
       quickActions,
     },
     summaryCards,
-    alerts: alertItems,
+    alerts: alertItems.slice(0, 3),
+    birthdayWidget,
     charts: {
       timeline: {
-        title: "Evolucao de cadastros e atendimentos",
+        title: "Evolução de cadastros e atendimentos",
         subtitle:
-          "Compare os dois fluxos ao longo dos ultimos meses para identificar crescimento, sazonalidade e momentos de sobrecarga.",
+          "Compare os dois fluxos ao longo dos últimos meses para identificar crescimento, sazonalidade e momentos de sobrecarga.",
         series6: timelineSeries.slice(-6),
         series12: timelineSeries,
         totals: {
@@ -983,15 +1078,15 @@ async function buildDashboardViewModel(req) {
         },
       },
       distribution: {
-        title: "Status da agenda do mes",
-        subtitle: "Leitura rapida da agenda atual para destacar comparecimento, pendencias e pontos de atencao.",
+        title: "Status da agenda do mês",
+        subtitle: "Leitura rápida da agenda atual para destacar comparecimento, pendências e pontos de atenção.",
         total: distribution.total,
         gradient: distribution.gradient,
         items: distribution.items,
       },
       teamLoad: {
-        title: "Carga da equipe nos ultimos 30 dias",
-        subtitle: "Veja quem concentrou mais agendamentos para equilibrar distribuicao e suporte.",
+        title: "Carga da equipe nos últimos 30 dias",
+        subtitle: "Veja quem concentrou mais agendamentos para equilibrar distribuição e suporte.",
         items: teamLoad,
       },
     },
@@ -1003,13 +1098,13 @@ async function buildDashboardViewModel(req) {
     emptyStates: {
       recentRows: canViewFamilies
         ? "Nenhum cadastro recente encontrado para o escopo atual."
-        : "Sem permissao para visualizar cadastros recentes.",
+        : "Sem permissão para visualizar cadastros recentes.",
       teamLoad: canViewAgenda
-        ? "Sem movimentacao de agenda suficiente para montar o comparativo."
-        : "Sem permissao para visualizar a carga da agenda.",
+        ? "Sem movimentação de agenda suficiente para montar o comparativo."
+        : "Sem permissão para visualizar a carga da agenda.",
       distribution: canViewAgenda
-        ? "Nenhum agendamento encontrado no mes atual."
-        : "Sem permissao para visualizar o status da agenda.",
+        ? "Nenhum agendamento encontrado no mês atual."
+        : "Sem permissão para visualizar o status da agenda.",
     },
     dashboardData: {
       timeline: {

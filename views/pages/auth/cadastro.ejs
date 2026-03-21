@@ -1,169 +1,553 @@
-<section class="auth-viewport">
+<%
+  const ambienteSenha = String(ambiente || "").toUpperCase();
+  const senhaModoDev = ["DEV", "DEVELOPMENT", "LOCAL", "TEST", "TESTE"].includes(ambienteSenha);
+  const senhaPlaceholder = senhaModoDev ? "Mínimo de 4 caracteres" : "Mínimo de 10 caracteres";
+  const currentFormData = formData && typeof formData === "object" ? formData : {};
+  const currentExtraData =
+    currentFormData?.dadosCadastro &&
+    typeof currentFormData.dadosCadastro === "object" &&
+    !Array.isArray(currentFormData.dadosCadastro)
+      ? currentFormData.dadosCadastro
+      : {};
+  const currentType = String(currentFormData?.tipoCadastro || "").trim().toLowerCase();
+  const currentPanel = currentType
+    ? (String(currentFormData?.fluxoEtapa || "").trim().toLowerCase() === "acesso" ? "acesso" : "dados")
+    : "escolha";
+  const currentProgressStep = currentPanel === "escolha" ? 1 : currentPanel === "dados" ? 2 : 3;
+
+  const cadastroVariants = [
+    {
+      key: "familia",
+      label: "Família",
+      selectDescription: "Cadastro para famílias que serão acompanhadas pela ONG",
+      headerTitle: "Cadastro — Família",
+      accessTitle: "Acesso — Família",
+      accessDescription: "Informe como essa família vai acessar o sistema depois da aprovação.",
+      icon: "fa-regular fa-heart",
+      theme: "family",
+      profileFields: [
+        {
+          key: "nome",
+          label: "Nome do responsável",
+          type: "text",
+          placeholder: "Maria da Silva",
+          required: true,
+          autocomplete: "name",
+        },
+        {
+          key: "cpf",
+          label: "CPF",
+          type: "text",
+          placeholder: "000.000.000-00",
+          required: true,
+          inputmode: "numeric",
+          mask: "cpf",
+        },
+        {
+          key: "telefone",
+          label: "Telefone",
+          type: "text",
+          placeholder: "(00) 00000-0000",
+          required: true,
+          inputmode: "tel",
+          autocomplete: "tel",
+          mask: "phone",
+        },
+        {
+          extraKey: "endereco",
+          label: "Endereço",
+          type: "text",
+          placeholder: "Rua, número, bairro",
+          required: true,
+          autocomplete: "street-address",
+        },
+        {
+          extraKey: "quantidade_membros",
+          label: "Quantidade de membros na família",
+          type: "text",
+          placeholder: "Ex: 4",
+          required: true,
+          inputmode: "numeric",
+        },
+        {
+          extraKey: "principal_necessidade",
+          label: "Principal necessidade",
+          type: "text",
+          placeholder: "Descreva brevemente",
+          required: true,
+        },
+      ],
+      accessFields: [
+        {
+          key: "email",
+          label: "E-mail de acesso",
+          type: "email",
+          placeholder: "familia@email.com",
+          required: true,
+          autocomplete: "email",
+        },
+        {
+          key: "login",
+          label: "Usuário para login",
+          type: "text",
+          placeholder: "maria.silva",
+          required: true,
+          autocomplete: "username",
+        },
+        {
+          key: "senha",
+          label: "Senha",
+          type: "password",
+          placeholder: senhaPlaceholder,
+          required: true,
+          autocomplete: "new-password",
+          toggle: true,
+        },
+        {
+          key: "confirmarSenha",
+          label: "Confirmar senha",
+          type: "password",
+          placeholder: "Repita a senha",
+          required: true,
+          autocomplete: "new-password",
+          toggle: true,
+        },
+      ],
+    },
+    {
+      key: "voluntario",
+      label: "Voluntário",
+      selectDescription: "Quero doar meu tempo e habilidades para ajudar",
+      headerTitle: "Cadastro — Voluntário",
+      accessTitle: "Acesso — Voluntário",
+      accessDescription: "Crie os dados de acesso para acompanhar as próximas etapas com a equipe.",
+      icon: "fa-solid fa-users",
+      theme: "volunteer",
+      profileFields: [
+        {
+          key: "nome",
+          label: "Nome completo",
+          type: "text",
+          placeholder: "João Santos",
+          required: true,
+          autocomplete: "name",
+        },
+        {
+          key: "email",
+          label: "E-mail",
+          type: "email",
+          placeholder: "joao@email.com",
+          required: true,
+          autocomplete: "email",
+        },
+        {
+          key: "telefone",
+          label: "Telefone",
+          type: "text",
+          placeholder: "(00) 00000-0000",
+          required: true,
+          inputmode: "tel",
+          autocomplete: "tel",
+          mask: "phone",
+        },
+        {
+          extraKey: "area_atuacao",
+          label: "Área de atuação / Habilidade",
+          type: "text",
+          placeholder: "Ex: Educação, saúde, tecnologia",
+          required: true,
+        },
+        {
+          extraKey: "disponibilidade",
+          label: "Disponibilidade",
+          type: "text",
+          placeholder: "Ex: Sábados pela manhã",
+          required: true,
+        },
+      ],
+      accessFields: [
+        {
+          key: "login",
+          label: "Usuário para login",
+          type: "text",
+          placeholder: "joao.santos",
+          required: true,
+          autocomplete: "username",
+        },
+        {
+          key: "senha",
+          label: "Senha",
+          type: "password",
+          placeholder: senhaPlaceholder,
+          required: true,
+          autocomplete: "new-password",
+          toggle: true,
+        },
+        {
+          key: "confirmarSenha",
+          label: "Confirmar senha",
+          type: "password",
+          placeholder: "Repita a senha",
+          required: true,
+          autocomplete: "new-password",
+          toggle: true,
+        },
+      ],
+    },
+    {
+      key: "orgao_publico",
+      label: "Órgão Público",
+      selectDescription: "Representante de instituição ou órgão governamental",
+      headerTitle: "Cadastro — Órgão Público",
+      accessTitle: "Acesso — Órgão Público",
+      accessDescription: "Defina os dados de acesso do representante para seguir no fluxo de homologação.",
+      icon: "fa-regular fa-building",
+      theme: "public",
+      profileFields: [
+        {
+          extraKey: "orgao_nome",
+          label: "Nome do órgão / instituição",
+          type: "text",
+          placeholder: "Secretaria de Assistência Social",
+          required: true,
+        },
+        {
+          key: "nome",
+          label: "Nome do representante",
+          type: "text",
+          placeholder: "Ana Oliveira",
+          required: true,
+          autocomplete: "name",
+        },
+        {
+          extraKey: "cargo",
+          label: "Cargo",
+          type: "text",
+          placeholder: "Coordenadora",
+          required: true,
+        },
+        {
+          key: "email",
+          label: "E-mail institucional",
+          type: "email",
+          placeholder: "contato@orgao.gov.br",
+          required: true,
+          autocomplete: "email",
+        },
+        {
+          key: "telefone",
+          label: "Telefone",
+          type: "text",
+          placeholder: "(00) 0000-0000",
+          required: false,
+          inputmode: "tel",
+          autocomplete: "tel",
+          mask: "phone",
+        },
+      ],
+      accessFields: [
+        {
+          key: "login",
+          label: "Usuário para login",
+          type: "text",
+          placeholder: "ana.oliveira",
+          required: true,
+          autocomplete: "username",
+        },
+        {
+          key: "senha",
+          label: "Senha",
+          type: "password",
+          placeholder: senhaPlaceholder,
+          required: true,
+          autocomplete: "new-password",
+          toggle: true,
+        },
+        {
+          key: "confirmarSenha",
+          label: "Confirmar senha",
+          type: "password",
+          placeholder: "Repita a senha",
+          required: true,
+          autocomplete: "new-password",
+          toggle: true,
+        },
+      ],
+    },
+  ];
+
+  const isCurrentVariant = (variantKey) => currentType === variantKey;
+  const getRootValue = (variantKey, key) => (isCurrentVariant(variantKey) ? String(currentFormData?.[key] || "") : "");
+  const getExtraValue = (variantKey, key) => (isCurrentVariant(variantKey) ? String(currentExtraData?.[key] || "") : "");
+%>
+
+<section class="auth-viewport auth-viewport-cadastro">
   <div class="auth-bubble bubble-a"></div>
   <div class="auth-bubble bubble-b"></div>
   <div class="auth-bubble bubble-c"></div>
   <div class="auth-bubble bubble-d"></div>
   <div class="auth-bubble bubble-e"></div>
 
-  <div class="auth-card card-elevated">
-    <h1 class="auth-brand">GESA</h1>
-    <p class="auth-subtitle">Cadastro de acesso para voluntario ou familia</p>
-    <p class="auth-supporting-copy">
-      Solicite seu acesso ao sistema da Fundacao Alento para acompanhar dados e fluxos de atendimento.
-    </p>
+  <div
+    class="cadastro-shell"
+    data-cadastro-root
+    data-active-type="<%= currentType %>"
+    data-active-step="<%= currentPanel %>"
+  >
+    <header class="cadastro-hero">
+      <div class="cadastro-hero-icon" aria-hidden="true">
+        <i class="fa-regular fa-heart"></i>
+      </div>
+      <h1 class="cadastro-hero-title">Bem-vindo à nossa rede</h1>
+      <p class="cadastro-hero-subtitle">Cada pessoa faz a diferença</p>
+
+      <div class="cadastro-progress" aria-label="Progresso do cadastro">
+        <% for (let step = 1; step <= 3; step += 1) { %>
+          <span
+            class="cadastro-progress-item <%= currentProgressStep === step ? 'is-active' : '' %>"
+            data-cadastro-progress-item
+            data-step="<%= step %>"
+          ></span>
+        <% } %>
+      </div>
+    </header>
 
     <% if (errorMessage && errorMessage.length) { %>
-      <div class="auth-error">
-        <%= errorMessage[0] %>
-      </div>
+      <div class="auth-error cadastro-flash"><%= errorMessage[0] %></div>
     <% } %>
 
     <% if (successMessage && successMessage.length) { %>
-      <div class="auth-success">
-        <%= successMessage[0] %>
-      </div>
+      <div class="auth-success cadastro-flash"><%= successMessage[0] %></div>
     <% } %>
 
-    <form method="post" action="/cadastro" autocomplete="off" class="form-stack">
-      <label for="nome" class="input-label">Nome completo *</label>
-      <div class="field-icon-wrap">
-        <i class="fa-solid fa-user field-icon"></i>
-        <input
-          class="input-control"
-          id="nome"
-          name="nome"
-          type="text"
-          maxlength="120"
-          required
-          value="<%= formData?.nome || '' %>"
-        />
-      </div>
+    <div class="cadastro-flow">
+      <section
+        class="cadastro-card cadastro-choice-card card-elevated"
+        data-cadastro-stage="escolha"
+        <%= currentType ? "hidden" : "" %>
+      >
+        <header class="cadastro-card-head cadastro-card-head-plain">
+          <div>
+            <h2>Como você quer participar?</h2>
+            <p>Escolha o perfil que melhor te representa</p>
+          </div>
+        </header>
 
-      <label for="email" class="input-label">Email *</label>
-      <div class="field-icon-wrap">
-        <i class="fa-solid fa-envelope field-icon"></i>
-        <input
-          class="input-control"
-          id="email"
-          name="email"
-          type="email"
-          maxlength="140"
-          required
-          value="<%= formData?.email || '' %>"
-        />
-      </div>
+        <div class="cadastro-choice-list">
+          <% cadastroVariants.forEach((variant) => { %>
+            <button
+              type="button"
+              class="cadastro-choice-option theme-<%= variant.theme %>"
+              data-cadastro-select="<%= variant.key %>"
+            >
+              <span class="cadastro-choice-icon" aria-hidden="true">
+                <i class="<%= variant.icon %>"></i>
+              </span>
+              <span class="cadastro-choice-copy">
+                <strong><%= variant.label %></strong>
+                <small><%= variant.selectDescription %></small>
+              </span>
+              <span class="cadastro-choice-arrow" aria-hidden="true">
+                <i class="fa-solid fa-chevron-right"></i>
+              </span>
+            </button>
+          <% }) %>
+        </div>
+      </section>
 
-      <label for="login" class="input-label">Usuario para login *</label>
-      <div class="field-icon-wrap">
-        <i class="fa-solid fa-at field-icon"></i>
-        <input
-          class="input-control"
-          id="login"
-          name="login"
-          type="text"
-          maxlength="40"
-          placeholder="Ex: joao.silva"
-          required
-          value="<%= formData?.login || '' %>"
-        />
-      </div>
-
-      <label for="cpf" class="input-label">CPF *</label>
-      <div class="field-icon-wrap">
-        <i class="fa-solid fa-address-card field-icon"></i>
-        <input
-          class="input-control"
-          id="cpf"
-          name="cpf"
-          type="text"
-          inputmode="numeric"
-          placeholder="Somente numeros"
-          maxlength="14"
-          required
-          value="<%= formData?.cpf || '' %>"
-        />
-      </div>
-
-      <label for="tipoCadastro" class="input-label">Tipo de cadastro *</label>
-      <select class="input-control" id="tipoCadastro" name="tipoCadastro" required>
-        <option value="voluntario" <%= (formData?.tipoCadastro || 'voluntario') === 'voluntario' ? 'selected' : '' %>>
-          Voluntario
-        </option>
-        <option value="familia" <%= formData?.tipoCadastro === 'familia' ? 'selected' : '' %>>
-          Familia
-        </option>
-      </select>
-
-      <label for="telefone" class="input-label">Telefone</label>
-      <div class="field-icon-wrap">
-        <i class="fa-solid fa-phone field-icon"></i>
-        <input
-          class="input-control"
-          id="telefone"
-          name="telefone"
-          type="text"
-          maxlength="20"
-          value="<%= formData?.telefone || '' %>"
-        />
-      </div>
-
-      <%
-        const ambienteSenha = String(ambiente || "").toUpperCase();
-        const senhaModoDev = ["DEV", "DEVELOPMENT", "LOCAL", "TEST", "TESTE"].includes(ambienteSenha);
-      %>
-
-      <label for="senha" class="input-label">Senha *</label>
-      <div class="field-icon-wrap">
-        <i class="fa-solid fa-lock field-icon"></i>
-        <input
-          class="input-control"
-          id="senha"
-          name="senha"
-          type="password"
-          placeholder="<%= senhaModoDev ? 'Minimo 4 caracteres (dev)' : 'Minimo 10 caracteres' %>"
-          required
-        />
-        <button
-          class="field-icon-toggle"
-          type="button"
-          data-password-toggle="senha"
-          aria-label="Mostrar senha"
-          aria-pressed="false"
+      <% cadastroVariants.forEach((variant) => { %>
+        <% const showVariant = currentType === variant.key; %>
+        <% const activeVariantPanel = showVariant ? currentPanel : "dados"; %>
+        <form
+          method="post"
+          action="/cadastro"
+          autocomplete="off"
+          class="cadastro-form-shell"
+          data-cadastro-form
+          data-cadastro-variant="<%= variant.key %>"
+          <%= showVariant ? "" : "hidden" %>
         >
-          <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
-        </button>
-      </div>
+          <input type="hidden" name="tipoCadastro" value="<%= variant.key %>" />
+          <input type="hidden" name="fluxoEtapa" value="<%= activeVariantPanel %>" data-cadastro-step-input />
 
-      <label for="confirmarSenha" class="input-label">Confirmar senha *</label>
-      <div class="field-icon-wrap">
-        <i class="fa-solid fa-lock field-icon"></i>
-        <input
-          class="input-control"
-          id="confirmarSenha"
-          name="confirmarSenha"
-          type="password"
-          required
-        />
-        <button
-          class="field-icon-toggle"
-          type="button"
-          data-password-toggle="confirmarSenha"
-          aria-label="Mostrar senha"
-          aria-pressed="false"
-        >
-          <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
-        </button>
-      </div>
+          <section
+            class="cadastro-card cadastro-form-card card-elevated <%= activeVariantPanel === 'dados' ? 'is-active' : '' %>"
+            data-cadastro-panel="dados"
+          >
+            <header class="cadastro-card-head theme-<%= variant.theme %>">
+              <button
+                type="button"
+                class="cadastro-back-btn"
+                data-cadastro-back="escolha"
+                aria-label="Voltar para escolher o perfil"
+              >
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
 
-      <div class="auth-actions">
-        <button type="submit" class="btn btn-accent btn-block auth-action-btn">
-          Criar conta
-        </button>
+              <span class="cadastro-card-icon" aria-hidden="true">
+                <i class="<%= variant.icon %>"></i>
+              </span>
 
-        <a href="/login" class="btn btn-primary btn-block auth-action-btn">
-          Entrar
-        </a>
-      </div>
-    </form>
+              <div>
+                <h2><%= variant.headerTitle %></h2>
+              </div>
+            </header>
+
+            <div class="cadastro-card-body">
+              <div class="cadastro-field-grid">
+                <% variant.profileFields.forEach((field) => { %>
+                  <% const fieldName = field.extraKey ? `dadosCadastro[${field.extraKey}]` : field.key; %>
+                  <% const fieldValue = field.extraKey ? getExtraValue(variant.key, field.extraKey) : getRootValue(variant.key, field.key); %>
+                  <% const fieldId = `cadastro-${variant.key}-${field.extraKey || field.key}`; %>
+
+                  <label class="field-wrap cadastro-field" for="<%= fieldId %>">
+                    <span class="input-label">
+                      <%= field.label %><% if (field.required) { %><span class="cadastro-required">*</span><% } %>
+                    </span>
+
+                    <% if (field.type === "textarea") { %>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="<%= fieldId %>"
+                        name="<%= fieldName %>"
+                        rows="3"
+                        placeholder="<%= field.placeholder || '' %>"
+                        <%= field.required ? "required" : "" %>
+                      ><%= fieldValue %></textarea>
+                    <% } else { %>
+                      <input
+                        class="input-control cadastro-input"
+                        id="<%= fieldId %>"
+                        name="<%= fieldName %>"
+                        type="<%= field.type || 'text' %>"
+                        maxlength="<%= field.maxlength || 140 %>"
+                        placeholder="<%= field.placeholder || '' %>"
+                        value="<%= fieldValue %>"
+                        <%= field.required ? "required" : "" %>
+                        <%= field.inputmode ? `inputmode="${field.inputmode}"` : "" %>
+                        <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
+                        <%= field.mask ? `data-mask="${field.mask}"` : "" %>
+                      />
+                    <% } %>
+                  </label>
+                <% }) %>
+              </div>
+
+              <div class="cadastro-actions">
+                <button
+                  type="button"
+                  class="btn btn-accent btn-block cadastro-submit-btn"
+                  data-cadastro-next
+                >
+                  Continuar cadastro
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="cadastro-card cadastro-form-card card-elevated <%= activeVariantPanel === 'acesso' ? 'is-active' : '' %>"
+            data-cadastro-panel="acesso"
+          >
+            <header class="cadastro-card-head theme-<%= variant.theme %>">
+              <button
+                type="button"
+                class="cadastro-back-btn"
+                data-cadastro-back="dados"
+                aria-label="Voltar para os dados do cadastro"
+              >
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
+
+              <span class="cadastro-card-icon" aria-hidden="true">
+                <i class="<%= variant.icon %>"></i>
+              </span>
+
+              <div>
+                <h2><%= variant.accessTitle %></h2>
+                <p><%= variant.accessDescription %></p>
+              </div>
+            </header>
+
+            <div class="cadastro-card-body">
+              <% if (variant.key !== "familia") { %>
+                <div class="cadastro-access-note">
+                  <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
+                  <span>
+                    O e-mail <strong data-cadastro-email-preview><%= getRootValue(variant.key, "email") || "informado acima" %></strong> será usado no processo.
+                  </span>
+                </div>
+              <% } %>
+
+              <div class="cadastro-field-grid">
+                <% variant.accessFields.forEach((field) => { %>
+                  <% const fieldValue = getRootValue(variant.key, field.key); %>
+                  <% const fieldId = `cadastro-${variant.key}-${field.key}`; %>
+
+                  <label class="field-wrap cadastro-field" for="<%= fieldId %>">
+                    <span class="input-label">
+                      <%= field.label %><% if (field.required) { %><span class="cadastro-required">*</span><% } %>
+                    </span>
+
+                    <% if (field.toggle) { %>
+                      <div class="field-icon-wrap">
+                        <input
+                          class="input-control cadastro-input"
+                          id="<%= fieldId %>"
+                          name="<%= field.key %>"
+                          type="password"
+                          maxlength="120"
+                          placeholder="<%= field.placeholder || '' %>"
+                          value="<%= fieldValue %>"
+                          <%= field.required ? "required" : "" %>
+                          <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
+                          data-cadastro-access-input
+                        />
+                        <button
+                          class="field-icon-toggle"
+                          type="button"
+                          data-password-toggle="<%= fieldId %>"
+                          aria-label="Mostrar senha"
+                          aria-pressed="false"
+                        >
+                          <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
+                        </button>
+                      </div>
+                    <% } else { %>
+                      <input
+                        class="input-control cadastro-input"
+                        id="<%= fieldId %>"
+                        name="<%= field.key %>"
+                        type="<%= field.type || 'text' %>"
+                        maxlength="<%= field.maxlength || 140 %>"
+                        placeholder="<%= field.placeholder || '' %>"
+                        value="<%= fieldValue %>"
+                        <%= field.required ? "required" : "" %>
+                        <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
+                        data-cadastro-access-input
+                      />
+                    <% } %>
+                  </label>
+                <% }) %>
+              </div>
+
+              <div class="cadastro-submit-block">
+                <p class="cadastro-submit-copy">
+                  Seu cadastro segue para análise da equipe e você será avisado quando o acesso estiver liberado.
+                </p>
+                <button type="submit" class="btn btn-accent btn-block cadastro-submit-btn">
+                  Finalizar cadastro
+                </button>
+              </div>
+            </div>
+          </section>
+        </form>
+      <% }) %>
+    </div>
+
+    <div class="cadastro-footer-link">
+      <span>Já tem acesso?</span>
+      <a href="/login">Entrar agora</a>
+    </div>
   </div>
 </section>

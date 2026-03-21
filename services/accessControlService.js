@@ -99,6 +99,11 @@ async function resolvePermissionsForUserId(userId, fallbackPerfil = "") {
         PERMISSIONS.NOTIFICACOES_VIEW,
       ]);
     }
+
+    return normalizePermissionList([
+      PERMISSIONS.PORTAL_MEUS_DADOS,
+      PERMISSIONS.NOTIFICACOES_VIEW,
+    ]);
   }
 
   return getDefaultPermissionsForProfile(perfil);

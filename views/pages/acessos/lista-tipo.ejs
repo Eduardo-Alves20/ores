@@ -427,8 +427,9 @@
             <label class="field-wrap">
               <span class="input-label">Tipo de cadastro</span>
               <select class="input-control" name="tipoCadastro">
-                <option value="voluntario" <%= tipoCadastro === "voluntario" ? "selected" : "" %>>Voluntario</option>
-                <option value="familia" <%= tipoCadastro === "familia" ? "selected" : "" %>>Familia</option>
+                <option value="voluntario" <%= tipoCadastro === "voluntario" ? "selected" : "" %>>Voluntário</option>
+                <option value="familia" <%= tipoCadastro === "familia" ? "selected" : "" %>>Família</option>
+                <option value="orgao_publico" <%= tipoCadastro === "orgao_publico" ? "selected" : "" %>>Órgão Público</option>
               </select>
             </label>
 
@@ -467,6 +468,11 @@
             <label class="field-wrap">
               <span class="input-label">Telefone</span>
               <input class="input-control" type="text" name="telefone" maxlength="20" />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Data de nascimento</span>
+              <input class="input-control" type="date" name="dataNascimento" />
             </label>
 
             <% if (Array.isArray(customFields) && customFields.length) { %>

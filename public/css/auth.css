@@ -234,3 +234,474 @@
     bottom: -70px;
   }
 }
+
+.page-auth-cadastro {
+  background: #fcfaf6;
+}
+
+.page-auth-cadastro .auth-viewport {
+  place-items: start center;
+  padding: 34px 16px 52px;
+}
+
+.page-auth-cadastro .auth-bubble {
+  opacity: 1;
+  filter: none;
+}
+
+.page-auth-cadastro .bubble-a {
+  width: 258px;
+  height: 258px;
+  left: -146px;
+  top: 34px;
+  background: #edf1ec;
+}
+
+.page-auth-cadastro .bubble-b {
+  width: 134px;
+  height: 134px;
+  right: 168px;
+  top: 378px;
+  background: #eef0f6;
+}
+
+.page-auth-cadastro .bubble-c {
+  width: 86px;
+  height: 86px;
+  left: 148px;
+  top: 610px;
+  background: #f7ece3;
+}
+
+.page-auth-cadastro .bubble-d {
+  width: 68px;
+  height: 68px;
+  right: 110px;
+  top: 120px;
+  background: #f5efe8;
+}
+
+.page-auth-cadastro .bubble-e {
+  width: 192px;
+  height: 192px;
+  right: 62px;
+  bottom: 96px;
+  background: #faefe6;
+}
+
+.cadastro-shell {
+  width: min(100%, 980px);
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+}
+
+.cadastro-hero {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  margin-top: 6px;
+}
+
+.cadastro-hero-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef5ee;
+  color: #2f855b;
+  font-size: 1.45rem;
+  box-shadow: 0 10px 24px rgba(47, 133, 91, 0.08);
+}
+
+.cadastro-hero-title {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(2rem, 3vw, 2.9rem);
+  font-weight: 700;
+  color: #272937;
+}
+
+.cadastro-hero-subtitle {
+  margin: -4px 0 0;
+  font-size: 1rem;
+  color: #7d8597;
+}
+
+.cadastro-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.cadastro-progress-item {
+  width: 14px;
+  height: 6px;
+  border-radius: 999px;
+  background: #ece8e2;
+  transition: width 0.18s ease, background-color 0.18s ease;
+}
+
+.cadastro-progress-item.is-active {
+  width: 28px;
+  background: #3e8c64;
+}
+
+.cadastro-flash {
+  width: min(100%, 520px);
+  margin: 0;
+}
+
+.cadastro-flow {
+  width: min(100%, 980px);
+  display: grid;
+  justify-items: center;
+}
+
+.cadastro-card,
+.cadastro-form-shell {
+  width: min(100%, 520px);
+}
+
+.cadastro-choice-card,
+.cadastro-form-card {
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  border: 1px solid #ded8d1;
+  box-shadow: 0 18px 40px rgba(63, 49, 40, 0.1);
+}
+
+.cadastro-form-card {
+  display: none;
+}
+
+.cadastro-form-card.is-active {
+  display: block;
+}
+
+.cadastro-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(224, 214, 205, 0.8);
+}
+
+.cadastro-card-head.theme-family {
+  background: linear-gradient(180deg, #fff7f0 0%, #fff4ea 100%);
+}
+
+.cadastro-card-head.theme-volunteer {
+  background: linear-gradient(180deg, #f5fbf7 0%, #edf7f0 100%);
+}
+
+.cadastro-card-head.theme-public {
+  background: linear-gradient(180deg, #f5f8ff 0%, #edf2fb 100%);
+}
+
+.cadastro-card-head-plain {
+  display: block;
+  padding: 26px 26px 12px;
+  border-bottom: 0;
+}
+
+.cadastro-card-head h2 {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #2b2d38;
+}
+
+.cadastro-card-head p {
+  margin: 4px 0 0;
+  color: #7b7f8d;
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.cadastro-card-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex: 0 0 auto;
+  font-size: 1.25rem;
+}
+
+.theme-family .cadastro-card-icon,
+.theme-family .cadastro-choice-icon {
+  color: #e67d2f;
+}
+
+.theme-volunteer .cadastro-card-icon,
+.theme-volunteer .cadastro-choice-icon {
+  color: #2e8b60;
+}
+
+.theme-public .cadastro-card-icon,
+.theme-public .cadastro-choice-icon {
+  color: #3a67bb;
+}
+
+.cadastro-back-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  color: #687086;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.cadastro-back-btn:hover {
+  background: rgba(104, 112, 134, 0.08);
+  color: #2b2d38;
+}
+
+.cadastro-card-body {
+  padding: 18px 18px 20px;
+}
+
+.cadastro-choice-list {
+  display: grid;
+  gap: 12px;
+  padding: 10px 24px 24px;
+}
+
+.cadastro-choice-option {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 16px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e4ddd5;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.cadastro-choice-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(86, 56, 43, 0.08);
+}
+
+.cadastro-choice-option.theme-family {
+  border-color: #f0c8ad;
+}
+
+.cadastro-choice-option.theme-volunteer {
+  border-color: #bedecd;
+}
+
+.cadastro-choice-option.theme-public {
+  border-color: #c8d6f2;
+}
+
+.cadastro-choice-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f4ef;
+  font-size: 1.45rem;
+}
+
+.cadastro-choice-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cadastro-choice-copy strong {
+  font-size: 1.05rem;
+  color: #2c2f3b;
+}
+
+.cadastro-choice-copy small {
+  color: #6f7688;
+  font-size: 0.97rem;
+  line-height: 1.45;
+}
+
+.cadastro-choice-arrow {
+  color: #b9beca;
+  font-size: 0.95rem;
+}
+
+.cadastro-field-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.cadastro-field .input-label {
+  margin-bottom: 8px;
+  color: #303341;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.cadastro-required {
+  color: #ef8f58;
+  margin-left: 3px;
+}
+
+.cadastro-input {
+  min-height: 52px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border-color: #ded5cc;
+  background: #fffefb;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.cadastro-input:focus {
+  border-color: #d6a38d;
+  box-shadow: 0 0 0 4px rgba(214, 163, 141, 0.14);
+}
+
+.cadastro-actions,
+.cadastro-submit-block {
+  margin-top: 18px;
+}
+
+.cadastro-submit-btn {
+  min-height: 54px;
+  border-radius: 14px;
+  background: #3d8b62;
+  box-shadow: 0 12px 24px rgba(61, 139, 98, 0.18);
+}
+
+.cadastro-submit-btn:hover {
+  background: #337652;
+}
+
+.cadastro-submit-copy {
+  margin: 0 0 12px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #6f7688;
+}
+
+.cadastro-access-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #dde6de;
+  background: #f6faf7;
+  color: #50606b;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.cadastro-access-note i {
+  color: #3d8b62;
+  font-size: 1rem;
+}
+
+.page-auth-cadastro .field-icon-wrap .input-control {
+  padding-left: 14px;
+  padding-right: 44px;
+}
+
+.cadastro-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6f7688;
+  font-size: 0.95rem;
+}
+
+.cadastro-footer-link a {
+  color: #3d8b62;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.cadastro-footer-link a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .page-auth-cadastro .auth-viewport {
+    padding: 22px 14px 36px;
+  }
+
+  .page-auth-cadastro .bubble-a {
+    width: 180px;
+    height: 180px;
+    left: -96px;
+    top: 12px;
+  }
+
+  .page-auth-cadastro .bubble-b {
+    width: 96px;
+    height: 96px;
+    right: -24px;
+    top: 360px;
+  }
+
+  .page-auth-cadastro .bubble-c,
+  .page-auth-cadastro .bubble-d {
+    display: none;
+  }
+
+  .page-auth-cadastro .bubble-e {
+    width: 152px;
+    height: 152px;
+    right: -48px;
+    bottom: 34px;
+  }
+
+  .cadastro-card-head,
+  .cadastro-card-head-plain,
+  .cadastro-card-body,
+  .cadastro-choice-list {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .cadastro-card-head h2 {
+    font-size: 1.3rem;
+  }
+
+  .cadastro-choice-option {
+    gap: 12px;
+    padding: 16px 14px;
+  }
+
+  .cadastro-choice-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+
+  .cadastro-choice-copy small,
+  .cadastro-card-head p,
+  .cadastro-submit-copy,
+  .cadastro-access-note {
+    font-size: 0.9rem;
+  }
+}

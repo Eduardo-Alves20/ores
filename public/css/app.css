@@ -281,12 +281,32 @@
   color: #a44d36;
   text-decoration: none;
   background: #fff;
+  position: relative;
 }
 
 .topbar-icon-btn:hover,
 .topbar-icon-btn.is-active {
   background: #f8ebe4;
   border-color: #d8b7a8;
+}
+
+.topbar-icon-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #b84f36;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .topbar-profile-link {
@@ -1424,6 +1444,19 @@ body.app-nav-open {
 }
 
 @media (max-width: 920px) {
+  .app-shell {
+    display: block;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .app-main,
+  .topbar,
+  .app-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .sidebar {
     padding: 0 14px 0;
   }
@@ -1456,5 +1489,23 @@ body.app-nav-open {
     padding: 0;
     border: 0;
     background: transparent !important;
+  }
+
+  .page-usuario-minha-familia-home .topbar,
+  .page-usuario-minha-familia-consultas .topbar,
+  .page-usuario-minha-familia-notificacoes .topbar {
+    padding-top: max(14px, calc(10px + env(safe-area-inset-top)));
+  }
+
+  .page-usuario-minha-familia-home .topbar-title,
+  .page-usuario-minha-familia-consultas .topbar-title,
+  .page-usuario-minha-familia-notificacoes .topbar-title {
+    font-size: clamp(1.16rem, 6vw, 1.42rem);
+  }
+
+  .page-usuario-minha-familia-home .app-content,
+  .page-usuario-minha-familia-consultas .app-content,
+  .page-usuario-minha-familia-notificacoes .app-content {
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
   }
 }

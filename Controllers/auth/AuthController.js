@@ -8,6 +8,41 @@ function isHtmlRequest(req) {
   return !!req.accepts("html");
 }
 
+function buildCadastroFormData(source = {}) {
+  const dadosCadastro =
+    source?.dadosCadastro && typeof source.dadosCadastro === "object" && !Array.isArray(source.dadosCadastro)
+      ? source.dadosCadastro
+      : {};
+
+  return {
+    nome: String(source?.nome || ""),
+    email: String(source?.email || ""),
+    login: String(source?.login || ""),
+    cpf: String(source?.cpf || ""),
+    telefone: String(source?.telefone || ""),
+    tipoCadastro: String(source?.tipoCadastro || ""),
+    fluxoEtapa: String(source?.fluxoEtapa || ""),
+    dadosCadastro,
+  };
+}
+
+function renderCadastroPage(req, res, options = {}) {
+  const status = Number(options.status || 200);
+
+  return res.status(status).render("pages/auth/cadastro", {
+    title: "Criar conta no GESA",
+    layout: "partials/login.ejs",
+    pageClass: "page-auth page-auth-cadastro",
+    metaDescription:
+      "Solicite seu acesso ao GESA para acompanhar dados, atendimentos e processos da Fundação Alento como família, voluntário ou órgão público.",
+    errorMessage: Array.isArray(options.errorMessage) ? options.errorMessage : req.flash("error"),
+    successMessage: Array.isArray(options.successMessage) ? options.successMessage : req.flash("success"),
+    formData: buildCadastroFormData(options.formData || req.query || {}),
+    ambiente: process.env.AMBIENTE || process.env.NODE_ENV || "",
+    extraJs: ["/js/auth-cadastro.js"],
+  });
+}
+
 class AuthController {
   static async loginPage(req, res) {
     if (req?.session?.user) {
@@ -36,44 +71,35 @@ class AuthController {
       return res.redirect(resolveLandingRouteForUser(req.session.user));
     }
 
-    return res.status(200).render("pages/auth/cadastro", {
-      title: "Criar conta no GESA",
-      layout: "partials/login.ejs",
-      pageClass: "page-auth",
-      metaDescription:
-        "Solicite seu acesso ao GESA para acompanhar dados, atendimentos e processos da Fundacao Alento como familia ou voluntario.",
-      errorMessage: req.flash("error"),
-      successMessage: req.flash("success"),
-      formData: {
-        nome: String(req.query.nome || ""),
-        email: String(req.query.email || ""),
-        login: String(req.query.login || ""),
-        cpf: String(req.query.cpf || ""),
-        telefone: String(req.query.telefone || ""),
-        tipoCadastro: String(req.query.tipoCadastro || "voluntario"),
-      },
-    });
+    return renderCadastroPage(req, res);
   }
 
   static async cadastro(req, res) {
     try {
-      const nome = String(req.body?.nome || "").trim();
-      const email = String(req.body?.email || "").trim();
-      const login = String(req.body?.login || "").trim();
-      const cpf = String(req.body?.cpf || "").trim();
-      const telefone = String(req.body?.telefone || "").trim();
-      const tipoCadastro = String(req.body?.tipoCadastro || "voluntario").trim();
+      const formData = buildCadastroFormData(req.body || {});
+      const nome = String(formData.nome || "").trim();
+      const email = String(formData.email || "").trim();
+      const login = String(formData.login || "").trim();
+      const cpf = String(formData.cpf || "").trim();
+      const telefone = String(formData.telefone || "").trim();
+      const tipoCadastro = String(formData.tipoCadastro || "voluntario").trim();
       const senha = String(req.body?.senha || "");
       const confirmarSenha = String(req.body?.confirmarSenha || "");
 
-      if (!nome || !email || !login || !cpf || !senha || !confirmarSenha) {
-        throw Object.assign(new Error("Preencha os campos obrigatorios: nome, email, usuario, cpf, senha e confirmar senha."), {
+      if (!nome || !email || !login || !senha || !confirmarSenha) {
+        throw Object.assign(new Error("Preencha os campos obrigatórios: nome, e-mail, usuário, senha e confirmar senha."), {
+          status: 400,
+        });
+      }
+
+      if (tipoCadastro === "familia" && !cpf) {
+        throw Object.assign(new Error("Informe o CPF do responsável para concluir o cadastro da família."), {
           status: 400,
         });
       }
 
       if (senha !== confirmarSenha) {
-        throw Object.assign(new Error("As senhas informadas nao conferem."), { status: 400 });
+        throw Object.assign(new Error("As senhas informadas não conferem."), { status: 400 });
       }
 
       const novoUsuario = await UsuarioService.criar({
@@ -84,6 +110,7 @@ class AuthController {
         telefone,
         tipoCadastro,
         senha,
+        dadosCadastro: formData.dadosCadastro,
         perfil: PERFIS.USUARIO,
         statusAprovacao: "pendente",
         ativo: false,
@@ -100,7 +127,7 @@ class AuthController {
       });
 
       if (isHtmlRequest(req)) {
-        req.flash("success", "Cadastro enviado com sucesso. O administrador ja recebeu as informacoes.");
+        req.flash("success", "Cadastro enviado com sucesso. A equipe da Alento já recebeu suas informações.");
         return res.redirect("/login");
       }
 
@@ -111,22 +138,22 @@ class AuthController {
     } catch (error) {
       const duplicate =
         error?.code === 11000
-          ? "Ja existe um usuario cadastrado com este email, usuario ou CPF."
+          ? "Já existe um usuário cadastrado com este e-mail, usuário ou CPF."
           : error?.message || "Falha ao realizar cadastro.";
 
       if (isHtmlRequest(req)) {
-        req.flash("error", duplicate);
-
-        const nextQuery = new URLSearchParams({
-          nome: String(req.body?.nome || ""),
-          email: String(req.body?.email || ""),
-          login: String(req.body?.login || ""),
-          cpf: String(req.body?.cpf || ""),
-          telefone: String(req.body?.telefone || ""),
-          tipoCadastro: String(req.body?.tipoCadastro || "voluntario"),
+        return renderCadastroPage(req, res, {
+          status: error?.status || 400,
+          errorMessage: [duplicate],
+          successMessage: [],
+          formData: {
+            ...req.body,
+            dadosCadastro:
+              req.body?.dadosCadastro && typeof req.body.dadosCadastro === "object"
+                ? req.body.dadosCadastro
+                : {},
+          },
         });
-
-        return res.redirect(`/cadastro?${nextQuery.toString()}`);
       }
 
       return res.status(error?.status || 400).json({ erro: duplicate });

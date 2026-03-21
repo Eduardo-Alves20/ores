@@ -1,208 +1,127 @@
-const Familia = require("../../schemas/social/Familia");
-const { Paciente } = require("../../schemas/social/Paciente");
 const { registrarAuditoria } = require("../../services/auditService");
-const { canAccessFamily } = require("../../services/volunteerScopeService");
-const { parseBoolean } = require("../../services/shared/valueParsingService");
+const {
+  changePatientStatus,
+  createPatient,
+  getActorId,
+  getSessionUser,
+  listPatientsByFamily,
+  updatePatient,
+} = require("../../services/familia/pacienteApiService");
 
-function getActorId(req) {
-  return req?.session?.user?.id || null;
+function respondPacienteError(res, logMessage, fallbackMessage, error) {
+  console.error(logMessage, error);
+  return res.status(error?.status || 500).json({
+    erro: error?.message || fallbackMessage,
+  });
 }
 
-function getSessionUser(req) {
-  return req?.session?.user || null;
+function respondPacienteNotFound(res) {
+  return res.status(404).json({
+    erro: "Paciente nao encontrado.",
+  });
+}
+
+async function respondWithAuditedPatient(req, res, statusCode, result) {
+  if (!result?.paciente) {
+    return respondPacienteNotFound(res);
+  }
+
+  if (result.audit) {
+    await registrarAuditoria(req, result.audit);
+  }
+
+  return res.status(statusCode).json({
+    mensagem: result.mensagem,
+    paciente: result.paciente,
+  });
 }
 
 class PacienteController {
   static async listarPorFamilia(req, res) {
     try {
-      const { familiaId } = req.params;
-      const user = getSessionUser(req);
-      const ativo = parseBoolean(req.query.ativo);
-
-      if (!(await canAccessFamily(user, familiaId))) {
-        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
-      }
-
-      const familia = await Familia.findById(familiaId).select("_id");
-      if (!familia) {
-        return res.status(404).json({ erro: "Familia nao encontrada." });
-      }
-
-      const filtro = { familiaId };
-      if (typeof ativo !== "undefined") filtro.ativo = ativo;
-
-      const pacientes = await Paciente.find(filtro).sort({ nome: 1 }).lean();
-
-      return res.status(200).json({ pacientes });
+      return res.status(200).json(
+        await listPatientsByFamily({
+          user: getSessionUser(req),
+          familiaId: req.params?.familiaId,
+          query: req.query || {},
+        })
+      );
     } catch (error) {
-      console.error("Erro ao listar pacientes:", error);
-      return res.status(500).json({ erro: "Erro interno ao listar pacientes." });
+      return respondPacienteError(
+        res,
+        "Erro ao listar pacientes:",
+        "Erro interno ao listar pacientes.",
+        error
+      );
     }
   }
 
   static async criar(req, res) {
     try {
-      const { familiaId } = req.params;
-      const user = getSessionUser(req);
-
-      if (!(await canAccessFamily(user, familiaId))) {
-        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
-      }
-
-      const familia = await Familia.findById(familiaId).select("_id ativo");
-
-      if (!familia || !familia.ativo) {
-        return res.status(404).json({ erro: "Familia nao encontrada ou inativa." });
-      }
-
-      const {
-        nome,
-        dataNascimento,
-        tipoDeficiencia,
-        necessidadesApoio,
-        observacoes,
-        diagnosticoResumo,
-      } = req.body || {};
-
-      if (!nome) {
-        return res.status(400).json({ erro: "Campo nome e obrigatorio." });
-      }
-
-      const actorId = getActorId(req);
-      const paciente = await Paciente.create({
-        familiaId,
-        nome: String(nome).trim(),
-        dataNascimento: dataNascimento || null,
-        tipoDeficiencia: tipoDeficiencia || "outra",
-        necessidadesApoio,
-        observacoes,
-        diagnosticoResumo,
-        ativo: true,
-        criadoPor: actorId,
-        atualizadoPor: actorId,
-      });
-
-      await registrarAuditoria(req, {
-        acao: "PACIENTE_CRIADO",
-        entidade: "paciente",
-        entidadeId: paciente._id,
-        detalhes: { familiaId },
-      });
-
-      return res.status(201).json({
-        mensagem: "Paciente cadastrado com sucesso.",
-        paciente,
-      });
+      return respondWithAuditedPatient(
+        req,
+        res,
+        201,
+        await createPatient({
+          user: getSessionUser(req),
+          actorId: getActorId(req),
+          familiaId: req.params?.familiaId,
+          body: req.body || {},
+        })
+      );
     } catch (error) {
-      console.error("Erro ao criar paciente:", error);
-      return res.status(500).json({ erro: "Erro interno ao criar paciente." });
+      return respondPacienteError(
+        res,
+        "Erro ao criar paciente:",
+        "Erro interno ao criar paciente.",
+        error
+      );
     }
   }
 
   static async atualizar(req, res) {
     try {
-      const { id } = req.params;
-      const actorId = getActorId(req);
-      const user = getSessionUser(req);
-      const {
-        nome,
-        dataNascimento,
-        tipoDeficiencia,
-        necessidadesApoio,
-        observacoes,
-        diagnosticoResumo,
-      } = req.body || {};
-
-      const atual = await Paciente.findById(id).select("_id familiaId");
-      if (!atual) {
-        return res.status(404).json({ erro: "Paciente nao encontrado." });
-      }
-
-      if (!(await canAccessFamily(user, atual.familiaId))) {
-        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
-      }
-
-      const patch = {
-        atualizadoPor: actorId,
-      };
-
-      if (typeof nome !== "undefined") patch.nome = String(nome).trim();
-      if (typeof dataNascimento !== "undefined") patch.dataNascimento = dataNascimento || null;
-      if (typeof tipoDeficiencia !== "undefined") patch.tipoDeficiencia = tipoDeficiencia || "outra";
-      if (typeof necessidadesApoio !== "undefined") patch.necessidadesApoio = necessidadesApoio;
-      if (typeof observacoes !== "undefined") patch.observacoes = observacoes;
-      if (typeof diagnosticoResumo !== "undefined") patch.diagnosticoResumo = diagnosticoResumo;
-
-      const paciente = await Paciente.findByIdAndUpdate(id, patch, {
-        new: true,
-        runValidators: true,
-      });
-
-      await registrarAuditoria(req, {
-        acao: "PACIENTE_ATUALIZADO",
-        entidade: "paciente",
-        entidadeId: id,
-        detalhes: { familiaId: paciente.familiaId },
-      });
-
-      return res.status(200).json({
-        mensagem: "Paciente atualizado com sucesso.",
-        paciente,
-      });
+      return respondWithAuditedPatient(
+        req,
+        res,
+        200,
+        await updatePatient({
+          user: getSessionUser(req),
+          actorId: getActorId(req),
+          id: req.params?.id,
+          body: req.body || {},
+        })
+      );
     } catch (error) {
-      console.error("Erro ao atualizar paciente:", error);
-      return res.status(500).json({ erro: "Erro interno ao atualizar paciente." });
+      return respondPacienteError(
+        res,
+        "Erro ao atualizar paciente:",
+        "Erro interno ao atualizar paciente.",
+        error
+      );
     }
   }
 
   static async alterarStatus(req, res) {
     try {
-      const { id } = req.params;
-      const ativo = parseBoolean(req.body?.ativo);
-      const actorId = getActorId(req);
-      const user = getSessionUser(req);
-
-      if (typeof ativo === "undefined") {
-        return res.status(400).json({ erro: "Campo ativo e obrigatorio." });
-      }
-
-      const atual = await Paciente.findById(id).select("_id familiaId");
-      if (!atual) {
-        return res.status(404).json({ erro: "Paciente nao encontrado." });
-      }
-
-      if (!(await canAccessFamily(user, atual.familiaId))) {
-        return res.status(403).json({ erro: "Acesso restrito a familias vinculadas ao proprio atendimento." });
-      }
-
-      const paciente = await Paciente.findByIdAndUpdate(
-        id,
-        {
-          ativo,
-          atualizadoPor: actorId,
-          inativadoEm: ativo ? null : new Date(),
-          inativadoPor: ativo ? null : actorId,
-        },
-        {
-          new: true,
-          runValidators: true,
-        }
+      return respondWithAuditedPatient(
+        req,
+        res,
+        200,
+        await changePatientStatus({
+          user: getSessionUser(req),
+          actorId: getActorId(req),
+          id: req.params?.id,
+          ativoInput: req.body?.ativo,
+        })
       );
-
-      await registrarAuditoria(req, {
-        acao: ativo ? "PACIENTE_REATIVADO" : "PACIENTE_INATIVADO",
-        entidade: "paciente",
-        entidadeId: id,
-        detalhes: { familiaId: paciente.familiaId },
-      });
-
-      return res.status(200).json({
-        mensagem: "Status do paciente atualizado com sucesso.",
-        paciente,
-      });
     } catch (error) {
-      console.error("Erro ao alterar status do paciente:", error);
-      return res.status(500).json({ erro: "Erro interno ao alterar status do paciente." });
+      return respondPacienteError(
+        res,
+        "Erro ao alterar status do paciente:",
+        "Erro interno ao alterar status do paciente.",
+        error
+      );
     }
   }
 }

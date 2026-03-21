@@ -285,8 +285,19 @@
   background: linear-gradient(180deg, rgba(95, 52, 39, 0.97), rgba(127, 59, 43, 0.94));
   color: #fff;
   display: grid;
-  align-content: start;
   gap: 14px;
+}
+
+.dashboard-priority-section {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 0;
+}
+
+.dashboard-priority-section + .dashboard-priority-section {
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dashboard-priority-panel .dashboard-panel-overline,
@@ -389,6 +400,101 @@
 
 .dashboard-alert-card.tone-neutral .dashboard-alert-icon {
   background: rgba(209, 153, 132, 0.18);
+  color: #f7d0c1;
+}
+
+.dashboard-birthday-list {
+  display: grid;
+  gap: 10px;
+}
+
+.dashboard-birthday-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-birthday-card.is-today {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.dashboard-birthday-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-weight: 800;
+}
+
+.dashboard-birthday-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dashboard-birthday-copy strong {
+  color: #fff;
+}
+
+.dashboard-birthday-copy small {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.dashboard-birthday-meta {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.dashboard-birthday-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-birthday-chip.is-today {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+
+.dashboard-birthday-chip.is-type {
+  background: rgba(209, 153, 132, 0.18);
+  color: #f7d0c1;
+}
+
+.dashboard-empty-inline {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 18px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.74);
+  text-align: center;
+}
+
+.dashboard-empty-inline i {
+  font-size: 1.15rem;
   color: #f7d0c1;
 }
 

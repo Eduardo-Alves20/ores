@@ -287,6 +287,7 @@
         form.elements.login.value = usuario?.login || "";
         form.elements.cpf.value = usuario?.cpf || "";
         form.elements.telefone.value = usuario?.telefone || "";
+        form.elements.dataNascimento.value = String(usuario?.dataNascimento || "").slice(0, 10);
         form.elements.perfil.value = usuario?.perfil || "usuario";
         form.elements.tipoCadastro.value = usuario?.tipoCadastro || defaultTipoCadastro;
         if (form.elements.papelAprovacao) {
@@ -374,6 +375,7 @@
         login: String(form.elements.login?.value || "").trim(),
         cpf: String(form.elements.cpf?.value || "").trim(),
         telefone: String(form.elements.telefone?.value || "").trim(),
+        dataNascimento: String(form.elements.dataNascimento?.value || "").trim(),
         perfil: String(form.elements.perfil?.value || "usuario").trim(),
         tipoCadastro: String(form.elements.tipoCadastro?.value || defaultTipoCadastro).trim(),
         papelAprovacao: String(form.elements.papelAprovacao?.value || "membro").trim(),

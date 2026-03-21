@@ -157,12 +157,30 @@
     });
   }
 
+  function toLocalIsoString(dateLike) {
+    const dt = new Date(dateLike);
+    if (Number.isNaN(dt.getTime())) return "";
+
+    const year = dt.getFullYear();
+    const month = String(dt.getMonth() + 1).padStart(2, "0");
+    const day = String(dt.getDate()).padStart(2, "0");
+    const hour = String(dt.getHours()).padStart(2, "0");
+    const minute = String(dt.getMinutes()).padStart(2, "0");
+    const second = String(dt.getSeconds()).padStart(2, "0");
+    const offsetMinutes = -dt.getTimezoneOffset();
+    const sign = offsetMinutes >= 0 ? "+" : "-";
+    const absoluteOffset = Math.abs(offsetMinutes);
+    const offsetHour = String(Math.floor(absoluteOffset / 60)).padStart(2, "0");
+    const offsetMinute = String(absoluteOffset % 60).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}${sign}${offsetHour}:${offsetMinute}`;
+  }
+
   function mergeDateAndTime(dateStr, timeStr) {
     if (!dateStr || !timeStr) return null;
     const raw = `${dateStr}T${timeStr}:00`;
-    const dt = new Date(raw);
-    if (Number.isNaN(dt.getTime())) return null;
-    return dt.toISOString();
+    const localIso = toLocalIsoString(raw);
+    return localIso || null;
   }
 
   function addMinutes(dateLike, minutes) {
@@ -174,7 +192,8 @@
   function buildEndIso(startIso, slotMinutes) {
     const duration = Number(slotMinutes) > 0 ? Number(slotMinutes) : 30;
     const end = addMinutes(startIso, duration);
-    return end ? end.toISOString() : null;
+    const localIso = toLocalIsoString(end);
+    return localIso || null;
   }
 
   function startOfCalendarGrid(monthDate) {
@@ -248,6 +267,7 @@
     toDayLabel,
     toDayString,
     toHourLabel,
+    toLocalIsoString,
     toMonthLabel,
     toTimeInputValue,
     toTimeRangeLabel,

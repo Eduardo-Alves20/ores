@@ -82,8 +82,9 @@
           <label class="field-wrap">
             <span class="input-label">Tipo de cadastro</span>
             <select class="input-control" name="tipoCadastro" required>
-              <option value="voluntario" <%= usuario?.tipoCadastro !== 'familia' ? 'selected' : '' %>>voluntario</option>
-              <option value="familia" <%= usuario?.tipoCadastro === 'familia' ? 'selected' : '' %>>familia</option>
+              <option value="voluntario" <%= usuario?.tipoCadastro === 'voluntario' ? 'selected' : '' %>>voluntário</option>
+              <option value="familia" <%= usuario?.tipoCadastro === 'familia' ? 'selected' : '' %>>família</option>
+              <option value="orgao_publico" <%= usuario?.tipoCadastro === 'orgao_publico' ? 'selected' : '' %>>órgão público</option>
             </select>
           </label>
 

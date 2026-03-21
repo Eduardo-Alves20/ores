@@ -31,7 +31,9 @@ function normalizePerfil(perfil) {
 
 function normalizeTipoCadastro(tipoCadastro) {
   const raw = String(tipoCadastro || "").toLowerCase().trim();
-  return raw === "familia" ? "familia" : "voluntario";
+  if (raw === "familia") return "familia";
+  if (raw === "orgao_publico") return "orgao_publico";
+  return "voluntario";
 }
 
 function normalizeStatusAprovacao(statusAprovacao, fallback = "pendente") {
@@ -52,6 +54,64 @@ function normalizeLogin(login) {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "");
+}
+
+function normalizeBirthDate(value) {
+  if (typeof value === "undefined") return undefined;
+
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    throw createServiceError("Data de nascimento invalida.", 400, "VALIDATION_ERROR");
+  }
+
+  return new Date(
+    parsed.getFullYear(),
+    parsed.getMonth(),
+    parsed.getDate(),
+    12,
+    0,
+    0,
+    0
+  );
+}
+
+function normalizeSignupDataMap(value) {
+  if (typeof value === "undefined") return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+
+  const output = {};
+
+  Object.entries(value).forEach(([rawKey, rawValue]) => {
+    const key = String(rawKey || "").trim().slice(0, 80);
+    if (!key) return;
+
+    if (Array.isArray(rawValue)) {
+      const items = rawValue
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .slice(0, 20);
+
+      if (items.length) output[key] = items;
+      return;
+    }
+
+    if (rawValue && typeof rawValue === "object") {
+      const nested = normalizeSignupDataMap(rawValue);
+      if (nested && Object.keys(nested).length) {
+        output[key] = nested;
+      }
+      return;
+    }
+
+    const normalized = String(rawValue ?? "").trim();
+    if (!normalized) return;
+    output[key] = normalized;
+  });
+
+  return output;
 }
 
 function isValidLogin(login) {
@@ -183,6 +243,8 @@ class UsuarioService {
     const email = String(dados.email || "").toLowerCase().trim();
     const senha = String(dados.senha || "");
     const cpf = normalizeCpf(dados.cpf);
+    const dataNascimento = normalizeBirthDate(dados.dataNascimento);
+    const dadosCadastro = normalizeSignupDataMap(dados.dadosCadastro);
     const hasLogin = Object.prototype.hasOwnProperty.call(dados, "login");
     const login = normalizeLogin(dados.login);
     const ativoParsed = parseBoolean(dados.ativo);
@@ -236,6 +298,7 @@ class UsuarioService {
       login: login || undefined,
       senha: await hashSenha(senha),
       telefone: String(dados.telefone || "").trim() || undefined,
+      dataNascimento: dataNascimento || null,
       cpf: cpf || undefined,
       perfil: perfilNormalized,
       tipoCadastro: tipoCadastroNormalized,
@@ -247,6 +310,7 @@ class UsuarioService {
       aprovadoPor: statusAprovacao === "aprovado" ? contexto.usuarioId || null : null,
       motivoAprovacao: String(dados.motivoAprovacao || "").trim(),
       camposExtras,
+      dadosCadastro: dadosCadastro || {},
       ultimoLoginEm: null,
       criadoPor: contexto.usuarioId || null,
       atualizadoPor: contexto.usuarioId || null,
@@ -258,7 +322,15 @@ class UsuarioService {
 
   static async atualizar(id, dados, contexto = {}) {
     const hasCpf = Object.prototype.hasOwnProperty.call(dados, "cpf");
+    const hasDataNascimento = Object.prototype.hasOwnProperty.call(dados, "dataNascimento");
+    const hasDadosCadastro = Object.prototype.hasOwnProperty.call(dados, "dadosCadastro");
     const cpf = normalizeCpf(dados.cpf);
+    const dataNascimento = hasDataNascimento
+      ? normalizeBirthDate(dados.dataNascimento)
+      : undefined;
+    const dadosCadastro = hasDadosCadastro
+      ? normalizeSignupDataMap(dados.dadosCadastro)
+      : undefined;
     const hasLogin = Object.prototype.hasOwnProperty.call(dados, "login");
     const login = normalizeLogin(dados.login);
     // Validacao de CPF temporariamente desativada para facilitar testes.
@@ -304,6 +376,7 @@ class UsuarioService {
       telefone: Object.prototype.hasOwnProperty.call(dados, "telefone")
         ? (String(dados.telefone || "").trim() || null)
         : undefined,
+      dataNascimento,
       cpf: hasCpf ? (cpf || null) : undefined,
       perfil: nextPerfil,
       tipoCadastro: nextTipoCadastro,
@@ -325,6 +398,7 @@ class UsuarioService {
       camposExtras: Object.prototype.hasOwnProperty.call(dados, "camposExtras")
         ? await normalizeCustomFieldValues("usuario", dados.camposExtras || {})
         : undefined,
+      dadosCadastro,
     };
 
     if (statusAprovacao === "aprovado") {

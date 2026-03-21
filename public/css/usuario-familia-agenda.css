@@ -1,0 +1,67 @@
+.family-agenda-layout {
+  gap: 12px;
+}
+
+.family-agenda-header {
+  align-items: center;
+}
+
+.family-agenda-toolbar {
+  justify-content: flex-end;
+}
+
+.family-agenda-toolbar .btn {
+  min-width: 0;
+}
+
+.family-agenda-overview {
+  padding: 16px;
+}
+
+.family-agenda-board {
+  padding: 14px;
+}
+
+.family-agenda-layout .agenda-day-cell {
+  width: 100%;
+  appearance: none;
+  text-align: left;
+  font: inherit;
+}
+
+.family-agenda-empty {
+  min-height: 180px;
+  align-content: center;
+}
+
+.agenda-event-card.is-highlight {
+  border-color: #b24a32;
+  box-shadow: 0 0 0 2px rgba(178, 74, 50, 0.12);
+}
+
+.family-agenda-actions {
+  margin-top: 6px;
+}
+
+.family-agenda-actions .btn-ghost {
+  background: #fff;
+}
+
+.family-agenda-empty-day {
+  display: grid;
+  gap: 8px;
+}
+
+.family-agenda-empty-day .empty-hint {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .family-agenda-toolbar {
+    width: 100%;
+  }
+
+  .family-agenda-toolbar .btn {
+    width: 100%;
+  }
+}

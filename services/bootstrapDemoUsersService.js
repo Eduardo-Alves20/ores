@@ -40,6 +40,7 @@ async function upsertDemoUser({
   tipoCadastro = "voluntario",
   papelAprovacao = APPROVAL_ROLES.MEMBRO,
   nivelAcessoVoluntario = null,
+  dataNascimento = null,
 }) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
   const passwordHash = await hashSenha(String(senha || ""));
@@ -53,6 +54,7 @@ async function upsertDemoUser({
     perfil,
     tipoCadastro,
     nivelAcessoVoluntario: tipoCadastro === "voluntario" ? nivelAcessoVoluntario : null,
+    dataNascimento: dataNascimento || null,
     papelAprovacao,
     ativo: true,
     statusAprovacao: "aprovado",
@@ -102,6 +104,7 @@ async function ensureDemoUsers() {
       senha: process.env.DEMO_USER_PASSWORD || "usuario123",
       perfil: PERFIS.USUARIO,
       nivelAcessoVoluntario: VOLUNTARIO_ACCESS_LEVELS.SERVICO_SOCIAL,
+      dataNascimento: "1992-03-25",
     }),
     upsertDemoUser({
       email: "admin1@alento.local",
@@ -127,6 +130,36 @@ async function ensureDemoUsers() {
       nome: "Admin 3",
       senha: "123",
       perfil: PERFIS.ADMIN,
+    }),
+    upsertDemoUser({
+      email: "helena.demo@alento.local",
+      login: "familia1",
+      fallbackLogin: "familia1",
+      nome: "Helena Demo Souza",
+      senha: "123",
+      perfil: PERFIS.USUARIO,
+      tipoCadastro: "familia",
+      dataNascimento: "1987-03-23",
+    }),
+    upsertDemoUser({
+      email: "joana.demo@alento.local",
+      login: "familia2",
+      fallbackLogin: "familia2",
+      nome: "Joana Demo Almeida",
+      senha: "123",
+      perfil: PERFIS.USUARIO,
+      tipoCadastro: "familia",
+      dataNascimento: "1990-03-27",
+    }),
+    upsertDemoUser({
+      email: "carlos.demo@alento.local",
+      login: "familia3",
+      fallbackLogin: "familia3",
+      nome: "Carlos Demo Costa",
+      senha: "123",
+      perfil: PERFIS.USUARIO,
+      tipoCadastro: "familia",
+      dataNascimento: "1985-03-28",
     }),
   ]);
 

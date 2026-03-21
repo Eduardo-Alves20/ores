@@ -1,333 +1,197 @@
-﻿const UsuarioService = require("../../services/domain/UsuarioService");
 const { registrarAuditoria } = require("../../services/auditService");
-const { PERFIS } = require("../../config/roles");
+const {
+  changeManagedUserStatus,
+  createManagedUser,
+  deactivateManagedUser,
+  getActorContext,
+  getCurrentProfile,
+  listManagedUsers,
+  loadManagedUserById,
+  resetManagedUserPassword,
+  updateManagedUser,
+} = require("../../services/admin/user/userAdminService");
 
-function getContext(req) {
-  return {
-    usuarioId: req?.session?.user?.id || null,
-  };
-}
+function respondJsonError(res, logMessage, fallbackMessage, error) {
+  console.error(logMessage, error);
 
-function getCurrentProfile(req) {
-  return String(req?.session?.user?.perfil || "").trim().toLowerCase();
-}
-
-function isSuperAdminRequest(req) {
-  return getCurrentProfile(req) === PERFIS.SUPERADMIN;
-}
-
-async function ensureManageableTarget(req, id) {
-  const usuario = await UsuarioService.buscarPorId(id);
-  if (!usuario) return null;
-
-  if (String(usuario.perfil || "").toLowerCase() === PERFIS.SUPERADMIN && !isSuperAdminRequest(req)) {
-    const error = new Error("Somente superadmin pode alterar outro superadmin.");
-    error.status = 403;
-    throw error;
+  if (error?.code === 11000) {
+    return res.status(409).json({
+      erro: "Email, usuario de login ou CPF ja cadastrado.",
+      detalhes: error.keyValue,
+    });
   }
 
-  return usuario;
+  return res.status(error?.status || 500).json({
+    erro: error?.message || fallbackMessage,
+  });
+}
+
+function respondNotFound(res, message = "Usuario nao encontrado.") {
+  return res.status(404).json({
+    erro: message,
+  });
+}
+
+async function respondWithAuditedResult(req, res, statusCode, result) {
+  if (!result?.usuario) {
+    return respondNotFound(res);
+  }
+
+  if (result.audit) {
+    await registrarAuditoria(req, result.audit);
+  }
+
+  return res.status(statusCode).json({
+    mensagem: result.mensagem,
+    usuario: result.usuario,
+  });
 }
 
 class UsuarioController {
   static async listar(req, res) {
     try {
-      const { page, limit, busca, ativo, perfil, sort } = req.query;
-
-      const resultado = await UsuarioService.listar({
-        page,
-        limit,
-        busca,
-        ativo,
-        perfil,
-        sort,
-      });
-
-      return res.status(200).json(resultado);
+      return res.status(200).json(await listManagedUsers(req.query || {}));
     } catch (error) {
-      console.error("Erro ao listar usuarios:", error);
-      return res.status(500).json({
-        erro: "Erro interno ao listar usuarios.",
-      });
+      return respondJsonError(
+        res,
+        "Erro ao listar usuarios:",
+        "Erro interno ao listar usuarios.",
+        error
+      );
     }
   }
 
   static async buscarPorId(req, res) {
     try {
-      const { id } = req.params;
-      const usuario = await UsuarioService.buscarPorId(id);
+      const usuario = await loadManagedUserById(req.params?.id);
 
       if (!usuario) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
+        return respondNotFound(res);
       }
 
       return res.status(200).json(usuario);
     } catch (error) {
-      console.error("Erro ao buscar usuario por ID:", error);
-      return res.status(500).json({
-        erro: "Erro interno ao buscar usuario.",
-      });
+      return respondJsonError(
+        res,
+        "Erro ao buscar usuario por ID:",
+        "Erro interno ao buscar usuario.",
+        error
+      );
     }
   }
 
   static async criar(req, res) {
     try {
-      const {
-        nome,
-        email,
-        login,
-        senha,
-        telefone,
-        cpf,
-        perfil,
-        tipoCadastro,
-        statusAprovacao,
-        motivoAprovacao,
-        papelAprovacao,
-        ativo,
-      } = req.body;
-
-      const requestedPerfil = String(perfil || "").trim().toLowerCase();
-      if (requestedPerfil === PERFIS.SUPERADMIN && getCurrentProfile(req) !== PERFIS.SUPERADMIN) {
-        return res.status(403).json({
-          erro: "Somente superadmin pode criar outro superadmin.",
-        });
-      }
-
-      const usuario = await UsuarioService.criar(
-        {
-          nome,
-          email,
-          login,
-          senha,
-          telefone,
-          cpf,
-          perfil,
-          tipoCadastro,
-          statusAprovacao,
-          motivoAprovacao,
-          papelAprovacao,
-          ativo,
-        },
-        getContext(req)
+      return respondWithAuditedResult(
+        req,
+        res,
+        201,
+        await createManagedUser({
+          body: req.body || {},
+          actorContext: getActorContext(req),
+          currentProfile: getCurrentProfile(req),
+        })
       );
-
-      await registrarAuditoria(req, {
-        acao: "USUARIO_CRIADO",
-        entidade: "usuario",
-        entidadeId: usuario?._id,
-      });
-
-      return res.status(201).json({
-        mensagem: "Usuario criado com sucesso.",
-        usuario,
-      });
     } catch (error) {
-      console.error("Erro ao criar usuario:", error);
-
-      if (error && error.code === 11000) {
-        return res.status(409).json({
-          erro: "Email, usuario de login ou CPF ja cadastrado.",
-          detalhes: error.keyValue,
-        });
-      }
-
-      return res.status(error.status || 500).json({
-        erro: error.message || "Erro interno ao criar usuario.",
-      });
+      return respondJsonError(
+        res,
+        "Erro ao criar usuario:",
+        "Erro interno ao criar usuario.",
+        error
+      );
     }
   }
 
   static async atualizar(req, res) {
     try {
-      const { id } = req.params;
-      const requestedPerfil = String(req.body?.perfil || "").trim().toLowerCase();
-      if (requestedPerfil === PERFIS.SUPERADMIN && !isSuperAdminRequest(req)) {
-        return res.status(403).json({
-          erro: "Somente superadmin pode promover um usuario para superadmin.",
-        });
-      }
-
-      const alvo = await ensureManageableTarget(req, id);
-      if (!alvo) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      const usuario = await UsuarioService.atualizar(id, req.body, getContext(req));
-
-      if (!usuario) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      await registrarAuditoria(req, {
-        acao: "USUARIO_ATUALIZADO",
-        entidade: "usuario",
-        entidadeId: id,
-      });
-
-      return res.status(200).json({
-        mensagem: "Usuario atualizado com sucesso.",
-        usuario,
-      });
+      return respondWithAuditedResult(
+        req,
+        res,
+        200,
+        await updateManagedUser({
+          id: req.params?.id,
+          body: req.body || {},
+          actorContext: getActorContext(req),
+          currentProfile: getCurrentProfile(req),
+        })
+      );
     } catch (error) {
-      console.error("Erro ao atualizar usuario:", error);
-
-      if (error && error.code === 11000) {
-        return res.status(409).json({
-          erro: "Email, usuario de login ou CPF ja cadastrado.",
-          detalhes: error.keyValue,
-        });
-      }
-
-      return res.status(error.status || 500).json({
-        erro: error.message || "Erro interno ao atualizar usuario.",
-      });
+      return respondJsonError(
+        res,
+        "Erro ao atualizar usuario:",
+        "Erro interno ao atualizar usuario.",
+        error
+      );
     }
   }
 
   static async atualizarSenha(req, res) {
     try {
-      const { id } = req.params;
-      const { senha, motivo } = req.body;
-
-      if (!senha) {
-        return res.status(400).json({
-          erro: "Campo senha e obrigatorio.",
-        });
-      }
-
-      const motivoNormalizado = String(motivo || "").trim();
-      if (!motivoNormalizado) {
-        return res.status(400).json({
-          erro: "Informe o motivo da redefinicao para auditoria.",
-        });
-      }
-
-      const alvo = await ensureManageableTarget(req, id);
-      if (!alvo) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      const usuario = await UsuarioService.atualizarSenha(id, senha, getContext(req));
-
-      if (!usuario) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      await registrarAuditoria(req, {
-        acao: "USUARIO_SENHA_REDEFINIDA",
-        entidade: "usuario",
-        entidadeId: id,
-        detalhes: {
-          motivo: motivoNormalizado,
-          usuarioAlvo: alvo?.nome || "",
-          loginAlvo: alvo?.login || "",
-          tipoCadastro: alvo?.tipoCadastro || "",
-        },
-      });
-
-      return res.status(200).json({
-        mensagem: "Senha redefinida com sucesso.",
-        usuario,
-      });
+      return respondWithAuditedResult(
+        req,
+        res,
+        200,
+        await resetManagedUserPassword({
+          id: req.params?.id,
+          body: req.body || {},
+          actorContext: getActorContext(req),
+          currentProfile: getCurrentProfile(req),
+        })
+      );
     } catch (error) {
-      console.error("Erro ao atualizar senha:", error);
-      return res.status(error.status || 500).json({
-        erro: error.message || "Erro interno ao atualizar senha.",
-      });
+      return respondJsonError(
+        res,
+        "Erro ao atualizar senha:",
+        "Erro interno ao atualizar senha.",
+        error
+      );
     }
   }
 
   static async alterarStatus(req, res) {
     try {
-      const { id } = req.params;
-      const { ativo } = req.body;
-
-      if (typeof ativo === "undefined") {
-        return res.status(400).json({
-          erro: "Campo ativo e obrigatorio.",
-        });
-      }
-
-      const alvo = await ensureManageableTarget(req, id);
-      if (!alvo) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      const usuario = await UsuarioService.alterarStatus(id, ativo, getContext(req));
-
-      if (!usuario) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      await registrarAuditoria(req, {
-        acao: ativo ? "USUARIO_REATIVADO" : "USUARIO_INATIVADO",
-        entidade: "usuario",
-        entidadeId: id,
-      });
-
-      return res.status(200).json({
-        mensagem: "Status atualizado com sucesso.",
-        usuario,
-      });
+      return respondWithAuditedResult(
+        req,
+        res,
+        200,
+        await changeManagedUserStatus({
+          id: req.params?.id,
+          body: req.body || {},
+          actorContext: getActorContext(req),
+          currentProfile: getCurrentProfile(req),
+        })
+      );
     } catch (error) {
-      console.error("Erro ao alterar status do usuario:", error);
-      return res.status(error.status || 500).json({
-        erro: error.message || "Erro interno ao alterar status.",
-      });
+      return respondJsonError(
+        res,
+        "Erro ao alterar status do usuario:",
+        "Erro interno ao alterar status.",
+        error
+      );
     }
   }
 
   static async remover(req, res) {
     try {
-      const { id } = req.params;
-      const alvo = await ensureManageableTarget(req, id);
-      if (!alvo) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      const usuario = await UsuarioService.remover(id, getContext(req));
-
-      if (!usuario) {
-        return res.status(404).json({
-          erro: "Usuario nao encontrado.",
-        });
-      }
-
-      await registrarAuditoria(req, {
-        acao: "USUARIO_INATIVADO",
-        entidade: "usuario",
-        entidadeId: id,
-      });
-
-      return res.status(200).json({
-        mensagem: "Usuario inativado com sucesso.",
-        usuario,
-      });
+      return respondWithAuditedResult(
+        req,
+        res,
+        200,
+        await deactivateManagedUser({
+          id: req.params?.id,
+          actorContext: getActorContext(req),
+          currentProfile: getCurrentProfile(req),
+        })
+      );
     } catch (error) {
-      console.error("Erro ao inativar usuario:", error);
-      return res.status(error.status || 500).json({
-        erro: error.message || "Erro interno ao inativar usuario.",
-      });
+      return respondJsonError(
+        res,
+        "Erro ao inativar usuario:",
+        "Erro interno ao inativar usuario.",
+        error
+      );
     }
   }
 }
 
 module.exports = UsuarioController;
-

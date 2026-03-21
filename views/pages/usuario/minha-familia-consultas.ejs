@@ -1,0 +1,201 @@
+<section class="page-shell agenda-layout family-agenda-layout" data-page="family-agenda">
+  <header class="agenda-header family-agenda-header">
+    <div>
+      <h2>Agenda da familia</h2>
+      <p>Visualize em calendario apenas as consultas vinculadas a sua familia, sem anotacoes internas da equipe.</p>
+    </div>
+    <div class="agenda-toolbar family-agenda-toolbar">
+      <a href="/minha-familia" class="btn btn-muted">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        <span>Voltar ao portal</span>
+      </a>
+      <a href="/minha-familia/notificacoes" class="btn btn-primary">
+        <i class="fa-solid fa-bell" aria-hidden="true"></i>
+        <span>Notificacoes<% if (Number(notificationCount || 0) > 0) { %> (<%= notificationCount %>)<% } %></span>
+      </a>
+    </div>
+  </header>
+
+  <% if (!familia) { %>
+    <section class="module-card family-empty-state family-agenda-empty">
+      <h3>Familia ainda nao vinculada</h3>
+      <p>Assim que o seu cadastro familiar for associado ao portal, a agenda sera exibida aqui.</p>
+    </section>
+  <% } else { %>
+    <section class="family-kpi-grid family-agenda-kpi-grid">
+      <article class="module-card family-kpi-card">
+        <span class="family-kpi-label">Consultas no mes</span>
+        <strong class="family-kpi-value" data-family-agenda-summary="total"><%= totais?.total || 0 %></strong>
+      </article>
+      <article class="module-card family-kpi-card">
+        <span class="family-kpi-label">Futuras</span>
+        <strong class="family-kpi-value" data-family-agenda-summary="upcoming"><%= totais?.upcoming || 0 %></strong>
+      </article>
+      <article class="module-card family-kpi-card">
+        <span class="family-kpi-label">Compareceu</span>
+        <strong class="family-kpi-value" data-family-agenda-summary="attended"><%= totais?.attended || 0 %></strong>
+      </article>
+      <article class="module-card family-kpi-card">
+        <span class="family-kpi-label">Faltas</span>
+        <strong class="family-kpi-value" data-family-agenda-summary="missed"><%= totais?.missed || 0 %></strong>
+      </article>
+    </section>
+
+    <section class="agenda-presenca-overview card-elevated family-agenda-overview">
+      <header class="agenda-presenca-overview-head">
+        <div>
+          <p class="agenda-day-overline">Resumo da Semana</p>
+          <h3 id="agenda-presenca-semana-titulo">Carregando semana...</h3>
+        </div>
+        <div class="agenda-presenca-kpis" id="agenda-presenca-kpis">
+          <span class="agenda-presenca-kpi is-total">0 agendados</span>
+          <span class="agenda-presenca-kpi is-presente">0 presentes</span>
+          <span class="agenda-presenca-kpi is-falta">0 faltas</span>
+          <span class="agenda-presenca-kpi is-pendente">0 pendentes</span>
+        </div>
+      </header>
+
+      <div class="agenda-presenca-week-grid" id="agenda-presenca-semana-lista">
+        <p class="empty-hint">Carregando resumo semanal...</p>
+      </div>
+    </section>
+
+    <section class="agenda-board card-elevated family-agenda-board">
+      <section class="agenda-calendar-panel">
+        <header class="agenda-calendar-head">
+          <div class="agenda-month-picker-wrap" id="agenda-mes-picker-wrap">
+            <button
+              type="button"
+              class="agenda-month-picker-toggle"
+              id="agenda-mes-picker-toggle"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-controls="agenda-mes-picker-popover"
+            >
+              <h3 id="agenda-mes-titulo">Calendario</h3>
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+
+            <div class="agenda-month-picker-popover card-elevated" id="agenda-mes-picker-popover" hidden>
+              <label class="field-wrap">
+                <span class="input-label">Mes</span>
+                <select class="input-control" id="agenda-mes-picker-mes"></select>
+              </label>
+
+              <label class="field-wrap">
+                <span class="input-label">Ano</span>
+                <select class="input-control" id="agenda-mes-picker-ano"></select>
+              </label>
+
+              <div class="agenda-month-picker-actions">
+                <button type="button" class="btn btn-muted" id="agenda-mes-picker-cancelar">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="agenda-mes-picker-aplicar">Ir</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="agenda-calendar-actions">
+            <button type="button" class="btn btn-muted" id="agenda-hoje-btn">Hoje</button>
+            <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="Mes anterior">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="Proximo mes">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </header>
+
+        <div class="agenda-weekdays">
+          <span>Dom</span>
+          <span>Seg</span>
+          <span>Ter</span>
+          <span>Qua</span>
+          <span>Qui</span>
+          <span>Sex</span>
+          <span>Sab</span>
+        </div>
+
+        <div class="agenda-calendar-grid" id="agenda-calendar-grid"></div>
+      </section>
+
+      <aside class="agenda-day-panel">
+        <header class="agenda-day-head">
+          <div>
+            <p class="agenda-day-overline">Consultas do Dia</p>
+            <h3 id="agenda-dia-titulo">-</h3>
+          </div>
+          <span class="badge-soft">Modo familiar</span>
+        </header>
+
+        <div class="agenda-day-list" id="agenda-dia-lista">
+          <p class="empty-hint">Carregando agenda...</p>
+        </div>
+      </aside>
+    </section>
+
+    <div class="agenda-modal-backdrop" id="family-agenda-falta-backdrop" hidden>
+      <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="family-agenda-falta-title">
+        <header class="agenda-modal-head">
+          <div>
+            <h3 id="family-agenda-falta-title">Registrar falta</h3>
+            <p class="agenda-modal-subtitle" id="family-agenda-falta-subtitle">Selecione a consulta.</p>
+          </div>
+          <button type="button" class="btn btn-muted btn-icon" id="family-agenda-falta-close" aria-label="Fechar">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="agenda-presenca-shell">
+          <label class="field-wrap">
+            <span class="input-label">Justificativa</span>
+            <select class="input-control" id="family-agenda-falta-justificativa">
+              <option value="">Sem justificativa oficial</option>
+              <% (attendanceJustifications || []).forEach((item) => { %>
+                <option value="<%= item.nome %>"><%= item.nome %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Observacao</span>
+            <textarea class="input-control textarea-control" id="family-agenda-falta-observacao" rows="4" maxlength="1000" placeholder="Ex.: avisamos com antecedencia, problema de transporte..."></textarea>
+          </label>
+
+          <div class="agenda-form-actions">
+            <button type="button" class="btn btn-muted" id="family-agenda-falta-cancel">Cancelar</button>
+            <button type="button" class="btn btn-warning" id="family-agenda-falta-submit">Confirmar falta</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="agenda-modal-backdrop" id="family-agenda-remarcacao-backdrop" hidden>
+      <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="family-agenda-remarcacao-title">
+        <header class="agenda-modal-head">
+          <div>
+            <h3 id="family-agenda-remarcacao-title">Solicitar remarcacao</h3>
+            <p class="agenda-modal-subtitle" id="family-agenda-remarcacao-subtitle">Explique o motivo da remarcacao.</p>
+          </div>
+          <button type="button" class="btn btn-muted btn-icon" id="family-agenda-remarcacao-close" aria-label="Fechar">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="agenda-presenca-shell">
+          <p class="agenda-event-note">Ao solicitar a remarcacao, o profissional sera notificado para liberar novas datas.</p>
+          <label class="field-wrap">
+            <span class="input-label">Motivo da remarcacao</span>
+            <textarea class="input-control textarea-control" id="family-agenda-remarcacao-motivo" rows="4" maxlength="1000" placeholder="Ex.: impossibilidade de comparecer, necessidade de nova data..."></textarea>
+          </label>
+
+          <div class="agenda-form-actions">
+            <button type="button" class="btn btn-muted" id="family-agenda-remarcacao-cancel">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="family-agenda-remarcacao-submit">Enviar solicitacao</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script id="family-agenda-config" type="application/json"><%- JSON.stringify(familyAgendaConfig || {}).replace(/</g, "\\u003c") %></script>
+  <% } %>
+</section>
