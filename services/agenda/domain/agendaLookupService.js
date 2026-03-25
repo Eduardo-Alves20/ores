@@ -9,7 +9,7 @@ const {
   buildAnySalaConflictFilter,
 } = require("../../agendaAvailabilityService");
 const { canManageRooms, canViewAll } = require("./agendaPermissionService");
-const { createAgendaError } = require("./agendaErrorService");
+const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const { parseBoolean, parseDateInput } = require("./agendaDateValueService");
 const { mapSala } = require("./agendaMappingService");
 
@@ -65,6 +65,11 @@ async function listAvailableAgendaRooms(user, query = {}) {
     throw createAgendaError(400, "Informe o inicio para consultar as salas.");
   }
 
+  const eventoIdInput = String(query?.eventoId || "").trim();
+  const normalizedEventId = eventoIdInput
+    ? ensureAgendaObjectId(eventoIdInput, "Identificador de agendamento invalido.")
+    : null;
+
   const intervalo = buildAgendaInterval({ inicio, fim });
   if (!intervalo.inicio || !intervalo.fim || intervalo.fim <= intervalo.inicio) {
     throw createAgendaError(400, "Intervalo de consulta invalido.");
@@ -82,7 +87,7 @@ async function listAvailableAgendaRooms(user, query = {}) {
   const filtroConflitos = buildAnySalaConflictFilter({
     inicio: intervalo.inicio,
     fim: intervalo.fim,
-    ignoreEventId: query?.eventoId || null,
+    ignoreEventId: normalizedEventId,
   });
 
   const salasOcupadas = filtroConflitos ? await AgendaEvento.distinct("salaId", filtroConflitos) : [];

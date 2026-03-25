@@ -10,6 +10,10 @@ const { PERFIS } = require("../../config/roles");
 const { PERMISSIONS } = require("../../config/permissions");
 const { hasAnyPermission } = require("../accessControlService");
 const { asObjectId, resolveScopedFamilyIds } = require("../volunteerScopeService");
+const {
+  buildBirthdayWindowLabel,
+  getBirthdayCampaignForDashboard,
+} = require("../systemConfigService");
 
 const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
   month: "short",
@@ -549,6 +553,8 @@ async function buildDashboardViewModel(req) {
     hasAnyPermission(permissionList, [PERMISSIONS.ACESSOS_APPROVE]);
   const canViewNotifications = hasAnyPermission(permissionList, [PERMISSIONS.NOTIFICACOES_VIEW]);
   const canUseGlobalSearch = hasAnyPermission(permissionList, [PERMISSIONS.BUSCA_GLOBAL]);
+  const canManageAdministration =
+    normalizedProfile === PERFIS.ADMIN || normalizedProfile === PERFIS.SUPERADMIN;
 
   const scopedFamilyIds = await resolveScopedFamilyIds(user);
   const scopedFamilyObjectIds =
@@ -622,6 +628,7 @@ async function buildDashboardViewModel(req) {
     pendingApprovalCount,
     recentFailuresCount,
     recentAbsencesCount,
+    birthdayCampaign,
     birthdayUsers,
     currentAttendanceDocs,
     previousAttendanceDocs,
@@ -692,6 +699,7 @@ async function buildDashboardViewModel(req) {
           statusPresenca: { $in: ["falta", "falta_justificada"] },
         })
       : Promise.resolve(0),
+    getBirthdayCampaignForDashboard(),
     Usuario.find({
       perfil: PERFIS.USUARIO,
       ativo: true,
@@ -932,13 +940,34 @@ async function buildDashboardViewModel(req) {
       : null,
   ].filter(Boolean);
 
-  const birthdayItems = buildBirthdayItems(birthdayUsers, now, 7);
+  const birthdayAudience =
+    Array.isArray(birthdayCampaign?.publico) && birthdayCampaign.publico.length
+      ? birthdayCampaign.publico
+      : ["familia", "voluntario", "orgao_publico"];
+  const birthdayDaysAhead = Number.isFinite(Number(birthdayCampaign?.diasAntecedencia))
+    ? Number(birthdayCampaign.diasAntecedencia)
+    : 7;
+  const filteredBirthdayUsers = (Array.isArray(birthdayUsers) ? birthdayUsers : []).filter((item) =>
+    birthdayAudience.includes(String(item?.tipoCadastro || "").trim().toLowerCase())
+  );
+  const birthdayItems = buildBirthdayItems(filteredBirthdayUsers, now, birthdayDaysAhead);
   const birthdayWidget = {
-    title: "Aniversariantes",
+    title: birthdayCampaign?.nome || "Aniversariantes",
     subtitle: "Hoje e próximos 7 dias",
     items: birthdayItems,
     emptyMessage: "Nenhum aniversariante no período.",
   };
+  birthdayWidget.subtitle =
+    birthdayCampaign?.janelaLabel || buildBirthdayWindowLabel(birthdayDaysAhead);
+  birthdayWidget.description =
+    birthdayCampaign?.descricao ||
+    "Lista ativa de aniversariantes para orientar a equipe no acompanhamento da semana.";
+  birthdayWidget.emptyMessage =
+    birthdayCampaign?.status === "ativa"
+      ? "Nenhum aniversariante no periodo da campanha."
+      : "Nenhum aniversariante no periodo.";
+  birthdayWidget.href = canManageAdministration ? "/administracao#campanhas-aniversario" : "";
+  birthdayWidget.actionLabel = canManageAdministration ? "Gerenciar campanha" : "";
 
   const distributionRows = agendaStatusMonth
     .map((item) => ({

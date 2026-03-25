@@ -109,6 +109,7 @@ class FamiliaController {
         200,
         await updateFamily({
           id: req.params?.id,
+          user: getSessionUser(req),
           actorId: getActorId(req),
           body: req.body || {},
         })
@@ -131,6 +132,7 @@ class FamiliaController {
         200,
         await changeFamilyStatus({
           id: req.params?.id,
+          user: getSessionUser(req),
           actorId: getActorId(req),
           ativoInput: req.body?.ativo,
         })

@@ -9,6 +9,8 @@
     forms,
   }) {
     const {
+      birthdayForm,
+      collectBirthdayPayload,
       collectFieldPayload,
       collectFilterPayload,
       collectReasonPayload,
@@ -16,11 +18,13 @@
       filterAreas,
       filterForm,
       reasonForm,
+      resetBirthdayForm,
       resetFieldForm,
       resetFilterForm,
       resetReasonForm,
       resetRoomForm,
       roomForm,
+      setCheckedValues,
       syncFieldTypeOptions,
       syncFilterFields,
     } = forms;
@@ -210,6 +214,89 @@
       if (event.target.closest("[data-admin-filter-reset]")) {
         resetFilterForm();
       }
+      if (event.target.closest("[data-admin-birthday-reset]")) {
+        resetBirthdayForm();
+      }
+
+      const birthdayEdit = event.target.closest("[data-birthday-edit]");
+      if (birthdayEdit && birthdayForm) {
+        const payload = parsePayloadAttribute(birthdayEdit.getAttribute("data-birthday-payload"));
+        birthdayForm.elements.id.value = payload?._id || "";
+        birthdayForm.elements.nome.value = payload?.nome || "";
+        birthdayForm.elements.descricao.value = payload?.descricao || "";
+        birthdayForm.elements.status.value = payload?.status || "rascunho";
+        birthdayForm.elements.acaoPrimaria.value = payload?.acaoPrimaria || "exibir_dashboard";
+        birthdayForm.elements.diasAntecedencia.value = String(payload?.diasAntecedencia || 7);
+        birthdayForm.elements.prioridade.value = String(payload?.prioridade || 0);
+        birthdayForm.elements.requerAprovacao.checked = payload?.requerAprovacao === true;
+        birthdayForm.elements.variarPorPerfil.checked =
+          payload?.personalizacao?.variarPorPerfil !== false;
+        birthdayForm.elements.variarPorHistorico.checked =
+          payload?.personalizacao?.variarPorHistorico !== false;
+        birthdayForm.elements.evitarRepeticaoAnual.checked =
+          payload?.personalizacao?.evitarRepeticaoAnual !== false;
+        setCheckedValues(birthdayForm, "publico", payload?.publico || []);
+        setCheckedValues(birthdayForm, "canais", payload?.canais || []);
+        birthdayForm.elements.sistemaAssunto.value = payload?.mensagens?.sistema?.assunto || "";
+        birthdayForm.elements.sistemaAberturas.value = Array.isArray(payload?.mensagens?.sistema?.aberturas)
+          ? payload.mensagens.sistema.aberturas.join("\n")
+          : "";
+        birthdayForm.elements.sistemaMensagens.value = Array.isArray(payload?.mensagens?.sistema?.mensagens)
+          ? payload.mensagens.sistema.mensagens.join("\n")
+          : "";
+        birthdayForm.elements.sistemaFechamentos.value = Array.isArray(payload?.mensagens?.sistema?.fechamentos)
+          ? payload.mensagens.sistema.fechamentos.join("\n")
+          : "";
+        birthdayForm.elements.whatsappAberturas.value = Array.isArray(payload?.mensagens?.whatsapp?.aberturas)
+          ? payload.mensagens.whatsapp.aberturas.join("\n")
+          : "";
+        birthdayForm.elements.whatsappMensagens.value = Array.isArray(payload?.mensagens?.whatsapp?.mensagens)
+          ? payload.mensagens.whatsapp.mensagens.join("\n")
+          : "";
+        birthdayForm.elements.whatsappFechamentos.value = Array.isArray(payload?.mensagens?.whatsapp?.fechamentos)
+          ? payload.mensagens.whatsapp.fechamentos.join("\n")
+          : "";
+        birthdayForm.elements.emailAssunto.value = payload?.mensagens?.email?.assunto || "";
+        birthdayForm.elements.emailAberturas.value = Array.isArray(payload?.mensagens?.email?.aberturas)
+          ? payload.mensagens.email.aberturas.join("\n")
+          : "";
+        birthdayForm.elements.emailMensagens.value = Array.isArray(payload?.mensagens?.email?.mensagens)
+          ? payload.mensagens.email.mensagens.join("\n")
+          : "";
+        birthdayForm.elements.emailFechamentos.value = Array.isArray(payload?.mensagens?.email?.fechamentos)
+          ? payload.mensagens.email.fechamentos.join("\n")
+          : "";
+        birthdayForm.elements.nome.focus();
+        return;
+      }
+
+      const birthdayToggle = event.target.closest("[data-birthday-toggle]");
+      if (birthdayToggle) {
+        const next = String(birthdayToggle.getAttribute("data-birthday-next") || "").trim();
+        const itemId = String(birthdayToggle.getAttribute("data-birthday-id") || "").trim();
+        if (!itemId || !next) return;
+        const ok = await confirmAction({
+          title: next === "ativa" ? "Ativar campanha?" : "Pausar campanha?",
+          text:
+            next === "ativa"
+              ? "Deseja ativar esta campanha de aniversario?"
+              : "Deseja pausar esta campanha de aniversario?",
+          icon: "warning",
+          confirmButtonText: next === "ativa" ? "Ativar" : "Pausar",
+        });
+        if (!ok) return;
+
+        try {
+          await requestJson(`/api/administracao/campanhas-aniversario/${itemId}/status`, {
+            method: "PATCH",
+            body: JSON.stringify({ status: next }),
+          });
+          reloadSoon("Status da campanha atualizado com sucesso.");
+        } catch (error) {
+          notifyError(error.message);
+        }
+        return;
+      }
     });
 
     roomForm?.addEventListener("submit", async (event) => {
@@ -316,6 +403,31 @@
       }
     });
 
+    birthdayForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const birthdayId = String(birthdayForm.elements.id.value || "").trim();
+      const payload = collectBirthdayPayload();
+
+      try {
+        if (birthdayId) {
+          await requestJson(`/api/administracao/campanhas-aniversario/${birthdayId}`, {
+            method: "PUT",
+            body: JSON.stringify(payload),
+          });
+          reloadSoon("Campanha atualizada com sucesso.");
+          return;
+        }
+
+        await requestJson("/api/administracao/campanhas-aniversario", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        reloadSoon("Campanha criada com sucesso.");
+      } catch (error) {
+        notifyError(error.message);
+      }
+    });
+
     fieldForm?.elements?.tipo?.addEventListener("change", syncFieldTypeOptions);
     filterForm?.elements?.area?.addEventListener("change", () => {
       syncFilterFields("", "");
@@ -334,5 +446,6 @@
     resetReasonForm();
     resetFieldForm();
     resetFilterForm();
+    resetBirthdayForm();
   };
 })();

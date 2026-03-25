@@ -11,6 +11,11 @@ const {
 const { normalizeCustomFieldValues } = require("../systemConfigService");
 const { parseBoolean } = require("../shared/valueParsingService");
 const { escapeRegex } = require("../shared/searchUtilsService");
+const { ensureValidObjectId } = require("../shared/objectIdValidationService");
+const {
+  buildUserListFilter,
+  normalizeUserListOptions,
+} = require("./userListQueryService");
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;
@@ -20,6 +25,17 @@ function createServiceError(message, status = 400, code = "SERVICE_ERROR") {
   error.status = status;
   error.code = code;
   return error;
+}
+
+function ensureValidUserId(id) {
+  try {
+    return ensureValidObjectId(id, "Identificador de usuario invalido.");
+  } catch (error) {
+    if (error?.status === 400 || error?.code === "INVALID_OBJECT_ID") {
+      throw createServiceError("Identificador de usuario invalido.", 400, "INVALID_OBJECT_ID");
+    }
+    throw error;
+  }
 }
 
 function normalizePerfil(perfil) {
@@ -191,45 +207,32 @@ class UsuarioService {
     statusAprovacao,
     sort = "-createdAt",
   }) {
-    const filtro = {};
-
-    if (busca) {
-      filtro.$or = [
-        { nome: { $regex: busca, $options: "i" } },
-        { email: { $regex: busca, $options: "i" } },
-        { login: { $regex: busca, $options: "i" } },
-        { cpf: { $regex: busca, $options: "i" } },
-      ];
-    }
-
-    const ativoParsed = parseBoolean(ativo);
-    if (typeof ativoParsed !== "undefined") {
-      filtro.ativo = ativoParsed;
-    }
-
-    if (perfil) {
-      filtro.perfil = normalizePerfil(perfil);
-    }
-
-    if (tipoCadastro) {
-      filtro.tipoCadastro = normalizeTipoCadastro(tipoCadastro);
-    }
-
-    if (statusAprovacao) {
-      filtro.statusAprovacao = normalizeStatusAprovacao(statusAprovacao, "pendente");
-    }
+    const options = normalizeUserListOptions({
+      page,
+      limit,
+      busca,
+      ativo,
+      perfil: perfil ? normalizePerfil(perfil) : undefined,
+      tipoCadastro: tipoCadastro ? normalizeTipoCadastro(tipoCadastro) : undefined,
+      statusAprovacao: statusAprovacao
+        ? normalizeStatusAprovacao(statusAprovacao, "pendente")
+        : undefined,
+      sort,
+    });
+    const filtro = buildUserListFilter(options);
 
     return Usuario.paginate(filtro, {
-      page: Number(page) || 1,
-      limit: Math.min(Number(limit) || 10, 100),
-      sort,
+      page: options.page,
+      limit: options.limit,
+      sort: options.sort,
       select: "-senha",
       lean: true,
     });
   }
 
   static async buscarPorId(id) {
-    const usuario = await Usuario.findById(id).select("-senha");
+    const normalizedId = ensureValidUserId(id);
+    const usuario = await Usuario.findById(normalizedId).select("-senha");
     return sanitizeUser(usuario);
   }
 
@@ -321,6 +324,7 @@ class UsuarioService {
   }
 
   static async atualizar(id, dados, contexto = {}) {
+    const normalizedId = ensureValidUserId(id);
     const hasCpf = Object.prototype.hasOwnProperty.call(dados, "cpf");
     const hasDataNascimento = Object.prototype.hasOwnProperty.call(dados, "dataNascimento");
     const hasDadosCadastro = Object.prototype.hasOwnProperty.call(dados, "dadosCadastro");
@@ -422,7 +426,7 @@ class UsuarioService {
       if (typeof payload[key] === "undefined") delete payload[key];
     });
 
-    const updated = await Usuario.findByIdAndUpdate(id, payload, {
+    const updated = await Usuario.findByIdAndUpdate(normalizedId, payload, {
       new: true,
       runValidators: true,
     }).select("-senha");
@@ -431,6 +435,7 @@ class UsuarioService {
   }
 
   static async atualizarSenha(id, novaSenha, contexto = {}) {
+    const normalizedId = ensureValidUserId(id);
     if (!validarSenhaForte(novaSenha)) {
       throw createServiceError(
         mensagemPoliticaSenha(),
@@ -440,7 +445,7 @@ class UsuarioService {
     }
 
     const updated = await Usuario.findByIdAndUpdate(
-      id,
+      normalizedId,
       {
         senha: await hashSenha(novaSenha),
         atualizadoPor: contexto.usuarioId || null,
@@ -452,12 +457,18 @@ class UsuarioService {
   }
 
   static async alterarStatus(id, ativo, contexto = {}) {
+    const normalizedId = ensureValidUserId(id);
+    const ativoNormalizado = parseBoolean(ativo);
+    if (typeof ativoNormalizado === "undefined") {
+      throw createServiceError("Campo ativo invalido.", 400, "VALIDATION_ERROR");
+    }
+
     const patch = {
-      ativo: !!ativo,
+      ativo: ativoNormalizado,
       atualizadoPor: contexto.usuarioId || null,
     };
 
-    if (!ativo) {
+    if (!ativoNormalizado) {
       patch.inativadoEm = new Date();
       patch.inativadoPor = contexto.usuarioId || null;
     } else {
@@ -465,7 +476,7 @@ class UsuarioService {
       patch.inativadoPor = null;
     }
 
-    const updated = await Usuario.findByIdAndUpdate(id, patch, {
+    const updated = await Usuario.findByIdAndUpdate(normalizedId, patch, {
       new: true,
       runValidators: true,
     }).select("-senha");

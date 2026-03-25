@@ -8,6 +8,22 @@
     const reasonForm = root.querySelector("[data-admin-reason-form]");
     const fieldForm = root.querySelector("[data-admin-field-form]");
     const filterForm = root.querySelector("[data-admin-filter-form]");
+    const birthdayForm = root.querySelector("[data-admin-birthday-form]");
+
+    function getCheckedValues(form, name) {
+      if (!form) return [];
+      return Array.from(form.querySelectorAll(`input[name='${name}']:checked`)).map(
+        (input) => input.value
+      );
+    }
+
+    function setCheckedValues(form, name, values) {
+      if (!form) return;
+      const allowed = Array.isArray(values) ? values.map((item) => String(item || "")) : [];
+      Array.from(form.querySelectorAll(`input[name='${name}']`)).forEach((input) => {
+        input.checked = allowed.includes(String(input.value || ""));
+      });
+    }
 
     function resetRoomForm() {
       if (!roomForm) return;
@@ -122,6 +138,22 @@
       syncFilterFields("", "");
     }
 
+    function resetBirthdayForm() {
+      if (!birthdayForm) return;
+      birthdayForm.reset();
+      birthdayForm.elements.id.value = "";
+      birthdayForm.elements.status.value = "rascunho";
+      birthdayForm.elements.acaoPrimaria.value = "exibir_dashboard";
+      birthdayForm.elements.diasAntecedencia.value = "7";
+      birthdayForm.elements.prioridade.value = "1";
+      birthdayForm.elements.requerAprovacao.checked = false;
+      birthdayForm.elements.variarPorPerfil.checked = true;
+      birthdayForm.elements.variarPorHistorico.checked = true;
+      birthdayForm.elements.evitarRepeticaoAnual.checked = true;
+      setCheckedValues(birthdayForm, "publico", ["familia", "voluntario"]);
+      setCheckedValues(birthdayForm, "canais", ["sistema"]);
+    }
+
     function collectReasonPayload() {
       const applies = Array.from(
         reasonForm.querySelectorAll("input[name='aplicaEm']:checked")
@@ -170,7 +202,47 @@
       };
     }
 
+    function collectBirthdayPayload() {
+      return {
+        nome: String(birthdayForm.elements.nome.value || "").trim(),
+        descricao: String(birthdayForm.elements.descricao.value || "").trim(),
+        status: String(birthdayForm.elements.status.value || "rascunho").trim(),
+        publico: getCheckedValues(birthdayForm, "publico"),
+        canais: getCheckedValues(birthdayForm, "canais"),
+        acaoPrimaria: String(birthdayForm.elements.acaoPrimaria.value || "exibir_dashboard").trim(),
+        diasAntecedencia: Number(birthdayForm.elements.diasAntecedencia.value || 0),
+        prioridade: Number(birthdayForm.elements.prioridade.value || 0),
+        requerAprovacao: birthdayForm.elements.requerAprovacao.checked,
+        personalizacao: {
+          variarPorPerfil: birthdayForm.elements.variarPorPerfil.checked,
+          variarPorHistorico: birthdayForm.elements.variarPorHistorico.checked,
+          evitarRepeticaoAnual: birthdayForm.elements.evitarRepeticaoAnual.checked,
+        },
+        mensagens: {
+          sistema: {
+            assunto: String(birthdayForm.elements.sistemaAssunto.value || "").trim(),
+            aberturas: String(birthdayForm.elements.sistemaAberturas.value || ""),
+            mensagens: String(birthdayForm.elements.sistemaMensagens.value || ""),
+            fechamentos: String(birthdayForm.elements.sistemaFechamentos.value || ""),
+          },
+          whatsapp: {
+            aberturas: String(birthdayForm.elements.whatsappAberturas.value || ""),
+            mensagens: String(birthdayForm.elements.whatsappMensagens.value || ""),
+            fechamentos: String(birthdayForm.elements.whatsappFechamentos.value || ""),
+          },
+          email: {
+            assunto: String(birthdayForm.elements.emailAssunto.value || "").trim(),
+            aberturas: String(birthdayForm.elements.emailAberturas.value || ""),
+            mensagens: String(birthdayForm.elements.emailMensagens.value || ""),
+            fechamentos: String(birthdayForm.elements.emailFechamentos.value || ""),
+          },
+        },
+      };
+    }
+
     return {
+      birthdayForm,
+      collectBirthdayPayload,
       collectFieldPayload,
       collectFilterPayload,
       collectReasonPayload,
@@ -179,11 +251,13 @@
       filterForm,
       getFilterAreaDefinition,
       reasonForm,
+      resetBirthdayForm,
       resetFieldForm,
       resetFilterForm,
       resetReasonForm,
       resetRoomForm,
       roomForm,
+      setCheckedValues,
       syncFieldTypeOptions,
       syncFilterFields,
     };

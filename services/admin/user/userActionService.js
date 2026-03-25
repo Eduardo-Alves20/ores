@@ -1,5 +1,6 @@
 const UsuarioService = require("../../domain/UsuarioService");
 const { PERFIS } = require("../../../config/roles");
+const { parseBoolean } = require("../../shared/valueParsingService");
 const {
   createUserAdminError,
   ensureManageableTarget,
@@ -130,17 +131,22 @@ async function changeManagedUserStatus({
     throw createUserAdminError("Campo ativo e obrigatorio.", 400);
   }
 
+  const ativo = parseBoolean(body?.ativo);
+  if (typeof ativo === "undefined") {
+    throw createUserAdminError("Campo ativo invalido.", 400);
+  }
+
   const alvo = await ensureManageableTarget({ currentProfile, id });
   if (!alvo) return null;
 
-  const usuario = await UsuarioService.alterarStatus(id, body.ativo, actorContext);
+  const usuario = await UsuarioService.alterarStatus(id, ativo, actorContext);
   if (!usuario) return null;
 
   return {
     mensagem: "Status atualizado com sucesso.",
     usuario,
     audit: {
-      acao: body.ativo ? "USUARIO_REATIVADO" : "USUARIO_INATIVADO",
+      acao: ativo ? "USUARIO_REATIVADO" : "USUARIO_INATIVADO",
       entidade: "usuario",
       entidadeId: id,
     },

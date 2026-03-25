@@ -9,10 +9,9 @@ const { escapeRegex } = require("../../shared/searchUtilsService");
 const {
   hasOwnAssistidosScope,
   resolveScopedFamilyIds,
-  canAccessFamily,
 } = require("../../volunteerScopeService");
-const { createFamiliaError } = require("./familiaContextService");
 const { mapAgendaPresenca } = require("./familiaPresentationService");
+const { ensureAccessibleFamily } = require("./familiaGuardService");
 
 const ALLOWED_SORT_FIELDS = new Set(["updatedAt", "createdAt", "responsavel.nome"]);
 
@@ -129,18 +128,12 @@ async function loadFamilyVolunteers(user, actorId) {
 
 async function loadFamilyDetail({ id, user, actorId, query = {} }) {
   const incluirInativos = parseBoolean(query.incluirInativos) === true;
-
-  if (!(await canAccessFamily(user, id))) {
-    throw createFamiliaError(
-      "Acesso restrito a familias vinculadas ao proprio atendimento.",
-      403
-    );
-  }
-
-  const familia = await Familia.findById(id).lean();
-  if (!familia) {
-    return null;
-  }
+  const familia = await ensureAccessibleFamily({
+    user,
+    familiaId: id,
+    select: "_id responsavel endereco observacoes camposExtras ativo createdAt updatedAt",
+    notFoundMessage: "Familia nao encontrada.",
+  }).then((doc) => (doc?.toObject ? doc.toObject() : doc));
 
   const filtroBase = buildFamilyRecordsFilter(id, incluirInativos);
 

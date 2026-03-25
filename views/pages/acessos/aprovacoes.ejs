@@ -153,6 +153,7 @@
                         </button>
                       <% } else { %>
                         <form method="post" action="/acessos/<%= item._id %>/votar" class="aprovacao-vote-form">
+                          <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                           <input type="hidden" name="decisao" value="aprovar" />
                           <button
@@ -168,6 +169,7 @@
                       <% } %>
 
                       <form method="post" action="/acessos/<%= item._id %>/votar" class="aprovacao-vote-form">
+                        <%- renderCsrfField() %>
                         <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                         <input type="hidden" name="decisao" value="rejeitar" />
                         <button
@@ -333,6 +335,7 @@
             class="aprovacao-vote-form-inline"
             data-approval-vote-approve-form
           >
+            <%- renderCsrfField() %>
             <input type="hidden" name="returnTo" value="<%= returnTo %>" />
             <input type="hidden" name="decisao" value="aprovar" />
 
@@ -428,6 +431,7 @@
         class="aprovacao-review-form"
         data-approval-reject-vote-form
       >
+        <%- renderCsrfField() %>
         <input type="hidden" name="returnTo" value="<%= returnTo %>" />
         <input type="hidden" name="decisao" value="rejeitar" />
 

@@ -5,6 +5,7 @@
   const justificativas = Array.isArray(snapshot?.justificativasPresenca) ? snapshot.justificativasPresenca : [];
   const campos = Array.isArray(snapshot?.camposCustomizados) ? snapshot.camposCustomizados : [];
   const filtros = Array.isArray(snapshot?.filtrosRapidos) ? snapshot.filtrosRapidos : [];
+  const campanhasAniversario = Array.isArray(snapshot?.campanhasAniversario) ? snapshot.campanhasAniversario : [];
   const metrics = snapshot?.metrics || {};
 %>
 
@@ -14,8 +15,8 @@
       <p class="administracao-eyebrow">Central de gestao</p>
       <h1>Administracao do ecossistema</h1>
       <p>
-        Configure o que governa o sistema: salas, justificativas de presenca, campos extras dos cadastros e filtros
-        rapidos que aceleram o trabalho da equipe.
+        Configure o que governa o sistema: salas, justificativas de presenca, campos extras dos cadastros, filtros
+        rapidos e campanhas de aniversario que ajudam a equipe a agir com mais contexto e cuidado.
       </p>
     </div>
 
@@ -39,6 +40,11 @@
         <span>Filtros rapidos</span>
         <strong><%= filtros.length %></strong>
         <small><%= metrics.filtrosAtivos || 0 %> ativos</small>
+      </article>
+      <article class="administracao-kpi">
+        <span>Campanhas</span>
+        <strong><%= campanhasAniversario.length %></strong>
+        <small><%= metrics.campanhasAtivas || 0 %> ativas</small>
       </article>
     </div>
   </header>
@@ -458,6 +464,247 @@
                   >
                     <i class="fa-solid <%= item.ativo ? 'fa-user-slash' : 'fa-power-off' %>"></i>
                     <span><%= item.ativo ? 'Inativar' : 'Ativar' %></span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+    </article>
+
+    <article class="administracao-panel card-elevated" id="campanhas-aniversario">
+      <header class="administracao-panel-head">
+        <div>
+          <p class="administracao-panel-eyebrow">Relacionamento</p>
+          <h2>Campanhas de anivers&aacute;rio</h2>
+          <p>Defina quem entra, quando aparece no sistema e como as mensagens futuras vao variar por canal.</p>
+        </div>
+        <span class="badge-soft"><%= metrics.campanhasAtivas || 0 %> ativas</span>
+      </header>
+
+      <form class="administracao-form" data-admin-birthday-form>
+        <input type="hidden" name="id" value="" />
+
+        <div class="administracao-form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Nome da campanha *</span>
+            <input class="input-control" type="text" name="nome" maxlength="120" required />
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Status *</span>
+            <select class="input-control" name="status" required>
+              <% (options.birthdayCampaignStatuses || []).forEach((item) => { %>
+                <option value="<%= item.value %>"><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field-wrap span-2">
+            <span class="input-label">Descricao</span>
+            <textarea class="input-control textarea-control" name="descricao" rows="3" maxlength="320" placeholder="Qual o objetivo dessa campanha e que sensacao ela deve transmitir?"></textarea>
+          </label>
+
+          <fieldset class="administracao-checklist span-2">
+            <legend>Publico da campanha</legend>
+            <% (options.birthdayCampaignAudiences || []).forEach((item) => { %>
+              <label class="check-card">
+                <input type="checkbox" name="publico" value="<%= item.value %>" />
+                <span><%= item.label %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+
+          <fieldset class="administracao-checklist span-2">
+            <legend>Canais preparados</legend>
+            <% (options.birthdayCampaignChannels || []).forEach((item) => { %>
+              <label class="check-card">
+                <input type="checkbox" name="canais" value="<%= item.value %>" />
+                <span><%= item.label %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+
+          <label class="field-wrap">
+            <span class="input-label">Acao principal</span>
+            <select class="input-control" name="acaoPrimaria">
+              <% (options.birthdayCampaignActions || []).forEach((item) => { %>
+                <option value="<%= item.value %>"><%= item.label %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Janela em dias</span>
+            <input class="input-control" type="number" name="diasAntecedencia" min="0" max="30" step="1" value="7" />
+            <small class="input-help">0 = somente hoje. 7 = hoje e proximos 7 dias.</small>
+          </label>
+
+          <label class="field-wrap">
+            <span class="input-label">Prioridade</span>
+            <input class="input-control" type="number" name="prioridade" min="0" step="1" value="1" />
+            <small class="input-help">Menor numero aparece primeiro quando houver mais de uma campanha ativa.</small>
+          </label>
+
+          <label class="check-card check-card-inline">
+            <input type="checkbox" name="requerAprovacao" value="true" />
+            <span>Exigir aprovacao antes de disparos futuros</span>
+          </label>
+        </div>
+
+        <div class="administracao-subgrid">
+          <fieldset class="administracao-checklist">
+            <legend>Regras de personalizacao</legend>
+            <label class="check-card">
+              <input type="checkbox" name="variarPorPerfil" value="true" />
+              <span>Variar o tom conforme o perfil</span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" name="variarPorHistorico" value="true" />
+              <span>Levar em conta historico e engajamento</span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" name="evitarRepeticaoAnual" value="true" />
+              <span>Evitar repetir a mesma combinacao no mesmo ano</span>
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="administracao-message-grid">
+          <section class="administracao-message-channel">
+            <header>
+              <h3>Sistema</h3>
+              <p>Base para notificacoes internas e mensagens exibidas no portal.</p>
+            </header>
+
+            <label class="field-wrap">
+              <span class="input-label">Assunto</span>
+              <input class="input-control" type="text" name="sistemaAssunto" maxlength="140" />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Aberturas</span>
+              <textarea class="input-control textarea-control" name="sistemaAberturas" rows="4" placeholder="Uma opcao por linha"></textarea>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Mensagens centrais</span>
+              <textarea class="input-control textarea-control" name="sistemaMensagens" rows="5" placeholder="Uma opcao por linha"></textarea>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Fechamentos</span>
+              <textarea class="input-control textarea-control" name="sistemaFechamentos" rows="4" placeholder="Uma opcao por linha"></textarea>
+            </label>
+          </section>
+
+          <section class="administracao-message-channel">
+            <header>
+              <h3>WhatsApp</h3>
+              <p>Estruture o tom para mensagens curtas, afetuosas e diretas.</p>
+            </header>
+
+            <label class="field-wrap">
+              <span class="input-label">Aberturas</span>
+              <textarea class="input-control textarea-control" name="whatsappAberturas" rows="4" placeholder="Uma opcao por linha"></textarea>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Mensagens centrais</span>
+              <textarea class="input-control textarea-control" name="whatsappMensagens" rows="5" placeholder="Uma opcao por linha"></textarea>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Fechamentos</span>
+              <textarea class="input-control textarea-control" name="whatsappFechamentos" rows="4" placeholder="Uma opcao por linha"></textarea>
+            </label>
+          </section>
+
+          <section class="administracao-message-channel">
+            <header>
+              <h3>E-mail</h3>
+              <p>Separe um texto mais completo para testes e homologacao futura.</p>
+            </header>
+
+            <label class="field-wrap">
+              <span class="input-label">Assunto</span>
+              <input class="input-control" type="text" name="emailAssunto" maxlength="140" />
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Aberturas</span>
+              <textarea class="input-control textarea-control" name="emailAberturas" rows="4" placeholder="Uma opcao por linha"></textarea>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Mensagens centrais</span>
+              <textarea class="input-control textarea-control" name="emailMensagens" rows="5" placeholder="Uma opcao por linha"></textarea>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Fechamentos</span>
+              <textarea class="input-control textarea-control" name="emailFechamentos" rows="4" placeholder="Uma opcao por linha"></textarea>
+            </label>
+          </section>
+        </div>
+
+        <div class="administracao-form-actions">
+          <button type="submit" class="btn btn-primary" data-admin-birthday-submit>Salvar campanha</button>
+          <button type="button" class="btn btn-muted" data-admin-birthday-reset>Limpar</button>
+        </div>
+      </form>
+
+      <div class="administracao-list" data-admin-birthday-list>
+        <% if (!campanhasAniversario.length) { %>
+          <p class="empty-hint">Nenhuma campanha de aniversario cadastrada ainda.</p>
+        <% } else { %>
+          <% campanhasAniversario.forEach((item) => { %>
+            <article class="administracao-item-card <%= item.status === 'encerrada' ? 'is-inactive' : '' %>">
+              <div>
+                <strong><%= item.nome %></strong>
+                <p><%= item.descricao || 'Sem descricao registrada.' %></p>
+
+                <div class="administracao-tag-row">
+                  <span class="badge-soft"><%= item.janelaLabel %></span>
+                  <span class="badge-soft"><%= item.acaoPrimariaLabel %></span>
+                  <% (item.publicoLabels || []).forEach((label) => { %>
+                    <span class="badge-soft"><%= label %></span>
+                  <% }) %>
+                  <% (item.canaisLabels || []).forEach((label) => { %>
+                    <span class="badge-soft"><%= label %></span>
+                  <% }) %>
+                </div>
+
+                <div class="administracao-tag-row">
+                  <% (item.variacoesPorCanal || []).forEach((canal) => { %>
+                    <span class="badge-soft"><%= canal.label %>: <%= canal.count %> variacao(oes)</span>
+                  <% }) %>
+                </div>
+              </div>
+
+              <div class="administracao-item-meta">
+                <span class="status-badge <%= item.statusTone === 'active' ? 'status-active' : item.statusTone === 'inactive' ? 'status-inactive' : 'status-pending' %>"><%= item.statusLabel %></span>
+                <small>Prioridade <%= item.prioridade %></small>
+                <div class="administracao-item-actions">
+                  <button
+                    type="button"
+                    class="table-action-btn table-action-btn-edit"
+                    data-birthday-edit
+                    data-birthday-payload="<%= encodeURIComponent(JSON.stringify(item)) %>"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="table-action-btn <%= item.status === 'ativa' ? 'table-action-btn-danger' : 'table-action-btn-success' %>"
+                    data-birthday-toggle
+                    data-birthday-id="<%= item._id %>"
+                    data-birthday-next="<%= item.status === 'ativa' ? 'pausada' : 'ativa' %>"
+                  >
+                    <i class="fa-solid <%= item.status === 'ativa' ? 'fa-pause' : 'fa-play' %>"></i>
+                    <span><%= item.status === 'ativa' ? 'Pausar' : 'Ativar' %></span>
                   </button>
                 </div>
               </div>

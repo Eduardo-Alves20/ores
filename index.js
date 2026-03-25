@@ -1,5 +1,4 @@
 require("dotenv").config({ override: true });
-const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
@@ -10,6 +9,9 @@ const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const http = require("http");
 const { attachCurrentUser } = require("./middlewares/authSession");
+const { csrfProtection } = require("./middlewares/csrfProtection");
+const { applySecurityHeaders } = require("./middlewares/securityHeaders");
+const { createErrorHandler, createNotFoundHandler } = require("./middlewares/errorResponder");
 const { buildSeo } = require("./services/seoService");
 const Usuario = require("./schemas/core/Usuario");
 const { PERFIS } = require("./config/roles");
@@ -78,7 +80,9 @@ app.use(express.json({ limit: "200mb" }));
 app.use(express.urlencoded({ extended: true, limit: "200mb" }));
 app.use(cookieParser(cookieParserKey));
 app.use(compression());
+app.use(applySecurityHeaders);
 app.use(sessionParser);
+app.use(csrfProtection);
 app.use(flash());
 app.use(attachCurrentUser);
 
@@ -156,77 +160,8 @@ app.use(
 function mountRoutes() {
   const routes = require("./routes");
   app.use("/", routes);
-
-  app.use((req, res, next) => {
-    const err = new Error("Pagina nao encontrada");
-    err.status = 404;
-    err.publicMessage = "A pagina que voce esta procurando nao foi encontrada.";
-    next(err);
-  });
-
-  app.use((err, req, res, next) => {
-    if (res.headersSent) return next(err);
-
-    console.error("[server error]", err);
-
-    const status = err.status || err.statusCode || 500;
-    const wantsHtml = !!req.accepts("html");
-
-    const defaults = {
-      400: "Ocorreu um erro ao processar sua requisicao.",
-      403: "Voce nao tem permissao para acessar esta pagina.",
-      404: "A pagina que voce esta procurando nao foi encontrada.",
-      500: "Ocorreu um erro interno no servidor.",
-    };
-
-    const message = err.publicMessage || err.message || defaults[status] || defaults[500];
-
-    if (!wantsHtml) {
-      return res.status(status).json({
-        message: [message],
-        status,
-      });
-    }
-
-    const view =
-      status === 400
-        ? "pages/errors/400"
-        : status === 403
-          ? "pages/errors/403"
-          : status === 404
-            ? "pages/errors/404"
-            : "pages/errors/500";
-
-    const showStack = AMBIENTE !== "prod";
-    const errToView = showStack ? err : {};
-
-    const viewPath = path.join(__dirname, "views", `${view}.ejs`);
-
-    if (fs.existsSync(viewPath)) {
-      return res.status(status).render(view, {
-        status,
-        message,
-        req,
-        err: errToView,
-        layout: "partials/login.ejs",
-      });
-    }
-
-    return res.status(status).type("html").send(`
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Erro ${status}</title>
-  </head>
-  <body style="font-family: Arial, sans-serif; padding: 24px;">
-    <h1>Erro ${status}</h1>
-    <p>${message}</p>
-  </body>
-</html>
-`);
-  });
+  app.use(createNotFoundHandler());
+  app.use(createErrorHandler({ baseDir: __dirname, ambiente: AMBIENTE }));
 }
 
 function startServer() {

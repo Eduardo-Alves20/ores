@@ -22,4 +22,8 @@ router.post("/filtros", AdministracaoController.criarFiltro);
 router.put("/filtros/:id", AdministracaoController.atualizarFiltro);
 router.patch("/filtros/:id/status", AdministracaoController.alterarStatusFiltro);
 
+router.post("/campanhas-aniversario", AdministracaoController.criarCampanhaAniversario);
+router.put("/campanhas-aniversario/:id", AdministracaoController.atualizarCampanhaAniversario);
+router.patch("/campanhas-aniversario/:id/status", AdministracaoController.alterarStatusCampanhaAniversario);
+
 module.exports = router;

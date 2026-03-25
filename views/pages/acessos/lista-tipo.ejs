@@ -268,6 +268,7 @@
                           data-confirm-confirm="Aprovar"
                           data-confirm-cancel="Cancelar"
                         >
+                          <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                           <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-approve" type="submit">
                             <i class="fa-solid fa-check" aria-hidden="true"></i>
@@ -289,6 +290,7 @@
                           data-confirm-confirm="Aprovar e ativar"
                           data-confirm-cancel="Cancelar"
                         >
+                          <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                           <input type="hidden" name="ativo" value="true" />
                           <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-secondary" type="submit">
@@ -310,6 +312,7 @@
                           data-confirm-confirm="Rejeitar"
                           data-confirm-cancel="Cancelar"
                         >
+                          <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                           <button class="table-action-btn table-action-btn-danger acessos-action-btn acesso-action-reject" type="submit">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -330,6 +333,7 @@
                           data-confirm-confirm="<%= item.ativo ? 'Inativar' : 'Ativar' %>"
                           data-confirm-cancel="Cancelar"
                         >
+                          <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                           <input type="hidden" name="ativo" value="<%= item.ativo ? 'false' : 'true' %>" />
                           <button class="table-action-btn table-action-btn-neutral acessos-action-btn acesso-action-neutral" type="submit">

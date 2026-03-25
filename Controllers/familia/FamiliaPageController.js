@@ -1,7 +1,7 @@
-const Familia = require("../../schemas/social/Familia");
 const { PERMISSIONS } = require("../../config/permissions");
 const { hasAnyPermission } = require("../../services/accessControlService");
 const { listCustomFields, listQuickFilters } = require("../../services/systemConfigService");
+const { ensureAccessibleFamily } = require("../../services/familia/api/familiaGuardService");
 
 function buildViewFlags(req) {
   const permissionList = req?.session?.user?.permissions || [];
@@ -67,33 +67,49 @@ class FamiliaPageController {
   }
 
   static async editar(req, res) {
-    const { id } = req.params;
-    const familia = await Familia.findById(id).lean();
-    if (!familia) {
-      req.flash("error", "Familia nao encontrada.");
-      return res.redirect("/familias");
-    }
+    try {
+      const familia = await ensureAccessibleFamily({
+        user: req?.session?.user || null,
+        familiaId: req.params?.id,
+        select: "responsavel endereco observacoes camposExtras ativo createdAt updatedAt",
+        notFoundMessage: "Familia nao encontrada.",
+      });
 
-    return res.status(200).render("pages/familias/form", {
-      ...buildViewBase(req, "Editar Familia"),
-      modo: "editar",
-      familia,
-      customFields: await listCustomFields("familia", { includeInactive: false }),
-    });
+      return res.status(200).render("pages/familias/form", {
+        ...buildViewBase(req, "Editar Familia"),
+        modo: "editar",
+        familia,
+        customFields: await listCustomFields("familia", { includeInactive: false }),
+      });
+    } catch (error) {
+      if ([400, 403, 404].includes(Number(error?.status || 0))) {
+        req.flash("error", "Familia nao encontrada ou acesso nao permitido.");
+        return res.redirect("/familias");
+      }
+      throw error;
+    }
   }
 
   static async detalhar(req, res) {
-    const { id } = req.params;
-    const familia = await Familia.findById(id).lean();
-    if (!familia) {
-      req.flash("error", "Familia nao encontrada.");
-      return res.redirect("/familias");
-    }
+    try {
+      const familia = await ensureAccessibleFamily({
+        user: req?.session?.user || null,
+        familiaId: req.params?.id,
+        select: "responsavel endereco observacoes camposExtras ativo createdAt updatedAt",
+        notFoundMessage: "Familia nao encontrada.",
+      });
 
-    return res.status(200).render("pages/familias/detalhe", {
-      ...buildViewBase(req, "Detalhe da Familia"),
-      familia,
-    });
+      return res.status(200).render("pages/familias/detalhe", {
+        ...buildViewBase(req, "Detalhe da Familia"),
+        familia,
+      });
+    } catch (error) {
+      if ([400, 403, 404].includes(Number(error?.status || 0))) {
+        req.flash("error", "Familia nao encontrada ou acesso nao permitido.");
+        return res.redirect("/familias");
+      }
+      throw error;
+    }
   }
 }
 

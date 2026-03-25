@@ -1,11 +1,13 @@
 const { registrarAuditoria } = require("../../services/auditService");
 const {
   buildAdministrationPageView,
+  changeAdministrationBirthdayCampaignStatus,
   changeAdministrationCustomFieldStatus,
   changeAdministrationPresenceReasonStatus,
   changeAdministrationQuickFilterStatus,
   getAdministrationActorId,
   loadAdministrationPageContext,
+  saveAdministrationBirthdayCampaign,
   saveAdministrationCustomField,
   saveAdministrationPresenceReason,
   saveAdministrationQuickFilter,
@@ -216,6 +218,50 @@ class AdministracaoController {
       statusCode: 200,
       logMessage: "Erro ao alterar status do filtro rapido:",
       fallbackMessage: "Erro interno ao alterar filtro rapido.",
+    });
+  }
+
+  static async criarCampanhaAniversario(req, res) {
+    return handleAdministrationAction(req, res, {
+      action: saveAdministrationBirthdayCampaign,
+      buildInput: (request) => ({
+        body: request.body || {},
+        actorId: getAdministrationActorId(request),
+      }),
+      entityKey: "campanha",
+      statusCode: 201,
+      logMessage: "Erro ao criar campanha de aniversario:",
+      fallbackMessage: "Erro interno ao criar campanha de aniversario.",
+    });
+  }
+
+  static async atualizarCampanhaAniversario(req, res) {
+    return handleAdministrationAction(req, res, {
+      action: saveAdministrationBirthdayCampaign,
+      buildInput: (request) => ({
+        body: request.body || {},
+        actorId: getAdministrationActorId(request),
+        id: request.params?.id,
+      }),
+      entityKey: "campanha",
+      statusCode: 200,
+      logMessage: "Erro ao atualizar campanha de aniversario:",
+      fallbackMessage: "Erro interno ao atualizar campanha de aniversario.",
+    });
+  }
+
+  static async alterarStatusCampanhaAniversario(req, res) {
+    return handleAdministrationAction(req, res, {
+      action: changeAdministrationBirthdayCampaignStatus,
+      buildInput: (request) => ({
+        id: request.params?.id,
+        statusInput: request.body?.status,
+        actorId: getAdministrationActorId(request),
+      }),
+      entityKey: "campanha",
+      statusCode: 200,
+      logMessage: "Erro ao alterar status da campanha de aniversario:",
+      fallbackMessage: "Erro interno ao alterar campanha de aniversario.",
     });
   }
 }

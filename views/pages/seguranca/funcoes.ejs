@@ -26,6 +26,7 @@
     </header>
 
     <form class="seguranca-funcao-form" method="post" action="<%= editando ? (`/seguranca/funcoes/${roleEdicaoId}/update`) : '/seguranca/funcoes' %>">
+      <%- renderCsrfField() %>
       <label class="field-wrap">
         <span class="input-label">Nome da funcao *</span>
         <input class="input-control" type="text" name="nome" maxlength="80" required value="<%= roleEmEdicao?.nome || '' %>" />
@@ -120,6 +121,7 @@
                   <div class="acesso-actions">
                     <a class="btn btn-muted btn-xxs" href="/seguranca/funcoes?editar=<%= role._id %>">Editar</a>
                     <form method="post" action="/seguranca/funcoes/<%= role._id %>/status" data-confirm="true" data-confirm-title="<%= role.ativo ? 'Inativar funcao?' : 'Ativar funcao?' %>" data-confirm-text="<%= role.ativo ? 'Deseja inativar esta funcao?' : 'Deseja ativar esta funcao?' %>" data-confirm-icon="warning" data-confirm-confirm="<%= role.ativo ? 'Inativar' : 'Ativar' %>" data-confirm-cancel="Cancelar">
+                      <%- renderCsrfField() %>
                       <input type="hidden" name="returnTo" value="/seguranca/funcoes" />
                       <input type="hidden" name="ativo" value="<%= role.ativo ? 'false' : 'true' %>" />
                       <button class="btn btn-muted btn-xxs" type="submit"><%= role.ativo ? "Inativar" : "Ativar" %></button>
@@ -192,6 +194,7 @@
                     <span class="seguranca-hint">Nao editavel</span>
                   <% } else { %>
                     <form method="post" action="/seguranca/usuarios/<%= user._id %>/funcoes" class="seguranca-assign-form">
+                      <%- renderCsrfField() %>
                       <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                       <div class="seguranca-assign-list">
                         <% rolesAtivas.forEach((role) => { %>

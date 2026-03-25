@@ -1,7 +1,7 @@
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
 const { asObjectId } = require("../../agendaAvailabilityService");
 const { canMutateEvent } = require("./agendaPermissionService");
-const { createAgendaError } = require("./agendaErrorService");
+const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const { parseBoolean } = require("./agendaDateValueService");
 const { mapEvento } = require("./agendaMappingService");
 const { loadEventoById } = require("./agendaRelationService");
@@ -18,7 +18,8 @@ async function changeAgendaEventStatus(user, eventId, ativoInput) {
     throw createAgendaError(400, "Campo ativo e obrigatorio.");
   }
 
-  const evento = await AgendaEvento.findById(eventId);
+  const normalizedEventId = ensureAgendaObjectId(eventId, "Identificador de agendamento invalido.");
+  const evento = await AgendaEvento.findById(normalizedEventId);
   if (!evento) {
     throw createAgendaError(404, "Evento de agenda nao encontrado.");
   }

@@ -6,6 +6,9 @@ const {
   toggleCustomFieldStatus,
   saveQuickFilter,
   toggleQuickFilterStatus,
+  saveBirthdayCampaign,
+  updateBirthdayCampaignStatus,
+  CAMPANHA_ANIVERSARIO_STATUS_LABELS,
 } = require("../../../systemConfigService");
 
 function createAdministrationError(message, status = 400) {
@@ -20,6 +23,17 @@ function parseAdministrationStatus(ativoInput) {
     throw createAdministrationError("Campo ativo e obrigatorio.", 400);
   }
   return ativo;
+}
+
+function parseBirthdayCampaignStatus(statusInput) {
+  const status = String(statusInput || "").trim().toLowerCase();
+  if (!status) {
+    throw createAdministrationError("Campo status e obrigatorio.", 400);
+  }
+  if (!CAMPANHA_ANIVERSARIO_STATUS_LABELS[status]) {
+    throw createAdministrationError("Status da campanha invalido.", 400);
+  }
+  return status;
 }
 
 async function saveAdministrationPresenceReason({ body = {}, actorId, id = null }) {
@@ -119,12 +133,46 @@ async function changeAdministrationQuickFilterStatus({ id, ativoInput, actorId }
   };
 }
 
+async function saveAdministrationBirthdayCampaign({ body = {}, actorId, id = null }) {
+  const campanha = await saveBirthdayCampaign(body, actorId, id);
+
+  return {
+    mensagem: id
+      ? "Campanha de aniversario atualizada com sucesso."
+      : "Campanha de aniversario criada com sucesso.",
+    campanha,
+    audit: {
+      acao: id ? "ADMIN_CAMPANHA_ANIVERSARIO_ATUALIZADA" : "ADMIN_CAMPANHA_ANIVERSARIO_CRIADA",
+      entidade: "configuracao_sistema",
+      entidadeId: campanha._id,
+    },
+  };
+}
+
+async function changeAdministrationBirthdayCampaignStatus({ id, statusInput, actorId }) {
+  const status = parseBirthdayCampaignStatus(statusInput);
+  const campanha = await updateBirthdayCampaignStatus(id, status, actorId);
+
+  return {
+    mensagem: `Campanha marcada como ${CAMPANHA_ANIVERSARIO_STATUS_LABELS[status].toLowerCase()} com sucesso.`,
+    campanha,
+    audit: {
+      acao: `ADMIN_CAMPANHA_ANIVERSARIO_${status.toUpperCase()}`,
+      entidade: "configuracao_sistema",
+      entidadeId: campanha._id,
+    },
+  };
+}
+
 module.exports = {
+  changeAdministrationBirthdayCampaignStatus,
   changeAdministrationCustomFieldStatus,
   changeAdministrationPresenceReasonStatus,
   changeAdministrationQuickFilterStatus,
   createAdministrationError,
+  parseBirthdayCampaignStatus,
   parseAdministrationStatus,
+  saveAdministrationBirthdayCampaign,
   saveAdministrationCustomField,
   saveAdministrationPresenceReason,
   saveAdministrationQuickFilter,

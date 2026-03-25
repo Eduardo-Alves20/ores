@@ -102,6 +102,7 @@
       <% } %>
 
       <form method="post" action="/perfil/senha" class="form-stack senha-form-grid" autocomplete="off">
+        <%- renderCsrfField() %>
         <label class="field-wrap">
           <span class="input-label">Senha atual</span>
           <input class="input-control" id="senhaAtual" name="senhaAtual" type="password" required />

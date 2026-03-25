@@ -1,9 +1,56 @@
 services:
+  mongo:
+    image: mongo:7.0
+    container_name: alento-mongo
+    command:
+      - mongod
+      - --replSet
+      - rs0
+      - --bind_ip_all
+      - --port
+      - "27017"
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'mongosh --quiet --eval "quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)"'
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    restart: unless-stopped
+    networks:
+      suite:
+        aliases:
+          - mongo
+
+  mongo-init:
+    image: mongo:7.0
+    container_name: alento-mongo-init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    command:
+      - mongosh
+      - "mongodb://mongo:27017/admin"
+      - /docker/mongo-init.js
+    volumes:
+      - ./docker/mongo-init.js:/docker/mongo-init.js:ro
+    restart: "no"
+    networks:
+      - suite
+
   alento-app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: alento-app
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mongo-init:
+        condition: service_completed_successfully
     ports:
       - "4000:4000"
     env_file:
@@ -12,6 +59,8 @@ services:
       PORT: 4000
       HOST: 0.0.0.0
       MONGO_URI: ${MONGO_URI_DOCKER:-mongodb://mongo:27017/ALENTO?replicaSet=rs0}
+    volumes:
+      - ./uploads:/app/uploads
     restart: unless-stopped
     networks:
       - suite
@@ -34,11 +83,18 @@ services:
     depends_on:
       - nginx
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    profiles:
+      - public
     restart: unless-stopped
     networks:
       - suite
 
+volumes:
+  mongo-data:
+    name: glpi-desafio_mongo_data
+  mongo-config:
+    name: glpi_suite_mongo_config
+
 networks:
   suite:
-    name: glpi_suite
-    external: true
+    name: alento_suite

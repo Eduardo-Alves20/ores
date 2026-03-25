@@ -5,7 +5,7 @@ const {
 const { asObjectId } = require("../../agendaAvailabilityService");
 const { resolvePresenceReasonByKey } = require("../../systemConfigService");
 const { canRegisterAttendance } = require("./agendaPermissionService");
-const { createAgendaError } = require("./agendaErrorService");
+const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const { mapEvento, getStatusAgendamentoForPresence, PRESENCA_LABELS } = require("./agendaMappingService");
 const { carregarEventoDetalhado } = require("./agendaRelationService");
 const {
@@ -16,7 +16,8 @@ const {
 async function registerAgendaAttendance(user, eventId, body = {}) {
   ensureAgendaPermission(user, PERMISSIONS.AGENDA_ATTENDANCE, "Acesso negado para registrar presenca.");
 
-  const evento = await AgendaEvento.findById(eventId);
+  const normalizedEventId = ensureAgendaObjectId(eventId, "Identificador de agendamento invalido.");
+  const evento = await AgendaEvento.findById(normalizedEventId);
   if (!evento) {
     throw createAgendaError(404, "Evento de agenda nao encontrado.");
   }

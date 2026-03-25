@@ -5,6 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <%- include("./seo.ejs") %>
+    <meta name="csrf-token" content="<%= csrfToken || '' %>" />
+    <meta name="csrf-header-name" content="<%= csrfHeaderName || 'X-CSRF-Token' %>" />
+    <meta name="csrf-field-name" content="<%= csrfFieldName || '_csrf' %>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -64,6 +67,7 @@
       window.__APP_FLASH = <%- JSON.stringify(__appFlashPayload) %>;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="<%= appendAssetVersion('/js/csrf.js') %>" defer></script>
     <script src="<%= appendAssetVersion('/js/ui-alerts.js') %>" defer></script>
     <script src="<%= appendAssetVersion('/js/auth.js') %>" defer></script>
     <% if (typeof extraJs !== "undefined" && Array.isArray(extraJs)) { %>

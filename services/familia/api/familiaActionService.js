@@ -2,13 +2,21 @@ const Familia = require("../../../schemas/social/Familia");
 const { normalizeCustomFieldValues } = require("../../systemConfigService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { createFamiliaError } = require("./familiaContextService");
+const { ensureAccessibleFamily } = require("./familiaGuardService");
+const {
+  isPlainObject,
+  normalizeFamilyAddress,
+  normalizeFamilyObservacoes,
+  normalizeFamilyResponsible,
+} = require("./familiaInputService");
 
 async function createFamily({ actorId, body = {} }) {
-  const { responsavel = {}, endereco = {}, observacoes, camposExtras = {} } = body;
-  const nome = String(responsavel.nome || "").trim();
-  const telefone = String(responsavel.telefone || "").trim();
-  const email = String(responsavel.email || "").trim().toLowerCase();
-  const parentesco = String(responsavel.parentesco || "responsavel").trim();
+  const responsavel = normalizeFamilyResponsible(body?.responsavel);
+  const endereco = normalizeFamilyAddress(body?.endereco);
+  const observacoes = normalizeFamilyObservacoes(body?.observacoes);
+  const camposExtras = body?.camposExtras || {};
+  const nome = responsavel.nome;
+  const telefone = responsavel.telefone;
 
   if (!nome || !telefone) {
     throw createFamiliaError("Campos obrigatorios do responsavel: nome e telefone.", 400);
@@ -19,8 +27,8 @@ async function createFamily({ actorId, body = {} }) {
     responsavel: {
       nome,
       telefone,
-      email: email || undefined,
-      parentesco: parentesco || "responsavel",
+      email: responsavel.email || undefined,
+      parentesco: responsavel.parentesco || "responsavel",
     },
     endereco,
     observacoes,
@@ -41,29 +49,48 @@ async function createFamily({ actorId, body = {} }) {
   };
 }
 
-async function updateFamily({ id, actorId, body = {} }) {
+async function updateFamily({ id, user, actorId, body = {} }) {
+  await ensureAccessibleFamily({
+    user,
+    familiaId: id,
+    select: "_id",
+    notFoundMessage: "Familia nao encontrada.",
+  });
+
   const { responsavel, endereco, observacoes, camposExtras } = body;
   const patch = {
     atualizadoPor: actorId,
   };
 
-  if (responsavel) {
-    if (typeof responsavel.nome !== "undefined") {
-      patch["responsavel.nome"] = String(responsavel.nome).trim();
+  if (isPlainObject(responsavel)) {
+    const normalizedResponsavel = normalizeFamilyResponsible(responsavel);
+
+    if (Object.prototype.hasOwnProperty.call(responsavel, "nome")) {
+      if (!normalizedResponsavel.nome) {
+        throw createFamiliaError("Campo nome do responsavel e obrigatorio.", 400);
+      }
+      patch["responsavel.nome"] = normalizedResponsavel.nome;
     }
-    if (typeof responsavel.telefone !== "undefined") {
-      patch["responsavel.telefone"] = String(responsavel.telefone).trim();
+    if (Object.prototype.hasOwnProperty.call(responsavel, "telefone")) {
+      if (!normalizedResponsavel.telefone) {
+        throw createFamiliaError("Campo telefone do responsavel e obrigatorio.", 400);
+      }
+      patch["responsavel.telefone"] = normalizedResponsavel.telefone;
     }
-    if (typeof responsavel.email !== "undefined") {
-      patch["responsavel.email"] = String(responsavel.email || "").trim().toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(responsavel, "email")) {
+      patch["responsavel.email"] = normalizedResponsavel.email;
     }
-    if (typeof responsavel.parentesco !== "undefined") {
-      patch["responsavel.parentesco"] = String(responsavel.parentesco || "responsavel").trim();
+    if (Object.prototype.hasOwnProperty.call(responsavel, "parentesco")) {
+      patch["responsavel.parentesco"] = normalizedResponsavel.parentesco;
     }
   }
 
-  if (typeof observacoes !== "undefined") patch.observacoes = observacoes;
-  if (typeof endereco !== "undefined") patch.endereco = endereco;
+  if (typeof observacoes !== "undefined") {
+    patch.observacoes = normalizeFamilyObservacoes(observacoes);
+  }
+  if (typeof endereco !== "undefined") {
+    patch.endereco = normalizeFamilyAddress(endereco);
+  }
   if (typeof camposExtras !== "undefined") {
     patch.camposExtras = await normalizeCustomFieldValues("familia", camposExtras || {});
   }
@@ -88,11 +115,18 @@ async function updateFamily({ id, actorId, body = {} }) {
   };
 }
 
-async function changeFamilyStatus({ id, actorId, ativoInput }) {
+async function changeFamilyStatus({ id, user, actorId, ativoInput }) {
   const ativo = parseBoolean(ativoInput);
   if (typeof ativo === "undefined") {
     throw createFamiliaError("Campo ativo e obrigatorio.", 400);
   }
+
+  await ensureAccessibleFamily({
+    user,
+    familiaId: id,
+    select: "_id",
+    notFoundMessage: "Familia nao encontrada.",
+  });
 
   const patch = {
     ativo,

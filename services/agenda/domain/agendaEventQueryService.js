@@ -6,7 +6,7 @@ const {
   canMutateEvent,
   canViewAll,
 } = require("./agendaPermissionService");
-const { createAgendaError } = require("./agendaErrorService");
+const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const {
   getMonthRange,
   parseBoolean,
@@ -47,8 +47,12 @@ async function listAgendaEvents(user, query = {}) {
   if (!incluirInativos) filtro.ativo = true;
 
   if (canViewAll(user)) {
-    const responsavelId = asObjectId(query?.responsavelId);
-    if (responsavelId) filtro.responsavelId = responsavelId;
+    const responsavelIdInput = String(query?.responsavelId || "").trim();
+    if (responsavelIdInput) {
+      filtro.responsavelId = asObjectId(
+        ensureAgendaObjectId(responsavelIdInput, "Responsavel informado e invalido.")
+      );
+    }
   } else {
     filtro.responsavelId = asObjectId(user.id);
   }
@@ -72,7 +76,8 @@ async function listAgendaEvents(user, query = {}) {
 async function getAgendaEventDetail(user, eventId) {
   ensureAgendaViewAccess(user);
 
-  const evento = await AgendaEvento.findById(eventId);
+  const normalizedEventId = ensureAgendaObjectId(eventId, "Identificador de agendamento invalido.");
+  const evento = await AgendaEvento.findById(normalizedEventId);
   if (!evento) {
     throw createAgendaError(404, "Evento de agenda nao encontrado.");
   }

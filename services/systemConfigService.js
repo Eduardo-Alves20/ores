@@ -4,6 +4,10 @@ const {
   CUSTOM_FIELD_AREAS,
   QUICK_FILTER_AREAS,
   PRESENCA_JUSTIFICATIVA_STATUSES,
+  CAMPANHA_ANIVERSARIO_STATUSES,
+  CAMPANHA_ANIVERSARIO_PUBLICOS,
+  CAMPANHA_ANIVERSARIO_CANAIS,
+  CAMPANHA_ANIVERSARIO_ACOES,
 } = require("../schemas/core/ConfiguracaoSistema");
 
 const FILTER_AREA_DEFINITIONS = Object.freeze({
@@ -131,6 +135,32 @@ const PRESENCA_STATUS_LABELS = Object.freeze({
   cancelado_antecipadamente: "Cancelado antecipadamente",
 });
 
+const CAMPANHA_ANIVERSARIO_STATUS_LABELS = Object.freeze({
+  rascunho: "Rascunho",
+  ativa: "Ativa",
+  pausada: "Pausada",
+  encerrada: "Encerrada",
+});
+
+const CAMPANHA_ANIVERSARIO_PUBLICO_LABELS = Object.freeze({
+  familia: "Familia",
+  voluntario: "Voluntario",
+  orgao_publico: "Orgao Publico",
+});
+
+const CAMPANHA_ANIVERSARIO_CANAL_LABELS = Object.freeze({
+  sistema: "Sistema",
+  whatsapp: "WhatsApp",
+  email: "E-mail",
+});
+
+const CAMPANHA_ANIVERSARIO_ACAO_LABELS = Object.freeze({
+  exibir_dashboard: "Exibir no dashboard",
+  mensagem_sistema: "Mensagem no sistema",
+  whatsapp: "Mensagem por WhatsApp",
+  email: "E-mail",
+});
+
 function createConfigError(message, status = 400) {
   const error = new Error(message);
   error.status = status;
@@ -178,6 +208,14 @@ function sortByOrder(list = []) {
     if (orderDiff !== 0) return orderDiff;
     return String(a?.nome || a?.label || "")
       .localeCompare(String(b?.nome || b?.label || ""), "pt-BR");
+  });
+}
+
+function sortBirthdayCampaigns(list = []) {
+  return [...list].sort((a, b) => {
+    const priorityDiff = Number(a?.prioridade || 0) - Number(b?.prioridade || 0);
+    if (priorityDiff !== 0) return priorityDiff;
+    return String(a?.nome || "").localeCompare(String(b?.nome || ""), "pt-BR");
   });
 }
 
@@ -235,6 +273,109 @@ function mapQuickFilter(item) {
   };
 }
 
+function normalizeMultilineList(value, maxItems = 18, maxLength = 320) {
+  const lines = Array.isArray(value)
+    ? value
+    : String(value || "")
+        .split(/\r?\n/)
+        .map((item) => item.trim());
+
+  return Array.from(
+    new Set(
+      lines
+        .map((item) => String(item || "").trim().slice(0, maxLength))
+        .filter(Boolean)
+        .slice(0, maxItems)
+    )
+  );
+}
+
+function buildBirthdayWindowLabel(daysAhead) {
+  const days = Math.max(0, toInt(daysAhead, 7));
+  if (days <= 0) return "Somente hoje";
+  if (days === 1) return "Hoje e amanha";
+  return `Hoje e proximos ${days} dias`;
+}
+
+function countBirthdayMessageVariations(channel = {}) {
+  const openings = Array.isArray(channel?.aberturas) ? channel.aberturas.length : 0;
+  const messages = Array.isArray(channel?.mensagens) ? channel.mensagens.length : 0;
+  const closings = Array.isArray(channel?.fechamentos) ? channel.fechamentos.length : 0;
+
+  if (!messages) return 0;
+  return Math.max(openings, 1) * messages * Math.max(closings, 1);
+}
+
+function mapBirthdayChannel(channel = {}) {
+  return {
+    assunto: String(channel?.assunto || ""),
+    aberturas: normalizeMultilineList(channel?.aberturas, 18, 220),
+    mensagens: normalizeMultilineList(channel?.mensagens, 24, 320),
+    fechamentos: normalizeMultilineList(channel?.fechamentos, 18, 220),
+  };
+}
+
+function mapBirthdayCampaign(item) {
+  const status = String(item?.status || "rascunho").trim();
+  const publico = Array.isArray(item?.publico) ? item.publico : [];
+  const canais = Array.isArray(item?.canais) ? item.canais : [];
+  const diasAntecedencia = Math.max(0, Number(item?.diasAntecedencia || 0));
+  const mensagens = {
+    sistema: mapBirthdayChannel(item?.mensagens?.sistema),
+    whatsapp: mapBirthdayChannel(item?.mensagens?.whatsapp),
+    email: mapBirthdayChannel(item?.mensagens?.email),
+  };
+  const canaisSelecionados = canais.length
+    ? canais.filter((value) => CAMPANHA_ANIVERSARIO_CANAIS.includes(String(value || "").trim()))
+    : ["sistema"];
+  const variationsByChannel = canaisSelecionados.map((canal) => ({
+    value: canal,
+    label: CAMPANHA_ANIVERSARIO_CANAL_LABELS[canal] || canal,
+    count: countBirthdayMessageVariations(mensagens?.[canal]),
+  }));
+
+  return {
+    _id: String(item?._id || ""),
+    nome: String(item?.nome || ""),
+    descricao: String(item?.descricao || ""),
+    status,
+    statusLabel: CAMPANHA_ANIVERSARIO_STATUS_LABELS[status] || status,
+    statusTone:
+      status === "ativa"
+        ? "active"
+        : status === "rascunho"
+          ? "warning"
+          : status === "encerrada"
+            ? "inactive"
+            : "neutral",
+    publico: publico.filter((value) =>
+      CAMPANHA_ANIVERSARIO_PUBLICOS.includes(String(value || "").trim())
+    ),
+    publicoLabels: publico
+      .filter((value) => CAMPANHA_ANIVERSARIO_PUBLICOS.includes(String(value || "").trim()))
+      .map((value) => CAMPANHA_ANIVERSARIO_PUBLICO_LABELS[value] || value),
+    canais: canaisSelecionados,
+    canaisLabels: canaisSelecionados.map(
+      (value) => CAMPANHA_ANIVERSARIO_CANAL_LABELS[value] || value
+    ),
+    diasAntecedencia,
+    janelaLabel: buildBirthdayWindowLabel(diasAntecedencia),
+    acaoPrimaria: String(item?.acaoPrimaria || "exibir_dashboard"),
+    acaoPrimariaLabel:
+      CAMPANHA_ANIVERSARIO_ACAO_LABELS[item?.acaoPrimaria] || item?.acaoPrimaria || "Exibir no dashboard",
+    requerAprovacao: item?.requerAprovacao === true,
+    prioridade: Number(item?.prioridade || 0),
+    personalizacao: {
+      variarPorPerfil: item?.personalizacao?.variarPorPerfil !== false,
+      variarPorHistorico: item?.personalizacao?.variarPorHistorico !== false,
+      evitarRepeticaoAnual: item?.personalizacao?.evitarRepeticaoAnual !== false,
+    },
+    mensagens,
+    variacoesPorCanal: variationsByChannel,
+    totalVariacoes: variationsByChannel.reduce((sum, channel) => sum + Number(channel.count || 0), 0),
+  };
+}
+
 function buildQuickFilterHref(area, field, value) {
   const params = new URLSearchParams();
   const normalizedArea = String(area || "").trim();
@@ -265,9 +406,81 @@ function buildQuickFilterHref(area, field, value) {
   return "#";
 }
 
+function buildDefaultBirthdayCampaignSeed() {
+  return {
+    nome: "Aniversariantes da semana",
+    nomeNormalizado: "aniversariantes_da_semana",
+    descricao:
+      "Campanha inicial para destacar aniversariantes no painel e preparar a base de relacionamento por canal.",
+    status: "ativa",
+    publico: ["familia", "voluntario"],
+    diasAntecedencia: 7,
+    acaoPrimaria: "exibir_dashboard",
+    canais: ["sistema", "email", "whatsapp"],
+    requerAprovacao: false,
+    prioridade: 1,
+    personalizacao: {
+      variarPorPerfil: true,
+      variarPorHistorico: true,
+      evitarRepeticaoAnual: true,
+    },
+    mensagens: {
+      sistema: {
+        assunto: "Feliz aniversario",
+        aberturas: [
+          "Hoje e um dia especial por aqui.",
+          "Sua data chegou e a equipe quis celebrar junto.",
+        ],
+        mensagens: [
+          "Que este novo ciclo traga cuidado, leveza e boas noticias para voce.",
+          "Receba nosso carinho e o desejo de um ano cheio de saude, afeto e novas conquistas.",
+          "Celebramos sua historia e a alegria de ter voce fazendo parte da nossa rede.",
+        ],
+        fechamentos: [
+          "Conte com a gente.",
+          "Seguimos juntos neste caminho.",
+        ],
+      },
+      whatsapp: {
+        aberturas: [
+          "Passando para deixar um carinho especial no seu aniversario.",
+          "Hoje o lembrete daqui veio com afeto redobrado.",
+        ],
+        mensagens: [
+          "Que seu dia tenha leveza, afeto e bons encontros.",
+          "Desejamos um novo ciclo cheio de saude, paz e coisas boas.",
+        ],
+        fechamentos: [
+          "Um abraco da equipe Alento.",
+          "Feliz aniversario.",
+        ],
+      },
+      email: {
+        assunto: "Um novo ciclo cheio de coisas boas",
+        aberturas: [
+          "Hoje queremos celebrar sua historia com calma e carinho.",
+        ],
+        mensagens: [
+          "Que o seu aniversario marque o inicio de um novo tempo com mais serenidade, saude e oportunidades.",
+          "Desejamos que este novo ciclo traga bons encontros, apoio e motivos sinceros para celebrar.",
+        ],
+        fechamentos: [
+          "Com carinho, equipe Instituto Alento.",
+        ],
+      },
+    },
+  };
+}
+
 async function ensureConfigDocument() {
   let doc = await ConfiguracaoSistema.findOne({ chave: "default" });
-  if (doc) return doc;
+  if (doc) {
+    if (!Array.isArray(doc.campanhasAniversario) || !doc.campanhasAniversario.length) {
+      doc.campanhasAniversario = [buildDefaultBirthdayCampaignSeed()];
+      await doc.save();
+    }
+    return doc;
+  }
 
   try {
     doc = await ConfiguracaoSistema.create({
@@ -298,6 +511,7 @@ async function ensureConfigDocument() {
           ordem: 3,
         },
       ],
+      campanhasAniversario: [buildDefaultBirthdayCampaignSeed()],
     });
 
     return doc;
@@ -366,6 +580,53 @@ function validateQuickFilter(doc, currentId, area, field) {
   return fieldDef;
 }
 
+function validateBirthdayCampaignUniqueness(doc, currentId, nomeNormalizado) {
+  const duplicate = (doc.campanhasAniversario || []).find(
+    (item) =>
+      String(item?._id || "") !== String(currentId || "") &&
+      String(item?.nomeNormalizado || "") === String(nomeNormalizado || "")
+  );
+
+  if (duplicate) {
+    throw createConfigError("Ja existe uma campanha de aniversario com esse nome.");
+  }
+}
+
+function normalizeBirthdayCampaignStatus(value, fallback = "rascunho") {
+  const normalized = String(value || "").trim().toLowerCase();
+  return CAMPANHA_ANIVERSARIO_STATUSES.includes(normalized) ? normalized : fallback;
+}
+
+function normalizeBirthdayCampaignAction(value, fallback = "exibir_dashboard") {
+  const normalized = String(value || "").trim().toLowerCase();
+  return CAMPANHA_ANIVERSARIO_ACOES.includes(normalized) ? normalized : fallback;
+}
+
+function normalizeBirthdayCampaignChannels(value) {
+  const channels = normalizeList(value)
+    .map((item) => String(item || "").trim().toLowerCase())
+    .filter((item) => CAMPANHA_ANIVERSARIO_CANAIS.includes(item));
+
+  return channels.length ? channels : ["sistema"];
+}
+
+function normalizeBirthdayCampaignAudiences(value) {
+  const audiences = normalizeList(value)
+    .map((item) => String(item || "").trim().toLowerCase())
+    .filter((item) => CAMPANHA_ANIVERSARIO_PUBLICOS.includes(item));
+
+  return audiences.length ? audiences : ["familia", "voluntario"];
+}
+
+function normalizeBirthdayChannelInput(value = {}) {
+  return {
+    assunto: normalizeText(value?.assunto, 140),
+    aberturas: normalizeMultilineList(value?.aberturas, 18, 220),
+    mensagens: normalizeMultilineList(value?.mensagens, 24, 320),
+    fechamentos: normalizeMultilineList(value?.fechamentos, 18, 220),
+  };
+}
+
 async function listPresenceReasons({ includeInactive = false } = {}) {
   const snapshot = await getSystemConfigSnapshot();
   const list = sortByOrder(snapshot.justificativasPresenca || []).map(mapPresenceReason);
@@ -394,6 +655,27 @@ async function listQuickFilters(area, { includeInactive = false } = {}) {
     })
     .filter((item) => !normalizedArea || item.area === normalizedArea);
   return includeInactive ? list : list.filter((item) => item.ativo);
+}
+
+async function listBirthdayCampaigns({ includeFinished = true } = {}) {
+  const snapshot = await getSystemConfigSnapshot();
+  const list = sortBirthdayCampaigns(snapshot.campanhasAniversario || []).map(mapBirthdayCampaign);
+
+  if (includeFinished) return list;
+  return list.filter((item) => !["encerrada"].includes(String(item?.status || "")));
+}
+
+async function getBirthdayCampaignForDashboard() {
+  const campaigns = await listBirthdayCampaigns({ includeFinished: false });
+  return (
+    campaigns
+      .filter((item) => item.status === "ativa" && item.acaoPrimaria === "exibir_dashboard")
+      .sort((left, right) => {
+        const priorityDiff = Number(left?.prioridade || 0) - Number(right?.prioridade || 0);
+        if (priorityDiff !== 0) return priorityDiff;
+        return String(left?.nome || "").localeCompare(String(right?.nome || ""), "pt-BR");
+      })[0] || null
+  );
 }
 
 async function savePresenceReason(input, actorId, reasonId = null) {
@@ -578,6 +860,84 @@ async function toggleQuickFilterStatus(filterId, ativo, actorId) {
   };
 }
 
+async function saveBirthdayCampaign(input, actorId, campaignId = null) {
+  const doc = await ensureConfigDocument();
+  const target =
+    campaignId && doc.campanhasAniversario.id(campaignId)
+      ? doc.campanhasAniversario.id(campaignId)
+      : doc.campanhasAniversario.create({});
+
+  const nome = normalizeText(input?.nome, 120);
+  const nomeNormalizado = normalizeKey(input?.nome || input?.nomeNormalizado || nome, 160);
+  const descricao = normalizeText(input?.descricao, 320);
+  const status = normalizeBirthdayCampaignStatus(input?.status, campaignId ? target?.status : "rascunho");
+  const publico = normalizeBirthdayCampaignAudiences(input?.publico);
+  const canais = normalizeBirthdayCampaignChannels(input?.canais);
+  const acaoPrimaria = normalizeBirthdayCampaignAction(input?.acaoPrimaria, "exibir_dashboard");
+  const diasAntecedencia = Math.min(Math.max(toInt(input?.diasAntecedencia, 7), 0), 30);
+  const personalizacao = {
+    variarPorPerfil: parseBoolean(input?.personalizacao?.variarPorPerfil, true),
+    variarPorHistorico: parseBoolean(input?.personalizacao?.variarPorHistorico, true),
+    evitarRepeticaoAnual: parseBoolean(input?.personalizacao?.evitarRepeticaoAnual, true),
+  };
+  const mensagens = {
+    sistema: normalizeBirthdayChannelInput(input?.mensagens?.sistema),
+    whatsapp: normalizeBirthdayChannelInput(input?.mensagens?.whatsapp),
+    email: normalizeBirthdayChannelInput(input?.mensagens?.email),
+  };
+
+  if (!nome || !nomeNormalizado) {
+    throw createConfigError("Informe o nome da campanha de aniversario.");
+  }
+
+  validateBirthdayCampaignUniqueness(doc, target?._id || campaignId, nomeNormalizado);
+
+  target.nome = nome;
+  target.nomeNormalizado = nomeNormalizado;
+  target.descricao = descricao;
+  target.status = status;
+  target.publico = publico;
+  target.canais = canais;
+  target.acaoPrimaria = acaoPrimaria;
+  target.diasAntecedencia = diasAntecedencia;
+  target.requerAprovacao = parseBoolean(input?.requerAprovacao, false);
+  target.prioridade = toInt(input?.prioridade, 0);
+  target.personalizacao = personalizacao;
+  target.mensagens = mensagens;
+
+  if (!campaignId) {
+    doc.campanhasAniversario.push(target);
+  }
+
+  doc.atualizadoPor = actorId || null;
+  doc.markModified("campanhasAniversario");
+  await doc.save();
+
+  const saved = doc.campanhasAniversario.id(String(target._id));
+  return mapBirthdayCampaign(saved);
+}
+
+async function updateBirthdayCampaignStatus(campaignId, statusInput, actorId) {
+  const doc = await ensureConfigDocument();
+  const target = doc.campanhasAniversario.id(campaignId);
+
+  if (!target) {
+    throw createConfigError("Campanha de aniversario nao encontrada.", 404);
+  }
+
+  const status = normalizeBirthdayCampaignStatus(statusInput, "");
+  if (!status) {
+    throw createConfigError("Status da campanha invalido.");
+  }
+
+  target.status = status;
+  doc.atualizadoPor = actorId || null;
+  doc.markModified("campanhasAniversario");
+  await doc.save();
+
+  return mapBirthdayCampaign(target);
+}
+
 async function resolvePresenceReasonByKey(key, statusPresenca = "") {
   const normalizedKey = normalizeKey(key, 160);
   if (!normalizedKey) return null;
@@ -663,15 +1023,18 @@ async function buildAdministrationSnapshot() {
       href: buildQuickFilterHref(mapped.area, mapped.campo, mapped.valor),
     };
   });
+  const campanhasAniversario = sortBirthdayCampaigns(snapshot.campanhasAniversario || []).map(mapBirthdayCampaign);
 
   return {
     justificativasPresenca,
     camposCustomizados,
     filtrosRapidos,
+    campanhasAniversario,
     metrics: {
       justificativasAtivas: justificativasPresenca.filter((item) => item.ativo).length,
       camposAtivos: camposCustomizados.filter((item) => item.ativo).length,
       filtrosAtivos: filtrosRapidos.filter((item) => item.ativo).length,
+      campanhasAtivas: campanhasAniversario.filter((item) => item.status === "ativa").length,
     },
   };
 }
@@ -695,6 +1058,22 @@ function getAdministrationOptions() {
       value,
       label: PRESENCA_STATUS_LABELS[value] || value,
     })),
+    birthdayCampaignStatuses: CAMPANHA_ANIVERSARIO_STATUSES.map((value) => ({
+      value,
+      label: CAMPANHA_ANIVERSARIO_STATUS_LABELS[value] || value,
+    })),
+    birthdayCampaignAudiences: CAMPANHA_ANIVERSARIO_PUBLICOS.map((value) => ({
+      value,
+      label: CAMPANHA_ANIVERSARIO_PUBLICO_LABELS[value] || value,
+    })),
+    birthdayCampaignChannels: CAMPANHA_ANIVERSARIO_CANAIS.map((value) => ({
+      value,
+      label: CAMPANHA_ANIVERSARIO_CANAL_LABELS[value] || value,
+    })),
+    birthdayCampaignActions: CAMPANHA_ANIVERSARIO_ACOES.map((value) => ({
+      value,
+      label: CAMPANHA_ANIVERSARIO_ACAO_LABELS[value] || value,
+    })),
   };
 }
 
@@ -702,6 +1081,10 @@ module.exports = {
   FILTER_AREA_DEFINITIONS,
   CUSTOM_FIELD_TYPE_LABELS,
   CUSTOM_FIELD_AREA_LABELS,
+  CAMPANHA_ANIVERSARIO_STATUS_LABELS,
+  CAMPANHA_ANIVERSARIO_PUBLICO_LABELS,
+  CAMPANHA_ANIVERSARIO_CANAL_LABELS,
+  CAMPANHA_ANIVERSARIO_ACAO_LABELS,
   ensureConfigDocument,
   getSystemConfigSnapshot,
   buildAdministrationSnapshot,
@@ -709,14 +1092,19 @@ module.exports = {
   listPresenceReasons,
   listCustomFields,
   listQuickFilters,
+  listBirthdayCampaigns,
+  getBirthdayCampaignForDashboard,
   savePresenceReason,
   togglePresenceReasonStatus,
   saveCustomField,
   toggleCustomFieldStatus,
   saveQuickFilter,
   toggleQuickFilterStatus,
+  saveBirthdayCampaign,
+  updateBirthdayCampaignStatus,
   normalizeCustomFieldValues,
   serializeCustomFieldValue,
   resolvePresenceReasonByKey,
   buildQuickFilterHref,
+  buildBirthdayWindowLabel,
 };

@@ -22,6 +22,7 @@
     <% } %>
 
     <form method="post" action="/auth/login" autocomplete="off" class="form-stack">
+      <%- renderCsrfField() %>
       <label for="email" class="input-label">CPF, Usuario ou Email</label>
       <div class="field-icon-wrap">
         <i class="fa-solid fa-user field-icon"></i>

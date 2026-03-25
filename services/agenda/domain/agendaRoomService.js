@@ -1,7 +1,7 @@
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
 const { asObjectId } = require("../../agendaAvailabilityService");
 const { canManageRooms } = require("./agendaPermissionService");
-const { createAgendaError } = require("./agendaErrorService");
+const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const {
   isDuplicateKeyError,
   parseBoolean,
@@ -54,7 +54,8 @@ async function updateAgendaRoom(user, salaId, body = {}) {
     throw createAgendaError(403, "Sem permissao para editar salas.");
   }
 
-  const sala = await AgendaSala.findById(salaId);
+  const normalizedSalaId = ensureAgendaObjectId(salaId, "Identificador de sala invalido.");
+  const sala = await AgendaSala.findById(normalizedSalaId);
   if (!sala) {
     throw createAgendaError(404, "Sala nao encontrada.");
   }
@@ -98,7 +99,8 @@ async function changeAgendaRoomStatus(user, salaId, ativoInput) {
     throw createAgendaError(400, "Campo ativo e obrigatorio.");
   }
 
-  const sala = await AgendaSala.findById(salaId);
+  const normalizedSalaId = ensureAgendaObjectId(salaId, "Identificador de sala invalido.");
+  const sala = await AgendaSala.findById(normalizedSalaId);
   if (!sala) {
     throw createAgendaError(404, "Sala nao encontrada.");
   }

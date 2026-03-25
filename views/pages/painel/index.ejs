@@ -73,6 +73,9 @@
             <p class="dashboard-panel-overline">Prioridades</p>
             <h3>O que merece ação agora</h3>
           </div>
+          <% if (birthdayWidget?.href && birthdayWidget?.actionLabel) { %>
+            <a href="<%= birthdayWidget.href %>" class="dashboard-panel-link"><%= birthdayWidget.actionLabel %></a>
+          <% } %>
         </div>
 
         <div class="dashboard-alert-list">
@@ -103,7 +106,7 @@
       <section class="dashboard-priority-section dashboard-birthday-section">
         <div class="dashboard-panel-head compact">
           <div>
-            <p class="dashboard-panel-overline">Aniversariantes</p>
+            <p class="dashboard-panel-overline"><%= birthdayWidget?.title || "Aniversariantes" %></p>
             <h3><%= birthdayWidget?.subtitle || "Hoje e próximos 7 dias" %></h3>
           </div>
         </div>

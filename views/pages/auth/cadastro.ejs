@@ -367,6 +367,7 @@
           data-cadastro-variant="<%= variant.key %>"
           <%= showVariant ? "" : "hidden" %>
         >
+          <%- renderCsrfField() %>
           <input type="hidden" name="tipoCadastro" value="<%= variant.key %>" />
           <input type="hidden" name="fluxoEtapa" value="<%= activeVariantPanel %>" data-cadastro-step-input />
 

@@ -9,6 +9,7 @@ const {
   hasOwnAssistidosScope,
 } = require("../../volunteerScopeService");
 const { createFamiliaError } = require("./familiaContextService");
+const { ensureValidObjectId } = require("../../shared/objectIdValidationService");
 
 const FAMILY_ACCESS_ERROR = "Acesso restrito a familias vinculadas ao proprio atendimento.";
 
@@ -19,11 +20,16 @@ async function ensureAccessibleFamily({
   requireActive = false,
   notFoundMessage = "Familia nao encontrada.",
 }) {
-  if (!(await canAccessFamily(user, familiaId))) {
+  const normalizedFamilyId = ensureValidObjectId(
+    familiaId,
+    "Identificador de familia invalido."
+  );
+
+  if (!(await canAccessFamily(user, normalizedFamilyId))) {
     throw createFamiliaError(FAMILY_ACCESS_ERROR, 403);
   }
 
-  const familia = await Familia.findById(familiaId).select(select);
+  const familia = await Familia.findById(normalizedFamilyId).select(select);
   if (!familia) {
     throw createFamiliaError(notFoundMessage, 404);
   }
@@ -36,7 +42,19 @@ async function ensureAccessibleFamily({
 }
 
 async function ensurePatientBelongsToFamily({ pacienteId, familiaId }) {
-  const paciente = await Paciente.findOne({ _id: pacienteId, familiaId }).select("_id");
+  const normalizedPacienteId = ensureValidObjectId(
+    pacienteId,
+    "Identificador de paciente invalido."
+  );
+  const normalizedFamiliaId = ensureValidObjectId(
+    familiaId,
+    "Identificador de familia invalido."
+  );
+
+  const paciente = await Paciente.findOne({
+    _id: normalizedPacienteId,
+    familiaId: normalizedFamiliaId,
+  }).select("_id");
   if (!paciente) {
     throw createFamiliaError("Paciente nao pertence a esta familia.", 400);
   }
@@ -44,7 +62,8 @@ async function ensurePatientBelongsToFamily({ pacienteId, familiaId }) {
 }
 
 async function loadAccessiblePatient({ id, user }) {
-  const paciente = await Paciente.findById(id).select("_id familiaId");
+  const normalizedId = ensureValidObjectId(id, "Identificador de paciente invalido.");
+  const paciente = await Paciente.findById(normalizedId).select("_id familiaId");
   if (!paciente) return null;
 
   if (!(await canAccessFamily(user, paciente.familiaId))) {
@@ -55,7 +74,11 @@ async function loadAccessiblePatient({ id, user }) {
 }
 
 async function loadAccessibleAttendance({ id, user }) {
-  const atendimento = await Atendimento.findById(id).select(
+  const normalizedId = ensureValidObjectId(
+    id,
+    "Identificador de atendimento invalido."
+  );
+  const atendimento = await Atendimento.findById(normalizedId).select(
     "_id familiaId pacienteId profissionalId"
   );
   if (!atendimento) return null;
@@ -82,10 +105,14 @@ async function findApprovedVolunteerProfessional(profissionalId) {
 }
 
 function ensureOwnScopedProfessional(user, actorId, profissionalId, message) {
+  const normalizedProfessionalId = profissionalId
+    ? ensureValidObjectId(profissionalId, "Identificador de profissional invalido.")
+    : "";
+
   if (
     hasOwnAssistidosScope(user) &&
-    profissionalId &&
-    String(profissionalId) !== String(actorId)
+    normalizedProfessionalId &&
+    String(normalizedProfessionalId) !== String(actorId)
   ) {
     throw createFamiliaError(message, 403);
   }

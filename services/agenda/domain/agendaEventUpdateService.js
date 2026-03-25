@@ -1,7 +1,7 @@
 const { AgendaEvento, TIPOS_AGENDA } = require("../../../schemas/social/AgendaEvento");
 const { asObjectId, buildAgendaInterval } = require("../../agendaAvailabilityService");
 const { canAssignOthers, canMutateEvent } = require("./agendaPermissionService");
-const { createAgendaError } = require("./agendaErrorService");
+const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const {
   isProvided,
   parseDateInput,
@@ -19,7 +19,8 @@ const {
 async function updateAgendaEvent(user, eventId, body = {}) {
   ensureAgendaPermission(user, PERMISSIONS.AGENDA_UPDATE, "Acesso negado para agenda.");
 
-  const evento = await AgendaEvento.findById(eventId);
+  const normalizedEventId = ensureAgendaObjectId(eventId, "Identificador de agendamento invalido.");
+  const evento = await AgendaEvento.findById(normalizedEventId);
   if (!evento) {
     throw createAgendaError(404, "Evento de agenda nao encontrado.");
   }

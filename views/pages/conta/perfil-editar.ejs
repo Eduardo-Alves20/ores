@@ -29,6 +29,7 @@
     <% } %>
 
     <form method="post" action="/perfil/editar" class="form-stack conta-form-grid">
+      <%- renderCsrfField() %>
       <% if (isAdmin) { %>
         <label class="field-wrap">
           <span class="input-label">Nome</span>
