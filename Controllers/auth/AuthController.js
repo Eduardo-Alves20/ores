@@ -5,6 +5,10 @@ const { resolvePermissionsForUserId } = require("../../services/accessControlSer
 const { resolveLandingRouteForUser } = require("../../services/shared/navigationService");
 const { buildSessionUserPayload } = require("../../services/security/sessionSecurityService");
 const { logSanitizedError } = require("../../services/security/logSanitizerService");
+const {
+  registerAdaptiveThrottleFailure,
+  registerAdaptiveThrottleSuccess,
+} = require("../../services/security/adaptiveThrottleService");
 
 function isHtmlRequest(req) {
   return !!req.accepts("html");
@@ -134,6 +138,8 @@ class AuthController {
         },
       });
 
+      registerAdaptiveThrottleSuccess(req);
+
       if (isHtmlRequest(req)) {
         req.flash("success", "Cadastro enviado com sucesso. A equipe da Alento já recebeu suas informações.");
         return res.redirect("/login");
@@ -144,6 +150,8 @@ class AuthController {
         usuario: novoUsuario,
       });
     } catch (error) {
+      registerAdaptiveThrottleFailure(req);
+
       const duplicate =
         error?.code === 11000
           ? "Já existe um usuário cadastrado com este e-mail, usuário ou CPF."
@@ -192,6 +200,8 @@ class AuthController {
             await resolvePermissionsForUserId(usuario._id, usuario.perfil)
           );
 
+          registerAdaptiveThrottleSuccess(req);
+
           await registrarAuditoria(req, {
             acao: "LOGIN_OK",
             entidade: "auth",
@@ -217,6 +227,8 @@ class AuthController {
         }
       });
     } catch (error) {
+      registerAdaptiveThrottleFailure(req);
+
       const message = error?.status === 423
         ? "Conta bloqueada temporariamente. Aguarde alguns minutos."
         : error?.code === "PENDING_APPROVAL"

@@ -180,3 +180,23 @@ Testes:
 4. XSS
 5. Segredos e configuracao
 6. Integracoes e upload
+
+## Bloco 8 - Brute force adaptativo em autenticacao
+
+Foco:
+
+- adicionar camada adaptativa por comportamento em login e cadastro
+- bloquear temporariamente chave suspeita mesmo antes de estourar limite global por IP
+- registrar eventos de bloqueio para telemetria de seguranca
+
+Implementado nesta etapa:
+
+- guarda adaptativa para `POST /login` e `POST /cadastro` com chave por escopo+IP+identificador
+- incremento de score por falha de autenticacao e decaimento em sucesso legitimo
+- bloqueio temporario progressivo ao atingir limiar de falhas consecutivas
+- registro de evento `ADAPTIVE_THROTTLE_BLOCK` no log de seguranca encadeado
+
+Testes:
+
+- tentativa acima do limiar recebe `429`
+- sucesso posterior reduz score de falha da chave
