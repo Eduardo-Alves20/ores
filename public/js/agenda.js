@@ -399,7 +399,9 @@
       await form.loadMonthEvents();
     } catch (error) {
       shared.showToast(error.message);
-      elements.diaLista.innerHTML = `<p class="empty-hint">${error.message}</p>`;
+      elements.diaLista.innerHTML = `<p class="empty-hint">${shared.escapeHtml(
+        error.message,
+      )}</p>`;
     }
   }
 

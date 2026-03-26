@@ -10,6 +10,15 @@
     const filterForm = root.querySelector("[data-admin-filter-form]");
     const birthdayForm = root.querySelector("[data-admin-birthday-form]");
 
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
     function getCheckedValues(form, name) {
       if (!form) return [];
       return Array.from(form.querySelectorAll(`input[name='${name}']:checked`)).map(
@@ -78,7 +87,12 @@
 
       const fields = Array.isArray(areaDef?.fields) ? areaDef.fields : [];
       fieldSelect.innerHTML = fields
-        .map((item) => `<option value="${item.value}">${item.label}</option>`)
+        .map(
+          (item) =>
+            `<option value="${escapeHtml(String(item?.value || ""))}">${escapeHtml(
+              item?.label || "",
+            )}</option>`,
+        )
         .join("");
 
       if (preferredField && fields.some((item) => item.value === preferredField)) {
@@ -99,7 +113,12 @@
 
       if (currentField.type === "select") {
         valueSelect.innerHTML = (currentField.options || [])
-          .map((item) => `<option value="${item.value}">${item.label}</option>`)
+          .map(
+            (item) =>
+              `<option value="${escapeHtml(String(item?.value || ""))}">${escapeHtml(
+                item?.label || "",
+              )}</option>`,
+          )
           .join("");
         valueInput.hidden = true;
         valueInput.disabled = true;

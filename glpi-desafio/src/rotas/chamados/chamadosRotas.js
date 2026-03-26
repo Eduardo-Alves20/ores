@@ -1,0 +1,50 @@
+import { Router } from "express";
+import {
+  exigirLogin,
+  exigirUsuarioAtivo,
+  exigirPerfis,
+} from "../../compartilhado/middlewares/seguranca.js";
+import { acharPorId } from "../../repos/usuariosRepo.js";
+import { uploadAnexos } from "../../compartilhado/middlewares/uploadAnexos.js";
+import {
+  chamadoNovoGet,
+  chamadoNovoPost,
+  meusChamadosGet,
+  chamadoEditarGet,
+  chamadoEditarPost,
+} from "../../controllers/chamados/chamadosController.js";
+import { baixarAnexoGet } from "../../controllers/chamados/anexosController.js";
+
+import {
+  usuarioChamadoShowGet,
+  usuarioChamadoConfirmarPost,
+  usuarioChamadoReabrirPost,
+  usuarioChamadoInteracaoPost,
+  usuarioChamadoAvaliacaoPost,
+} from "../../controllers/chamados/chamadoUsuarioController.js";
+
+
+
+export function criarChamadosRotas({ auditoria } = {}) {
+  const router = Router();
+  const validarAtivo = exigirUsuarioAtivo(acharPorId);
+
+  // protege tudo em /chamados
+ router.use(
+  exigirLogin,
+  validarAtivo,
+  exigirPerfis(["usuario", "admin", "tecnico"], { onNegado: auditoria?.registrarTentativaAcessoNegado })
+);;
+router.get("/chamados/meus", meusChamadosGet);
+router.get("/anexos/:anexoId", baixarAnexoGet);
+  router.get("/chamados/novo", chamadoNovoGet);
+  router.post("/chamados/novo", uploadAnexos, chamadoNovoPost);
+router.get("/chamados/:id/editar", chamadoEditarGet);
+router.post("/chamados/:id/editar", chamadoEditarPost);
+router.get("/chamados/:id", usuarioChamadoShowGet);
+router.post("/chamados/:id/confirmar", uploadAnexos, usuarioChamadoConfirmarPost);
+router.post("/chamados/:id/reabrir", uploadAnexos, usuarioChamadoReabrirPost);
+router.post("/chamados/:id/interacao", uploadAnexos, usuarioChamadoInteracaoPost);
+router.post("/chamados/:id/avaliacao", usuarioChamadoAvaliacaoPost);
+  return router;
+}

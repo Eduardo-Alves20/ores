@@ -389,4 +389,4 @@
   </section>
 </section>
 
-<script id="dashboard-data" type="application/json"><%- JSON.stringify(dashboardData || {}) %></script>
+<script id="dashboard-data" type="application/json"><%- serializeForInlineScript(dashboardData || {}) %></script>

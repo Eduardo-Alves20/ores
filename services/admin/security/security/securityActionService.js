@@ -13,6 +13,7 @@ const {
   slugify,
   toArray,
 } = require("./securityContextService");
+const { buildAuthVersionUpdate } = require("../../../security/sessionSecurityService");
 
 function normalizeRolePayload(body = {}) {
   return {
@@ -198,8 +199,11 @@ async function assignSecurityRolesToUser({ actorId, usuarioId, body = {} }) {
     await Usuario.findByIdAndUpdate(
       normalizedUserId,
       {
-        funcoesAcesso: funcoesIds,
-        atualizadoPor: actorId,
+        $set: {
+          funcoesAcesso: funcoesIds,
+          atualizadoPor: actorId,
+        },
+        ...buildAuthVersionUpdate({ funcoesAcesso: funcoesIds }),
       },
       { runValidators: true }
     );

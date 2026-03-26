@@ -1,5 +1,8 @@
 const { Notificacao } = require("../../../schemas/core/Notificacao");
 const {
+  isValidObjectIdInput,
+} = require("../../shared/objectIdValidationService");
+const {
   FAMILY_NOTIFICATION_LIMIT_OPTIONS,
 } = require("./portalFamilyPolicyService");
 const { mapNotificationCard } = require("./portalFamilyFormattingService");
@@ -22,9 +25,20 @@ function parseNotificationLimit(value, fallback = 20) {
   return fallback;
 }
 
+function normalizeNotificationUserId(userId) {
+  return isValidObjectIdInput(userId) ? String(userId).trim() : "";
+}
+
+function normalizeNotificationId(notificationId) {
+  return isValidObjectIdInput(notificationId) ? String(notificationId).trim() : "";
+}
+
 function buildNotificationBaseFilter(userId) {
+  const normalizedUserId = normalizeNotificationUserId(userId);
+  if (!normalizedUserId) return null;
+
   return {
-    usuarioId: userId,
+    usuarioId: normalizedUserId,
     canal: "sistema",
   };
 }
@@ -80,6 +94,14 @@ async function loadPortalFamilyNotificationSummary(userId) {
   }
 
   const filtroBase = buildNotificationBaseFilter(userId);
+  if (!filtroBase) {
+    return {
+      total: 0,
+      unread: 0,
+      alerts: 0,
+      recent: [],
+    };
+  }
 
   const [total, unread, alerts, recentDocs] = await Promise.all([
     Notificacao.countDocuments(filtroBase),
@@ -111,6 +133,31 @@ async function buildPortalFamilyNotificationsPageView({ userId, query = {} }) {
   const status = parseNotificationStatus(query?.status);
   const limit = parseNotificationLimit(query?.limit, 20);
   const filtroBase = buildNotificationBaseFilter(userId);
+  if (!filtroBase) {
+    return {
+      title: "Notificacoes da Familia",
+      sectionTitle: "Notificacoes da Familia",
+      navKey: "minha-familia-notificacoes",
+      layout: "partials/app.ejs",
+      pageClass: "page-usuario-minha-familia-notificacoes",
+      extraCss: ["/css/usuario-familia.css"],
+      notificacoes: [],
+      notificationCount: 0,
+      totais: {
+        total: 0,
+        unread: 0,
+        alerts: 0,
+        listed: 0,
+      },
+      filtros: {
+        tipo,
+        status,
+        limit,
+        limitOptions: FAMILY_NOTIFICATION_LIMIT_OPTIONS,
+      },
+    };
+  }
+
   const filtroLista = {
     ...filtroBase,
     ...buildNotificationStatusFilter(status),
@@ -151,12 +198,14 @@ async function buildPortalFamilyNotificationsPageView({ userId, query = {} }) {
 }
 
 async function markPortalFamilyNotificationAsRead({ userId, notificationId }) {
-  if (!userId || !notificationId) return null;
+  const normalizedUserId = normalizeNotificationUserId(userId);
+  const normalizedNotificationId = normalizeNotificationId(notificationId);
+  if (!normalizedUserId || !normalizedNotificationId) return null;
 
   return Notificacao.findOneAndUpdate(
     {
-      _id: notificationId,
-      usuarioId: userId,
+      _id: normalizedNotificationId,
+      usuarioId: normalizedUserId,
       canal: "sistema",
     },
     {
@@ -169,11 +218,12 @@ async function markPortalFamilyNotificationAsRead({ userId, notificationId }) {
 }
 
 async function markAllPortalFamilyNotificationsAsRead(userId) {
-  if (!userId) return null;
+  const normalizedUserId = normalizeNotificationUserId(userId);
+  if (!normalizedUserId) return null;
 
   return Notificacao.updateMany(
     {
-      usuarioId: userId,
+      usuarioId: normalizedUserId,
       canal: "sistema",
       lidoEm: null,
     },
@@ -190,6 +240,8 @@ module.exports = {
   loadPortalFamilyNotificationSummary,
   markAllPortalFamilyNotificationsAsRead,
   markPortalFamilyNotificationAsRead,
+  normalizeNotificationId,
+  normalizeNotificationUserId,
   parseNotificationLimit,
   parseNotificationStatus,
   parseNotificationType,

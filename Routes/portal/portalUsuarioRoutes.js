@@ -3,6 +3,7 @@ const PortalUsuarioController = require("../../Controllers/portal/PortalUsuarioC
 const PortalFamiliaController = require("../../Controllers/portal/PortalFamiliaController");
 const { requireAuth, requirePermission } = require("../../middlewares/authSession");
 const { PERMISSIONS } = require("../../config/permissions");
+const { portalMutationLimiter } = require("../../middlewares/rateLimiters");
 
 const router = express.Router();
 
@@ -33,12 +34,14 @@ router.get(
 router.patch(
   "/minha-familia/consultas/eventos/:id/falta",
   requireAuth,
+  portalMutationLimiter,
   requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
   PortalFamiliaController.registrarFalta
 );
 router.post(
   "/minha-familia/consultas/eventos/:id/remarcacao",
   requireAuth,
+  portalMutationLimiter,
   requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
   PortalFamiliaController.solicitarRemarcacao
 );
@@ -51,12 +54,14 @@ router.get(
 router.post(
   "/minha-familia/notificacoes/lidas",
   requireAuth,
+  portalMutationLimiter,
   requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
   PortalFamiliaController.marcarTodasNotificacoesLidas
 );
 router.post(
   "/minha-familia/notificacoes/:id/lida",
   requireAuth,
+  portalMutationLimiter,
   requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
   PortalFamiliaController.marcarNotificacaoLida
 );

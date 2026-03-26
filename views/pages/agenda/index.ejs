@@ -259,7 +259,7 @@
   </section>
 </div>
 
-<script id="agenda-presenca-justificativas" type="application/json"><%- JSON.stringify(agendaConfig?.attendanceJustifications || []) %></script>
+<script id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(agendaConfig?.attendanceJustifications || []) %></script>
 
 <div class="agenda-modal-backdrop" id="agenda-salas-backdrop" hidden>
   <section class="agenda-modal agenda-salas-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-salas-title">
@@ -300,5 +300,5 @@
   </section>
 </div>
 
-<script id="agenda-config" type="application/json"><%- JSON.stringify(agendaConfig || {}) %></script>
+<script id="agenda-config" type="application/json"><%- serializeForInlineScript(agendaConfig || {}) %></script>
 

@@ -1,6 +1,9 @@
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
 const { asObjectId } = require("../../agendaAvailabilityService");
-const { createAgendaError } = require("../../agenda/domain/agendaErrorService");
+const {
+  createAgendaError,
+  ensureAgendaObjectId,
+} = require("../../agenda/domain/agendaErrorService");
 const {
   getStatusAgendamentoForPresence,
   PRESENCA_LABELS,
@@ -31,8 +34,12 @@ async function loadFamilyEventOrFail(familiaId, eventId) {
     throw createAgendaError(403, "Familia nao vinculada para este acesso.");
   }
 
+  const normalizedEventId = ensureAgendaObjectId(
+    eventId,
+    "Identificador de agendamento invalido."
+  );
   const evento = await AgendaEvento.findOne({
-    _id: eventId,
+    _id: normalizedEventId,
     familiaId,
   })
     .populate("responsavelId", "_id nome email telefone perfil")

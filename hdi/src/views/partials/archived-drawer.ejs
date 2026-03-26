@@ -1,0 +1,23 @@
+<div id="archived-drawer" class="archived-drawer">
+    <div class="archived-header">
+        <i class="ri-arrow-left-s-line close-archived-btn" onclick="fecharGavetaArquivados()"></i>
+        <h3>Itens arquivados</h3>
+        <i class="ri-close-line close-archived-btn" onclick="fecharGavetaArquivados()"></i>
+    </div>
+    
+    <div class="archived-controls">
+        <div class="search-archived-wrapper">
+            <input type="text" id="search-archived-input" placeholder="Pesquisar..." onkeyup="filtrarArquivados()">
+        </div>
+        
+        <button id="toggle-archived-view-btn" class="btn-secondary" onclick="alternarVisaoArquivados()">
+            <span id="archived-view-label">Alternar para Listas</span>
+            <i class="ri-arrow-down-s-line"></i>
+        </button>
+    </div>
+
+    <div id="archived-items-container" class="archived-list-container">
+    </div>
+</div>
+
+<script src="/js/archived-drawer.js"></script>

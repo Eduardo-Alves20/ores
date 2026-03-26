@@ -5,6 +5,7 @@ const {
   hasAnyPermission,
   resolvePermissionsForUserId,
 } = require("../../accessControlService");
+const { buildSessionUserPayload } = require("../../security/sessionSecurityService");
 
 function getCurrentUserId(req) {
   return req?.session?.user?.id || null;
@@ -51,15 +52,10 @@ async function loadCurrentAccountContext(req) {
 }
 
 async function syncAccountSession(req, usuario) {
-  req.session.user = {
-    id: String(usuario._id),
-    nome: usuario.nome,
-    email: usuario.email,
-    perfil: usuario.perfil,
-    tipoCadastro: usuario.tipoCadastro || "",
-    nivelAcessoVoluntario: usuario.nivelAcessoVoluntario || "",
-    permissions: await resolvePermissionsForUserId(usuario._id, usuario.perfil),
-  };
+  req.session.user = buildSessionUserPayload(
+    usuario,
+    await resolvePermissionsForUserId(usuario._id, usuario.perfil)
+  );
 
   return req.session.user;
 }

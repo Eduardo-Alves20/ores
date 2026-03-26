@@ -1,0 +1,83 @@
+<div class="list-wrapper" data-list-id="<%= list._id %>" data-position="<%= list.position %>">
+  <div class="list" data-list-id="<%= list._id %>">
+    <div class="list-header">
+      <div class="title">
+        <!-- Input para editar o titulo -->
+        <h2 id="list-title-display-<%= list._id %>" 
+            onclick="enableListTitleEditing('<%= list._id %>')"
+        >
+            <%= list.title %>
+        </h2>
+
+        <input 
+          type="text" 
+          id="list-title-input-<%= list._id %>" 
+          value="<%= list.title %>" 
+          style=""
+          onblur="saveListTitle('<%= list._id %>')"
+          onkeydown="handleListTitleKey(event, '<%= list._id %>')"
+        >
+      </div>
+
+      <button class="btn-icon list-menu-btn" onclick="toggleListMenu(event, '<%= list._id %>')">
+          <i class="ri-more-fill"></i>
+      </button>
+
+      <div id="menu-list-<%= list._id %>" class="list-dropdown-menu" style="display: none;">
+        <div class="dropdown-header">
+          <span>Ações da Lista</span>
+          <i class="ri-close-line" onclick="toggleListMenu(event, '<%= list._id %>')" style="cursor: pointer;"></i>
+        </div>
+
+        <ul class="dropdown-actions">
+          <li class="action-archive" onclick="arquivarLista('<%= list._id %>')">
+            Arquivar esta lista
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="list-cards js-list-cards">
+      <% cards
+        .filter(card => card.listId.toString() === list._id.toString())
+        .forEach(card => { %> <%- include('card', { card, myRole }) %> <% }) 
+      %>
+    </div>
+
+    <div class="list-footer">
+      <% if (myRole !== 'observer') { %>
+        <button
+          class="btn-show-card-form"
+          onclick="showCardForm('<%= list._id %>')"
+        >
+          
+          <img src="../assets/icons/plus.svg" alt="">
+          Adicionar cartão
+        </button>
+      <% } %>
+
+      <form
+        id="form-card-<%= list._id %>"
+        action="/board/<%= board._id %>/card"
+        method="POST"
+        class="add-card-form"
+        style="display: none"
+      >
+        <input type="hidden" name="listId" value="<%= list._id %>" />
+        <textarea
+          name="title"
+          placeholder="Insira um título..."
+          rows="2"
+          required
+        ></textarea>
+        <div class="form-actions">
+          <button type="submit">Adicionar</button>
+          <i
+            class="ri-close-line"
+            onclick="hideCardForm('<%= list._id %>')"
+          ></i>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

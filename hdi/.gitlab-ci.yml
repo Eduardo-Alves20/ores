@@ -1,0 +1,162 @@
+stages:
+  - build
+  - test
+  - release
+  - deploy
+
+variables:
+  REPO_PATH: "hdi"
+  TAG_DEPLOY_PROD: "producao"
+  TAG_DEPLOY_DEV: "homolog"
+
+# ---------- BUILD IMAGE (runner com tag IMAGEBUILDER) ----------
+build_image:
+  stage: build
+  tags:
+    - IMAGEBUILDER
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - PACKAGE_VERSION=$(node -p "require('./package.json').version")
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        VERSION="$PACKAGE_VERSION";
+      else
+        VERSION="$PACKAGE_VERSION-${CI_COMMIT_SHORT_SHA}";
+      fi
+    - echo "$VERSION" > VERSION
+    - echo "Building image $CI_REGISTRY_IMAGE:$VERSION"
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        docker build --build-arg NPM_TOKEN="$NPM_TOKEN" -t "$CI_REGISTRY_IMAGE:$VERSION" -t "$CI_REGISTRY_IMAGE:latest" .;
+        docker push "$CI_REGISTRY_IMAGE:$VERSION";
+        docker push "$CI_REGISTRY_IMAGE:latest";
+      else
+        docker build --build-arg NPM_TOKEN="$NPM_TOKEN" -t "$CI_REGISTRY_IMAGE:$VERSION" .;
+        docker push "$CI_REGISTRY_IMAGE:$VERSION";
+      fi
+  artifacts:
+    paths:
+      - VERSION
+    expire_in: 1 week
+  only:
+    - main
+
+# ---------- SAST (Semgrep) ----------
+sast_semgrep:
+  stage: test
+  tags:
+    - SAST
+  script:
+    - |
+      set -euo pipefail
+      if [ -n "${CI_PROJECT_DIR:-}" ] && [ -d "${CI_PROJECT_DIR}" ]; then
+        PROJECT_DIR="${CI_PROJECT_DIR}"
+      else
+        PROJECT_DIR="$PWD"
+      fi
+      PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
+      docker run --rm \
+        -u "$(id -u):$(id -g)" \
+        -e HOME=/tmp \
+        -v "$PROJECT_DIR:/src" \
+        -w /src \
+        returntocorp/semgrep:latest \
+        semgrep scan \
+          --config auto \
+          --gitlab-sast \
+          --gitlab-sast-output gl-sast-report.json \
+          --exclude .git \
+          --exclude "**/.mypy_cache" \
+          --exclude "**/.ruff_cache" \
+          --exclude "**/.cache" \
+          --exclude "**/node_modules" \
+          --exclude "**/dist" \
+          --exclude "**/build" \
+          --exclude "**/coverage" \
+          --exclude "src/uploads" \
+          --exclude "**/*.min.js" \
+          --exclude "**/*.bundle.js"
+  after_script:
+    - cd "$CI_PROJECT_DIR" && find . -maxdepth 1 ! -name 'gl-sast-report.json' ! -name '.' ! -name '..' -exec rm -rf {} +          
+  artifacts:
+    when: always
+    reports:
+      sast: gl-sast-report.json
+    paths:
+      - gl-sast-report.json
+    expire_in: 1 week
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+# ---------- CREATE GIT TAG (stage release) ----------
+tag_version:
+  stage: release
+  needs:
+    - job: build_image
+      artifacts: true
+  dependencies:
+    - build_image
+  tags:
+    - IMAGEBUILDER
+  before_script:
+    - git config --global user.email "ci-bot@cge.rj.gov.br"
+    - git config --global user.name "CI Bot"
+    - git remote set-url origin "https://oauth2:${GITLAB_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+  script:
+    - VERSION=$(cat VERSION 2>/dev/null || node -p "require('./package.json').version")
+    - git fetch --tags --quiet
+    - |
+      if git tag -l | grep -q "^${VERSION}$"; then
+        echo "Tag ${VERSION} já existe. Pulando criação.";
+      else
+        git tag -a "${VERSION}" -m "Release ${VERSION}";
+        git push origin "${VERSION}";
+      fi
+  only:
+    - main
+
+# ---------- DEPLOY HOMOLOG (runner com tag homolog) ----------
+deploy_homolog:
+  stage: deploy
+  needs:
+    - job: sast_semgrep
+      artifacts: false
+  tags:
+    - $TAG_DEPLOY_DEV
+  script:
+    - '[ -d ~/$REPO_PATH/.git ] || git clone "https://oauth2:${GITLAB_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" ~/$REPO_PATH'
+    - cd ~/$REPO_PATH
+    - git remote set-url origin "https://oauth2:${GITLAB_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+    - git fetch && git checkout develop && git pull origin develop
+    - docker compose up -d --build
+    - docker system prune -f
+  only:
+    - develop
+
+# ---------- DEPLOY PROD (runner com tag producao) ----------
+deploy_prod:
+  stage: deploy
+  needs:
+    - job: build_image
+      artifacts: true
+  tags:
+    - $TAG_DEPLOY_PROD
+  script:
+    - IMAGE_TAG=$(cat VERSION 2>/dev/null || true)
+    - '[ -d ~/$REPO_PATH/.git ] || git clone "https://oauth2:${GITLAB_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" ~/$REPO_PATH'
+    - cd ~/$REPO_PATH
+    - git remote set-url origin "https://oauth2:${GITLAB_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+    - git fetch && git checkout main && git pull origin main
+    - |
+      if [ -z "$IMAGE_TAG" ]; then
+        IMAGE_TAG=$(node -p "require('./package.json').version");
+      fi
+    - echo "Deploying version $IMAGE_TAG"
+    - echo "$CI_JOB_TOKEN" | docker login -u gitlab-ci-token --password-stdin "$CI_REGISTRY"
+    - export IMAGE_TAG
+    - docker compose -f docker-compose.prod.yml pull
+    - docker compose -f docker-compose.prod.yml up -d
+  only:
+    - main

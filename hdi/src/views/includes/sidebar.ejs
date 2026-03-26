@@ -1,0 +1,122 @@
+<aside class="sidebar collapsed" id="sidebar">
+    <button id="toggle-btn">
+        <i class="ri-menu-line"></i>
+    </button>
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-brand" aria-label="HDI">
+            <span class="sidebar-brand-mark" aria-hidden="true">H</span>
+            <span class="sidebar-brand-copy">
+                <strong>HDI</strong>
+                <small>Hub interno</small>
+            </span>
+        </a>
+    </div>
+
+    <div class="sidebar-content-container">
+        <div class="sidebar-content">
+            <% 
+      
+                const firstName = user ? user.name.split(" ")[0] : "Usuário sem nome";
+    
+            %>
+            <h2>Hub de <%= firstName %></h2>
+    
+            <div class="input-wrapper">
+                <input id="search" type="text" name="search" placeholder="Buscar" oninput="filterSidebarBoards(this.value)" />
+            </div>
+    
+            <div class="sidebar-sections">
+                <h3>Meus Projetos</h3>
+    
+                <div class="title">
+                    <span>Compartilhados</span>
+                    <button>
+                        <img src="../assets/icons/plus.svg" alt="Ícone de mais">
+                    </button>
+                </div>
+    
+                <nav  class="nav-board-wrapper" aria-label="Quadros compartilhados">
+                    <% sidebarSharedBoards.forEach(board => { %>
+                        <a 
+                            href="/board/<%= board._id %>" 
+                            data-search-term="<%= board.title.toLowerCase() %>"
+                            class="sidebar-board-item"
+                        >
+                            <img src="../assets/icons/board.svg" alt="Ícone de board">
+                            <span><%= board.title %></span>
+                        </a>
+                    <% }) %>
+                </nav>
+    
+                <div class="title">
+                    <span>Particular</span>
+                    <button>
+                        <img src="../assets/icons/plus.svg" alt="Ícone de mais">
+                    </button>
+                </div>
+    
+                <nav  class="nav-board-wrapper" aria-label="Meus Quadros">
+                    <% sidebarMyBoards.forEach(board => { %>
+                        <a 
+                            href="/board/<%= board._id %>" 
+                            data-search-term="<%= board.title.toLowerCase() %>"
+                            class="sidebar-board-item"
+                        >
+                            <img src="../assets/icons/board.svg" alt="Ícone de board">
+                            <span><%= board.title %></span>
+                        </a>
+                    <% }) %>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-footer">
+        <div>
+            <form action="/logout" method="POST">
+                <button type="submit" class="logout-btn">
+                    <span>Sair</span>
+                    <i class="ri-logout-box-r-line"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<script>
+    function filterSidebarBoards (searchTerm) {
+        // "Gestão" vira "gestao"
+        const term = searchTerm
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        // Pega TODOS os itens de board da sidebar
+        const allBoardItems = document.querySelectorAll('.sidebar-board-item');
+        // Loop para mostrar ou esconder
+        allBoardItems.forEach(board => {
+            // Pega o nome que guardamos no data-attribute (ou no innerText)
+            const boardName = board.getAttribute('data-search-term') || board.innerText.toLowerCase();
+            
+            // Normaliza o nome do board também
+            const cleanName = boardName
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+
+            if (cleanName.includes(term)) {
+                console.log("Filtrando");
+                
+                board.style.display = "flex";
+            } else {
+                board.style.display = "none";
+            }
+        });
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+    });
+</script>

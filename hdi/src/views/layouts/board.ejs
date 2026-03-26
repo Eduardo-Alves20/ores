@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken || '' %>" />
+    <meta name="csrf-field-name" content="<%= csrfFieldName || '_csrf' %>" />
+    <meta name="csrf-header-name" content="<%= csrfHeaderName || 'X-CSRF-Token' %>" />
+    <title><%= board.title %> | HDI</title>
+    <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'>
+    <!-- CSS e Fonts -->
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/board.css" />
+    <link rel="stylesheet" href="/css/list.css" />
+    <link rel="stylesheet" href="/css/card.css" />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/calendar.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+    <!-- TOASTIFY E SWEETALERT -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css"
+      rel="stylesheet"
+    />
+
+    <!-- TOASTIFY E SWEETALERT -->
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/toastify-js"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
+
+    <!-- DESCRIÇÃO NOVA! -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <link href="https://cdn.quilljs.com/2.0.3/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill-mention@3.1.0/dist/quill.mention.min.css">
+    <script src="https://cdn.quilljs.com/2.0.3/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill-mention@3.1.0/dist/quill.mention.min.js"></script>
+    <script defer src="/js/csrf.js"></script>
+
+  </head>
+  <body style="background-color: <%= board.color %>">
+    <div class="main-container">
+      <%- include('../includes/sidebar.ejs'); %> 
+      <%- body  %>
+    </div>
+  </body>
+</html>

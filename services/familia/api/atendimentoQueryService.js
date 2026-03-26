@@ -7,9 +7,9 @@ async function listAttendancesByFamily({ user, familiaId, query = {} }) {
   const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100);
   const ativo = parseBoolean(query.ativo);
 
-  await ensureAccessibleFamily({ user, familiaId, select: "_id" });
+  const familia = await ensureAccessibleFamily({ user, familiaId, select: "_id" });
 
-  const filtro = { familiaId };
+  const filtro = { familiaId: familia._id };
   if (typeof ativo !== "undefined") filtro.ativo = ativo;
 
   return Atendimento.paginate(filtro, {

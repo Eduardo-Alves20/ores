@@ -1,0 +1,46 @@
+<div id="settings-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Configurações do Quadro</h2>
+            <i class="ri-close-line close-modal-btn" onclick="closeSettingsModal()"></i>
+        </div>
+
+        <div class="modal-scroll-area">
+            <form id="board-settings-form" onsubmit="handleBoardUpdate(event)">
+                <div class="modal-section">
+                    
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Título do Quadro</label>
+                    <input type="text" 
+                           id="settings-title-input" 
+                           class="input-form" 
+                           value="<%= board.title %>" 
+                           required>
+    
+                    <label style="font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px;">Cor de Fundo</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="color" 
+                               id="settings-color-input" 
+                               value="<%= board.color %>"
+                               style="width: 50px; height: 40px; border: none; cursor: pointer;">
+                        <span style="font-size: 12px; color: #666;">Clique na cor para alterar</span>
+                    </div>
+    
+                </div>
+    
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="submit" class="btn-primary" style="width: 100%;">Salvar Alterações</button>
+                </div>
+                
+                <% if (myRole === 'admin') { %>
+                    <div style="margin-top: 30px; border-top: 1px solid #ff5630; padding-top: 15px;">
+                         <button type="button" class="btn-danger" onclick="deleteBoard('<%= board._id %>')" style="width: 100%; background: #ffebe6; color: #bf2600; border: none;">
+                            <i class="ri-delete-bin-line"></i> Excluir este Quadro
+                        </button>
+                    </div>
+                <% } %>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/js/settings-modal.js"></script>

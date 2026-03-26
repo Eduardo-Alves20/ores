@@ -1,0 +1,96 @@
+<section class="auth-pane auth-pane--form">
+  <div class="auth-pane-inner">
+    <section class="auth-card">
+      <div class="auth-card-header">
+        <div class="auth-heading" data-view-label="login">
+          <span class="auth-brand-mark" aria-hidden="true">H</span>
+          <h2>HDI</h2>
+          <p>Hub de Demandas Internas</p>
+        </div>
+      </div>
+
+      <% if (error) { %>
+        <div style="margin-bottom: 16px; padding: 12px; border-radius: 10px; background: #ffe5e5; color: #a61b1b; font-size: 14px;">
+          <%= error %>
+        </div>
+      <% } %>
+
+      <div class="auth-panel-wrapper">
+        <form class="auth-panel" method="POST" action="/login">
+          <div class="form-group">
+            <label for="username">Usuário</label>
+            <div class="input-container">
+              <i class="fa fa-user input-icon" aria-hidden="true"></i>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Seu usuário"
+                required
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Senha</label>
+            <div class="input-container">
+              <i class="fa fa-lock input-icon" aria-hidden="true"></i>
+              <div>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Sua senha"
+                  required
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  class="input-icon-eye"
+                  onclick="showPassword()"
+                >
+                  <i class="fa-solid fa-eye-slash" id="eye"></i>
+                </button>
+                <!-- <i class="fa-solid fa-eye-slash input-icon-eye"></i> -->
+              </div>
+            </div>
+          </div>
+
+          <button class="submit" type="submit" data-loading-text="Entrando...">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </section>
+    <% if (AMBIENTE !== "PROD") { %>
+      <div class="auth-status">
+        <span>Você está em ambiente de <b>Homologação</b></span>
+        <span><%= lastCommitDate %></span>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<script>
+  function showPassword() {
+    const inputPass = document.getElementById("password");
+    const btnIcon = document.getElementById("eye");
+
+    if (inputPass.type === "password") {
+      // Se for senha, vira texto (mostra a senha)
+      inputPass.type = "text";
+
+      // Troca o ícone para "olho riscado" (opcional, mas recomendado)
+      btnIcon.classList.remove("fa-eye-slash");
+      btnIcon.classList.add("fa-eye");
+    } else {
+      // Se for texto, vira senha (esconde a senha)
+      inputPass.type = "password";
+
+      // Troca o ícone de volta para "olho normal"
+      btnIcon.classList.remove("fa-eye");
+      btnIcon.classList.add("fa-eye-slash");
+    }
+  }
+</script>

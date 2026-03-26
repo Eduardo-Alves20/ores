@@ -196,6 +196,6 @@
       </section>
     </div>
 
-    <script id="family-agenda-config" type="application/json"><%- JSON.stringify(familyAgendaConfig || {}).replace(/</g, "\\u003c") %></script>
+    <script id="family-agenda-config" type="application/json"><%- serializeForInlineScript(familyAgendaConfig || {}) %></script>
   <% } %>
 </section>

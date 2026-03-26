@@ -2,9 +2,13 @@ const {
   buildPortalProfilePageView,
   loadPortalUserContext,
 } = require("../../services/portal/portalUsuarioPageService");
+const { logSanitizedError } = require("../../services/security/logSanitizerService");
 
 function renderPortalPageError(req, res, logMessage, publicMessage, error) {
-  console.error(logMessage, error);
+  logSanitizedError(logMessage, error, {
+    route: req?.originalUrl || req?.url || "",
+    userId: req?.session?.user?.id || null,
+  });
   return res.status(500).render("pages/errors/500", {
     status: 500,
     message: publicMessage,

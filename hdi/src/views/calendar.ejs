@@ -1,0 +1,86 @@
+<div class="calendar-container" data-board-id="<%= board._id %>">
+  <div class="calendar-wrapper">
+    <div id="calendar" style="height: 100%; margin-top: 20px"></div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const boardId = document
+      .querySelector(".calendar-container")
+      .getAttribute("data-board-id");
+
+    const calendarEl = document.getElementById("calendar");
+
+    // Se a variável não existir, assume false por segurança ou true se preferir
+    var canEdit =
+      "<%= (typeof myRole !== 'undefined' && myRole !== 'observer') ? 'true' : 'false' %>" ===
+      "true";
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "dayGridMonth", // Visão Mensal
+      locale: "pt-br", // Tradução
+      headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,timeGridWeek,listWeek", // Botões de visualização
+      },
+      buttonText: {
+        today: "Hoje",
+        month: "Mês",
+        week: "Semana",
+        day: "Dia",
+        list: "Lista",
+      },
+
+      // ONDE BUSCAR OS DADOS
+      events: `/board/${boardId}/events`,
+
+      editable: canEdit, // Só ativa se tiver permissão
+      droppable: true,
+
+      eventDrop: async (info) => {
+        try {
+          const newDate = info.event.start.toISOString();
+
+          const response = await fetch(
+            `/board/${boardId}/card/${info.event.id}/date`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ date: newDate }),
+            },
+          );
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error("Falha ao salvar");
+          }
+
+        } catch (error) {
+          console.error(error);
+          showToast("Erro ao mover a tarefa. Revertendo...", "error");
+          info.revert();
+        }
+      },
+
+      // Ao clicar no evento (Opcional)
+      eventClick: function (info) {
+        showToast(
+          "Tarefa: " +
+            info.event.title +
+            "\nData: " +
+            info.event.start.toLocaleDateString(),
+          "error",
+        );
+        // TODO: Redirecionar para abrir o modal?
+      },
+    });
+
+    calendar.render();
+  });
+</script>
+<script src="/js/ui.js"></script>

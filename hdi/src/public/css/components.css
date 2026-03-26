@@ -1,0 +1,187 @@
+/* ---- RODAPÉ E BUTTONS ---- */
+.edit-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+}
+.edit-icon:hover {
+  background-color: #ebecf0;
+}
+
+.add-list-wrapper {
+  min-width: 272px;
+}
+
+.add-list-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  color: white;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-list-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ---- ETIQUETAS (LABELS) NO CARD ---- */
+.card-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.label {
+  width: 40px;
+  height: 8px;
+  border-radius: 4px;
+  display: block;
+}
+
+/* Label expandida (futuramente, se quisermos mostrar texto ao passar o mouse) */
+.label:hover {
+  filter: brightness(0.85);
+}
+
+
+/* --- Seletor de Cores no Modal --- */
+.label-picker {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.label-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.1s;
+}
+
+.label-option:hover {
+  transform: scale(1.1);
+}
+
+/* Checkbox invisível por cima da cor */
+.label-option input {
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Ícone de check quando selecionado */
+.label-option input:checked::after {
+  content: "✔";
+  color: white;
+  font-size: 14px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #dfe1e6;
+  margin: 15px 0;
+}
+
+/* Botões extras */
+.btn-secondary {
+  background: #e4e6ea;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn-secondary:hover {
+  background: #d0d4db;
+}
+
+.btn-danger {
+  background: #ffecf0; /* Fundo vermelho bem claro */
+  color: #ae2e24; /* Texto vermelho escuro */
+  border: none;
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+}
+.btn-danger:hover {
+  background: #ffd5d2;
+}
+
+/* LISTA DE RESULTADOS FLUTUANTE */
+.autocomplete-results {
+    position: absolute;
+    top: 100%; /* Cola logo abaixo do input */
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dfe1e6;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: none; /* Escondido por padrão */
+}
+
+/* Item da lista */
+.autocomplete-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f4f5f7;
+    display: flex;
+    flex-direction: column;
+}
+
+.autocomplete-item:hover {
+    background-color: #f4f5f7; /* Corzinha ao passar o mouse */
+}
+
+.autocomplete-item strong {
+    color: #172b4d;
+    font-size: 14px;
+}
+
+.autocomplete-item span {
+    color: #5e6c84;
+    font-size: 12px;
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  color: #eb5a46;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.btn-icon-transparent {
+  background: rgba(255,255,255,0.2); 
+  border: none; 
+  cursor: pointer; 
+  border-radius: 3px; 
+  padding: 5px;
+}

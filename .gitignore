@@ -13,6 +13,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+hdi/cookies.txt
+hdi/*.log
+glpi-desafio/src.zip
+glpi-desafio/docker/mongo-keyfile
+glpi-desafio/scripts/load/credentials.csv
 
 # Build / cache
 dist/

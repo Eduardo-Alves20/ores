@@ -30,5 +30,5 @@
 <meta name="twitter:description" content="<%= seoMeta.description %>" />
 <meta name="twitter:image" content="<%= seoMeta.imageUrl %>" />
 <% seoMeta.schemas.forEach((schema) => { %>
-  <script type="application/ld+json"><%- JSON.stringify(schema) %></script>
+  <script type="application/ld+json"><%- serializeForInlineScript(schema) %></script>
 <% }) %>

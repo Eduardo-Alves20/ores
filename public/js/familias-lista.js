@@ -77,12 +77,13 @@
           const statusClass = doc?.ativo ? "status-active" : "status-inactive";
           const statusLabel = doc?.ativo ? "Ativa" : "Inativa";
           const toggleLabel = doc?.ativo ? "Inativar" : "Reativar";
-          const detalhesHref = `/familias/${doc._id}`;
-          const editarHref = `/familias/${doc._id}/editar`;
+          const safeId = encodeURIComponent(String(doc?._id || ""));
+          const detalhesHref = `/familias/${safeId}`;
+          const editarHref = `/familias/${safeId}/editar`;
           const rowLabel = doc?.responsavel?.nome || "familia";
           const actions = [
             `
-              <a class="table-action-btn table-action-btn-neutral" href="${detalhesHref}">
+              <a class="table-action-btn table-action-btn-neutral" href="${escapeHtml(detalhesHref)}">
                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
                 <span>Ficha</span>
               </a>
@@ -91,7 +92,7 @@
 
           if (viewFlags.canEditFamily) {
             actions.push(`
-              <a class="table-action-btn table-action-btn-edit" href="${editarHref}">
+              <a class="table-action-btn table-action-btn-edit" href="${escapeHtml(editarHref)}">
                 <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                 <span>Editar</span>
               </a>
@@ -100,15 +101,15 @@
 
           if (viewFlags.canToggleFamilyStatus) {
             actions.push(`
-              <button class="table-action-btn ${doc?.ativo ? "table-action-btn-danger" : "table-action-btn-success"}" type="button" data-action="toggle" data-id="${doc._id}" data-next="${String(!doc?.ativo)}">
+              <button class="table-action-btn ${doc?.ativo ? "table-action-btn-danger" : "table-action-btn-success"}" type="button" data-action="toggle" data-id="${escapeHtml(String(doc?._id || ""))}" data-next="${String(!doc?.ativo)}">
                 <i class="fa-solid ${doc?.ativo ? "fa-user-slash" : "fa-power-off"}" aria-hidden="true"></i>
-                <span>${toggleLabel}</span>
+                <span>${escapeHtml(toggleLabel)}</span>
               </button>
             `);
           }
 
           return `
-            <tr class="family-row-clickable" data-href="${detalhesHref}" role="link" tabindex="0" aria-label="Abrir ficha de ${escapeHtml(rowLabel)}">
+            <tr class="family-row-clickable" data-href="${escapeHtml(detalhesHref)}" role="link" tabindex="0" aria-label="Abrir ficha de ${escapeHtml(rowLabel)}">
               <td data-label="Responsavel">${escapeHtml(doc?.responsavel?.nome || "-")}</td>
               <td data-label="Contato">
                 <div>${escapeHtml(doc?.responsavel?.telefone || "-")}</div>
@@ -117,8 +118,8 @@
               <td data-label="Parentesco">${escapeHtml(doc?.responsavel?.parentesco || "-")}</td>
               <td data-label="Cidade/UF">${escapeHtml(cidade || "-")}</td>
               <td data-label="Pacientes">${Number(doc?.pacientesAtivos || 0)}</td>
-              <td data-label="Status"><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-              <td data-label="Atualizacao">${formatDate(doc?.updatedAt)}</td>
+              <td data-label="Status"><span class="status-badge ${statusClass}">${escapeHtml(statusLabel)}</span></td>
+              <td data-label="Atualizacao">${escapeHtml(formatDate(doc?.updatedAt))}</td>
               <td data-label="Acoes">
                 <div class="table-actions" data-no-row-nav>
                   ${actions.join("")}

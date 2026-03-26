@@ -4,6 +4,7 @@ const {
   getVolunteerAccessLabel,
   normalizeVolunteerAccessLevel,
 } = require("../../../config/volunteerAccess");
+const { ensureValidObjectId } = require("../../shared/objectIdValidationService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { canManageTargetUser } = require("./accessPermissionService");
 const {
@@ -16,15 +17,28 @@ const {
   upsertApprovalVote,
 } = require("./accessApprovalWorkflowService");
 
-function createActionError(message) {
+function createActionError(message, status = null) {
   const error = new Error(message);
+  if (status) error.status = status;
   error.publicMessage = message;
   return error;
 }
 
+function ensureAccessUserId(id) {
+  try {
+    return ensureValidObjectId(id, "Usuario invalido.");
+  } catch (error) {
+    if (error?.status === 400 || error?.code === "INVALID_OBJECT_ID") {
+      throw createActionError("Usuario invalido.", 400);
+    }
+    throw error;
+  }
+}
+
 async function loadApprovalDetailPayload(id, actorId = null) {
+  const normalizedId = ensureAccessUserId(id);
   const electorate = await resolveApprovalElectorate();
-  const usuario = await UsuarioService.buscarPorId(id);
+  const usuario = await UsuarioService.buscarPorId(normalizedId);
 
   if (!usuario) {
     return null;
@@ -34,7 +48,8 @@ async function loadApprovalDetailPayload(id, actorId = null) {
 }
 
 async function approveUserAccess({ id, actorId = null, body = {} }) {
-  const usuarioAtual = await Usuario.findById(id)
+  const normalizedId = ensureAccessUserId(id);
+  const usuarioAtual = await Usuario.findById(normalizedId)
     .select("_id nome perfil tipoCadastro statusAprovacao votosAprovacao nivelAcessoVoluntario")
     .lean();
 
@@ -70,13 +85,17 @@ async function approveUserAccess({ id, actorId = null, body = {} }) {
   }
 
   const ativoBody = parseBoolean(body?.ativo);
+  if (Object.prototype.hasOwnProperty.call(body, "ativo") && typeof ativoBody === "undefined") {
+    throw createActionError("Campo ativo invalido.", 400);
+  }
+
   if (typeof ativoBody !== "undefined") {
     payload.ativo = ativoBody;
   } else if (usuarioAtual.tipoCadastro === "voluntario") {
     payload.ativo = true;
   }
 
-  const usuario = await UsuarioService.atualizar(id, payload, { usuarioId: actorId });
+  const usuario = await UsuarioService.atualizar(normalizedId, payload, { usuarioId: actorId });
   if (!usuario) {
     throw createActionError("Usuario nao encontrado.");
   }
@@ -90,7 +109,7 @@ async function approveUserAccess({ id, actorId = null, body = {} }) {
     audit: {
       acao: "USUARIO_APROVADO",
       entidade: "usuario",
-      entidadeId: id,
+      entidadeId: normalizedId,
       detalhes: {
         tipoCadastro: usuario.tipoCadastro,
         ativo: usuario.ativo,
@@ -101,7 +120,8 @@ async function approveUserAccess({ id, actorId = null, body = {} }) {
 }
 
 async function rejectUserAccess({ id, actorId = null, motivo = "" }) {
-  const usuarioAtual = await Usuario.findById(id)
+  const normalizedId = ensureAccessUserId(id);
+  const usuarioAtual = await Usuario.findById(normalizedId)
     .select("_id nome perfil statusAprovacao votosAprovacao")
     .lean();
 
@@ -114,7 +134,7 @@ async function rejectUserAccess({ id, actorId = null, motivo = "" }) {
   }
 
   const usuario = await UsuarioService.atualizar(
-    id,
+    normalizedId,
     {
       statusAprovacao: "rejeitado",
       motivoAprovacao: motivo,
@@ -135,7 +155,7 @@ async function rejectUserAccess({ id, actorId = null, motivo = "" }) {
     audit: {
       acao: "USUARIO_REJEITADO",
       entidade: "usuario",
-      entidadeId: id,
+      entidadeId: normalizedId,
       detalhes: {
         motivo: motivo || "",
       },
@@ -148,7 +168,8 @@ async function changeUserAccessStatus({ req, id, actorId = null, ativo }) {
     throw createActionError("Campo ativo e obrigatorio.");
   }
 
-  const usuarioAtual = await Usuario.findById(id).select("_id perfil").lean();
+  const normalizedId = ensureAccessUserId(id);
+  const usuarioAtual = await Usuario.findById(normalizedId).select("_id perfil").lean();
   if (!usuarioAtual) {
     throw createActionError("Usuario nao encontrado.");
   }
@@ -157,7 +178,7 @@ async function changeUserAccessStatus({ req, id, actorId = null, ativo }) {
     throw createActionError("Somente superadmin pode alterar status de outro superadmin.");
   }
 
-  const usuario = await UsuarioService.alterarStatus(id, ativo, { usuarioId: actorId });
+  const usuario = await UsuarioService.alterarStatus(normalizedId, ativo, { usuarioId: actorId });
   if (!usuario) {
     throw createActionError("Usuario nao encontrado.");
   }
@@ -168,7 +189,7 @@ async function changeUserAccessStatus({ req, id, actorId = null, ativo }) {
     audit: {
       acao: ativo ? "USUARIO_REATIVADO" : "USUARIO_INATIVADO",
       entidade: "usuario",
-      entidadeId: id,
+      entidadeId: normalizedId,
     },
   };
 }
@@ -185,8 +206,9 @@ async function voteUserApproval({
     throw createActionError("Vote em aprovar ou rejeitar.");
   }
 
+  const normalizedId = ensureAccessUserId(id);
   const electorate = await resolveApprovalElectorate();
-  const usuarioAtual = await Usuario.findById(id)
+  const usuarioAtual = await Usuario.findById(normalizedId)
     .select("_id nome statusAprovacao votosAprovacao tipoCadastro nivelAcessoVoluntario")
     .lean();
 
@@ -225,12 +247,12 @@ async function voteUserApproval({
     });
   }
 
-  const usuario = await UsuarioService.atualizar(id, payload, { usuarioId: actorId });
+  const usuario = await UsuarioService.atualizar(normalizedId, payload, { usuarioId: actorId });
   if (!usuario) {
     throw createActionError("Usuario nao encontrado.");
   }
 
-  const finalizeResult = await tryFinalizeApprovalDecision(id, actorId, electorate);
+  const finalizeResult = await tryFinalizeApprovalDecision(normalizedId, actorId, electorate);
 
   if (finalizeResult.finalized && finalizeResult.usuario) {
     return {
@@ -245,7 +267,7 @@ async function voteUserApproval({
             ? "USUARIO_APROVACAO_AUTOMATICA"
             : "USUARIO_REJEICAO_AUTOMATICA",
         entidade: "usuario",
-        entidadeId: id,
+        entidadeId: normalizedId,
         detalhes: {
           nivelAcessoVoluntario: finalizeResult.workflowResumo?.finalLevel || "",
           stateLabel: finalizeResult.workflowResumo?.stateLabel || "",
@@ -262,7 +284,7 @@ async function voteUserApproval({
     audit: {
       acao: normalizedDecision === "aprovar" ? "USUARIO_VOTO_APROVACAO" : "USUARIO_VOTO_REJEICAO",
       entidade: "usuario",
-      entidadeId: id,
+      entidadeId: normalizedId,
       detalhes: {
         decisao: normalizedDecision,
         totalVotos: payload.votosAprovacao.length,

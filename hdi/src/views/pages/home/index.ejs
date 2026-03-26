@@ -1,0 +1,56 @@
+<main class="main-content">
+  <% 
+  
+    const firstName = user.name.split(" ")[0];
+
+  %>
+  <h1>Olá, <%= firstName %>!</h1>
+
+  <% if (favorites.length > 0) { %>
+    <div class="boards-container">
+      <p>Favoritos</p>
+      <div class="boards-wrapper">
+        <% favorites.forEach(board => { %>
+          <%- include('./partials/card-board.ejs', { board }) %>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (recents.length > 0) { %>
+    <div class="boards-container">
+      <p>Alterados Recentemente</p>
+      <div class="boards-wrapper">
+        <% recents.forEach(board => { %>
+          <%- include('./partials/card-board.ejs', { board }) %>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="buttons-container">
+    <h3>Criar</h3>
+
+    <div class="buttons-wrapper">
+      <button class="btn-create" onclick="openCreateBoardModal()">
+          <img src="./assets/icons/board.svg">
+          <span>Novo Quadro de Projetos</span>
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<%- include('../../partials/modals/create-board-modal') %>
+<%- include('../../partials/modals/welcome-modal') %>
+
+<script src="/js/ui.js"></script>
+
+<script>
+  function openCreateBoardModal() {
+    document.getElementById("create-board-modal").style.display = "flex";
+  }
+  function closeCreateBoardModal() {
+    document.getElementById("create-board-modal").style.display = "none";
+  }
+</script>

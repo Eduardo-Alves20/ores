@@ -16,6 +16,7 @@
     const {
       buildEndIso,
       confirmAction,
+      escapeHtml,
       getVisibleRange,
       mergeDateAndTime,
       normalizeTypeLabel,
@@ -79,7 +80,11 @@
       }
 
       list.forEach((sala) => {
-        options.push(`<option value="${sala._id}">${sala.nome}</option>`);
+        options.push(
+          `<option value="${escapeHtml(String(sala?._id || ""))}">${escapeHtml(
+            sala?.nome || "",
+          )}</option>`,
+        );
       });
 
       if (!list.length && required) {
@@ -180,17 +185,23 @@
           const activeLabel = sala.ativo ? "Ativa" : "Inativa";
           const toggleLabel = sala.ativo ? "Inativar" : "Reativar";
           return `
-            <article class="agenda-sala-card ${sala.ativo ? "" : "is-inactive"}" data-sala-id="${sala._id}">
+            <article class="agenda-sala-card ${sala.ativo ? "" : "is-inactive"}" data-sala-id="${escapeHtml(
+              String(sala?._id || ""),
+            )}">
               <div class="agenda-sala-card-head">
                 <div>
-                  <h4>${sala.nome}</h4>
-                  <p>${sala.descricao || "Sem descricao cadastrada."}</p>
+                  <h4>${escapeHtml(sala?.nome || "")}</h4>
+                  <p>${escapeHtml(sala?.descricao || "Sem descricao cadastrada.")}</p>
                 </div>
-                <span class="agenda-sala-status">${activeLabel}</span>
+                <span class="agenda-sala-status">${escapeHtml(activeLabel)}</span>
               </div>
               <div class="agenda-sala-card-actions">
-                <button type="button" class="btn-ghost" data-sala-action="editar" data-sala-id="${sala._id}">Editar</button>
-                <button type="button" class="btn-ghost" data-sala-action="status" data-sala-id="${sala._id}" data-next="${String(!sala.ativo)}">${toggleLabel}</button>
+                <button type="button" class="btn-ghost" data-sala-action="editar" data-sala-id="${escapeHtml(
+                  String(sala?._id || ""),
+                )}">Editar</button>
+                <button type="button" class="btn-ghost" data-sala-action="status" data-sala-id="${escapeHtml(
+                  String(sala?._id || ""),
+                )}" data-next="${String(!sala.ativo)}">${escapeHtml(toggleLabel)}</button>
               </div>
             </article>
           `;
@@ -320,7 +331,9 @@
       elements.tipoSelect.innerHTML = tiposAtendimento
         .map(
           (tipo) =>
-            `<option value="${tipo}">${normalizeTypeLabel(tipo)}</option>`,
+            `<option value="${escapeHtml(String(tipo || ""))}">${escapeHtml(
+              normalizeTypeLabel(tipo),
+            )}</option>`,
         )
         .join("");
       syncSalaRequirement();
@@ -328,7 +341,12 @@
 
     function setResponsavelOptions() {
       const options = state.profissionais
-        .map((p) => `<option value="${p._id}">${p.nome} (${p.perfil})</option>`)
+        .map(
+          (p) =>
+            `<option value="${escapeHtml(String(p?._id || ""))}">${escapeHtml(
+              `${p?.nome || ""} (${p?.perfil || ""})`,
+            )}</option>`,
+        )
         .join("");
       elements.responsavelSelect.innerHTML = options;
 
@@ -340,14 +358,19 @@
 
     function setFiltroProfissionais() {
       if (!permissions.canViewAll) {
-        elements.responsavelFiltro.innerHTML = `<option value="${String(user.id || "")}">${user.nome || "Meu calendario"}</option>`;
+        elements.responsavelFiltro.innerHTML = `<option value="${escapeHtml(
+          String(user.id || ""),
+        )}">${escapeHtml(user.nome || "Meu calendario")}</option>`;
         elements.responsavelFiltro.disabled = true;
         return;
       }
 
       const options = ['<option value="">Todos os profissionais</option>'].concat(
         state.profissionais.map(
-          (p) => `<option value="${p._id}">${p.nome} (${p.perfil})</option>`,
+          (p) =>
+            `<option value="${escapeHtml(String(p?._id || ""))}">${escapeHtml(
+              `${p?.nome || ""} (${p?.perfil || ""})`,
+            )}</option>`,
         ),
       );
 
@@ -380,7 +403,9 @@
         docs.map((familia) => {
           const label =
             `${familia?.responsavel?.nome || "Familia"} - ${familia?.responsavel?.telefone || ""}`.trim();
-          return `<option value="${familia._id}">${label}</option>`;
+          return `<option value="${escapeHtml(String(familia?._id || ""))}">${escapeHtml(
+            label,
+          )}</option>`;
         }),
       );
 
@@ -390,7 +415,12 @@
     function fillPatientsOptions(pacientes) {
       const docs = Array.isArray(pacientes) ? pacientes : [];
       const options = ['<option value="">Sem paciente especifico</option>'].concat(
-        docs.map((p) => `<option value="${p._id}">${p.nome}</option>`),
+        docs.map(
+          (p) =>
+            `<option value="${escapeHtml(String(p?._id || ""))}">${escapeHtml(
+              p?.nome || "",
+            )}</option>`,
+        ),
       );
       elements.pacienteSelect.innerHTML = options.join("");
     }

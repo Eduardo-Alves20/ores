@@ -9,9 +9,13 @@ const {
   registerFamilyAbsence,
   requestFamilyReschedule,
 } = require("../../services/portal/portalFamiliaPageService");
+const { logSanitizedError } = require("../../services/security/logSanitizerService");
 
 function renderPortalPageError(req, res, logMessage, publicMessage, error) {
-  console.error(logMessage, error);
+  logSanitizedError(logMessage, error, {
+    route: req?.originalUrl || req?.url || "",
+    userId: req?.session?.user?.id || null,
+  });
   return res.status(500).render("pages/errors/500", {
     status: 500,
     message: publicMessage,
@@ -119,7 +123,10 @@ class PortalFamiliaController {
         })
       );
     } catch (error) {
-      console.error("Erro ao listar agenda da familia:", error);
+      logSanitizedError("Erro ao listar agenda da familia:", error, {
+        route: req?.originalUrl || req?.url || "",
+        userId: req?.session?.user?.id || null,
+      });
       return res.status(error?.status || 500).json({
         erro: error?.publicMessage || "Erro ao carregar a agenda da familia.",
       });
@@ -139,7 +146,10 @@ class PortalFamiliaController {
 
       return res.status(200).json(result);
     } catch (error) {
-      console.error("Erro ao registrar falta pela familia:", error);
+      logSanitizedError("Erro ao registrar falta pela familia:", error, {
+        route: req?.originalUrl || req?.url || "",
+        userId: req?.session?.user?.id || null,
+      });
       return res.status(error?.status || 500).json({
         erro: error?.publicMessage || "Erro ao registrar falta da familia.",
       });
@@ -159,7 +169,10 @@ class PortalFamiliaController {
 
       return res.status(200).json(result);
     } catch (error) {
-      console.error("Erro ao solicitar remarcacao pela familia:", error);
+      logSanitizedError("Erro ao solicitar remarcacao pela familia:", error, {
+        route: req?.originalUrl || req?.url || "",
+        userId: req?.session?.user?.id || null,
+      });
       return res.status(error?.status || 500).json({
         erro: error?.publicMessage || "Erro ao solicitar remarcacao.",
       });

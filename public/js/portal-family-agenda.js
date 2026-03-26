@@ -111,6 +111,19 @@
     actionEventId: "",
   };
 
+  const sanitizeClassToken =
+    typeof shared.sanitizeClassToken === "function"
+      ? shared.sanitizeClassToken
+      : function fallbackSanitizeClassToken(value, fallback) {
+          const normalized = String(value || "")
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]+/g, "-")
+            .replace(/-{2,}/g, "-")
+            .replace(/^-|-$/g, "");
+          return normalized || String(fallback || "").trim().toLowerCase();
+        };
+
   function normalizeMonthDate(value) {
     const parsed = new Date(value || Date.now());
     if (Number.isNaN(parsed.getTime())) return new Date();
@@ -305,8 +318,8 @@
             </div>
             <h4 class="agenda-event-title">${shared.escapeHtml(evento?.titulo || "Consulta")}</h4>
             <div class="agenda-event-status-row">
-              <span class="agenda-event-badge status-${shared.escapeHtml(evento?.statusAgendamento || "agendado")}">${shared.escapeHtml(evento?.statusAgendamentoLabel || "Agendada")}</span>
-              <span class="agenda-event-badge status-${shared.escapeHtml(evento?.statusPresenca || "pendente")}">${shared.escapeHtml(evento?.statusPresencaLabel || "Pendente")}</span>
+              <span class="agenda-event-badge status-${sanitizeClassToken(evento?.statusAgendamento, "agendado")}">${shared.escapeHtml(evento?.statusAgendamentoLabel || "Agendada")}</span>
+              <span class="agenda-event-badge status-${sanitizeClassToken(evento?.statusPresenca, "pendente")}">${shared.escapeHtml(evento?.statusPresencaLabel || "Pendente")}</span>
             </div>
             <p class="agenda-event-line"><strong>Dependente:</strong> ${shared.escapeHtml(evento?.dependenteNome || "-")}</p>
             <p class="agenda-event-line"><strong>Profissional:</strong> ${shared.escapeHtml(evento?.profissionalNome || "-")}</p>

@@ -16,6 +16,7 @@ const {
   buildUserListFilter,
   normalizeUserListOptions,
 } = require("./userListQueryService");
+const { buildAuthVersionUpdate } = require("../security/sessionSecurityService");
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;
@@ -426,7 +427,12 @@ class UsuarioService {
       if (typeof payload[key] === "undefined") delete payload[key];
     });
 
-    const updated = await Usuario.findByIdAndUpdate(normalizedId, payload, {
+    const update = {
+      $set: payload,
+      ...buildAuthVersionUpdate(dados),
+    };
+
+    const updated = await Usuario.findByIdAndUpdate(normalizedId, update, {
       new: true,
       runValidators: true,
     }).select("-senha");
@@ -447,8 +453,13 @@ class UsuarioService {
     const updated = await Usuario.findByIdAndUpdate(
       normalizedId,
       {
-        senha: await hashSenha(novaSenha),
-        atualizadoPor: contexto.usuarioId || null,
+        $set: {
+          senha: await hashSenha(novaSenha),
+          atualizadoPor: contexto.usuarioId || null,
+        },
+        $inc: {
+          authVersion: 1,
+        },
       },
       { new: true, runValidators: true }
     ).select("-senha");
@@ -476,10 +487,19 @@ class UsuarioService {
       patch.inativadoPor = null;
     }
 
-    const updated = await Usuario.findByIdAndUpdate(normalizedId, patch, {
-      new: true,
-      runValidators: true,
-    }).select("-senha");
+    const updated = await Usuario.findByIdAndUpdate(
+      normalizedId,
+      {
+        $set: patch,
+        $inc: {
+          authVersion: 1,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select("-senha");
 
     return sanitizeUser(updated);
   }

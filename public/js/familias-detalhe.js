@@ -8,6 +8,7 @@
     formatAgendaTipoLabel,
     parseJsonScript,
     requestJson,
+    sanitizeClassToken,
     showSuccess,
     showToast,
     toIsoFromLocal,
@@ -237,7 +238,10 @@
             item?.responsavelNome || "Sem profissional",
           );
           const tipoLabel = escapeHtml(formatAgendaTipoLabel(item?.tipoAtendimento));
-          const statusClass = `is-${String(item?.statusPresenca || "pendente").trim()}`;
+          const statusClass = `is-${sanitizeClassToken(
+            item?.statusPresenca,
+            "pendente",
+          )}`;
           const observacao = String(item?.presencaObservacao || "").trim();
           const justificativa = String(item?.presencaJustificativaLabel || "").trim();
           const registroMeta =

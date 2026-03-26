@@ -84,6 +84,7 @@ const sessionParser = session({
     sameSite: isProdLike ? 'none' : 'lax',
     secure: isProdLike, // DEV/LOCAL precisa false (senão não salva cookie no http)
     domain: isProdLike ? '.alento.org' : undefined,
+    priority: 'high',
   },
 });
 

@@ -1,4 +1,4 @@
-const { Atendimento } = require("../../../schemas/social/Atendimento");
+const { Atendimento, TIPOS_ATENDIMENTO } = require("../../../schemas/social/Atendimento");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { createFamiliaError } = require("./familiaContextService");
 const {
@@ -9,6 +9,15 @@ const {
   hasOwnAssistidosScope,
   loadAccessibleAttendance,
 } = require("./familiaGuardService");
+
+function normalizeAttendanceType(tipo) {
+  const normalized = String(tipo || "").trim().toLowerCase();
+  if (!normalized) return "outro";
+  if (!TIPOS_ATENDIMENTO.includes(normalized)) {
+    throw createFamiliaError("Tipo de atendimento invalido.", 400);
+  }
+  return normalized;
+}
 
 async function resolveAttendanceProfessional({ user, actorId, profissionalId }) {
   const profissionalSelecionado = String(profissionalId || "").trim();
@@ -39,7 +48,7 @@ async function resolveAttendanceProfessional({ user, actorId, profissionalId }) 
 }
 
 async function createAttendance({ user, actorId, familiaId, body = {} }) {
-  await ensureAccessibleFamily({
+  const familia = await ensureAccessibleFamily({
     user,
     familiaId,
     select: "_id ativo",
@@ -53,8 +62,12 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
     throw createFamiliaError("Campo resumo e obrigatorio.", 400);
   }
 
+  let paciente = null;
   if (pacienteId) {
-    await ensurePatientBelongsToFamily({ pacienteId, familiaId });
+    paciente = await ensurePatientBelongsToFamily({
+      pacienteId,
+      familiaId: familia._id,
+    });
   }
 
   const { profissional } = await resolveAttendanceProfessional({
@@ -64,11 +77,11 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
   });
 
   const atendimento = await Atendimento.create({
-    familiaId,
-    pacienteId: pacienteId || null,
+    familiaId: familia._id,
+    pacienteId: paciente?._id || null,
     profissionalId: profissional?._id || null,
     dataHora: dataHora || new Date(),
-    tipo: tipo || "outro",
+    tipo: normalizeAttendanceType(tipo),
     resumo: String(resumo).trim(),
     proximosPassos,
     ativo: true,
@@ -84,8 +97,8 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
       entidade: "atendimento",
       entidadeId: atendimento._id,
       detalhes: {
-        familiaId,
-        pacienteId: pacienteId || null,
+        familiaId: familia._id,
+        pacienteId: paciente?._id || null,
         profissionalId: profissional?._id || null,
       },
     },
@@ -112,8 +125,11 @@ async function updateAttendance({ user, actorId, id, body = {} }) {
     if (!pacienteId) {
       patch.pacienteId = null;
     } else {
-      await ensurePatientBelongsToFamily({ pacienteId, familiaId: atual.familiaId });
-      patch.pacienteId = pacienteId;
+      const paciente = await ensurePatientBelongsToFamily({
+        pacienteId,
+        familiaId: atual.familiaId,
+      });
+      patch.pacienteId = paciente._id;
     }
   }
 
@@ -149,7 +165,7 @@ async function updateAttendance({ user, actorId, id, body = {} }) {
   }
 
   if (typeof tipo !== "undefined") {
-    patch.tipo = tipo || "outro";
+    patch.tipo = normalizeAttendanceType(tipo);
   }
 
   if (typeof resumo !== "undefined") {
@@ -164,7 +180,7 @@ async function updateAttendance({ user, actorId, id, body = {} }) {
     patch.proximosPassos = proximosPassos;
   }
 
-  const atendimento = await Atendimento.findByIdAndUpdate(id, patch, {
+  const atendimento = await Atendimento.findByIdAndUpdate(atual._id, patch, {
     new: true,
     runValidators: true,
   });
@@ -175,7 +191,7 @@ async function updateAttendance({ user, actorId, id, body = {} }) {
     audit: {
       acao: "ATENDIMENTO_ATUALIZADO",
       entidade: "atendimento",
-      entidadeId: id,
+      entidadeId: atual._id,
       detalhes: {
         familiaId: atendimento?.familiaId,
         pacienteId: atendimento?.pacienteId,
@@ -194,8 +210,15 @@ async function changeAttendanceStatus({ user, actorId, id, ativoInput }) {
   const atual = await loadAccessibleAttendance({ id, user });
   if (!atual) return null;
 
+  ensureOwnScopedProfessional(
+    user,
+    actorId,
+    atual.profissionalId,
+    "Voluntarios de atendimento so podem alterar status de registros vinculados a si mesmos."
+  );
+
   const atendimento = await Atendimento.findByIdAndUpdate(
-    id,
+    atual._id,
     {
       ativo,
       atualizadoPor: actorId,
@@ -214,7 +237,7 @@ async function changeAttendanceStatus({ user, actorId, id, ativoInput }) {
     audit: {
       acao: ativo ? "ATENDIMENTO_REATIVADO" : "ATENDIMENTO_INATIVADO",
       entidade: "atendimento",
-      entidadeId: id,
+      entidadeId: atual._id,
       detalhes: {
         familiaId: atendimento?.familiaId,
         pacienteId: atendimento?.pacienteId,
@@ -226,6 +249,7 @@ async function changeAttendanceStatus({ user, actorId, id, ativoInput }) {
 module.exports = {
   changeAttendanceStatus,
   createAttendance,
+  normalizeAttendanceType,
   resolveAttendanceProfessional,
   updateAttendance,
 };

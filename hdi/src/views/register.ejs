@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login | HDI</title>
+    <link rel="stylesheet" href="/css/auth.css" />
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f9fafc;
+      }
+      .auth-card {
+        background: white;
+        padding: 40px;
+        border-radius: 3px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 400px;
+        text-align: center;
+      }
+      .auth-card h1 {
+        color: #5e6c84;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+      .input-block {
+        margin-bottom: 15px;
+      }
+      .input-block input {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #dfe1e6;
+        border-radius: 4px;
+        background: #fafbfc;
+      }
+      .btn-submit {
+        width: 100%;
+        padding: 10px;
+        background: #5aac44;
+        color: white;
+        border: none;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .btn-submit:hover {
+        background: #61bd4f;
+      }
+      .error-msg {
+        background: #eb5a46;
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-card">
+      <h1>HDI</h1>
+
+      <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+      <% } %>
+
+      <form action="/register" method="POST">
+        <div class="input-block">
+          <input
+            type="name"
+            name="name"
+            placeholder="Insira seu nome"
+            required
+          />
+        </div>
+        <div class="input-block">
+          <input
+            type="text"
+            name="username"
+            placeholder="Insira seu usuario"
+            required
+          />
+        </div>
+        <div class="input-block">
+          <input
+            type="email"
+            name="email"
+            placeholder="Insira seu e-mail"
+            required
+          />
+        </div>
+        <div class="input-block">
+          <input
+            type="password"
+            name="password"
+            placeholder="Insira sua senha"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-submit">Cadastrar</button>
+      </form>
+
+      <p style="margin-top: 20px; font-size: 14px">
+        <a href="/login" style="color: #0079bf">Ja tem conta? Entre</a>
+      </p>
+    </div>
+  </body>
+</html>

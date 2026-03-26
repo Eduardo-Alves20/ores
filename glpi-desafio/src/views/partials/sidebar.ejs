@@ -1,0 +1,229 @@
+<aside class="sidebar" data-perfil="<%= perfil %>">
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <a class="sidebar-logo-wrapper" href="/app" title="Início" aria-label="Início">
+        <span class="sidebar-logo-mark" aria-hidden="true">G</span>
+        <span class="sidebar-logo-copy">
+          <strong>GLPI</strong>
+          <small>Central de Chamados</small>
+        </span>
+      </a>
+    </div>
+
+    <% if (typeof ambiente !== "undefined" && ["HOMOLOG", "LOCAL"].includes(ambiente)) { %>
+      <span id="ambiente-info" class="mobile-environment-badge">
+        <%= ambiente === "HOMOLOG" ? "HOMOLOGAÇÃO" : "DESENVOLVIMENTO LOCAL" %>
+      </span>
+    <% } %>
+
+    <div class="sidebar-body">
+      <button
+        id="sidebar-collapse-toggle"
+        class="sidebar-collapse-toggle"
+        type="button"
+        aria-label="Recolher menu"
+        title="Recolher menu"
+      >
+        <span class="sidebar-collapse-icon" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="scrollable-container">
+      <nav class="sidebar-options" aria-label="Navegação principal">
+        <% if (perfil === "tecnico" || perfil === "admin") { %>
+          <section class="sidebar-online-panel" data-hook="online-painel" hidden>
+            <p class="sidebar-online-title">Online agora</p>
+
+            <a
+              href="/tecnico/online?grupo=usuario"
+              class="sidebar-online-row sidebar-online-row--action"
+              title="Ver usuarios online"
+            >
+              <div class="sidebar-online-label">
+                <img src="/assets/perfil.png" alt="" class="sidebar-online-icon">
+                <span>Usuarios</span>
+              </div>
+              <strong class="sidebar-online-value" data-hook="online-usuarios">0</strong>
+            </a>
+
+            <a
+              href="/tecnico/online?grupo=tecnico"
+              class="sidebar-online-row sidebar-online-row--action"
+              title="Ver tecnicos e admins online"
+            >
+              <div class="sidebar-online-label">
+                <img src="/assets/tarefas.png" alt="" class="sidebar-online-icon">
+                <span>Tecnicos/Admins</span>
+              </div>
+              <strong class="sidebar-online-value" data-hook="online-tecnicos">0</strong>
+            </a>
+          </section>
+        <% } %>
+
+        <!-- HOME (para todos logados) -->
+        <div class="main-anchor-wrapper" id="nav-home">
+          <a
+            href="/app"
+            class="accordion-main-item <%= isAtivo('/app') ? 'active' : '' %>"
+            title="Home"
+          >
+            <img src="/assets/home.png" alt="" class="main-anchor-icon">
+            Home
+          </a>
+        </div>
+
+        <div class="main-anchor-wrapper" id="nav-notificacoes">
+          <a
+            href="/notificacoes"
+            class="accordion-main-item <%= isAtivo('/notificacoes') ? 'active' : '' %>"
+            title="Notificacoes"
+          >
+            <span class="main-anchor-symbol" aria-hidden="true">&#128276;</span>
+            Notificacoes
+          </a>
+        </div>
+
+        <!-- PERFIL: USUÁRIO (solicitante) -->
+        <% if (perfil === "usuario" || perfil === "admin") { %>
+          <div class="main-anchor-wrapper" id="nav-chamados-usuario" title="Clique para expandir">
+            <p class="accordion-main-item <%= isAtivo('/chamados') ? 'active' : '' %>">
+              <img src="/assets/chamados.png" alt="" class="main-anchor-icon">
+              Chamados
+            </p>
+            <div class="accordion-content">
+              <a class="accordion-item <%= isAtivo('/chamados/novo') ? 'active' : '' %>"
+                 href="/chamados/novo" title="Abrir chamado">Abrir chamado</a>
+              <a class="accordion-item <%= isAtivo('/chamados/meus') ? 'active' : '' %>"
+                 href="/chamados/meus" title="Meus chamados">Meus chamados</a>
+              <a class="accordion-item <%= isAtivo('/base-conhecimento') ? 'active' : '' %>"
+                 href="/base-conhecimento" title="Base de conhecimento">Base de conhecimento</a>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- PERFIL: TÉCNICO -->
+        <% if (perfil === "tecnico" || perfil === "admin") { %>
+          <div class="main-anchor-wrapper" id="nav-tecnico" title="Clique para expandir">
+            <p class="accordion-main-item <%= isAtivo('/tecnico') ? 'active' : '' %>">
+              <img src="/assets/tarefas.png" alt="" class="main-anchor-icon">
+              Técnico
+            </p>
+            <div class="accordion-content">
+              <a class="accordion-item <%= isAtivo('/tecnico/chamados') ? 'active' : '' %>"
+                 href="/tecnico/chamados" title="Chamados">
+                Chamados
+                <span
+                  class="nav-badge"
+                  data-hook="fila-count"
+                  aria-label="Chamados abertos"
+                  hidden
+                >0</span>
+              </a>
+
+              <a class="accordion-item <%= isAtivo('/tecnico/meus-chamados') ? 'active' : '' %>"
+                 href="/tecnico/meus-chamados" title="Meus chamados">Meus chamados</a>
+
+              <% if (perfil === "tecnico") { %>
+                <a class="accordion-item <%= isAtivo('/tecnico/metricas') ? 'active' : '' %>"
+                   href="/tecnico/metricas" title="Minhas metricas">Metricas</a>
+              <% } %>
+
+              <a class="accordion-item <%= isAtivo('/tecnico/historico-chamados') ? 'active' : '' %>"
+                 href="/tecnico/historico-chamados" title="Historico de atendimentos">Historico</a>
+
+              <a class="accordion-item <%= isAtivo('/tecnico/usuarios') ? 'active' : '' %>"
+                 href="/tecnico/usuarios" title="Usuarios">Usuarios</a>
+
+              <a class="accordion-item <%= isAtivo('/tecnico/logs') ? 'active' : '' %>"
+                 href="/tecnico/logs" title="Logs">Logs</a>
+
+              <a class="accordion-item <%= isAtivo('/base-conhecimento') ? 'active' : '' %>"
+                 href="/base-conhecimento" title="Base de conhecimento">Base de conhecimento</a>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- PERFIL: ADMIN -->
+        <% if (perfil === "admin") { %>
+          <div class="main-anchor-wrapper" id="nav-admin" title="Clique para expandir">
+            <p class="accordion-main-item <%= isAtivo('/admin') ? 'active' : '' %>">
+              <img src="/assets/engrenagem.png" alt="" class="main-anchor-icon">
+              Administração
+            </p>
+            <div class="accordion-content">
+              <a class="accordion-item <%= isAtivo('/admin') ? 'active' : '' %>"
+                 href="/admin" title="Dashboard">Dashboard</a>
+              <a class="accordion-item <%= isAtivo('/admin/usuarios') ? 'active' : '' %>"
+                 href="/admin/usuarios" title="Usuários">Usuários</a>
+              <a class="accordion-item <%= isAtivo('/admin/usuarios/novo') ? 'active' : '' %>"
+                 href="/admin/usuarios/novo" title="Novo usuário">Novo usuário</a>
+              <a class="accordion-item <%= isAtivo('/admin/chamados') ? 'active' : '' %>"
+                 href="/admin/chamados" title="Chamados">Chamados</a>
+              <a class="accordion-item <%= isAtivo('/admin/tecnicos') ? 'active' : '' %>"
+                 href="/admin/tecnicos" title="Técnicos">Técnicos</a>
+              <a class="accordion-item <%= isAtivo('/admin/categorias') ? 'active' : '' %>"
+                 href="/admin/categorias" title="Categorias">Categorias</a>
+              <a class="accordion-item <%= isAtivo('/admin/campos-customizados') ? 'active' : '' %>"
+                 href="/admin/campos-customizados" title="Campos customizados">Campos customizados</a>
+              <a class="accordion-item <%= isAtivo('/base-conhecimento') ? 'active' : '' %>"
+                 href="/base-conhecimento" title="Base de conhecimento">Base de conhecimento</a>
+              <a class="accordion-item <%= isAtivo('/admin/logs') ? 'active' : '' %>"
+                 href="/admin/logs" title="Logs">Logs</a>
+              <a class="accordion-item <%= isAtivo('/admin/avaliacoes') ? 'active' : '' %>"
+                 href="/admin/avaliacoes" title="Avaliacoes">Avaliacoes</a>
+              <a class="accordion-item <%= isAtivo('/admin/config') ? 'active' : '' %>"
+                 href="/admin/config" title="Configurações">Configurações</a>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- CONTA -->
+        <div class="main-anchor-wrapper" id="nav-conta" title="Clique para expandir">
+          <p class="accordion-main-item <%= (isAtivo('/usuario/perfil') || isAtivo('/usuario/avaliacoes')) ? 'active' : '' %>">
+            <img src="/assets/perfil.png" alt="" class="main-anchor-icon">
+            Conta
+          </p>
+          <div class="accordion-content">
+            <a class="accordion-item <%= isAtivo('/usuario/perfil') ? 'active' : '' %>"
+               href="/usuario/perfil" title="Meu perfil">Meu perfil</a>
+            <a class="accordion-item <%= isAtivo('/usuario/avaliacoes') ? 'active' : '' %>"
+               href="/usuario/avaliacoes" title="Avaliacoes">Avaliacoes</a>
+          </div>
+        </div>
+
+      </nav>
+    </div>
+
+    <div class="sidebar-footer-buttons-wrapper">
+      <button
+        id="profile-menu-button"
+        class="my-profile-button has-dropdown"
+        type="button"
+        title="<%= usuarioSessao?.nome || 'Usuário' %>"
+        aria-expanded="false"
+      >
+        <span class="sr-only">Menu do usuario</span>
+        <img class="sidebar-footer-icon" src="/assets/perfil.png" alt="Opções do usuário" />
+      </button>
+
+      <div id="profile-dropdown" class="profile-dropdown" aria-hidden="true">
+        <a class="profile-dropdown-item" href="/usuario/perfil">Meu Perfil</a>
+        <a class="profile-dropdown-item" href="/usuario/avaliacoes">Avaliacoes</a>
+        <button type="button" id="darkmode-toggle" class="profile-dropdown-item" aria-pressed="false">
+          <span>Modo escuro</span>
+        </button>
+      </div>
+
+      <form action="/logout" method="POST" style="margin:0; width:100%;">
+        <button type="submit" class="exit-button" title="Sair">
+          Sair
+          <img class="sidebar-footer-icon" src="/assets/sair.png" alt="Sair" />
+        </button>
+      </form>
+    </div>
+
+    <div class="sidebar-footer"></div>
+  </div>
+</aside>
+
+<script src="/js/menu.js"></script>

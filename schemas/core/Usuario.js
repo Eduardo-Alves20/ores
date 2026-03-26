@@ -168,6 +168,12 @@ const UsuarioSchema = new mongoose.Schema(
       default: null,
     },
 
+    authVersion: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
     criadoPor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Usuario",

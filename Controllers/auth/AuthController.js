@@ -3,6 +3,8 @@ const { registrarAuditoria } = require("../../services/auditService");
 const { PERFIS } = require("../../config/roles");
 const { resolvePermissionsForUserId } = require("../../services/accessControlService");
 const { resolveLandingRouteForUser } = require("../../services/shared/navigationService");
+const { buildSessionUserPayload } = require("../../services/security/sessionSecurityService");
+const { logSanitizedError } = require("../../services/security/logSanitizerService");
 
 function isHtmlRequest(req) {
   return !!req.accepts("html");
@@ -50,9 +52,15 @@ class AuthController {
     }
 
     const successMessage = req.flash("success");
+    const errorMessage = req.flash("error");
     const reason = String(req.query?.reason || "").trim().toLowerCase();
     if (reason === "senha_alterada") {
       successMessage.push("Senha alterada com sucesso. FaÃ§a login novamente.");
+    }
+    if (reason === "sessao_revogada") {
+      errorMessage.push(
+        "Sua sessao anterior foi encerrada por mudanca de permissao, credencial ou estado da conta."
+      );
     }
 
     return res.status(200).render("pages/auth/login", {
@@ -61,7 +69,7 @@ class AuthController {
       pageClass: "page-auth",
       metaDescription:
         "Acesse o GESA, sistema de gestao social da Fundacao Alento para familias, voluntarios, atendimentos e agenda institucional.",
-      errorMessage: req.flash("error"),
+      errorMessage,
       successMessage,
     });
   }
@@ -169,7 +177,9 @@ class AuthController {
 
       req.session.regenerate(async (err) => {
         if (err) {
-          console.error("Falha ao regenerar sessao:", err);
+          logSanitizedError("Falha ao regenerar sessao:", err, {
+            route: req.originalUrl || req.url || "",
+          });
           if (!res.headersSent) {
             return res.status(500).json({ erro: "Falha ao iniciar sessao." });
           }
@@ -177,14 +187,10 @@ class AuthController {
         }
 
         try {
-          req.session.user = {
-            id: String(usuario._id),
-            nome: usuario.nome,
-            email: usuario.email,
-            perfil: usuario.perfil,
-            tipoCadastro: usuario.tipoCadastro || "",
-            permissions: await resolvePermissionsForUserId(usuario._id, usuario.perfil),
-          };
+          req.session.user = buildSessionUserPayload(
+            usuario,
+            await resolvePermissionsForUserId(usuario._id, usuario.perfil)
+          );
 
           await registrarAuditoria(req, {
             acao: "LOGIN_OK",
@@ -201,7 +207,10 @@ class AuthController {
             usuario: req.session.user,
           });
         } catch (internalError) {
-          console.error("Erro ao finalizar login:", internalError);
+          logSanitizedError("Erro ao finalizar login:", internalError, {
+            route: req.originalUrl || req.url || "",
+            userId: String(usuario?._id || ""),
+          });
           if (!res.headersSent) {
             return res.status(500).json({ erro: "Falha ao finalizar login." });
           }
@@ -256,7 +265,10 @@ class AuthController {
 
         return res.status(200).json({ mensagem: "Logout realizado com sucesso." });
       } catch (error) {
-        console.error("Erro ao finalizar logout:", error);
+        logSanitizedError("Erro ao finalizar logout:", error, {
+          route: req.originalUrl || req.url || "",
+          userId,
+        });
         if (!res.headersSent) {
           return res.status(500).json({ erro: "Falha ao encerrar sessao." });
         }

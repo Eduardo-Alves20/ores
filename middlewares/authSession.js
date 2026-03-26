@@ -4,6 +4,11 @@ const {
   resolvePermissionsFromSession,
 } = require("../services/accessControlService");
 const { resolveLandingRouteForUser } = require("../services/shared/navigationService");
+const {
+  loadSessionValidationSnapshot,
+  normalizeAuthVersion,
+  resolveSessionInvalidationReason,
+} = require("../services/security/sessionSecurityService");
 
 function getSessionUser(req) {
   return req?.session?.user || null;
@@ -13,18 +18,66 @@ function isHtmlRequest(req) {
   return !!req.accepts("html");
 }
 
-async function attachCurrentUser(req, res, next) {
-  try {
-    const user = getSessionUser(req);
-    if (user && (!Array.isArray(user.permissions) || !user.permissions.length)) {
-      await resolvePermissionsFromSession(req);
-    }
-    req.currentUser = getSessionUser(req);
-    res.locals.currentUser = req.currentUser;
-    next();
-  } catch (error) {
-    next(error);
+function clearSessionCookies(res) {
+  res.clearCookie(process.env.SESSION_NAME || "alento.sid");
+  res.clearCookie("connect.sid");
+}
+
+async function destroySession(req) {
+  if (!req?.session || typeof req.session.destroy !== "function") {
+    return;
   }
+
+  await new Promise((resolve) => {
+    req.session.destroy(() => resolve());
+  });
+}
+
+async function invalidateAuthenticatedSession(req, res) {
+  await destroySession(req);
+  clearSessionCookies(res);
+}
+
+function createAttachCurrentUser(deps = {}) {
+  const resolvePermissions = deps.resolvePermissionsFromSession || resolvePermissionsFromSession;
+  const loadSnapshot = deps.loadSessionValidationSnapshot || loadSessionValidationSnapshot;
+
+  return async function attachCurrentUser(req, res, next) {
+    try {
+      const user = getSessionUser(req);
+
+      if (user) {
+        const snapshot = await loadSnapshot(user.id);
+        const invalidationReason = resolveSessionInvalidationReason(user, snapshot);
+
+        if (invalidationReason) {
+          await invalidateAuthenticatedSession(req, res);
+
+          if (isHtmlRequest(req)) {
+            return res.redirect("/login?reason=sessao_revogada");
+          }
+
+          return res.status(401).json({
+            erro: "Sessao invalida ou expirada. Faca login novamente.",
+          });
+        }
+
+        req.session.user.nome = String(snapshot?.nome || "").trim();
+        req.session.user.email = String(snapshot?.email || "").trim().toLowerCase();
+        req.session.user.authVersion = normalizeAuthVersion(snapshot?.authVersion);
+      }
+
+      if (user && (!Array.isArray(user.permissions) || !user.permissions.length)) {
+        await resolvePermissions(req);
+      }
+
+      req.currentUser = getSessionUser(req);
+      res.locals.currentUser = req.currentUser;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 function requireAuth(req, res, next) {
@@ -103,9 +156,14 @@ function requirePermission(...requiredPermissions) {
 
 const requireAdmin = requireRole(PERFIS.SUPERADMIN, PERFIS.ADMIN);
 const requireSuperAdmin = requireRole(PERFIS.SUPERADMIN);
+const attachCurrentUser = createAttachCurrentUser();
 
 module.exports = {
   attachCurrentUser,
+  clearSessionCookies,
+  createAttachCurrentUser,
+  destroySession,
+  invalidateAuthenticatedSession,
   requireAuth,
   requireRole,
   requirePermission,

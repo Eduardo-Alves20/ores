@@ -1,0 +1,23 @@
+version: '3.0'
+
+services:
+  hdi:
+    image: ${CI_REGISTRY_IMAGE:-registry.gitlab.cge.rj.gov.br/cge/hdi}:${IMAGE_TAG:-latest}
+    container_name: hdi
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    volumes:
+      - ./:/app/
+      - /app/node_modules
+      - ./src/uploads:/app/src/uploads/
+    env_file:
+      - .env
+    environment:
+      - TZ=America/Sao_Paulo
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${SERVER_PORT:-3000}/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

@@ -11,8 +11,10 @@ const http = require("http");
 const { attachCurrentUser } = require("./middlewares/authSession");
 const { csrfProtection } = require("./middlewares/csrfProtection");
 const { applySecurityHeaders } = require("./middlewares/securityHeaders");
+const { applyDynamicNoStoreHeaders } = require("./middlewares/requestSecurity");
 const { createErrorHandler, createNotFoundHandler } = require("./middlewares/errorResponder");
 const { buildSeo } = require("./services/seoService");
+const { serializeForInlineScript } = require("./services/viewSerializationService");
 const Usuario = require("./schemas/core/Usuario");
 const { PERFIS } = require("./config/roles");
 const { PERMISSIONS } = require("./config/permissions");
@@ -23,6 +25,8 @@ const { ensureDemoClinicData } = require("./services/bootstrapDemoClinicDataServ
 
 const app = express();
 const ASSET_VERSION = process.env.ASSET_VERSION || new Date().getTime().toString();
+const JSON_BODY_LIMIT = String(process.env.MAX_JSON_BODY_SIZE || "1mb").trim();
+const FORM_BODY_LIMIT = String(process.env.MAX_FORM_BODY_SIZE || "250kb").trim();
 
 const {
   PORT,
@@ -75,22 +79,38 @@ app.set("view engine", "ejs");
 app.use(expressLayouts);
 app.set("trust proxy", 1);
 app.set("layout", "partials/login.ejs");
+app.locals.serializeForInlineScript = serializeForInlineScript;
 
-app.use(express.json({ limit: "200mb" }));
-app.use(express.urlencoded({ extended: true, limit: "200mb" }));
+app.use(express.json({ limit: JSON_BODY_LIMIT }));
+app.use(express.urlencoded({ extended: true, limit: FORM_BODY_LIMIT, parameterLimit: 100 }));
 app.use(cookieParser(cookieParserKey));
 app.use(compression());
 app.use(applySecurityHeaders);
 app.use(sessionParser);
-app.use(csrfProtection);
-app.use(flash());
-app.use(attachCurrentUser);
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    dotfiles: "deny",
+    fallthrough: false,
+    index: false,
+    redirect: false,
+    setHeaders(res) {
+      res.setHeader("Cache-Control", "private, no-store, max-age=0, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+    },
+  })
+);
 app.use("/assets", express.static(path.join(__dirname, "public", "assets")));
 app.use("/css", express.static(path.join(__dirname, "public", "css")));
 app.use("/js", express.static(path.join(__dirname, "public", "js")));
 app.use("/static", express.static(path.join(__dirname, "public")));
+app.use(applyDynamicNoStoreHeaders);
+app.use(csrfProtection);
+app.use(flash());
+app.use(attachCurrentUser);
 
 app.use(async (req, res, next) => {
   try {
@@ -98,6 +118,7 @@ app.use(async (req, res, next) => {
     res.locals.assetVersion = ASSET_VERSION;
     res.locals.lastCommitDate = `Ultima atualizacao em: ${new Date().toLocaleString("pt-BR")}`;
     res.locals.alert = null;
+    res.locals.serializeForInlineScript = serializeForInlineScript;
     res.locals.moduleLinks = {
       helpDeskUrl: String(process.env.HELPDESK_URL || "").trim(),
       hdiUrl: String(process.env.HDI_URL || "").trim(),

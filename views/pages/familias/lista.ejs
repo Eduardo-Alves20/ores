@@ -125,5 +125,5 @@
   </section>
 </section>
 
-<script id="familias-initial" type="application/json"><%- JSON.stringify(filtros || {}) %></script>
-<script id="familias-view-flags" type="application/json"><%- JSON.stringify(viewFlags || {}) %></script>
+<script id="familias-initial" type="application/json"><%- serializeForInlineScript(filtros || {}) %></script>
+<script id="familias-view-flags" type="application/json"><%- serializeForInlineScript(viewFlags || {}) %></script>

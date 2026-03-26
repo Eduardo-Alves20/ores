@@ -1,0 +1,56 @@
+<section class="base-page base-show-page">
+  <%- include("../partials/breadcrumb", {
+    crumbs: [
+      { label: "Home", href: "/app" },
+      { label: "Base de conhecimento", href: "/base-conhecimento" },
+      { label: artigo?.titulo || "Artigo" },
+    ],
+  }) %>
+
+  <header class="base-head">
+    <div>
+      <span class="base-item__tag"><%= artigo?.categoria || "Geral" %></span>
+      <span class="base-item__source source-<%= artigo?.origem === 'interna' ? 'interna' : 'faq' %>">
+        <%= artigo?.origem === "interna" ? "Interno" : "FAQ" %>
+      </span>
+      <h1 class="page-title"><%= artigo?.titulo || "-" %></h1>
+      <p class="page-subtitle"><%= artigo?.resumo || "" %></p>
+      <% if (Array.isArray(artigo?.tags) && artigo.tags.length) { %>
+        <div class="base-item__tags">
+          <% artigo.tags.forEach((tag) => { %>
+            <span>#<%= tag %></span>
+          <% }) %>
+        </div>
+      <% } %>
+      <% if (artigo?.origem === "interna" && artigo?.autor) { %>
+        <p class="page-subtitle">
+          Criado por <strong><%= artigo?.autor?.nome || artigo?.autor?.login || "equipe interna" %></strong>
+          em <%= artigo?.createdAt ? new Date(artigo.createdAt).toLocaleString("pt-BR") : "-" %>.
+        </p>
+      <% } %>
+    </div>
+    <div class="base-show-actions">
+      <a class="button secondary" href="/base-conhecimento">Voltar</a>
+      <% if (podeGerirTopicos && artigo?.origem === "interna") { %>
+        <a class="button tertiary" href="/base-conhecimento/<%= artigo.slug %>/editar">Editar topico</a>
+      <% } %>
+      <a class="button" href="/chamados/novo">Abrir chamado</a>
+    </div>
+  </header>
+
+  <% if (Array.isArray(artigo?.passos) && artigo.passos.length) { %>
+    <article class="table-card base-show-card">
+      <h2>Passos recomendados</h2>
+      <ol class="base-show-steps">
+        <% artigo.passos.forEach((passo) => { %>
+          <li><%= passo %></li>
+        <% }) %>
+      </ol>
+    </article>
+  <% } %>
+
+  <article class="table-card base-show-card">
+    <h2>Resumo do guia</h2>
+    <pre class="base-show-text"><%= artigo?.trecho || "Sem conteudo disponivel." %></pre>
+  </article>
+</section>

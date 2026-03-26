@@ -1,0 +1,131 @@
+.list-wrapper {
+  height: 100%;
+
+  &  .list {
+      width: 327px;
+      overflow-y: auto;
+      background-color: var(--color-2);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      max-height: 100%; 
+      padding: 10px;
+
+      & .list-header {
+        position: relative;
+        cursor: pointer;
+        padding-inline: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        & h2 {
+          font: var(--title-5);
+          text-transform: uppercase;
+          cursor: pointer;
+          padding: 4px 8px; border: 1px solid transparent;
+        }
+
+        & input {
+          display: none; 
+          width: 100%; 
+          padding: 4px 8px;
+          border: 2px solid var(--secundary-color);
+          border-radius: 3px;
+          outline: none;
+          background-color: var(--white);
+          color: var(--gray-color);
+          margin-top: -2px;
+        }
+
+        & button {
+          width: auto;
+        }
+
+        .list-dropdown-menu {
+          background-color: var(--card-bg);
+          border-radius: 8px;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.12), var(--card-shadow);
+          padding: 8px 0;
+          min-width: 220px;
+          z-index: 1000;
+          
+          position: fixed; 
+          border: 1px solid var(--color-2);
+
+          & .dropdown-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0 12px 8px;
+              color: #5e6c84;
+              font-size: 14px;
+              font-weight: 600;
+              border-bottom: 1px solid rgba(9,30,66,0.13);
+          }
+
+          & .dropdown-actions {
+              list-style: none;
+              padding: 0;
+              margin: 0;
+
+              & li {
+                padding: 6px 12px;
+                cursor: pointer;
+                font-size: 14px;
+                color: #172b4d;
+
+                &:hover {
+                  background-color: rgba(9,30,66,0.04);
+                }
+
+                &.action-delete:hover {
+                  background-color: #cf513d;
+                  color: white;
+                }
+              }
+          }
+        }
+      }
+
+      & .list-cards {
+        overflow-y: auto; 
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 5px;
+      }
+
+      & .list-cards::-webkit-scrollbar-thumb {
+        background: #bfc4ce;
+      }
+
+      & .list-footer {
+        padding-top: 8px;
+      }
+      
+      & button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 5px;
+        border-radius: 8px;
+
+        font: var(--small-1);
+        color: var(--primary-color);
+
+        &:hover {
+          background-color: var(--hover-bg);
+          color: #172b4d;
+        }
+
+        & img {
+          width: 16px;
+        }
+      }
+  }
+}
+
+
+

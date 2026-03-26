@@ -1,0 +1,6 @@
+; Exemplo para instalar pacotes privados do GitLab Package Registry (NPM)
+; NÃO comite um .npmrc com token real.
+
+@cge:registry=https://gitlab.cge.rj.gov.br/api/v4/packages/npm/
+//gitlab.cge.rj.gov.br/api/v4/packages/npm/:_authToken=${NPM_TOKEN}
+always-auth=true

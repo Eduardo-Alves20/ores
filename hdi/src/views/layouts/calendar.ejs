@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken || '' %>" />
+    <meta name="csrf-field-name" content="<%= csrfFieldName || '_csrf' %>" />
+    <meta name="csrf-header-name" content="<%= csrfHeaderName || 'X-CSRF-Token' %>" />
+    <title>Calendário - <%= board.title %></title>
+
+    <link rel='icon' href='/assets/favicon.ico' type='image/x-icon'>
+    <link rel="stylesheet" href="/css/index.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
+
+    <!-- TOASTIFY E SWEETALERT -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    
+    <!-- TOASTIFY E SWEETALERT -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="/js/csrf.js"></script>
+  </head>
+  <body>
+    <header
+      class="board-header"
+      style="background-color: <%= board.color %>; padding: 10px;"
+    >
+      <div style="display: flex; align-items: center; gap: 15px">
+        <a
+          href="/"
+          style="
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            display: flex;
+          "
+          ><i class="ri-home-4-line"></i
+        ></a>
+
+        <h1 style="margin-right: 20px"><%= board.title %></h1>
+
+        <a
+          href="/board/<%= board._id %>"
+          class="btn-secondary"
+          style="
+            text-decoration: none;
+            color: #172b4d;
+            background: rgba(255, 255, 255, 0.9);
+          "
+        >
+          <i class="ri-arrow-go-back-line"></i> Voltar para o Quadro
+        </a>
+      </div>
+    </header>
+    <%- body %>
+  </body>
+</html>

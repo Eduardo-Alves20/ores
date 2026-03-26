@@ -122,6 +122,17 @@
       .replace(/'/g, "&#39;");
   }
 
+  function sanitizeClassToken(value, fallback = "") {
+    const normalized = String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/-{2,}/g, "-")
+      .replace(/^-|-$/g, "");
+
+    return normalized || String(fallback || "").trim().toLowerCase();
+  }
+
   function toIsoFromLocal(localDateTime) {
     if (!localDateTime) return null;
     const dt = new Date(localDateTime);
@@ -138,6 +149,7 @@
     formatDateTime,
     parseJsonScript,
     requestJson,
+    sanitizeClassToken,
     showSuccess,
     showToast,
     toIsoFromLocal,

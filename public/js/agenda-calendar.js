@@ -5,10 +5,12 @@
   function create(context) {
     const { elements, permissions, state, attendance } = context;
     const {
+      escapeHtml,
       MONTH_NAMES,
       normalizeTypeLabel,
       parseDayKeyLocal,
       requestJson,
+      sanitizeClassToken,
       showToast,
       startOfCalendarGrid,
       toDayLabel,
@@ -284,7 +286,7 @@
 
       elements.diaLista.innerHTML = eventos
         .map((evento) => {
-          const hora = toTimeRangeLabel(evento.inicio, evento.fim);
+          const hora = escapeHtml(toTimeRangeLabel(evento.inicio, evento.fim));
           const responsavelNome = evento?.responsavel?.nome || "Sem responsavel";
           const pacienteNome =
             evento?.paciente?.nome || "Sem paciente especifico";
@@ -292,30 +294,59 @@
             evento?.familia?.responsavelNome || "Sem familia vinculada";
           const salaNome = evento?.sala?.nome || "";
           const statusLabel = evento.ativo ? "Inativar" : "Reativar";
+          const statusAgendamentoClass = sanitizeClassToken(
+            evento?.statusAgendamento,
+            "agendado",
+          );
+          const statusPresencaClass = sanitizeClassToken(
+            evento?.statusPresenca,
+            "pendente",
+          );
+          const ultimoRegistro = evento.presencaRegistradaEmLabel
+            ? `${evento.presencaRegistradaEmLabel}${
+                evento?.presencaRegistradaPor?.nome
+                  ? ` · ${evento.presencaRegistradaPor.nome}`
+                  : ""
+              }`
+            : "";
 
           return `
-            <article class="agenda-event-card ${evento.ativo ? "" : "is-inactive"}" ${attendance.canMoveEvent(evento) ? 'draggable="true"' : ""} data-event-id="${evento._id}">
+            <article class="agenda-event-card ${evento.ativo ? "" : "is-inactive"}" ${attendance.canMoveEvent(evento) ? 'draggable="true"' : ""} data-event-id="${escapeHtml(
+              String(evento?._id || ""),
+            )}">
               <div class="agenda-event-top">
                 <span class="agenda-event-time">${hora}</span>
-                <span class="agenda-event-type">${normalizeTypeLabel(evento.tipoAtendimento)}</span>
+                <span class="agenda-event-type">${escapeHtml(
+                  normalizeTypeLabel(evento.tipoAtendimento),
+                )}</span>
               </div>
-              <h4 class="agenda-event-title">${evento.titulo}</h4>
+              <h4 class="agenda-event-title">${escapeHtml(evento?.titulo || "")}</h4>
               <div class="agenda-event-status-row">
-                <span class="agenda-event-badge status-${evento.statusAgendamento || "agendado"}">${evento.statusAgendamentoLabel || "Agendado"}</span>
-                <span class="agenda-event-badge status-${evento.statusPresenca || "pendente"}">${evento.statusPresencaLabel || "Pendente"}</span>
+                <span class="agenda-event-badge status-${statusAgendamentoClass}">${escapeHtml(
+                  evento?.statusAgendamentoLabel || "Agendado",
+                )}</span>
+                <span class="agenda-event-badge status-${statusPresencaClass}">${escapeHtml(
+                  evento?.statusPresencaLabel || "Pendente",
+                )}</span>
               </div>
-              <p class="agenda-event-line"><strong>Responsavel:</strong> ${responsavelNome}</p>
-              <p class="agenda-event-line"><strong>Paciente:</strong> ${pacienteNome}</p>
-              <p class="agenda-event-line"><strong>Familia:</strong> ${familiaNome}</p>
-              ${salaNome ? `<p class="agenda-event-line"><strong>Sala:</strong> ${salaNome}</p>` : ""}
-              ${evento.local ? `<p class="agenda-event-line"><strong>Local:</strong> ${evento.local}</p>` : ""}
-              ${evento.presencaRegistradaEmLabel && evento.presencaRegistradaEmLabel !== "-" ? `<p class="agenda-event-line"><strong>Ultimo registro:</strong> ${evento.presencaRegistradaEmLabel}${evento?.presencaRegistradaPor?.nome ? ` · ${evento.presencaRegistradaPor.nome}` : ""}</p>` : ""}
+              <p class="agenda-event-line"><strong>Responsavel:</strong> ${escapeHtml(
+                responsavelNome,
+              )}</p>
+              <p class="agenda-event-line"><strong>Paciente:</strong> ${escapeHtml(
+                pacienteNome,
+              )}</p>
+              <p class="agenda-event-line"><strong>Familia:</strong> ${escapeHtml(
+                familiaNome,
+              )}</p>
+              ${salaNome ? `<p class="agenda-event-line"><strong>Sala:</strong> ${escapeHtml(salaNome)}</p>` : ""}
+              ${evento.local ? `<p class="agenda-event-line"><strong>Local:</strong> ${escapeHtml(evento.local)}</p>` : ""}
+              ${evento.presencaRegistradaEmLabel && evento.presencaRegistradaEmLabel !== "-" ? `<p class="agenda-event-line"><strong>Ultimo registro:</strong> ${escapeHtml(ultimoRegistro)}</p>` : ""}
               ${attendance.buildAttendanceQuickActions(evento)}
-              ${evento.presencaObservacao ? `<p class="agenda-event-note"><strong>Obs. presenca:</strong> ${evento.presencaObservacao}</p>` : ""}
+              ${evento.presencaObservacao ? `<p class="agenda-event-note"><strong>Obs. presenca:</strong> ${escapeHtml(evento.presencaObservacao)}</p>` : ""}
               <div class="agenda-event-actions">
-                ${attendance.canManageAttendance(evento) ? `<button type="button" class="btn-ghost" data-action="presenca" data-id="${evento._id}">Ficha da presenca</button>` : ""}
-                ${attendance.canEditEvent(evento) ? `<button type="button" class="btn-ghost" data-action="editar" data-id="${evento._id}">Editar</button>` : ""}
-                ${attendance.canToggleEventStatus(evento) ? `<button type="button" class="btn-ghost" data-action="status" data-id="${evento._id}" data-next="${String(!evento.ativo)}">${statusLabel}</button>` : ""}
+                ${attendance.canManageAttendance(evento) ? `<button type="button" class="btn-ghost" data-action="presenca" data-id="${escapeHtml(String(evento?._id || ""))}">Ficha da presenca</button>` : ""}
+                ${attendance.canEditEvent(evento) ? `<button type="button" class="btn-ghost" data-action="editar" data-id="${escapeHtml(String(evento?._id || ""))}">Editar</button>` : ""}
+                ${attendance.canToggleEventStatus(evento) ? `<button type="button" class="btn-ghost" data-action="status" data-id="${escapeHtml(String(evento?._id || ""))}" data-next="${String(!evento.ativo)}">${escapeHtml(statusLabel)}</button>` : ""}
               </div>
             </article>
           `;

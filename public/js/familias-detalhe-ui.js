@@ -79,10 +79,12 @@
 
       const baseOption = '<option value="">Sem profissional especificado</option>';
       const options = state.currentVoluntarios.map(
-        (profissional) =>
-          `<option value="${profissional._id}">${escapeHtml(
+        (profissional) => {
+          const profissionalId = escapeHtml(String(profissional?._id || ""));
+          return `<option value="${profissionalId}">${escapeHtml(
             formatProfissionalLabel(profissional),
-          )}</option>`,
+          )}</option>`;
+        },
       );
 
       refs.profissionalSelect.innerHTML = [baseOption].concat(options).join("");
@@ -159,8 +161,9 @@
       const statusClass = dependente.ativo ? "status-active" : "status-inactive";
       const statusLabel = dependente.ativo ? "Ativo" : "Inativo";
       const toggleLabel = dependente.ativo ? "Inativar" : "Reativar";
+      const dependenteId = escapeHtml(String(dependente?._id || ""));
       const statusAction = can("canTogglePatientStatus")
-        ? `<button class="mini-btn mini-btn-warn" type="button" data-type="dependente-status" data-id="${dependente._id}" data-next="${String(!dependente.ativo)}">${toggleLabel}</button>`
+        ? `<button class="mini-btn mini-btn-warn" type="button" data-type="dependente-status" data-id="${dependenteId}" data-next="${String(!dependente.ativo)}">${escapeHtml(toggleLabel)}</button>`
         : '<span class="section-subtitle">Somente administracao pode alterar o status.</span>';
 
       refs.dependenteDetalhe.innerHTML = `
@@ -173,7 +176,7 @@
           <p><strong>Diagnostico / laudo:</strong> ${escapeHtml(dependente.diagnosticoResumo || "-")}</p>
         </div>
         <div class="stack-actions">
-          <span class="status-badge ${statusClass}">${statusLabel}</span>
+          <span class="status-badge ${statusClass}">${escapeHtml(statusLabel)}</span>
           ${statusAction}
         </div>
       `;
@@ -201,8 +204,9 @@
       const statusClass = atendimento.ativo ? "status-active" : "status-inactive";
       const statusLabel = atendimento.ativo ? "Ativo" : "Inativo";
       const toggleLabel = atendimento.ativo ? "Inativar" : "Reativar";
+      const atendimentoId = escapeHtml(String(atendimento?._id || ""));
       const statusAction = can("canToggleAttendanceStatus")
-        ? `<button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${atendimento._id}" data-next="${String(!atendimento.ativo)}">${toggleLabel}</button>`
+        ? `<button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${atendimentoId}" data-next="${String(!atendimento.ativo)}">${escapeHtml(toggleLabel)}</button>`
         : '<span class="section-subtitle">Somente administracao pode alterar o status.</span>';
       const tipoLabel = formatAtendimentoTipoLabel(atendimento.tipo);
       const resumoSafe = escapeHtml(atendimento.resumo || "-");
@@ -241,7 +245,7 @@
             <p class="consulta-meta"><strong>Proximos passos:</strong> ${proximosSafe}</p>
 
             <div class="stack-actions">
-              <span class="status-badge ${statusClass}">${statusLabel}</span>
+              <span class="status-badge ${statusClass}">${escapeHtml(statusLabel)}</span>
               ${statusAction}
             </div>
           </div>
@@ -446,8 +450,9 @@
         refs.pacientesLista.innerHTML = pacientes
           .map((paciente) => {
             const toggleLabel = paciente.ativo ? "Inativar" : "Reativar";
+            const pacienteId = escapeHtml(String(paciente?._id || ""));
             return `
-              <article class="stack-card stack-card-clickable" data-type="dependente-open" data-id="${paciente._id}" role="button" tabindex="0" aria-label="Abrir ficha de ${escapeHtml(paciente.nome || "dependente")}">
+              <article class="stack-card stack-card-clickable" data-type="dependente-open" data-id="${pacienteId}" role="button" tabindex="0" aria-label="Abrir ficha de ${escapeHtml(paciente.nome || "dependente")}">
                 <div>
                   <h4>${escapeHtml(paciente.nome || "-")}</h4>
                   <p><strong>Tipo:</strong> ${escapeHtml(paciente.tipoDeficiencia || "-")}</p>
@@ -457,10 +462,10 @@
                 <div class="stack-actions">
                   <span class="status-badge ${
                     paciente.ativo ? "status-active" : "status-inactive"
-                  }">${paciente.ativo ? "Ativo" : "Inativo"}</span>
+                  }">${escapeHtml(paciente.ativo ? "Ativo" : "Inativo")}</span>
                   ${
                     can("canTogglePatientStatus")
-                      ? `<button class="mini-btn mini-btn-warn" type="button" data-type="paciente-status" data-id="${paciente._id}" data-next="${String(!paciente.ativo)}">${toggleLabel}</button>`
+                      ? `<button class="mini-btn mini-btn-warn" type="button" data-type="paciente-status" data-id="${pacienteId}" data-next="${String(!paciente.ativo)}">${escapeHtml(toggleLabel)}</button>`
                       : ""
                   }
                 </div>
@@ -476,7 +481,9 @@
             .filter((paciente) => paciente.ativo)
             .map(
               (paciente) =>
-                `<option value="${paciente._id}">${escapeHtml(paciente.nome)}</option>`,
+                `<option value="${escapeHtml(String(paciente?._id || ""))}">${escapeHtml(
+                  paciente.nome,
+                )}</option>`,
             ),
         );
         refs.pacienteSelect.innerHTML = options.join("");
@@ -517,13 +524,14 @@
             String(state.selectedAtendimentoId || "") === String(item._id)
               ? "consulta-card-selected"
               : "";
+          const atendimentoId = escapeHtml(String(item?._id || ""));
           const resumoRaw = String(item.resumo || "-");
           const resumoCorto = escapeHtml(
             resumoRaw.length > 180 ? `${resumoRaw.slice(0, 180)}...` : resumoRaw,
           );
 
           return `
-            <article class="consulta-card consulta-card-clickable ${selectedClass}" data-type="atendimento-open" data-id="${item._id}" role="button" tabindex="0" aria-label="Abrir ficha do atendimento">
+            <article class="consulta-card consulta-card-clickable ${selectedClass}" data-type="atendimento-open" data-id="${atendimentoId}" role="button" tabindex="0" aria-label="Abrir ficha do atendimento">
               <header class="consulta-card-head">
                 <h4 class="consulta-card-title">Atendimento ${escapeHtml(tipoLabel)}</h4>
                 <span class="consulta-card-mark"></span>
@@ -547,18 +555,18 @@
                 <hr class="consulta-divider" />
 
                 <p class="consulta-label">Status</p>
-                <p class="consulta-value consulta-value-accent">${
-                  item.ativo ? "ATIVO" : "INATIVO"
-                }</p>
+                <p class="consulta-value consulta-value-accent">${escapeHtml(
+                  item.ativo ? "ATIVO" : "INATIVO",
+                )}</p>
 
                 <p class="consulta-meta"><strong>Resumo:</strong> ${resumoCorto}</p>
                 <div class="stack-actions">
                   <span class="status-badge ${
                     item.ativo ? "status-active" : "status-inactive"
-                  }">${item.ativo ? "Ativo" : "Inativo"}</span>
+                  }">${escapeHtml(item.ativo ? "Ativo" : "Inativo")}</span>
                   ${
                     can("canToggleAttendanceStatus")
-                      ? `<button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${item._id}" data-next="${String(!item.ativo)}">${toggleLabel}</button>`
+                      ? `<button class="mini-btn mini-btn-warn" type="button" data-type="atendimento-status" data-id="${atendimentoId}" data-next="${String(!item.ativo)}">${escapeHtml(toggleLabel)}</button>`
                       : ""
                   }
                 </div>

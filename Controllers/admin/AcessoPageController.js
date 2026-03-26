@@ -10,11 +10,15 @@ const {
   resolveReturnTo,
   voteUserApproval,
 } = require("../../services/admin/acessoPageService");
+const { logSanitizedError } = require("../../services/security/logSanitizerService");
 
 const DEFAULT_APPROVAL_RETURN_TO = "/acessos/aprovacoes";
 
 function renderAccessPageError(req, res, logMessage, publicMessage, error) {
-  console.error(logMessage, error);
+  logSanitizedError(logMessage, error, {
+    route: req?.originalUrl || req?.url || "",
+    userId: req?.session?.user?.id || null,
+  });
   return res.status(500).render("pages/errors/500", {
     status: 500,
     message: publicMessage,
@@ -30,7 +34,11 @@ function redirectWithFlash(req, res, returnTo, type, message) {
 }
 
 function handleActionError(req, res, returnTo, logMessage, fallbackMessage, error) {
-  console.error(logMessage, error);
+  logSanitizedError(logMessage, error, {
+    route: req?.originalUrl || req?.url || "",
+    userId: req?.session?.user?.id || null,
+    returnTo,
+  });
   return redirectWithFlash(req, res, returnTo, "error", error?.message || fallbackMessage);
 }
 
@@ -113,7 +121,16 @@ class AcessoPageController {
 
       return res.status(200).json(payload);
     } catch (error) {
-      console.error("Erro ao carregar detalhe de aprovacao:", error);
+      if (error?.status === 400) {
+        return res.status(400).json({
+          erro: error?.publicMessage || error?.message || "Usuario invalido.",
+        });
+      }
+
+      logSanitizedError("Erro ao carregar detalhe de aprovacao:", error, {
+        route: req?.originalUrl || req?.url || "",
+        userId: req?.session?.user?.id || null,
+      });
       return res.status(500).json({ erro: "Erro ao carregar a ficha de aprovacao." });
     }
   }

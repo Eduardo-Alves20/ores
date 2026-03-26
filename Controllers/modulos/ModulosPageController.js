@@ -1,4 +1,5 @@
 const { PERFIS } = require("../../config/roles");
+const { createBridgeToken, resolveBridgeConfig } = require("../../services/security/bridgeTokenService");
 
 const MODULES = Object.freeze({
   "help-desk": {
@@ -60,31 +61,22 @@ function resolveModuleAccess(user = null) {
 }
 
 function resolveLaunchUrl(moduleView) {
-  return String(process.env[moduleView.formActionEnv] || "").trim();
+  const rawUrl = String(process.env[moduleView.formActionEnv] || "").trim();
+  if (!rawUrl) return "";
+
+  try {
+    const parsed = new URL(rawUrl);
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return "";
+    }
+    return parsed.toString();
+  } catch (_) {
+    return "";
+  }
 }
 
 function resolveBridgeCredentials(moduleView, user = null) {
-  const isAdmin = ["admin", "superadmin"].includes(
-    String(user?.perfil || "").trim().toLowerCase()
-  );
-  const modulePrefix = moduleView.slug === "help-desk" ? "HELPDESK" : "HDI";
-  const rolePrefix = isAdmin ? "ADMIN" : "USER";
-
-  return {
-    roleLabel: isAdmin ? "Administrador" : "Usuario padrao",
-    username: String(
-      process.env[`${modulePrefix}_${rolePrefix}_LOGIN`] ||
-        (isAdmin ? "admin" : "usuario")
-    ).trim(),
-    password: String(
-      process.env[`${modulePrefix}_${rolePrefix}_PASSWORD`] ||
-        (isAdmin
-          ? moduleView.slug === "help-desk"
-            ? "admin123"
-            : "123"
-          : "123")
-    ).trim(),
-  };
+  return resolveBridgeConfig(moduleView, user);
 }
 
 class ModulosPageController {
@@ -100,7 +92,8 @@ class ModulosPageController {
 
     const access = resolveModuleAccess(req?.session?.user || null);
     const launchUrl = resolveLaunchUrl(moduleView);
-    const isLive = Boolean(launchUrl);
+    const bridgeConfig = resolveBridgeCredentials(moduleView, req?.session?.user || null);
+    const isLive = Boolean(launchUrl && bridgeConfig);
 
     return res.status(200).render("pages/modulos/show", {
       title: moduleView.title,
@@ -114,6 +107,7 @@ class ModulosPageController {
         stageLabel: isLive ? "Sistema real" : moduleView.stageLabel,
         launchUrl,
         isLive,
+        bridgeEnabled: isLive,
         access,
       },
     });
@@ -130,11 +124,17 @@ class ModulosPageController {
     }
 
     const formAction = resolveLaunchUrl(moduleView);
-    if (!formAction) {
+    const bridge = createBridgeToken({
+      moduleView: {
+        ...moduleView,
+        launchUrl: formAction,
+      },
+      user: req?.session?.user || null,
+    });
+
+    if (!formAction || !bridge) {
       return res.redirect(`/modulos/${moduleView.slug}`);
     }
-
-    const bridgeCredentials = resolveBridgeCredentials(moduleView, req?.session?.user || null);
 
     return res.status(200).render("pages/modulos/bridge", {
       title: `Acessando ${moduleView.title}`,
@@ -144,12 +144,7 @@ class ModulosPageController {
       pageClass: "page-modulo-bridge",
       extraCss: ["/css/modulos.css"],
       moduleView,
-      bridge: {
-        formAction,
-        username: bridgeCredentials.username,
-        password: bridgeCredentials.password,
-        roleLabel: bridgeCredentials.roleLabel,
-      },
+      bridge,
     });
   }
 }

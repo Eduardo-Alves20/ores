@@ -1,4 +1,7 @@
-const { Paciente } = require("../../../schemas/social/Paciente");
+const {
+  Paciente,
+  TIPOS_DEFICIENCIA,
+} = require("../../../schemas/social/Paciente");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { createFamiliaError } = require("./familiaContextService");
 const {
@@ -6,8 +9,44 @@ const {
   loadAccessiblePatient,
 } = require("./familiaGuardService");
 
+function normalizePatientName(value, { required = false } = {}) {
+  const normalized = String(value || "").trim();
+  if (!normalized) {
+    if (required) {
+      throw createFamiliaError("Campo nome e obrigatorio.", 400);
+    }
+    return "";
+  }
+  return normalized.slice(0, 160);
+}
+
+function normalizePatientBirthDate(value) {
+  if (typeof value === "undefined") return undefined;
+  if (!value) return null;
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw createFamiliaError("Data de nascimento invalida.", 400);
+  }
+
+  return parsed;
+}
+
+function normalizePatientDisabilityType(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) return "outra";
+  if (!TIPOS_DEFICIENCIA.includes(normalized)) {
+    throw createFamiliaError("Tipo de deficiencia invalido.", 400);
+  }
+  return normalized;
+}
+
+function normalizePatientTextField(value, limit = 3000) {
+  return String(value || "").trim().slice(0, limit);
+}
+
 async function createPatient({ user, actorId, familiaId, body = {} }) {
-  await ensureAccessibleFamily({
+  const familia = await ensureAccessibleFamily({
     user,
     familiaId,
     select: "_id ativo",
@@ -24,18 +63,14 @@ async function createPatient({ user, actorId, familiaId, body = {} }) {
     diagnosticoResumo,
   } = body;
 
-  if (!nome) {
-    throw createFamiliaError("Campo nome e obrigatorio.", 400);
-  }
-
   const paciente = await Paciente.create({
-    familiaId,
-    nome: String(nome).trim(),
-    dataNascimento: dataNascimento || null,
-    tipoDeficiencia: tipoDeficiencia || "outra",
-    necessidadesApoio,
-    observacoes,
-    diagnosticoResumo,
+    familiaId: familia._id,
+    nome: normalizePatientName(nome, { required: true }),
+    dataNascimento: normalizePatientBirthDate(dataNascimento) ?? null,
+    tipoDeficiencia: normalizePatientDisabilityType(tipoDeficiencia),
+    necessidadesApoio: normalizePatientTextField(necessidadesApoio),
+    observacoes: normalizePatientTextField(observacoes),
+    diagnosticoResumo: normalizePatientTextField(diagnosticoResumo),
     ativo: true,
     criadoPor: actorId,
     atualizadoPor: actorId,
@@ -48,7 +83,7 @@ async function createPatient({ user, actorId, familiaId, body = {} }) {
       acao: "PACIENTE_CRIADO",
       entidade: "paciente",
       entidadeId: paciente._id,
-      detalhes: { familiaId },
+      detalhes: { familiaId: familia._id },
     },
   };
 }
@@ -70,14 +105,26 @@ async function updatePatient({ user, actorId, id, body = {} }) {
     atualizadoPor: actorId,
   };
 
-  if (typeof nome !== "undefined") patch.nome = String(nome).trim();
-  if (typeof dataNascimento !== "undefined") patch.dataNascimento = dataNascimento || null;
-  if (typeof tipoDeficiencia !== "undefined") patch.tipoDeficiencia = tipoDeficiencia || "outra";
-  if (typeof necessidadesApoio !== "undefined") patch.necessidadesApoio = necessidadesApoio;
-  if (typeof observacoes !== "undefined") patch.observacoes = observacoes;
-  if (typeof diagnosticoResumo !== "undefined") patch.diagnosticoResumo = diagnosticoResumo;
+  if (typeof nome !== "undefined") {
+    patch.nome = normalizePatientName(nome, { required: true });
+  }
+  if (typeof dataNascimento !== "undefined") {
+    patch.dataNascimento = normalizePatientBirthDate(dataNascimento);
+  }
+  if (typeof tipoDeficiencia !== "undefined") {
+    patch.tipoDeficiencia = normalizePatientDisabilityType(tipoDeficiencia);
+  }
+  if (typeof necessidadesApoio !== "undefined") {
+    patch.necessidadesApoio = normalizePatientTextField(necessidadesApoio);
+  }
+  if (typeof observacoes !== "undefined") {
+    patch.observacoes = normalizePatientTextField(observacoes);
+  }
+  if (typeof diagnosticoResumo !== "undefined") {
+    patch.diagnosticoResumo = normalizePatientTextField(diagnosticoResumo);
+  }
 
-  const paciente = await Paciente.findByIdAndUpdate(id, patch, {
+  const paciente = await Paciente.findByIdAndUpdate(atual._id, patch, {
     new: true,
     runValidators: true,
   });
@@ -88,7 +135,7 @@ async function updatePatient({ user, actorId, id, body = {} }) {
     audit: {
       acao: "PACIENTE_ATUALIZADO",
       entidade: "paciente",
-      entidadeId: id,
+      entidadeId: atual._id,
       detalhes: { familiaId: paciente?.familiaId },
     },
   };
@@ -104,7 +151,7 @@ async function changePatientStatus({ user, actorId, id, ativoInput }) {
   if (!atual) return null;
 
   const paciente = await Paciente.findByIdAndUpdate(
-    id,
+    atual._id,
     {
       ativo,
       atualizadoPor: actorId,
@@ -123,7 +170,7 @@ async function changePatientStatus({ user, actorId, id, ativoInput }) {
     audit: {
       acao: ativo ? "PACIENTE_REATIVADO" : "PACIENTE_INATIVADO",
       entidade: "paciente",
-      entidadeId: id,
+      entidadeId: atual._id,
       detalhes: { familiaId: paciente?.familiaId },
     },
   };
@@ -132,5 +179,8 @@ async function changePatientStatus({ user, actorId, id, ativoInput }) {
 module.exports = {
   changePatientStatus,
   createPatient,
+  normalizePatientBirthDate,
+  normalizePatientDisabilityType,
+  normalizePatientName,
   updatePatient,
 };

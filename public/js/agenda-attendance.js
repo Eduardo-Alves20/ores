@@ -84,7 +84,7 @@
                   type="button"
                   class="agenda-attendance-quick-btn is-${button.tone} ${button.active ? "is-active" : ""}"
                   data-action="${button.action}"
-                  data-id="${evento._id}"
+                  data-id="${escapeHtml(String(evento?._id || ""))}"
                   title="${button.label}"
                   aria-label="${button.label}"
                 >

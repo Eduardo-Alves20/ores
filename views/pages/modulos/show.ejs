@@ -15,12 +15,16 @@
     </div>
 
     <div class="module-hero-actions">
-      <% if (moduleView.launchUrl) { %>
+      <% if (moduleView.bridgeEnabled) { %>
         <a href="<%= moduleView.bridgePath %>" class="btn btn-primary">
           Entrar no sistema real
         </a>
         <span class="module-launch-note">
           O GESA fara a autenticacao automatica no modulo usando o perfil definido para o usuario.
+        </span>
+      <% } else if (moduleView.launchUrl) { %>
+        <span class="module-launch-note">
+          O endpoint externo existe, mas o acesso automatico so e liberado quando as credenciais seguras do perfil atual estiverem configuradas no ambiente.
         </span>
       <% } else { %>
         <span class="module-launch-note">

@@ -4,9 +4,9 @@ const { ensureAccessibleFamily } = require("./familiaGuardService");
 
 async function listPatientsByFamily({ user, familiaId, query = {} }) {
   const ativo = parseBoolean(query.ativo);
-  await ensureAccessibleFamily({ user, familiaId, select: "_id" });
+  const familia = await ensureAccessibleFamily({ user, familiaId, select: "_id" });
 
-  const filtro = { familiaId };
+  const filtro = { familiaId: familia._id };
   if (typeof ativo !== "undefined") filtro.ativo = ativo;
 
   const pacientes = await Paciente.find(filtro).sort({ nome: 1 }).lean();

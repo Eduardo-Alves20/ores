@@ -1,14 +1,17 @@
 const fs = require("fs");
 const path = require("path");
+const { logSanitizedError } = require("../services/security/logSanitizerService");
 
 const DEFAULT_MESSAGES = {
   400: "Ocorreu um erro ao processar sua requisicao.",
   403: "Voce nao tem permissao para acessar esta pagina.",
   404: "A pagina que voce esta procurando nao foi encontrada.",
+  413: "A requisicao excede o tamanho maximo permitido.",
   500: "Ocorreu um erro interno no servidor.",
 };
 
 function resolveErrorStatus(err) {
+  if (err?.type === "entity.too.large") return 413;
   const status = Number(err?.status || err?.statusCode || 500);
   if (status >= 400 && status < 600) return status;
   return 500;
@@ -21,6 +24,9 @@ function wantsHtml(req) {
 function resolvePublicErrorMessage(err, status) {
   if (err?.publicMessage) return err.publicMessage;
   if (status >= 500) return DEFAULT_MESSAGES[500];
+  if (status === 413 || err?.type === "entity.too.large") {
+    return DEFAULT_MESSAGES[413];
+  }
   if (err?.message) return err.message;
   return DEFAULT_MESSAGES[status] || DEFAULT_MESSAGES[500];
 }
@@ -41,7 +47,11 @@ function createErrorHandler({ baseDir, ambiente } = {}) {
   return (err, req, res, next) => {
     if (res.headersSent) return next(err);
 
-    console.error("[server error]", err);
+    logSanitizedError("[server error]", err, {
+      method: req?.method || "",
+      url: req?.originalUrl || req?.url || "",
+      userId: req?.session?.user?.id || null,
+    });
 
     const status = resolveErrorStatus(err);
     const message = resolvePublicErrorMessage(err, status);

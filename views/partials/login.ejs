@@ -64,7 +64,7 @@
       };
     %>
     <script>
-      window.__APP_FLASH = <%- JSON.stringify(__appFlashPayload) %>;
+      window.__APP_FLASH = <%- serializeForInlineScript(__appFlashPayload) %>;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<%= appendAssetVersion('/js/csrf.js') %>" defer></script>

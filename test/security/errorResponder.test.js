@@ -93,6 +93,28 @@ test("error handler preserva mensagem publica em erro 400 de API", () => {
   });
 });
 
+test("error handler trata payload acima do limite como 413 padronizado", () => {
+  const handler = createErrorHandler({ baseDir: process.cwd(), ambiente: "prod" });
+  const req = {
+    accepts(format) {
+      return format === "json";
+    },
+  };
+  const res = createMockResponse();
+  const err = new Error("request entity too large");
+  err.type = "entity.too.large";
+
+  withMutedConsoleError(() => {
+    handler(err, req, res, () => {});
+  });
+
+  assert.equal(res.statusCode, 413);
+  assert.deepEqual(res.body, {
+    message: [DEFAULT_MESSAGES[413]],
+    status: 413,
+  });
+});
+
 test("not found middleware cria erro 404 com mensagem publica padrao", () => {
   const middleware = createNotFoundHandler();
   let captured = null;
