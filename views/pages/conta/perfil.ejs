@@ -1,4 +1,4 @@
-<section class="conta-page">
+﻿<section class="conta-page">
   <% 
     const ambienteSenha = String(ambiente || "").toUpperCase();
     const senhaModoDev = ["DEV", "DEVELOPMENT", "LOCAL", "TEST", "TESTE"].includes(ambienteSenha);
@@ -128,7 +128,7 @@
   </div>
 </section>
 
-<script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %>>
   (function () {
     const modal = document.getElementById("senhaModal");
     const openBtn = document.getElementById("btnAbrirModalSenha");
@@ -163,3 +163,4 @@
     if (startOpen) openModal();
   })();
 </script>
+

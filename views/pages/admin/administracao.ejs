@@ -1,4 +1,4 @@
-<%
+﻿<%
   const snapshot = adminSnapshot?.snapshot || {};
   const options = adminSnapshot?.options || {};
   const salas = Array.isArray(adminSnapshot?.salas) ? adminSnapshot.salas : [];
@@ -716,4 +716,5 @@
   </section>
 </section>
 
-<script id="administracao-initial" type="application/json"><%- serializeForInlineScript(adminSnapshot || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="administracao-initial" type="application/json"><%- serializeForInlineScript(adminSnapshot || {}) %></script>
+

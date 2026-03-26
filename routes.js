@@ -20,9 +20,14 @@ const modulosRoutes = require("./Routes/modulos/modulosRoutes");
 const DashboardController = require("./Controllers/admin/DashboardController");
 const AgendaPageController = require("./Controllers/agenda/AgendaPageController");
 const AgendaPresencaPageController = require("./Controllers/agenda/AgendaPresencaPageController");
+const {
+  cspReportJsonParser,
+  handleCspViolationReport,
+} = require("./Controllers/security/SecurityTelemetryController");
 const { PERMISSIONS } = require("./config/permissions");
 const { buildRobotsTxt, buildSitemapXml } = require("./services/seoService");
 const { resolveLandingRouteForUser } = require("./services/shared/navigationService");
+const { cspReportLimiter } = require("./middlewares/rateLimiters");
 
 const { requireAuth, requirePermission } = require("./middlewares/authSession");
 
@@ -71,6 +76,13 @@ router.get("/auth/login", (req, res) => {
 router.get("/auth/cadastro", (req, res) => {
   return res.redirect(301, "/cadastro");
 });
+
+router.post(
+  "/api/security/csp-report",
+  cspReportLimiter,
+  cspReportJsonParser,
+  handleCspViolationReport
+);
 
 router.use("/", authRoutes);
 router.use("/auth", authRoutes);

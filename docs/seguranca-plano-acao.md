@@ -148,6 +148,30 @@ Testes:
 - upload invalido e rejeitado
 - brute force e abuso de rota sensivel sofrem rate limit
 
+## Bloco 7 - CSP dinamica e telemetria de violacoes
+
+Foco:
+
+- aplicar `Content-Security-Policy` com `nonce` por requisicao
+- ativar coleta de violacoes via `report-uri`/`report-to`
+- manter fail-secure no CSRF sem bloquear telemetria do navegador
+
+Implementado nesta etapa:
+
+- `nonce` de CSP por request exposta em `res.locals` para scripts inline e externos de `views`
+- cabecalho `Content-Security-Policy` em modo enforced com politica compativel
+- cabecalho `Content-Security-Policy-Report-Only` em modo estrito para descoberta progressiva
+- endpoint `POST /api/security/csp-report` com parser dedicado e rate limit
+- trilha de auditoria de eventos de seguranca em formato append-only com hash encadeado
+- excecao de CSRF limitada somente ao endpoint de report CSP
+
+Testes:
+
+- headers de CSP e `Report-To` incluem nonce e endpoint esperado
+- POST de report CSP nao e bloqueado por CSRF
+- evento de seguranca registra hash encadeado e payload sanitizado
+- controlador de telemetria normaliza payload em formato legado e `report-to`
+
 ## Ordem sugerida
 
 1. Baseline e testes

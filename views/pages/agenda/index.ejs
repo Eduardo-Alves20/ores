@@ -1,8 +1,8 @@
-<section class="page-shell agenda-layout" data-page="agenda">
+﻿<section class="page-shell agenda-layout" data-page="agenda">
   <header class="agenda-header">
     <div>
       <h2>Agenda de Atendimentos</h2>
-      <p>Gerencie visitas, compromissos e retornos com fluxo dinâmico por perfil.</p>
+      <p>Gerencie visitas, compromissos e retornos com fluxo dinÃ¢mico por perfil.</p>
     </div>
     <div class="agenda-toolbar">
       <label class="field-wrap">
@@ -69,10 +69,10 @@
           </div>
         </div>
         <div class="agenda-calendar-actions">
-          <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="Mês anterior">
+          <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="MÃªs anterior">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
-          <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="Próximo mês">
+          <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="PrÃ³ximo mÃªs">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>
@@ -85,7 +85,7 @@
         <span>Qua</span>
         <span>Qui</span>
         <span>Sex</span>
-        <span>Sáb</span>
+        <span>SÃ¡b</span>
       </div>
 
       <div class="agenda-calendar-grid" id="agenda-calendar-grid"></div>
@@ -123,7 +123,7 @@
     <form id="agenda-form" class="agenda-form">
       <div class="agenda-form-grid">
         <label class="field-wrap span-2">
-          <span class="input-label">Título *</span>
+          <span class="input-label">TÃ­tulo *</span>
           <input class="input-control" type="text" name="titulo" required maxlength="140" />
         </label>
 
@@ -143,7 +143,7 @@
         </label>
 
         <label class="field-wrap">
-          <span class="input-label">Responsável</span>
+          <span class="input-label">ResponsÃ¡vel</span>
           <select class="input-control" name="responsavelId" id="agenda-responsavel-select"></select>
         </label>
 
@@ -159,31 +159,31 @@
         </div>
 
         <label class="field-wrap span-2">
-          <span class="input-label">Buscar família</span>
-          <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsável, telefone..." />
+          <span class="input-label">Buscar famÃ­lia</span>
+          <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsÃ¡vel, telefone..." />
         </label>
 
         <label class="field-wrap">
-          <span class="input-label">Família</span>
+          <span class="input-label">FamÃ­lia</span>
           <select class="input-control" name="familiaId" id="agenda-familia-select">
-            <option value="">Sem família vinculada</option>
+            <option value="">Sem famÃ­lia vinculada</option>
           </select>
         </label>
 
         <label class="field-wrap">
           <span class="input-label">Paciente</span>
           <select class="input-control" name="pacienteId" id="agenda-paciente-select">
-            <option value="">Sem paciente específico</option>
+            <option value="">Sem paciente especÃ­fico</option>
           </select>
         </label>
 
         <label class="field-wrap span-2">
-          <span class="input-label">Local / Endereço</span>
+          <span class="input-label">Local / EndereÃ§o</span>
           <input class="input-control" type="text" name="local" maxlength="240" />
         </label>
 
         <label class="field-wrap span-2">
-          <span class="input-label">Observações</span>
+          <span class="input-label">ObservaÃ§Ãµes</span>
           <textarea class="input-control textarea-control" name="observacoes" rows="4" maxlength="3000"></textarea>
         </label>
       </div>
@@ -259,7 +259,7 @@
   </section>
 </div>
 
-<script id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(agendaConfig?.attendanceJustifications || []) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(agendaConfig?.attendanceJustifications || []) %></script>
 
 <div class="agenda-modal-backdrop" id="agenda-salas-backdrop" hidden>
   <section class="agenda-modal agenda-salas-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-salas-title">
@@ -300,5 +300,6 @@
   </section>
 </div>
 
-<script id="agenda-config" type="application/json"><%- serializeForInlineScript(agendaConfig || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="agenda-config" type="application/json"><%- serializeForInlineScript(agendaConfig || {}) %></script>
+
 

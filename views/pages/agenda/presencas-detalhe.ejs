@@ -1,4 +1,4 @@
-<%
+﻿<%
   const renderBaseHiddenFilters = () => `
     <input type="hidden" name="dataInicio" value="${filtros?.dataInicio || ""}" />
     <input type="hidden" name="dataFim" value="${filtros?.dataFim || ""}" />
@@ -316,7 +316,7 @@
                   <tr class="<%= item.sequenciaAusencias >= 2 ? 'is-top' : '' %>">
                     <td>
                       <strong><%= item.nome %></strong>
-                      <small><%= item.total %> agenda(s) · status atual <%= item.ultimoStatusLabel %></small>
+                      <small><%= item.total %> agenda(s) Â· status atual <%= item.ultimoStatusLabel %></small>
                     </td>
                     <td>
                       <% if (item.familiaId) { %>
@@ -511,4 +511,5 @@
 </div>
 </div>
 
-<script id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(attendanceJustifications || []) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(attendanceJustifications || []) %></script>
+

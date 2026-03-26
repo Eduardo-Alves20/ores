@@ -1,4 +1,4 @@
-<section class="page-shell familias-layout" data-page="familia-detalhe" data-familia-id="<%= familia._id %>">
+﻿<section class="page-shell familias-layout" data-page="familia-detalhe" data-familia-id="<%= familia._id %>">
   <header class="familias-header familias-hero familias-hero-detail card-elevated">
     <div class="familias-hero-main">
       <p class="familias-overline">Prontuario familiar</p>
@@ -324,4 +324,5 @@
     </div>
   </section>
 </section>
-<script id="familia-detail-flags" type="application/json"><%- serializeForInlineScript(viewFlags || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="familia-detail-flags" type="application/json"><%- serializeForInlineScript(viewFlags || {}) %></script>
+

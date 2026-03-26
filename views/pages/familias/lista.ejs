@@ -1,4 +1,4 @@
-<section class="page-shell familias-layout" data-page="familias-lista">
+﻿<section class="page-shell familias-layout" data-page="familias-lista">
   <header class="familias-header familias-hero card-elevated">
     <div class="familias-hero-main">
       <p class="familias-overline">Cadastro central</p>
@@ -125,5 +125,6 @@
   </section>
 </section>
 
-<script id="familias-initial" type="application/json"><%- serializeForInlineScript(filtros || {}) %></script>
-<script id="familias-view-flags" type="application/json"><%- serializeForInlineScript(viewFlags || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="familias-initial" type="application/json"><%- serializeForInlineScript(filtros || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="familias-view-flags" type="application/json"><%- serializeForInlineScript(viewFlags || {}) %></script>
+

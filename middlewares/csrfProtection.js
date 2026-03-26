@@ -1,9 +1,11 @@
 const crypto = require("crypto");
+const { CSP_REPORT_PATH } = require("./securityHeaders");
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS", "TRACE"]);
 const CSRF_FIELD_NAME = "_csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const FALLBACK_HEADER_NAMES = [CSRF_HEADER_NAME, "x-xsrf-token", "csrf-token"];
+const CSRF_EXEMPT_PATHS = new Set([CSP_REPORT_PATH]);
 
 function wantsHtml(req) {
   return typeof req?.accepts === "function" && !!req.accepts("html");
@@ -11,6 +13,17 @@ function wantsHtml(req) {
 
 function isSafeMethod(method) {
   return SAFE_METHODS.has(String(method || "").trim().toUpperCase());
+}
+
+function resolveRequestPath(req) {
+  const rawPath = String(req?.path || req?.originalUrl || req?.url || "").trim();
+  if (!rawPath) return "";
+  return rawPath.split("?")[0];
+}
+
+function isCsrfExemptRequest(req) {
+  const requestPath = resolveRequestPath(req);
+  return CSRF_EXEMPT_PATHS.has(requestPath);
 }
 
 function generateCsrfToken() {
@@ -101,7 +114,7 @@ function createCsrfError() {
 function csrfProtection(req, res, next) {
   const expectedToken = attachCsrfLocals(req, res);
 
-  if (isSafeMethod(req?.method)) {
+  if (isSafeMethod(req?.method) || isCsrfExemptRequest(req)) {
     return next();
   }
 
@@ -126,4 +139,7 @@ module.exports = {
   shouldIssueCsrfToken,
   tokensMatch,
   wantsHtml,
+  CSRF_EXEMPT_PATHS,
+  isCsrfExemptRequest,
+  resolveRequestPath,
 };

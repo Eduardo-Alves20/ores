@@ -80,6 +80,8 @@ app.use(expressLayouts);
 app.set("trust proxy", 1);
 app.set("layout", "partials/login.ejs");
 app.locals.serializeForInlineScript = serializeForInlineScript;
+app.locals.cspNonce = "";
+app.locals.renderCspNonceAttr = () => "";
 
 app.use(express.json({ limit: JSON_BODY_LIMIT }));
 app.use(express.urlencoded({ extended: true, limit: FORM_BODY_LIMIT, parameterLimit: 100 }));

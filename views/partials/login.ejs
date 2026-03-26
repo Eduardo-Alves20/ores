@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -63,17 +63,18 @@
           .concat(typeof infoMessage !== "undefined" ? __normalizeFlash(infoMessage) : []),
       };
     %>
-    <script>
+    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %>>
       window.__APP_FLASH = <%- serializeForInlineScript(__appFlashPayload) %>;
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="<%= appendAssetVersion('/js/csrf.js') %>" defer></script>
-    <script src="<%= appendAssetVersion('/js/ui-alerts.js') %>" defer></script>
-    <script src="<%= appendAssetVersion('/js/auth.js') %>" defer></script>
+    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="<%= appendAssetVersion('/js/csrf.js') %>" defer></script>
+    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="<%= appendAssetVersion('/js/ui-alerts.js') %>" defer></script>
+    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="<%= appendAssetVersion('/js/auth.js') %>" defer></script>
     <% if (typeof extraJs !== "undefined" && Array.isArray(extraJs)) { %>
       <% extraJs.forEach((src) => { %>
-        <script src="<%= appendAssetVersion(src) %>" defer></script>
+        <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="<%= appendAssetVersion(src) %>" defer></script>
       <% }) %>
     <% } %>
   </body>
 </html>
+

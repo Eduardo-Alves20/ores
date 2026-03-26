@@ -1,4 +1,4 @@
-<%
+﻿<%
   const timelineChart = charts?.timeline || {};
   const distributionChart = charts?.distribution || {};
   const teamLoadChart = charts?.teamLoad || {};
@@ -14,7 +14,7 @@
     <div class="dashboard-hero-main">
       <p class="dashboard-overline">Painel operacional</p>
       <h2 class="dashboard-hero-title"><%= hero?.greeting || "Painel Administrativo" %></h2>
-      <p class="dashboard-hero-subtitle"><%= hero?.subtitle || "Resumo rápido da operação social." %></p>
+      <p class="dashboard-hero-subtitle"><%= hero?.subtitle || "Resumo rÃ¡pido da operaÃ§Ã£o social." %></p>
 
       <div class="dashboard-hero-stats">
         <% (hero?.stats || []).forEach((item) => { %>
@@ -71,7 +71,7 @@
         <div class="dashboard-panel-head compact">
           <div>
             <p class="dashboard-panel-overline">Prioridades</p>
-            <h3>O que merece ação agora</h3>
+            <h3>O que merece aÃ§Ã£o agora</h3>
           </div>
           <% if (birthdayWidget?.href && birthdayWidget?.actionLabel) { %>
             <a href="<%= birthdayWidget.href %>" class="dashboard-panel-link"><%= birthdayWidget.actionLabel %></a>
@@ -107,7 +107,7 @@
         <div class="dashboard-panel-head compact">
           <div>
             <p class="dashboard-panel-overline"><%= birthdayWidget?.title || "Aniversariantes" %></p>
-            <h3><%= birthdayWidget?.subtitle || "Hoje e próximos 7 dias" %></h3>
+            <h3><%= birthdayWidget?.subtitle || "Hoje e prÃ³ximos 7 dias" %></h3>
           </div>
         </div>
 
@@ -130,7 +130,7 @@
         <% } else { %>
           <div class="dashboard-empty-inline">
             <i class="fa-solid fa-cake-candles" aria-hidden="true"></i>
-            <p><%= birthdayWidget?.emptyMessage || "Nenhum aniversariante no período." %></p>
+            <p><%= birthdayWidget?.emptyMessage || "Nenhum aniversariante no perÃ­odo." %></p>
           </div>
         <% } %>
       </section>
@@ -179,7 +179,7 @@
     <article class="dashboard-panel card-elevated dashboard-panel-timeline">
       <header class="dashboard-panel-head">
         <div>
-          <p class="dashboard-panel-overline">Tendência</p>
+          <p class="dashboard-panel-overline">TendÃªncia</p>
           <h3><%= timelineChart?.title %></h3>
           <p><%= timelineChart?.subtitle %></p>
         </div>
@@ -214,7 +214,7 @@
     <article class="dashboard-panel card-elevated">
       <header class="dashboard-panel-head">
         <div>
-          <p class="dashboard-panel-overline">Distribuição</p>
+          <p class="dashboard-panel-overline">DistribuiÃ§Ã£o</p>
           <h3><%= distributionChart?.title %></h3>
           <p><%= distributionChart?.subtitle %></p>
         </div>
@@ -292,9 +292,9 @@
     <article class="dashboard-panel card-elevated">
       <header class="dashboard-panel-head">
         <div>
-          <p class="dashboard-panel-overline">Leituras rápidas</p>
-          <h3>Insights para a decisão</h3>
-          <p>Atalhos visuais que ajudam a entender volume, carga e comportamento recente da operação.</p>
+          <p class="dashboard-panel-overline">Leituras rÃ¡pidas</p>
+          <h3>Insights para a decisÃ£o</h3>
+          <p>Atalhos visuais que ajudam a entender volume, carga e comportamento recente da operaÃ§Ã£o.</p>
         </div>
       </header>
 
@@ -314,7 +314,7 @@
       <% } else { %>
         <div class="dashboard-empty-state">
           <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
-          <p>Assim que houver volume suficiente, os destaques analíticos aparecem aqui.</p>
+          <p>Assim que houver volume suficiente, os destaques analÃ­ticos aparecem aqui.</p>
         </div>
       <% } %>
     </article>
@@ -324,8 +324,8 @@
     <header class="dashboard-panel-head">
       <div>
         <p class="dashboard-panel-overline">Cadastros recentes</p>
-        <h3>Últimos registros incluídos na base</h3>
-        <p>Consulte responsável, status, volume de dependentes e quem abriu o cadastro sem sair da home.</p>
+        <h3>Ãšltimos registros incluÃ­dos na base</h3>
+        <p>Consulte responsÃ¡vel, status, volume de dependentes e quem abriu o cadastro sem sair da home.</p>
       </div>
       <% if (viewFlags?.canViewFamilies) { %>
         <a href="/familias" class="btn btn-muted dashboard-table-link">Ver todos</a>
@@ -336,20 +336,20 @@
       <table class="dashboard-table" data-stack-mobile="true">
         <thead>
           <tr>
-            <th>Família</th>
+            <th>FamÃ­lia</th>
             <th>Status</th>
             <th>Dependentes</th>
             <th>Cidade</th>
             <th>Cadastro</th>
-            <th>Responsável</th>
-            <th>Ações</th>
+            <th>ResponsÃ¡vel</th>
+            <th>AÃ§Ãµes</th>
           </tr>
         </thead>
         <tbody>
           <% if (Array.isArray(recentRows) && recentRows.length) { %>
             <% recentRows.forEach((row) => { %>
               <tr>
-                <td data-label="Família">
+                <td data-label="FamÃ­lia">
                   <a href="<%= row.href %>" class="dashboard-table-person">
                     <span class="dashboard-avatar"><%= row.initials %></span>
                     <span class="dashboard-table-person-copy">
@@ -367,13 +367,13 @@
                 </td>
                 <td data-label="Cidade"><%= row.cidade %></td>
                 <td data-label="Cadastro"><%= row.data %></td>
-                <td data-label="Responsável">
+                <td data-label="ResponsÃ¡vel">
                   <span class="dashboard-table-owner">
                     <span class="dashboard-avatar soft"><%= row.responsavelCadastroInitials %></span>
                     <span><%= row.responsavelCadastro %></span>
                   </span>
                 </td>
-                <td data-label="Ações">
+                <td data-label="AÃ§Ãµes">
                   <a href="<%= row.href %>" class="dashboard-table-action">Abrir</a>
                 </td>
               </tr>
@@ -389,4 +389,5 @@
   </section>
 </section>
 
-<script id="dashboard-data" type="application/json"><%- serializeForInlineScript(dashboardData || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="dashboard-data" type="application/json"><%- serializeForInlineScript(dashboardData || {}) %></script>
+

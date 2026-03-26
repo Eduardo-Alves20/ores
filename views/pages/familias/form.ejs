@@ -1,4 +1,4 @@
-<section
+﻿<section
   class="page-shell familias-layout"
   data-page="familias-form"
   data-mode="<%= modo %>"
@@ -149,4 +149,5 @@
   </form>
 </section>
 
-<script id="familia-form-initial" type="application/json"><%- serializeForInlineScript(familia || null) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="familia-form-initial" type="application/json"><%- serializeForInlineScript(familia || null) %></script>
+

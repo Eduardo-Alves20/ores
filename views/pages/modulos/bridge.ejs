@@ -1,4 +1,4 @@
-<section class="module-show-page">
+﻿<section class="module-show-page">
   <header class="card-elevated module-hero">
     <div class="module-hero-eyebrow">Acesso automatico</div>
 
@@ -29,7 +29,7 @@
   </header>
 </section>
 
-<script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %>>
   window.addEventListener("load", function () {
     const form = document.getElementById("module-bridge-form");
     if (form) {
@@ -37,3 +37,4 @@
     }
   });
 </script>
+

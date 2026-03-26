@@ -43,8 +43,16 @@ const moduleBridgeLimiter = buildIpLimiter({
     "Muitas tentativas de acesso ao modulo externo. Aguarde alguns minutos e tente novamente.",
 });
 
+const cspReportLimiter = buildIpLimiter({
+  windowMs: 5 * 60 * 1000,
+  max: isDevLike ? 600 : 200,
+  message:
+    "Muitas notificacoes de seguranca recebidas no mesmo intervalo. Tente novamente em instantes.",
+});
+
 module.exports = {
   buildIpLimiter,
+  cspReportLimiter,
   moduleBridgeLimiter,
   passwordMutationLimiter,
   portalMutationLimiter,

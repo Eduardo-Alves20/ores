@@ -397,4 +397,5 @@
   </section>
 </section>
 
-<script id="consultation-dashboard-data" type="application/json"><%- serializeForInlineScript(consultationDashboardData || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="consultation-dashboard-data" type="application/json"><%- serializeForInlineScript(consultationDashboardData || {}) %></script>
+

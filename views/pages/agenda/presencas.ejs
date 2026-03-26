@@ -1,4 +1,4 @@
-<%
+﻿<%
   const pct = (part, total) => (Number(total || 0) > 0 ? Math.max(0, Math.min(100, Math.round((Number(part || 0) / Number(total || 1)) * 100))) : 0);
   const topFaltas = Array.isArray(rankingAssistidos)
     ? rankingAssistidos.find((item) => Number(item?.faltas || 0) > 0)
@@ -148,7 +148,7 @@
     <section class="presenca-active-filters card-elevated">
       <div>
         <p class="presenca-overline">Filtros ativos</p>
-        <h3>Agenda de presença filtrada com estes critérios</h3>
+        <h3>Agenda de presenÃ§a filtrada com estes critÃ©rios</h3>
       </div>
       <div class="presenca-active-filter-list">
         <% filtrosResumo.forEach((chip) => { %>
@@ -387,7 +387,7 @@
             >
               <div class="presenca-event-card-top">
                 <div>
-                  <strong><%= evento.horaLabel %> · <%= evento.titulo %></strong>
+                  <strong><%= evento.horaLabel %> Â· <%= evento.titulo %></strong>
                   <p class="agenda-event-line"><strong>Paciente:</strong> <%= evento.pacienteNome %></p>
                 </div>
                 <span class="agenda-event-badge status-<%= evento.statusPresenca %>"><%= evento.statusPresencaLabel %></span>
@@ -765,4 +765,5 @@
 </div>
 </div>
 
-<script id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(attendanceJustifications || []) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(attendanceJustifications || []) %></script>
+

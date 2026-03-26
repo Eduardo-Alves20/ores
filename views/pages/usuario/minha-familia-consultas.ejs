@@ -1,4 +1,4 @@
-<section class="page-shell agenda-layout family-agenda-layout" data-page="family-agenda">
+﻿<section class="page-shell agenda-layout family-agenda-layout" data-page="family-agenda">
   <header class="agenda-header family-agenda-header">
     <div>
       <h2>Agenda da familia</h2>
@@ -196,6 +196,7 @@
       </section>
     </div>
 
-    <script id="family-agenda-config" type="application/json"><%- serializeForInlineScript(familyAgendaConfig || {}) %></script>
+    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="family-agenda-config" type="application/json"><%- serializeForInlineScript(familyAgendaConfig || {}) %></script>
   <% } %>
 </section>
+

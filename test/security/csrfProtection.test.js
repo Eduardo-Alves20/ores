@@ -7,7 +7,9 @@ const {
   createCsrfError,
   csrfProtection,
   getOrCreateCsrfToken,
+  isCsrfExemptRequest,
   isSafeMethod,
+  resolveRequestPath,
   resolveCsrfTokenFromRequest,
   shouldIssueCsrfToken,
   tokensMatch,
@@ -129,6 +131,30 @@ test("csrfProtection bloqueia POST sem token valido", () => {
 
   assert.equal(nextArg?.code, "CSRF_VALIDATION_FAILED");
   assert.equal(nextArg?.status, 403);
+});
+
+test("csrfProtection ignora endpoint de relatorio CSP sem abrir outras rotas", () => {
+  const req = {
+    method: "POST",
+    path: "/api/security/csp-report",
+    originalUrl: "/api/security/csp-report",
+    session: {},
+    body: { "csp-report": { "violated-directive": "script-src" } },
+    headers: {},
+    accepts() {
+      return false;
+    },
+  };
+  const res = createMockResponse();
+  let nextArg = null;
+
+  csrfProtection(req, res, (arg) => {
+    nextArg = arg;
+  });
+
+  assert.equal(nextArg, undefined);
+  assert.equal(isCsrfExemptRequest(req), true);
+  assert.equal(resolveRequestPath(req), "/api/security/csp-report");
 });
 
 test("csrfProtection permite POST com token no corpo ou header", () => {
