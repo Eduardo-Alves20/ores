@@ -20,8 +20,14 @@ async function applyAgendaSideEffects(req, result) {
       ...result.history,
     });
   }
-  if (result.notify) {
-    await dispatchAgendaNotifications(result.notify);
+  const notifications = Array.isArray(result.notify)
+    ? result.notify
+    : result.notify
+      ? [result.notify]
+      : [];
+
+  for (const notification of notifications) {
+    await dispatchAgendaNotifications(notification);
   }
 }
 

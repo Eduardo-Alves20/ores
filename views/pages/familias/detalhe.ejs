@@ -22,7 +22,7 @@
     <div class="familias-header-actions">
       <a href="/familias" class="btn btn-muted">Voltar</a>
       <% if (viewFlags?.canEditFamily) { %>
-        <a href="/familias/<%= familia._id %>/editar" class="btn btn-primary">Editar Familia</a>
+        <a href="/familias/<%= familia._id %>/editar" class="btn btn-primary">Editar Família</a>
       <% } %>
     </div>
   </header>
@@ -30,8 +30,8 @@
   <section class="familia-resumo card-elevated">
     <div class="familia-resumo-head">
       <div>
-        <p class="familias-overline">Visao geral</p>
-        <h2 class="section-title">Resumo da familia</h2>
+        <p class="familias-overline">Visão geral</p>
+        <h2 class="section-title">Resumo da família</h2>
       </div>
       <span class="badge-soft">Ficha social centralizada</span>
     </div>
@@ -44,7 +44,7 @@
         <p><strong>Email:</strong> <span id="resumo-email"><%= familia?.responsavel?.email || "-" %></span></p>
       </article>
       <article class="resumo-item">
-        <h2>Endereco</h2>
+        <h2>Endereço</h2>
         <p id="resumo-endereco">
           <%= [familia?.endereco?.rua, familia?.endereco?.numero, familia?.endereco?.bairro, familia?.endereco?.cidade, familia?.endereco?.estado].filter(Boolean).join(", ") || "-" %>
         </p>
@@ -57,22 +57,22 @@
             <%= familia?.ativo ? "Inativar Familia" : "Reativar Familia" %>
           </button>
         <% } else { %>
-          <small class="section-subtitle">Somente administracao pode alterar o status da familia.</small>
+          <small class="section-subtitle">Somente administração pode alterar o status da família.</small>
         <% } %>
       </article>
     </div>
-    <p class="observacao-livre"><strong>Observacoes:</strong> <span id="resumo-observacoes"><%= familia?.observacoes || "-" %></span></p>
+    <p class="observacao-livre"><strong>Observações:</strong> <span id="resumo-observacoes"><%= familia?.observacoes || "-" %></span></p>
   </section>
 
   <section class="detail-workflow card-elevated">
     <header class="workflow-toolbar">
       <div>
         <h2 class="section-title" id="workflow-title">Ficha de Dependentes</h2>
-        <p class="section-subtitle" id="workflow-subtitle">Gestao dos dependentes vinculados a esta familia.</p>
+        <p class="section-subtitle" id="workflow-subtitle">Gestão dos dependentes vinculados a esta família.</p>
       </div>
       <div class="workflow-actions-top">
         <button type="button" class="btn btn-muted" id="workflow-back-btn" hidden>Voltar</button>
-        <button type="button" class="btn btn-primary workflow-main-btn" id="workflow-main-btn">Historico de atendimento</button>
+        <button type="button" class="btn btn-primary workflow-main-btn" id="workflow-main-btn">Histórico de atendimento</button>
       </div>
     </header>
 
@@ -83,18 +83,18 @@
       </button>
       <button type="button" class="workflow-tab" data-workflow-tab="historico">
         <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
-        <span>Historico de atendimento</span>
+        <span>Histórico de atendimento</span>
       </button>
       <button type="button" class="workflow-tab" data-workflow-tab="presencas">
         <i class="fa-solid fa-user-check" aria-hidden="true"></i>
-        <span>Presencas</span>
+        <span>Presenças</span>
       </button>
     </nav>
 
     <div class="workflow-panels">
       <section id="panel-pacientes" class="workflow-panel is-active">
         <div class="listagem-head">
-          <h3 class="section-title panel-title">Dependentes da Familia</h3>
+          <h3 class="section-title panel-title">Dependentes da Família</h3>
           <span class="badge-soft" id="pacientes-count">0</span>
         </div>
         <div id="pacientes-lista" class="stack-list"></div>
@@ -104,7 +104,7 @@
           </div>
         <% } else { %>
           <div class="panel-actions">
-            <small class="section-subtitle">Perfil em modo visualizacao. Somente administracao registra ou altera dependentes.</small>
+            <small class="section-subtitle">Perfil em modo visualizacao. Somente administração registra ou altera dependentes.</small>
           </div>
         <% } %>
 
@@ -185,7 +185,7 @@
             <textarea class="input-control textarea-control" name="necessidadesApoio" rows="4"></textarea>
           </label>
           <label class="field-wrap">
-            <span class="input-label">Observacoes</span>
+            <span class="input-label">Observações</span>
             <textarea class="input-control textarea-control" name="observacoes" rows="3"></textarea>
           </label>
           <label class="field-wrap">
@@ -212,7 +212,7 @@
         </section>
 
         <div class="listagem-head">
-          <h3 class="section-title panel-title">Historico de Atendimentos</h3>
+          <h3 class="section-title panel-title">Histórico de Atendimentos</h3>
           <span class="badge-soft" id="atendimentos-count">0</span>
         </div>
         <div id="atendimentos-lista" class="timeline-list consulta-cards-list"></div>
@@ -222,7 +222,7 @@
         <section class="presenca-familiar-hero">
           <div class="presenca-familiar-copy">
             <p class="familias-overline">Controle de comparecimento</p>
-            <h3>Consultas, faltas e justificativas desta familia</h3>
+            <h3>Consultas, faltas e justificativas desta família</h3>
             <p>Veja rapidamente quem compareceu, onde houve falta e quais consultas tiveram justificativa registrada.</p>
           </div>
         </section>
@@ -232,7 +232,7 @@
             <span>Consultas</span>
             <strong>0</strong>
           </article>
-          <article class="presenca-resumo-card is-presente" data-presenca-filter="presente" role="button" tabindex="0" aria-label="Mostrar consultas com presenca">
+          <article class="presenca-resumo-card is-presente" data-presenca-filter="presente" role="button" tabindex="0" aria-label="Mostrar consultas com presença">
             <span>Presentes</span>
             <strong>0</strong>
           </article>
@@ -253,7 +253,7 @@
         <div class="listagem-head">
           <div>
             <h3 class="section-title panel-title">Linha do tempo das consultas</h3>
-            <p class="section-subtitle" id="presencas-filter-label">Mostrando todas as consultas da agenda desta familia.</p>
+            <p class="section-subtitle" id="presencas-filter-label">Mostrando todas as consultas da agenda desta família.</p>
           </div>
           <span class="badge-soft" id="presencas-count">0</span>
         </div>
@@ -273,7 +273,7 @@
           <% } %>
         </div>
         <div id="atendimento-detalhe" class="timeline-card consulta-card-detail-wrap">
-          <p class="empty-hint">Selecione um atendimento no historico para visualizar a ficha.</p>
+          <p class="empty-hint">Selecione um atendimento no histórico para visualizar a ficha.</p>
         </div>
       </section>
 
@@ -287,7 +287,7 @@
             <select class="input-control" name="pacienteId" id="atendimento-paciente"></select>
           </label>
           <label class="field-wrap">
-            <span class="input-label">Profissional / voluntario atendido (opcional)</span>
+            <span class="input-label">Profissional / voluntário atendido (opcional)</span>
             <select class="input-control" name="profissionalId" id="atendimento-profissional">
               <option value="">Sem profissional especificado</option>
             </select>
@@ -312,11 +312,11 @@
             <textarea class="input-control textarea-control" name="resumo" rows="4" required></textarea>
           </label>
           <label class="field-wrap">
-            <span class="input-label">Proximos passos</span>
+            <span class="input-label">Próximos passos</span>
             <textarea class="input-control textarea-control" name="proximosPassos" rows="3"></textarea>
           </label>
           <div class="panel-actions">
-            <button type="button" class="btn btn-muted" id="registro-voltar-btn">Voltar ao Historico</button>
+            <button type="button" class="btn btn-muted" id="registro-voltar-btn">Voltar ao Histórico</button>
             <button class="btn btn-primary" type="submit" id="atendimento-submit-btn">Salvar Atendimento</button>
           </div>
         </form>

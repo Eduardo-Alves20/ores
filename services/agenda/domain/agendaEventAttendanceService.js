@@ -13,6 +13,42 @@ const {
   ensureAgendaPermission,
 } = require("./agendaEventMutationSupportService");
 
+const ABSENCE_ALERT_THRESHOLD = 2;
+const ABSENCE_ALERT_STATUSES = Object.freeze(["falta", "falta_justificada"]);
+
+function hasAbsenceStatus(statusPresenca = "") {
+  return ABSENCE_ALERT_STATUSES.includes(String(statusPresenca || "").trim());
+}
+
+function shouldTriggerAbsenceAlert({
+  previousStatusPresenca,
+  nextStatusPresenca,
+  totalAbsences,
+} = {}) {
+  return (
+    hasAbsenceStatus(nextStatusPresenca) &&
+    !hasAbsenceStatus(previousStatusPresenca) &&
+    Number(totalAbsences || 0) === ABSENCE_ALERT_THRESHOLD
+  );
+}
+
+function extractPatientId(evento = {}) {
+  return evento?.pacienteId?._id || evento?.pacienteId || null;
+}
+
+async function countPatientAbsences(patientId) {
+  const normalizedPatientId = asObjectId(patientId);
+  if (!normalizedPatientId) return 0;
+
+  return AgendaEvento.countDocuments({
+    ativo: true,
+    pacienteId: normalizedPatientId,
+    statusPresenca: {
+      $in: ABSENCE_ALERT_STATUSES,
+    },
+  });
+}
+
 async function registerAgendaAttendance(user, eventId, body = {}) {
   ensureAgendaPermission(user, PERMISSIONS.AGENDA_ATTENDANCE, "Acesso negado para registrar presenca.");
 
@@ -36,6 +72,7 @@ async function registerAgendaAttendance(user, eventId, body = {}) {
   }
 
   const actorId = asObjectId(user.id);
+  const previousStatusPresenca = String(evento.statusPresenca || "").trim();
   const presencaObservacao = String(body?.observacao || "").trim().slice(0, 1000);
   const justificativaKey = String(body?.justificativaKey || "").trim();
   const statusAgendamento = getStatusAgendamentoForPresence(evento.statusAgendamento, statusPresenca);
@@ -68,15 +105,37 @@ async function registerAgendaAttendance(user, eventId, body = {}) {
   );
 
   const detalhe = await carregarEventoDetalhado(evento._id);
+  const notifications = [
+    {
+      type: "attendance_registered",
+      event: detalhe.evento,
+    },
+  ];
+
+  const patientId = extractPatientId(detalhe?.evento);
+  if (hasAbsenceStatus(statusPresenca) && patientId) {
+    const totalAbsences = await countPatientAbsences(patientId);
+    if (
+      shouldTriggerAbsenceAlert({
+        previousStatusPresenca,
+        nextStatusPresenca: statusPresenca,
+        totalAbsences,
+      })
+    ) {
+      notifications.push({
+        type: "attendance_absence_threshold_reached",
+        event: detalhe.evento,
+        absenceCount: totalAbsences,
+        threshold: ABSENCE_ALERT_THRESHOLD,
+      });
+    }
+  }
 
   return {
     mensagem: "Presenca atualizada com sucesso.",
     evento: mapEvento(detalhe.evento),
     historico: detalhe.historico,
-    notify: {
-      type: "attendance_registered",
-      event: detalhe.evento,
-    },
+    notify: notifications,
     audit: {
       acao: "AGENDA_PRESENCA_REGISTRADA",
       entidade: "agenda_evento",
@@ -105,5 +164,9 @@ async function registerAgendaAttendance(user, eventId, body = {}) {
 }
 
 module.exports = {
+  ABSENCE_ALERT_STATUSES,
+  ABSENCE_ALERT_THRESHOLD,
+  countPatientAbsences,
   registerAgendaAttendance,
+  shouldTriggerAbsenceAlert,
 };

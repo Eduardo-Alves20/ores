@@ -1,7 +1,7 @@
 <section class="portal-profile-page">
   <section class="portal-profile-hero card-elevated">
     <div class="portal-profile-hero-main">
-      <span class="badge-soft">Area do Usuario</span>
+      <span class="badge-soft">Area do Usuário</span>
       <h2><%= usuario?.nome || "Usuario" %></h2>
       <p>Confira seus dados cadastrais, o tipo de acesso liberado e os atalhos principais do seu perfil.</p>
 
@@ -21,7 +21,7 @@
 
     <div class="portal-profile-hero-side">
       <article class="portal-profile-highlight">
-        <span class="portal-profile-highlight-label">Ultimo login</span>
+        <span class="portal-profile-highlight-label">Último login</span>
         <strong><%= usuario?.ultimoLoginEm ? new Date(usuario.ultimoLoginEm).toLocaleString("pt-BR") : "Primeiro acesso" %></strong>
       </article>
       <article class="portal-profile-highlight">
@@ -51,7 +51,7 @@
           <strong><%= usuario?.email || "-" %></strong>
         </div>
         <div class="portal-profile-detail">
-          <span>Usuario de login</span>
+          <span>Usuário de login</span>
           <strong><%= usuario?.login || "-" %></strong>
         </div>
         <div class="portal-profile-detail">
@@ -73,12 +73,12 @@
       <header class="portal-profile-card-head">
         <div>
           <h3>Recursos liberados</h3>
-          <p>Resumo rapido do que este usuario ja pode acessar.</p>
+          <p>Resumo rápido do que este usuário já pode acessar.</p>
         </div>
       </header>
 
       <% if (!accessHighlights || !accessHighlights.length) { %>
-        <p class="empty-hint">Este perfil esta com acesso basico. Se precisar ampliar o uso do sistema, fale com a administracao.</p>
+        <p class="empty-hint">Este perfil esta com acesso básico. Se precisar ampliar o uso do sistema, fale com a administração.</p>
       <% } else { %>
         <div class="portal-profile-feature-list">
           <% accessHighlights.forEach((item) => { %>

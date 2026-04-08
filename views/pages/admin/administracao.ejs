@@ -12,11 +12,11 @@
 <section class="page-shell administracao-page" data-page="administracao">
   <header class="administracao-hero card-elevated">
     <div class="administracao-hero-copy">
-      <p class="administracao-eyebrow">Central de gestao</p>
-      <h1>Administracao do ecossistema</h1>
+      <p class="administracao-eyebrow">Central de gestão</p>
+      <h1>Administração do ecossistema</h1>
       <p>
-        Configure o que governa o sistema: salas, justificativas de presenca, campos extras dos cadastros, filtros
-        rapidos e campanhas de aniversario que ajudam a equipe a agir com mais contexto e cuidado.
+        Configure o que governa o sistema: salas, justificativas de presença, campos extras dos cadastros, filtros
+        rapidos e campanhas de aniversário que ajudam a equipe a agir com mais contexto e cuidado.
       </p>
     </div>
 
@@ -72,7 +72,7 @@
             <span class="input-label">Ativa</span>
             <select class="input-control" name="ativo">
               <option value="true">Sim</option>
-              <option value="false">Nao</option>
+              <option value="false">Não</option>
             </select>
           </label>
 
@@ -131,8 +131,8 @@
     <article class="administracao-panel card-elevated">
       <header class="administracao-panel-head">
         <div>
-          <p class="administracao-panel-eyebrow">Presenca</p>
-          <h2>Justificativas de presenca</h2>
+          <p class="administracao-panel-eyebrow">Presença</p>
+          <h2>Justificativas de presença</h2>
           <p>Monte a biblioteca oficial de justificativas usadas nas faltas e cancelamentos.</p>
         </div>
         <span class="badge-soft"><%= metrics.justificativasAtivas || 0 %> ativas</span>
@@ -150,7 +150,7 @@
             <span class="input-label">Ativa</span>
             <select class="input-control" name="ativo">
               <option value="true">Sim</option>
-              <option value="false">Nao</option>
+              <option value="false">Não</option>
             </select>
           </label>
 
@@ -231,7 +231,7 @@
         <div>
           <p class="administracao-panel-eyebrow">Cadastro</p>
           <h2>Campos extras</h2>
-          <p>Crie campos dinamicos para familia e usuario sem mexer no formulario toda vez.</p>
+          <p>Crie campos dinamicos para família e usuário sem mexer no formulario toda vez.</p>
         </div>
         <span class="badge-soft"><%= metrics.camposAtivos || 0 %> ativos</span>
       </header>
@@ -271,7 +271,7 @@
             <span class="input-label">Ativo</span>
             <select class="input-control" name="ativo">
               <option value="true">Sim</option>
-              <option value="false">Nao</option>
+              <option value="false">Não</option>
             </select>
           </label>
 
@@ -362,7 +362,7 @@
         <div>
           <p class="administracao-panel-eyebrow">Navegacao</p>
           <h2>Filtros rapidos</h2>
-          <p>Crie atalhos de filtro para aparecer nas telas mais usadas da operacao.</p>
+          <p>Crie atalhos de filtro para aparecer nas telas mais usadas da operação.</p>
         </div>
         <span class="badge-soft"><%= metrics.filtrosAtivos || 0 %> ativos</span>
       </header>
@@ -405,7 +405,7 @@
             <span class="input-label">Ativo</span>
             <select class="input-control" name="ativo">
               <option value="true">Sim</option>
-              <option value="false">Nao</option>
+              <option value="false">Não</option>
             </select>
           </label>
 
@@ -428,7 +428,7 @@
 
       <div class="administracao-list" data-admin-filter-list>
         <% if (!filtros.length) { %>
-          <p class="empty-hint">Nenhum filtro rapido cadastrado ainda.</p>
+          <p class="empty-hint">Nenhum filtro rápido cadastrado ainda.</p>
         <% } else { %>
           <% filtros.forEach((item) => { %>
             <article class="administracao-item-card <%= item.ativo ? '' : 'is-inactive' %>">
@@ -507,7 +507,7 @@
           </label>
 
           <fieldset class="administracao-checklist span-2">
-            <legend>Publico da campanha</legend>
+            <legend>Público da campanha</legend>
             <% (options.birthdayCampaignAudiences || []).forEach((item) => { %>
               <label class="check-card">
                 <input type="checkbox" name="publico" value="<%= item.value %>" />
@@ -538,7 +538,7 @@
           <label class="field-wrap">
             <span class="input-label">Janela em dias</span>
             <input class="input-control" type="number" name="diasAntecedencia" min="0" max="30" step="1" value="7" />
-            <small class="input-help">0 = somente hoje. 7 = hoje e proximos 7 dias.</small>
+            <small class="input-help">0 = somente hoje. 7 = hoje e próximos 7 dias.</small>
           </label>
 
           <label class="field-wrap">
@@ -549,7 +549,7 @@
 
           <label class="check-card check-card-inline">
             <input type="checkbox" name="requerAprovacao" value="true" />
-            <span>Exigir aprovacao antes de disparos futuros</span>
+            <span>Exigir aprovação antes de disparos futuros</span>
           </label>
         </div>
 
@@ -562,7 +562,7 @@
             </label>
             <label class="check-card">
               <input type="checkbox" name="variarPorHistorico" value="true" />
-              <span>Levar em conta historico e engajamento</span>
+              <span>Levar em conta histórico e engajamento</span>
             </label>
             <label class="check-card">
               <input type="checkbox" name="evitarRepeticaoAnual" value="true" />
@@ -657,7 +657,7 @@
 
       <div class="administracao-list" data-admin-birthday-list>
         <% if (!campanhasAniversario.length) { %>
-          <p class="empty-hint">Nenhuma campanha de aniversario cadastrada ainda.</p>
+          <p class="empty-hint">Nenhuma campanha de aniversário cadastrada ainda.</p>
         <% } else { %>
           <% campanhasAniversario.forEach((item) => { %>
             <article class="administracao-item-card <%= item.status === 'encerrada' ? 'is-inactive' : '' %>">

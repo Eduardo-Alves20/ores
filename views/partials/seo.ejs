@@ -1,6 +1,44 @@
 ﻿<%
-  const seoMeta = buildSeo({
-    title,
+  const resolveSeoMeta =
+    typeof buildSeo === "function"
+      ? buildSeo
+      : (overrides = {}) => {
+          const defaultTitle = "GESA | Fundacao Alento";
+          const defaultDescription =
+            "Sistema web de gestao social da Fundacao Alento para familias, voluntarios, atendimentos e agenda.";
+          const normalizePath = (value, fallback = "/") => {
+            const normalized = String(value || "").trim();
+            if (!normalized) return fallback;
+            if (/^https?:\/\//i.test(normalized)) return normalized;
+            return normalized.startsWith("/") ? normalized : `/${normalized}`;
+          };
+          const normalizeSchemas = (value) => {
+            if (!value) return [];
+            return Array.isArray(value) ? value.filter(Boolean) : [value];
+          };
+          const noindexValue = typeof overrides.noindex === "boolean" ? overrides.noindex : true;
+          return {
+            title: String(overrides.title || "").trim() || defaultTitle,
+            description: String(overrides.description || "").trim() || defaultDescription,
+            canonicalUrl: normalizePath(overrides.canonicalPath),
+            imageUrl: normalizePath(overrides.imagePath, "/assets/og-default.svg"),
+            imageAlt:
+              String(overrides.imageAlt || "").trim() ||
+              "Identidade visual do GESA, sistema de gestao social da Fundacao Alento.",
+            robots: noindexValue
+              ? "noindex, nofollow, noarchive"
+              : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+            locale: "pt_BR",
+            type: String(overrides.type || "").trim() || "website",
+            siteName: "GESA | Fundacao Alento",
+            themeColor: String(overrides.themeColor || "").trim() || "#b24a32",
+            noindex: noindexValue,
+            schemas: normalizeSchemas(overrides.schemas),
+          };
+        };
+
+  const seoMeta = resolveSeoMeta({
+    title: typeof title !== "undefined" ? title : undefined,
     description: typeof metaDescription !== "undefined" ? metaDescription : undefined,
     canonicalPath: typeof canonicalPath !== "undefined" ? canonicalPath : undefined,
     noindex: typeof noindex !== "undefined" ? noindex : undefined,
@@ -32,4 +70,3 @@
 <% seoMeta.schemas.forEach((schema) => { %>
   <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> type="application/ld+json"><%- serializeForInlineScript(schema) %></script>
 <% }) %>
-

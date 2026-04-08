@@ -8,7 +8,7 @@
     <div>
       <p class="familias-overline">Cadastro central</p>
       <h1 class="familias-title"><%= modo === "editar" ? "Editar Familia" : "Nova Familia" %></h1>
-      <p class="familias-subtitle">Dados do responsavel e informacoes de contexto da familia.</p>
+      <p class="familias-subtitle">Dados do responsavel e informacoes de contexto da família.</p>
     </div>
     <div class="familias-header-actions">
       <a href="<%= familia?._id ? `/familias/${familia._id}` : '/familias' %>" class="btn btn-muted">Cancelar</a>
@@ -44,7 +44,7 @@
       </label>
     </div>
 
-    <h2 class="section-title">Endereco</h2>
+    <h2 class="section-title">Endereço</h2>
     <div class="form-grid">
       <label class="field-wrap">
         <span class="input-label">CEP</span>
@@ -82,9 +82,9 @@
       </label>
     </div>
 
-    <h2 class="section-title">Observacoes</h2>
+    <h2 class="section-title">Observações</h2>
     <label class="field-wrap">
-      <textarea class="input-control textarea-control" name="observacoes" rows="5" placeholder="Necessidades, contexto da familia e observacoes de apoio..."><%= familia?.observacoes || '' %></textarea>
+      <textarea class="input-control textarea-control" name="observacoes" rows="5" placeholder="Necessidades, contexto da família e observações de apoio..."><%= familia?.observacoes || '' %></textarea>
     </label>
 
     <% if (Array.isArray(customFields) && customFields.length) { %>
@@ -113,7 +113,7 @@
             <label class="field-wrap">
               <span class="input-label"><%= field.label %></span>
               <select class="input-control" name="campoExtra_<%= field.chave %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>">
-                <option value="false" <%= fieldValue === true ? '' : 'selected' %>>Nao</option>
+                <option value="false" <%= fieldValue === true ? '' : 'selected' %>>Não</option>
                 <option value="true" <%= fieldValue === true ? 'selected' : '' %>>Sim</option>
               </select>
               <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
@@ -132,10 +132,10 @@
     <% if (modo === "editar") { %>
       <h2 class="section-title">Status</h2>
       <label class="field-wrap field-inline">
-        <span class="input-label">Familia ativa</span>
+        <span class="input-label">Família ativa</span>
         <select class="input-control" name="ativo">
           <option value="true" <%= familia?.ativo ? "selected" : "" %>>Sim</option>
-          <option value="false" <%= !familia?.ativo ? "selected" : "" %>>Nao</option>
+          <option value="false" <%= !familia?.ativo ? "selected" : "" %>>Não</option>
         </select>
       </label>
     <% } %>

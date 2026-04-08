@@ -2,10 +2,10 @@
   <header class="family-portal-hero module-card">
     <div class="family-portal-hero-copy">
       <span class="badge-soft">Notificacoes</span>
-      <h2>Atualizacoes da familia</h2>
+      <h2>Atualizacoes da família</h2>
       <p>
         Veja quando uma consulta for criada, remarcada, cancelada ou quando houver
-        atualizacao de presenca e status.
+        atualizacao de presença e status.
       </p>
     </div>
     <div class="family-portal-hero-actions">
@@ -31,7 +31,7 @@
       <strong class="family-kpi-value"><%= totais?.total || 0 %></strong>
     </article>
     <article class="module-card family-kpi-card">
-      <span class="family-kpi-label">Nao lidas</span>
+      <span class="family-kpi-label">Não lidas</span>
       <strong class="family-kpi-value"><%= totais?.unread || 0 %></strong>
     </article>
     <article class="module-card family-kpi-card">
@@ -58,7 +58,7 @@
       <span class="input-label">Leitura</span>
       <select class="input-control" name="status">
         <option value="todos" <%= filtros?.status === "todos" ? "selected" : "" %>>Todas</option>
-        <option value="nao_lidas" <%= filtros?.status === "nao_lidas" ? "selected" : "" %>>Nao lidas</option>
+        <option value="nao_lidas" <%= filtros?.status === "nao_lidas" ? "selected" : "" %>>Não lidas</option>
         <option value="lidas" <%= filtros?.status === "lidas" ? "selected" : "" %>>Lidas</option>
       </select>
     </label>

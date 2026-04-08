@@ -2,7 +2,7 @@
   <header class="agenda-header">
     <div>
       <h2>Agenda de Atendimentos</h2>
-      <p>Gerencie visitas, compromissos e retornos com fluxo dinÃ¢mico por perfil.</p>
+      <p>Gerencie visitas, compromissos e retornos com fluxo dinâmico por perfil.</p>
     </div>
     <div class="agenda-toolbar">
       <label class="field-wrap">
@@ -19,7 +19,7 @@
   <section class="agenda-presenca-overview card-elevated">
     <header class="agenda-presenca-overview-head">
       <div>
-        <p class="agenda-day-overline">Presenca da Semana</p>
+        <p class="agenda-day-overline">Presença da Semana</p>
         <h3 id="agenda-presenca-semana-titulo">Carregando semana...</h3>
       </div>
       <div class="agenda-presenca-kpis" id="agenda-presenca-kpis">
@@ -47,13 +47,13 @@
             aria-expanded="false"
             aria-controls="agenda-mes-picker-popover"
           >
-            <h3 id="agenda-mes-titulo">Calendario</h3>
+            <h3 id="agenda-mes-titulo">Calendário</h3>
             <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
           </button>
 
           <div class="agenda-month-picker-popover card-elevated" id="agenda-mes-picker-popover" hidden>
             <label class="field-wrap">
-              <span class="input-label">Mes</span>
+              <span class="input-label">Mês</span>
               <select class="input-control" id="agenda-mes-picker-mes"></select>
             </label>
 
@@ -69,10 +69,10 @@
           </div>
         </div>
         <div class="agenda-calendar-actions">
-          <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="MÃªs anterior">
+          <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="Mês anterior">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
-          <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="PrÃ³ximo mÃªs">
+          <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="Próximo mês">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>
@@ -85,7 +85,7 @@
         <span>Qua</span>
         <span>Qui</span>
         <span>Sex</span>
-        <span>SÃ¡b</span>
+        <span>Sáb</span>
       </div>
 
       <div class="agenda-calendar-grid" id="agenda-calendar-grid"></div>
@@ -123,7 +123,7 @@
     <form id="agenda-form" class="agenda-form">
       <div class="agenda-form-grid">
         <label class="field-wrap span-2">
-          <span class="input-label">TÃ­tulo *</span>
+          <span class="input-label">Título *</span>
           <input class="input-control" type="text" name="titulo" required maxlength="140" />
         </label>
 
@@ -143,7 +143,7 @@
         </label>
 
         <label class="field-wrap">
-          <span class="input-label">ResponsÃ¡vel</span>
+          <span class="input-label">Responsável</span>
           <select class="input-control" name="responsavelId" id="agenda-responsavel-select"></select>
         </label>
 
@@ -159,37 +159,37 @@
         </div>
 
         <label class="field-wrap span-2">
-          <span class="input-label">Buscar famÃ­lia</span>
-          <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsÃ¡vel, telefone..." />
+          <span class="input-label">Buscar família</span>
+          <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsável, telefone..." />
         </label>
 
         <label class="field-wrap">
-          <span class="input-label">FamÃ­lia</span>
+          <span class="input-label">Família</span>
           <select class="input-control" name="familiaId" id="agenda-familia-select">
-            <option value="">Sem famÃ­lia vinculada</option>
+            <option value="">Sem família vinculada</option>
           </select>
         </label>
 
         <label class="field-wrap">
           <span class="input-label">Paciente</span>
           <select class="input-control" name="pacienteId" id="agenda-paciente-select">
-            <option value="">Sem paciente especÃ­fico</option>
+            <option value="">Sem paciente específico</option>
           </select>
         </label>
 
         <label class="field-wrap span-2">
-          <span class="input-label">Local / EndereÃ§o</span>
+          <span class="input-label">Local / Endereço</span>
           <input class="input-control" type="text" name="local" maxlength="240" />
         </label>
 
         <label class="field-wrap span-2">
-          <span class="input-label">ObservaÃ§Ãµes</span>
+          <span class="input-label">Observações</span>
           <textarea class="input-control textarea-control" name="observacoes" rows="4" maxlength="3000"></textarea>
         </label>
       </div>
 
       <p class="agenda-form-hint">
-        Dica: voce pode arrastar no painel da direita ou arrastar o dia (quando houver 1 evento) para soltar em outra data no calendario.
+        Dica: você pode arrastar no painel da direita ou arrastar o dia (quando houver 1 evento) para soltar em outra data no calendário.
       </p>
 
       <div class="agenda-form-actions">
@@ -204,7 +204,7 @@
   <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-presenca-title">
     <header class="agenda-modal-head">
       <div>
-        <h3 id="agenda-presenca-title">Registrar Presenca</h3>
+        <h3 id="agenda-presenca-title">Registrar Presença</h3>
         <p class="agenda-modal-subtitle" id="agenda-presenca-subtitle">Carregando detalhes do agendamento...</p>
       </div>
       <button type="button" class="btn btn-muted btn-icon" id="agenda-presenca-close" aria-label="Fechar">
@@ -232,8 +232,8 @@
       </label>
 
       <label class="field-wrap">
-        <span class="input-label">Observacao interna</span>
-        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: familia avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
+        <span class="input-label">Observação interna</span>
+        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: família avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
       </label>
 
       <% if (agendaConfig?.permissions?.canRegisterAttendance) { %>
@@ -244,15 +244,15 @@
           <button type="button" class="btn btn-muted" data-agenda-presenca-action="pendente">Voltar para Pendente</button>
         </div>
       <% } else { %>
-        <p class="agenda-form-hint">Modo visualizacao. Somente perfis autorizados registram presenca.</p>
+        <p class="agenda-form-hint">Modo visualizacao. Somente perfis autorizados registram presença.</p>
       <% } %>
 
       <section class="agenda-presenca-history">
         <header class="agenda-presenca-history-head">
-          <h4>Historico do agendamento</h4>
+          <h4>Histórico do agendamento</h4>
         </header>
         <div class="agenda-presenca-history-list" id="agenda-presenca-history-list">
-          <p class="empty-hint">Nenhum historico carregado.</p>
+          <p class="empty-hint">Nenhum histórico carregado.</p>
         </div>
       </section>
     </div>

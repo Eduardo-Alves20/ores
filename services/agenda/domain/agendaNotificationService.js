@@ -47,7 +47,10 @@ async function resolveFamilyPortalRecipients(evento) {
   }];
 }
 
-async function resolveOperationalRecipients(evento) {
+async function resolveOperationalRecipients(
+  evento,
+  channels = ["sistema", "email", "whatsapp"]
+) {
   const recipients = [];
 
   if (evento?.responsavelId?._id) {
@@ -56,7 +59,7 @@ async function resolveOperationalRecipients(evento) {
       nome: evento.responsavelId.nome,
       email: evento.responsavelId.email,
       telefone: evento.responsavelId.telefone,
-      channels: ["sistema", "email", "whatsapp"],
+      channels,
     });
   }
 
@@ -64,7 +67,7 @@ async function resolveOperationalRecipients(evento) {
   admins.forEach((admin) => {
     recipients.push({
       ...admin,
-      channels: ["sistema", "email", "whatsapp"],
+      channels,
     });
   });
 
@@ -137,6 +140,23 @@ function buildAgendaNotificationDescriptor(type, evento, options = {}) {
     };
   }
 
+  if (type === "attendance_absence_threshold_reached") {
+    const absenceCount = Math.max(0, Number(options?.absenceCount || 0));
+    const threshold = Math.max(0, Number(options?.threshold || 0));
+    const dependenteNome = String(meta.dependenteNome || "assistido").trim();
+
+    return {
+      eventKey: "agenda.alerta_duas_faltas",
+      title: "Alerta de faltas do assistido",
+      message: `O assistido "${dependenteNome}" atingiu ${absenceCount || threshold || 0} faltas registradas na agenda.`,
+      meta: {
+        ...meta,
+        absenceCount,
+        threshold,
+      },
+    };
+  }
+
   return {
     eventKey: "agenda.presenca_registrada",
     title: "Atualizacao de presenca do agendamento",
@@ -155,9 +175,13 @@ async function dispatchAgendaNotifications(notification = {}) {
     notification
   );
   const familyRecipients = await resolveFamilyPortalRecipients(evento);
-  const recipients = notification?.type === "attendance_registered"
-    ? [...(await resolveOperationalRecipients(evento)), ...familyRecipients]
-    : familyRecipients;
+  let recipients = familyRecipients;
+
+  if (notification?.type === "attendance_registered") {
+    recipients = [...(await resolveOperationalRecipients(evento)), ...familyRecipients];
+  } else if (notification?.type === "attendance_absence_threshold_reached") {
+    recipients = await resolveOperationalRecipients(evento, ["sistema"]);
+  }
 
   return notify({
     categoria: "agenda",

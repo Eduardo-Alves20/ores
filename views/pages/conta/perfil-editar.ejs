@@ -4,11 +4,11 @@
       <h2>Editar Perfil</h2>
       <p>
         <% if (isSuperAdmin) { %>
-          Como SuperAdmin, voce pode editar todos os campos.
+          Como SuperAdmin, você pode editar todos os campos.
         <% } else if (isAdmin) { %>
-          Como administrador, voce pode editar campos operacionais da conta.
+          Como administrador, você pode editar campos operacionais da conta.
         <% } else { %>
-          Voce pode editar apenas email e telefone.
+          Você pode editar apenas email e telefone.
         <% } %>
       </p>
     </div>
@@ -49,12 +49,12 @@
 
       <% if (isAdmin) { %>
         <label class="field-wrap">
-          <span class="input-label">Usuario de login</span>
+          <span class="input-label">Usuário de login</span>
           <input class="input-control" type="text" name="login" required value="<%= usuario?.login || '' %>" />
         </label>
       <% } else { %>
         <label class="field-wrap">
-          <span class="input-label">Usuario de login</span>
+          <span class="input-label">Usuário de login</span>
           <input class="input-control" type="text" value="<%= usuario?.login || '-' %>" disabled />
         </label>
       <% } %>
@@ -120,7 +120,7 @@
       <% } %>
 
       <div class="conta-form-actions">
-        <button type="submit" class="btn btn-primary">Salvar Alteracoes</button>
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
         <a href="/perfil" class="btn btn-muted">Cancelar</a>
       </div>
     </form>

@@ -7,7 +7,7 @@ const { PERMISSIONS } = require("../../config/permissions");
 
 router.use(requirePermission(PERMISSIONS.USUARIOS_MANAGE));
 
-// LISTAR (com paginaÃ§Ã£o e filtros)
+// LISTAR (com paginação e filtros)
 // GET /usuarios?page=1&limit=10&busca=joao&ativo=true&perfil=admin
 router.get("/", UsuarioController.listar);
 

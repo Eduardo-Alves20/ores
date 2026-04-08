@@ -20,6 +20,15 @@ const PacienteSchema = new mongoose.Schema(
       index: true,
     },
     nome: { type: String, required: true, trim: true, index: true },
+    matricula: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 16,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
     dataNascimento: { type: Date, required: false },
     tipoDeficiencia: {
       type: String,

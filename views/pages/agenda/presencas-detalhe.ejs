@@ -13,14 +13,14 @@
 <section class="page-shell presenca-page presenca-detail-page">
   <header class="presenca-hero card-elevated">
     <div class="presenca-hero-copy">
-      <p class="presenca-overline">Analise detalhada</p>
-      <h2><%= detail?.title || 'Analise de presencas' %></h2>
-      <p><%= detail?.subtitle || 'Aprofunde a leitura do comparecimento e encontre rapidamente o que exige acao.' %></p>
+      <p class="presenca-overline">Análise detalhada</p>
+      <h2><%= detail?.title || 'Análise de presenças' %></h2>
+      <p><%= detail?.subtitle || 'Aprofunde a leitura do comparecimento e encontre rapidamente o que exige ação.' %></p>
     </div>
     <div class="presenca-hero-side">
       <div class="agenda-presenca-kpis">
         <span class="agenda-presenca-kpi is-total"><%= Number(resumo?.total || 0) %> registros</span>
-        <span class="agenda-presenca-kpi is-presente"><%= Number(resumo?.presente || 0) %> presencas</span>
+        <span class="agenda-presenca-kpi is-presente"><%= Number(resumo?.presente || 0) %> presenças</span>
         <span class="agenda-presenca-kpi is-falta"><%= Number(resumo?.falta || 0) %> faltas</span>
         <span class="agenda-presenca-kpi is-pendente"><%= Number(resumo?.faltaJustificada || 0) %> justificadas</span>
       </div>
@@ -31,7 +31,7 @@
     </div>
   </header>
 
-  <nav class="presenca-section-nav card-elevated" aria-label="Areas de analise da presenca">
+  <nav class="presenca-section-nav card-elevated" aria-label="Areas de análise da presença">
     <% (detail?.sectionNav || []).forEach((item) => { %>
       <a href="<%= item.href %>" class="presenca-section-nav-link <%= item.key === detail?.key ? 'is-active' : '' %>">
         <span><%= item.label %></span>
@@ -44,7 +44,7 @@
     <section class="presenca-active-filters card-elevated">
       <div>
         <p class="presenca-overline">Filtro base do painel</p>
-        <h3>Esta analise respeita o recorte que voce definiu na agenda de presenca</h3>
+        <h3>Esta análise respeita o recorte que você definiu na agenda de presença</h3>
       </div>
       <div class="presenca-active-filter-list">
         <% filtrosResumo.forEach((chip) => { %>
@@ -58,9 +58,9 @@
     <header class="presenca-panel-head">
       <div>
         <p class="presenca-overline">Filtro da area</p>
-        <h3>Refine a leitura desta analise</h3>
+        <h3>Refine a leitura desta análise</h3>
       </div>
-      <small>Esses filtros nao alteram o recorte base da agenda, so a forma como a area atual e exibida.</small>
+      <small>Esses filtros não alteram o recorte base da agenda, só a forma como a área atual é exibida.</small>
     </header>
 
     <form method="get" action="/agenda/presencas/analise/<%= detail?.key %>" class="presenca-detail-filter-form">
@@ -70,7 +70,7 @@
         <label class="field-wrap">
           <span class="input-label">Ordenar foco</span>
           <select class="input-control" name="focoSemanal">
-            <option value="faltas" <%= detail?.filters?.focus === 'faltas' ? 'selected' : '' %>>Semanas com mais ausencias</option>
+            <option value="faltas" <%= detail?.filters?.focus === 'faltas' ? 'selected' : '' %>>Semanas com mais ausências</option>
             <option value="comparecimento" <%= detail?.filters?.focus === 'comparecimento' ? 'selected' : '' %>>Melhor comparecimento</option>
             <option value="justificadas" <%= detail?.filters?.focus === 'justificadas' ? 'selected' : '' %>>Mais justificativas</option>
             <option value="volume" <%= detail?.filters?.focus === 'volume' ? 'selected' : '' %>>Maior volume de agenda</option>
@@ -90,7 +90,7 @@
           <span class="input-label">Recorte</span>
           <select class="input-control" name="somenteSemanasCriticas">
             <option value="0" <%= detail?.filters?.somenteSemanasCriticas ? '' : 'selected' %>>Todas as semanas</option>
-            <option value="1" <%= detail?.filters?.somenteSemanasCriticas ? 'selected' : '' %>>Somente semanas com ausencia</option>
+            <option value="1" <%= detail?.filters?.somenteSemanasCriticas ? 'selected' : '' %>>Somente semanas com ausência</option>
           </select>
         </label>
       <% } %>
@@ -101,8 +101,8 @@
           <select class="input-control" name="ordenarAssistidos">
             <option value="faltas" <%= detail?.filters?.ordenar === 'faltas' ? 'selected' : '' %>>Mais faltas</option>
             <option value="justificadas" <%= detail?.filters?.ordenar === 'justificadas' ? 'selected' : '' %>>Mais justificativas</option>
-            <option value="taxa_ausencia" <%= detail?.filters?.ordenar === 'taxa_ausencia' ? 'selected' : '' %>>Maior taxa de ausencia</option>
-            <option value="sequencia" <%= detail?.filters?.ordenar === 'sequencia' ? 'selected' : '' %>>Maior sequencia atual</option>
+            <option value="taxa_ausencia" <%= detail?.filters?.ordenar === 'taxa_ausencia' ? 'selected' : '' %>>Maior taxa de ausência</option>
+            <option value="sequencia" <%= detail?.filters?.ordenar === 'sequencia' ? 'selected' : '' %>>Maior sequência atual</option>
             <option value="volume" <%= detail?.filters?.ordenar === 'volume' ? 'selected' : '' %>>Maior volume de agenda</option>
           </select>
         </label>
@@ -120,7 +120,7 @@
           <span class="input-label">Mostrar</span>
           <select class="input-control" name="somenteComAusenciaAssistidos">
             <option value="0" <%= detail?.filters?.somenteComAusencia ? '' : 'selected' %>>Todos os assistidos</option>
-            <option value="1" <%= detail?.filters?.somenteComAusencia ? 'selected' : '' %>>Somente com ausencia</option>
+            <option value="1" <%= detail?.filters?.somenteComAusencia ? 'selected' : '' %>>Somente com ausência</option>
           </select>
         </label>
       <% } %>
@@ -129,7 +129,7 @@
         <label class="field-wrap">
           <span class="input-label">Ordenar por</span>
           <select class="input-control" name="ordenarProfissionais">
-            <option value="faltas" <%= detail?.filters?.ordenar === 'faltas' ? 'selected' : '' %>>Mais ausencias</option>
+            <option value="faltas" <%= detail?.filters?.ordenar === 'faltas' ? 'selected' : '' %>>Mais ausências</option>
             <option value="justificadas" <%= detail?.filters?.ordenar === 'justificadas' ? 'selected' : '' %>>Mais justificativas</option>
             <option value="taxa_comparecimento" <%= detail?.filters?.ordenar === 'taxa_comparecimento' ? 'selected' : '' %>>Melhor comparecimento</option>
             <option value="volume" <%= detail?.filters?.ordenar === 'volume' ? 'selected' : '' %>>Maior volume</option>
@@ -149,14 +149,14 @@
           <span class="input-label">Mostrar</span>
           <select class="input-control" name="somenteComAusenciaProfissionais">
             <option value="0" <%= detail?.filters?.somenteComAusencia ? '' : 'selected' %>>Todos os profissionais</option>
-            <option value="1" <%= detail?.filters?.somenteComAusencia ? 'selected' : '' %>>Somente com ausencia</option>
+            <option value="1" <%= detail?.filters?.somenteComAusencia ? 'selected' : '' %>>Somente com ausência</option>
           </select>
         </label>
       <% } %>
 
       <% if (detail?.key === 'ocorrencias') { %>
         <label class="field-wrap">
-          <span class="input-label">Tipo de ocorrencia</span>
+          <span class="input-label">Tipo de ocorrência</span>
           <select class="input-control" name="tipoOcorrencia">
             <option value="todos" <%= detail?.filters?.tipoOcorrencia === 'todos' ? 'selected' : '' %>>Faltas, justificativas e cancelamentos</option>
             <option value="falta" <%= detail?.filters?.tipoOcorrencia === 'falta' ? 'selected' : '' %>>Somente faltas</option>
@@ -168,8 +168,8 @@
         <label class="field-wrap">
           <span class="input-label">Detalhe</span>
           <select class="input-control" name="somenteComObservacaoOcorrencias">
-            <option value="0" <%= detail?.filters?.somenteComObservacao ? '' : 'selected' %>>Com ou sem observacao</option>
-            <option value="1" <%= detail?.filters?.somenteComObservacao ? 'selected' : '' %>>Somente com observacao</option>
+            <option value="0" <%= detail?.filters?.somenteComObservacao ? '' : 'selected' %>>Com ou sem observação</option>
+            <option value="1" <%= detail?.filters?.somenteComObservacao ? 'selected' : '' %>>Somente com observação</option>
           </select>
         </label>
 
@@ -177,14 +177,14 @@
           <span class="input-label">Quantidade</span>
           <select class="input-control" name="limiteOcorrencias">
             <% [20, 50, 100].forEach((value) => { %>
-              <option value="<%= value %>" <%= Number(detail?.filters?.limite || 20) === value ? 'selected' : '' %>><%= value %> ocorrencias</option>
+              <option value="<%= value %>" <%= Number(detail?.filters?.limite || 20) === value ? 'selected' : '' %>><%= value %> ocorrências</option>
             <% }) %>
           </select>
         </label>
       <% } %>
 
       <div class="presenca-detail-filter-actions">
-        <button type="submit" class="btn btn-primary">Aplicar analise</button>
+        <button type="submit" class="btn btn-primary">Aplicar análise</button>
       </div>
     </form>
   </section>
@@ -204,10 +204,10 @@
       <article class="presenca-panel card-elevated">
         <header class="presenca-panel-head">
           <div>
-            <p class="presenca-overline">Leitura rapida</p>
-            <h3>Semanas que mais merecem atencao</h3>
+            <p class="presenca-overline">Leitura rápida</p>
+            <h3>Semanas que mais merecem atenção</h3>
           </div>
-          <small>O topo muda conforme o filtro de ordenacao escolhido.</small>
+          <small>O topo muda conforme o filtro de ordenação escolhido.</small>
         </header>
 
         <% if ((detail?.rows || []).length > 0) { %>
@@ -257,9 +257,9 @@
                 <tr>
                   <th>Semana</th>
                   <th>Agendas</th>
-                  <th>Presencas</th>
-                  <th>Ausencias</th>
-                  <th>Taxa de presenca</th>
+                  <th>Presenças</th>
+                  <th>Ausências</th>
+                  <th>Taxa de presença</th>
                   <th>Assistido critico</th>
                 </tr>
               </thead>
@@ -290,9 +290,9 @@
         <header class="presenca-panel-head">
           <div>
             <p class="presenca-overline">Ranking operacional</p>
-            <h3>Assistidos com mais risco de ausencia</h3>
+            <h3>Assistidos com mais risco de ausência</h3>
           </div>
-          <small>Use a sequencia atual e a taxa de ausencia para decidir quem precisa de retorno primeiro.</small>
+          <small>Use a sequência atual e a taxa de ausência para decidir quem precisa de retorno primeiro.</small>
         </header>
 
         <% if ((detail?.rows || []).length > 0) { %>
@@ -301,14 +301,14 @@
               <thead>
                 <tr>
                   <th>Assistido</th>
-                  <th>Familia</th>
+                  <th>Família</th>
                   <th>Profissional principal</th>
                   <th>Presentes</th>
                   <th>Faltas</th>
                   <th>Justificadas</th>
-                  <th>Taxa de ausencia</th>
+                  <th>Taxa de ausência</th>
                   <th>Sequencia</th>
-                  <th>Ultima ausencia</th>
+                  <th>Última ausência</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,7 +316,7 @@
                   <tr class="<%= item.sequenciaAusencias >= 2 ? 'is-top' : '' %>">
                     <td>
                       <strong><%= item.nome %></strong>
-                      <small><%= item.total %> agenda(s) Â· status atual <%= item.ultimoStatusLabel %></small>
+                      <small><%= item.total %> agenda(s) · status atual <%= item.ultimoStatusLabel %></small>
                     </td>
                     <td>
                       <% if (item.familiaId) { %>
@@ -349,10 +349,10 @@
       <article class="presenca-panel card-elevated">
         <header class="presenca-panel-head">
           <div>
-            <p class="presenca-overline"><%= canViewAll ? 'Comparativo da equipe' : 'Minha consolidacao' %></p>
-            <h3><%= canViewAll ? 'Profissionais por desempenho no periodo' : 'Minha agenda e comparecimento no periodo' %></h3>
+            <p class="presenca-overline"><%= canViewAll ? 'Comparativo da equipe' : 'Minha consolidação' %></p>
+            <h3><%= canViewAll ? 'Profissionais por desempenho no período' : 'Minha agenda e comparecimento no período' %></h3>
           </div>
-          <small>Compare taxa de comparecimento, volume e pacientes mais sensiveis por responsavel.</small>
+          <small>Compare taxa de comparecimento, volume e pacientes mais sensíveis por responsável.</small>
         </header>
 
         <% if ((detail?.rows || []).length > 0) { %>
@@ -362,11 +362,11 @@
                 <tr>
                   <th>Profissional</th>
                   <th>Agendas</th>
-                  <th>Presencas</th>
-                  <th>Ausencias</th>
-                  <th>Taxa de presenca</th>
+                  <th>Presenças</th>
+                  <th>Ausências</th>
+                  <th>Taxa de presença</th>
                   <th>Assistido critico</th>
-                  <th>Ultima ocorrencia</th>
+                  <th>Última ocorrência</th>
                 </tr>
               </thead>
               <tbody>
@@ -380,7 +380,7 @@
                     <td>
                       <%= item.assistidoCritico %>
                       <% if (item.assistidoCriticoQtd) { %>
-                        <small><%= item.assistidoCriticoQtd %> ausencia(s)</small>
+                        <small><%= item.assistidoCriticoQtd %> ausência(s)</small>
                       <% } %>
                     </td>
                     <td><%= item.ultimaOcorrenciaLabel %></td>
@@ -402,9 +402,9 @@
         <header class="presenca-panel-head">
           <div>
             <p class="presenca-overline">Fila de acompanhamento</p>
-            <h3>Ocorrencias mais recentes para agir</h3>
+            <h3>Ocorrências mais recentes para agir</h3>
           </div>
-          <small>Clique em uma ocorrencia para abrir a ficha da presenca e registre observacoes ou status final.</small>
+          <small>Clique em uma ocorrência para abrir a ficha da presença e registre observações ou status final.</small>
         </header>
 
         <% if ((detail?.rows || []).length > 0) { %>
@@ -415,7 +415,7 @@
                 data-presenca-event-id="<%= ocorrencia.id %>"
                 role="button"
                 tabindex="0"
-                aria-label="Abrir ficha da ocorrencia de <%= ocorrencia.pacienteNome %>"
+                aria-label="Abrir ficha da ocorrência de <%= ocorrencia.pacienteNome %>"
               >
                 <div class="presenca-occurrence-top">
                   <div>
@@ -436,19 +436,19 @@
                   <% } %>
                 </div>
 
-                <p><%= ocorrencia.observacao || 'Sem observacao registrada para esta ocorrencia.' %></p>
+                <p><%= ocorrencia.observacao || 'Sem observação registrada para esta ocorrência.' %></p>
 
                 <div class="presenca-occurrence-actions">
                   <% if (ocorrencia.familiaId) { %>
-                    <a href="/familias/<%= ocorrencia.familiaId %>" class="btn btn-muted">Ver familia</a>
+                    <a href="/familias/<%= ocorrencia.familiaId %>" class="btn btn-muted">Ver família</a>
                   <% } %>
-                  <span class="presenca-inline-link">Abrir ficha da presenca</span>
+                  <span class="presenca-inline-link">Abrir ficha da presença</span>
                 </div>
               </article>
             <% }) %>
           </div>
         <% } else { %>
-          <p class="empty-hint">Nenhuma ocorrencia localizada com esse recorte.</p>
+          <p class="empty-hint">Nenhuma ocorrência localizada com esse recorte.</p>
         <% } %>
       </article>
     </section>
@@ -459,7 +459,7 @@
   <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-presenca-title">
     <header class="agenda-modal-head">
       <div>
-        <h3 id="agenda-presenca-title">Ficha da presenca</h3>
+        <h3 id="agenda-presenca-title">Ficha da presença</h3>
         <p class="agenda-modal-subtitle" id="agenda-presenca-subtitle">Carregando detalhes do agendamento...</p>
       </div>
       <button type="button" class="btn btn-muted btn-icon" id="agenda-presenca-close" aria-label="Fechar">
@@ -487,8 +487,8 @@
       </label>
 
       <label class="field-wrap">
-        <span class="input-label">Observacao interna</span>
-        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: familia avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
+        <span class="input-label">Observação interna</span>
+        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: família avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
       </label>
 
       <div class="agenda-presenca-actions">
@@ -500,10 +500,10 @@
 
       <section class="agenda-presenca-history">
         <header class="agenda-presenca-history-head">
-          <h4>Historico do agendamento</h4>
+          <h4>Histórico do agendamento</h4>
         </header>
         <div class="agenda-presenca-history-list" id="agenda-presenca-history-list">
-          <p class="empty-hint">Nenhum historico carregado.</p>
+          <p class="empty-hint">Nenhum histórico carregado.</p>
         </div>
       </section>
     </div>

@@ -1,8 +1,8 @@
 ﻿<section class="page-shell agenda-layout family-agenda-layout" data-page="family-agenda">
   <header class="agenda-header family-agenda-header">
     <div>
-      <h2>Agenda da familia</h2>
-      <p>Visualize em calendario apenas as consultas vinculadas a sua familia, sem anotacoes internas da equipe.</p>
+      <h2>Agenda da família</h2>
+      <p>Visualize em calendário apenas as consultas vinculadas a sua família, sem anotacoes internas da equipe.</p>
     </div>
     <div class="agenda-toolbar family-agenda-toolbar">
       <a href="/minha-familia" class="btn btn-muted">
@@ -18,13 +18,13 @@
 
   <% if (!familia) { %>
     <section class="module-card family-empty-state family-agenda-empty">
-      <h3>Familia ainda nao vinculada</h3>
+      <h3>Família ainda não vinculada</h3>
       <p>Assim que o seu cadastro familiar for associado ao portal, a agenda sera exibida aqui.</p>
     </section>
   <% } else { %>
     <section class="family-kpi-grid family-agenda-kpi-grid">
       <article class="module-card family-kpi-card">
-        <span class="family-kpi-label">Consultas no mes</span>
+        <span class="family-kpi-label">Consultas no mês</span>
         <strong class="family-kpi-value" data-family-agenda-summary="total"><%= totais?.total || 0 %></strong>
       </article>
       <article class="module-card family-kpi-card">
@@ -72,13 +72,13 @@
               aria-expanded="false"
               aria-controls="agenda-mes-picker-popover"
             >
-              <h3 id="agenda-mes-titulo">Calendario</h3>
+              <h3 id="agenda-mes-titulo">Calendário</h3>
               <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
             </button>
 
             <div class="agenda-month-picker-popover card-elevated" id="agenda-mes-picker-popover" hidden>
               <label class="field-wrap">
-                <span class="input-label">Mes</span>
+                <span class="input-label">Mês</span>
                 <select class="input-control" id="agenda-mes-picker-mes"></select>
               </label>
 
@@ -96,10 +96,10 @@
 
           <div class="agenda-calendar-actions">
             <button type="button" class="btn btn-muted" id="agenda-hoje-btn">Hoje</button>
-            <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="Mes anterior">
+            <button type="button" class="btn btn-muted" id="agenda-mes-prev" aria-label="Mês anterior">
               <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="Proximo mes">
+            <button type="button" class="btn btn-muted" id="agenda-mes-next" aria-label="Próximo mês">
               <i class="fa-solid fa-chevron-right"></i>
             </button>
           </div>
@@ -157,7 +157,7 @@
           </label>
 
           <label class="field-wrap">
-            <span class="input-label">Observacao</span>
+            <span class="input-label">Observação</span>
             <textarea class="input-control textarea-control" id="family-agenda-falta-observacao" rows="4" maxlength="1000" placeholder="Ex.: avisamos com antecedencia, problema de transporte..."></textarea>
           </label>
 

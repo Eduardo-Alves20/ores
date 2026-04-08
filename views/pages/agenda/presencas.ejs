@@ -64,8 +64,10 @@
     calendarWeeks.findIndex((week) => week.some((cell) => cell && !cell.isPlaceholder && cell.isSelected))
   );
   const selectedWeek = calendarWeeks[selectedWeekIndex] || [];
-  const getFirstWeekDay = (week = []) => week.find((cell) => cell && !cell.isPlaceholder) || null;
-  const getLastWeekDay = (week = []) => [...week].reverse().find((cell) => cell && !cell.isPlaceholder) || null;
+  const getFirstWeekDay = (week) =>
+    (Array.isArray(week) ? week : []).find((cell) => cell && !cell.isPlaceholder) || null;
+  const getLastWeekDay = (week) =>
+    (Array.isArray(week) ? [...week] : []).reverse().find((cell) => cell && !cell.isPlaceholder) || null;
   const previousWeek = calendarWeeks[selectedWeekIndex - 1] || null;
   const nextWeek = calendarWeeks[selectedWeekIndex + 1] || null;
   const previousWeekTarget = getLastWeekDay(previousWeek) || getFirstWeekDay(previousWeek);
@@ -85,16 +87,16 @@
 <section class="page-shell presenca-page">
   <header class="presenca-hero card-elevated">
     <div class="presenca-hero-copy">
-      <p class="presenca-overline">Relatorio de comparecimento</p>
-      <h2>Presencas, faltas e justificativas em um lugar so</h2>
+      <p class="presenca-overline">Relatório de comparecimento</p>
+      <h2>Presenças, faltas e justificativas em um lugar só</h2>
       <p>
-        Acompanhe quem compareceu, quem mais faltou e filtre a agenda diretamente pelo cabecalho do calendario.
+        Acompanhe quem compareceu, quem mais faltou e filtre a agenda diretamente pelo cabeçalho do calendário.
       </p>
     </div>
     <div class="presenca-hero-side">
       <div class="agenda-presenca-kpis">
         <span class="agenda-presenca-kpi is-total"><%= Number(resumo?.total || 0) %> registros</span>
-        <span class="agenda-presenca-kpi is-presente"><%= Number(resumo?.presente || 0) %> presencas</span>
+        <span class="agenda-presenca-kpi is-presente"><%= Number(resumo?.presente || 0) %> presenças</span>
         <span class="agenda-presenca-kpi is-falta"><%= Number(resumo?.falta || 0) %> faltas</span>
         <span class="agenda-presenca-kpi is-pendente"><%= Number(resumo?.pendente || 0) %> pendentes</span>
       </div>
@@ -104,15 +106,15 @@
 
   <section class="presenca-kpi-grid">
     <article class="presenca-kpi-card is-total card-elevated">
-      <span class="presenca-kpi-label">Atendimentos no periodo</span>
+      <span class="presenca-kpi-label">Atendimentos no período</span>
       <strong><%= Number(resumo?.total || 0) %></strong>
-      <small>Total de agendas consideradas no relatorio.</small>
+      <small>Total de agendas consideradas no relatório.</small>
     </article>
 
     <article class="presenca-kpi-card is-presente card-elevated">
       <span class="presenca-kpi-label">Comparecimento</span>
       <strong><%= Number(resumo?.presente || 0) %></strong>
-      <small><%= Number(resumo?.taxaComparecimento || 0) %>% de presenca no periodo.</small>
+      <small><%= Number(resumo?.taxaComparecimento || 0) %>% de presença no período.</small>
     </article>
 
     <article class="presenca-kpi-card is-falta card-elevated">
@@ -124,14 +126,14 @@
     <article class="presenca-kpi-card is-justificada card-elevated">
       <span class="presenca-kpi-label">Faltas justificadas</span>
       <strong><%= Number(resumo?.faltaJustificada || 0) %></strong>
-      <small>Ausencias registradas com contexto na ficha.</small>
+      <small>Ausências registradas com contexto na ficha.</small>
     </article>
 
     <article class="presenca-kpi-card is-highlight card-elevated">
       <span class="presenca-kpi-label">Quem mais faltou</span>
       <strong><%= topFaltas?.nome || 'Sem recorrencia' %></strong>
       <small>
-        <%= topFaltas ? `${topFaltas.faltas} falta(s) no periodo` : 'Nenhum assistido com falta registrada.' %>
+        <%= topFaltas ? `${topFaltas.faltas} falta(s) no período` : 'Nenhum assistido com falta registrada.' %>
       </small>
     </article>
 
@@ -139,7 +141,7 @@
       <span class="presenca-kpi-label">Quem mais justificou</span>
       <strong><%= topJustificadas?.nome || 'Sem justificativas' %></strong>
       <small>
-        <%= topJustificadas ? `${topJustificadas.justificadas} justificativa(s) no periodo` : 'Nenhuma justificativa registrada.' %>
+        <%= topJustificadas ? `${topJustificadas.justificadas} justificativa(s) no período` : 'Nenhuma justificativa registrada.' %>
       </small>
     </article>
   </section>
@@ -148,7 +150,7 @@
     <section class="presenca-active-filters card-elevated">
       <div>
         <p class="presenca-overline">Filtros ativos</p>
-        <h3>Agenda de presenÃ§a filtrada com estes critÃ©rios</h3>
+        <h3>Agenda de presença filtrada com estes critérios</h3>
       </div>
       <div class="presenca-active-filter-list">
         <% filtrosResumo.forEach((chip) => { %>
@@ -161,8 +163,8 @@
   <% if (Array.isArray(quickFilters) && quickFilters.length) { %>
     <section class="presenca-active-filters card-elevated">
       <div>
-        <p class="presenca-overline">Filtros rapidos</p>
-        <h3>Atalhos configurados pela administracao</h3>
+        <p class="presenca-overline">Filtros rápidos</p>
+        <h3>Atalhos configurados pela administração</h3>
       </div>
       <div class="presenca-active-filter-list">
         <% quickFilters.forEach((chip) => { %>
@@ -224,11 +226,11 @@
 
       <header class="agenda-calendar-head presenca-calendar-head">
         <div class="presenca-calendar-title-block">
-          <p class="presenca-overline">Agenda de presenca</p>
-          <p class="presenca-calendar-support">Navegue por mes, refine os filtros e acompanhe os registros do dia sem sair desta tela.</p>
+          <p class="presenca-overline">Agenda de presença</p>
+          <p class="presenca-calendar-support">Navegue por mês, refine os filtros e acompanhe os registros do dia sem sair desta tela.</p>
           <div class="presenca-month-year-selectors">
             <label class="field-wrap">
-              <span class="sr-only">Mes</span>
+              <span class="sr-only">Mês</span>
               <select class="input-control presenca-month-select" data-presenca-month-select>
                 <% (calendarControls?.monthOptions || []).forEach((option) => { %>
                   <option value="<%= option.value %>" <%= String(calendarControls?.selectedMonth || '') === String(option.value) ? 'selected' : '' %>>
@@ -292,16 +294,16 @@
           <div class="presenca-calendar-meta">
             <div class="agenda-presenca-kpis presenca-calendar-kpis">
               <span class="agenda-presenca-kpi is-total"><%= Number(calendario?.monthSummary?.total || 0) %> registros</span>
-              <span class="agenda-presenca-kpi is-presente"><%= Number(calendario?.monthSummary?.presente || 0) %> presencas</span>
+              <span class="agenda-presenca-kpi is-presente"><%= Number(calendario?.monthSummary?.presente || 0) %> presenças</span>
               <span class="agenda-presenca-kpi is-falta"><%= Number(calendario?.monthSummary?.falta || 0) + Number(calendario?.monthSummary?.faltaJustificada || 0) %> faltas</span>
               <span class="agenda-presenca-kpi is-pendente"><%= Number(calendario?.monthSummary?.pendente || 0) %> pendentes</span>
             </div>
 
             <div class="agenda-calendar-actions presenca-calendar-actions">
-              <a href="<%= buildPresencaHref({ mes: calendario?.prevMonth || '', dia: '' }) %>" class="btn btn-muted" aria-label="Mes anterior" data-presenca-nav>
+              <a href="<%= buildPresencaHref({ mes: calendario?.prevMonth || '', dia: '' }) %>" class="btn btn-muted" aria-label="Mês anterior" data-presenca-nav>
                 <i class="fa-solid fa-chevron-left"></i>
               </a>
-              <a href="<%= buildPresencaHref({ mes: calendario?.nextMonth || '', dia: '' }) %>" class="btn btn-muted" aria-label="Proximo mes" data-presenca-nav>
+              <a href="<%= buildPresencaHref({ mes: calendario?.nextMonth || '', dia: '' }) %>" class="btn btn-muted" aria-label="Próximo mês" data-presenca-nav>
                 <i class="fa-solid fa-chevron-right"></i>
               </a>
             </div>
@@ -363,7 +365,7 @@
     <aside class="agenda-day-panel presenca-day-panel">
       <header class="agenda-day-head">
         <div>
-          <p class="agenda-day-overline">Movimentacao do dia</p>
+          <p class="agenda-day-overline">Movimentação do dia</p>
           <h3><%= calendario?.selectedDayLabel || '-' %></h3>
         </div>
 
@@ -383,23 +385,23 @@
               data-presenca-event-id="<%= evento.id %>"
               role="button"
               tabindex="0"
-              aria-label="Abrir ficha de presenca de <%= evento.pacienteNome %>"
+              aria-label="Abrir ficha de presença de <%= evento.pacienteNome %>"
             >
               <div class="presenca-event-card-top">
                 <div>
-                  <strong><%= evento.horaLabel %> Â· <%= evento.titulo %></strong>
+                  <strong><%= evento.horaLabel %> · <%= evento.titulo %></strong>
                   <p class="agenda-event-line"><strong>Paciente:</strong> <%= evento.pacienteNome %></p>
                 </div>
                 <span class="agenda-event-badge status-<%= evento.statusPresenca %>"><%= evento.statusPresencaLabel %></span>
               </div>
 
-              <p class="agenda-event-line"><strong>Familia:</strong> <%= evento.familiaNome %></p>
+              <p class="agenda-event-line"><strong>Família:</strong> <%= evento.familiaNome %></p>
               <p class="agenda-event-line"><strong>Profissional:</strong> <%= evento.profissionalNome %></p>
               <% if (evento.salaNome && evento.salaNome !== '-') { %>
                 <p class="agenda-event-line"><strong>Sala:</strong> <%= evento.salaNome %></p>
               <% } %>
               <% if (evento.observacao) { %>
-                <p class="agenda-event-note"><strong>Observacao:</strong> <%= evento.observacao %></p>
+                <p class="agenda-event-note"><strong>Observação:</strong> <%= evento.observacao %></p>
               <% } %>
             </article>
           <% }) %>
@@ -409,7 +411,7 @@
               <i class="fa-regular fa-calendar-xmark"></i>
             </div>
             <strong>Nenhum registro encontrado</strong>
-            <p class="empty-hint">Esse dia esta livre com os filtros atuais. Troque a data ou ajuste o recorte para localizar movimentacoes.</p>
+            <p class="empty-hint">Esse dia está livre com os filtros atuais. Troque a data ou ajuste o recorte para localizar movimentações.</p>
           </div>
         <% } %>
       </div>
@@ -421,10 +423,10 @@
     <article class="presenca-panel card-elevated is-clickable">
       <header class="presenca-panel-head">
         <div>
-          <p class="presenca-overline">Evolucao semanal</p>
-          <h3>Presenca por semana</h3>
+          <p class="presenca-overline">Evolução semanal</p>
+          <h3>Presença por semana</h3>
         </div>
-        <small>Ultimas <%= Math.max(1, Number((serieSemanal || []).length || 0)) %> semanas com eventos</small>
+        <small>Últimas <%= Math.max(1, Number((serieSemanal || []).length || 0)) %> semanas com eventos</small>
       </header>
 
       <% if ((serieSemanal || []).length > 0) { %>
@@ -451,10 +453,10 @@
           <% }) %>
         </div>
       <% } else { %>
-        <p class="empty-hint">Ainda nao existem registros de presenca para o periodo selecionado.</p>
+        <p class="empty-hint">Ainda não existem registros de presença para o período selecionado.</p>
       <% } %>
       <footer class="presenca-panel-footer">
-        <span>Explorar analise semanal</span>
+        <span>Explorar análise semanal</span>
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
       </footer>
     </article>
@@ -465,7 +467,7 @@
       <header class="presenca-panel-head">
         <div>
           <p class="presenca-overline">Ranking</p>
-          <h3>Assistidos com mais ausencias</h3>
+          <h3>Assistidos com mais ausências</h3>
         </div>
         <small>Top 10 por faltas e justificativas</small>
       </header>
@@ -476,11 +478,11 @@
             <thead>
               <tr>
                 <th>Assistido</th>
-                <th>Familia</th>
+                <th>Família</th>
                 <th>Presentes</th>
                 <th>Faltas</th>
                 <th>Justificadas</th>
-                <th>Ultima ocorrencia</th>
+                <th>Última ocorrência</th>
               </tr>
             </thead>
             <tbody>
@@ -501,7 +503,7 @@
           </table>
         </div>
       <% } else { %>
-        <p class="empty-hint">Nenhum assistido com movimentacao de presenca nesse periodo.</p>
+        <p class="empty-hint">Nenhum assistido com movimentação de presença nesse período.</p>
       <% } %>
       <footer class="presenca-panel-footer">
         <span>Ver assistidos com mais detalhes</span>
@@ -517,8 +519,8 @@
       <article class="presenca-panel card-elevated is-clickable">
         <header class="presenca-panel-head">
           <div>
-            <p class="presenca-overline">Visao da equipe</p>
-            <h3>Profissionais no periodo</h3>
+            <p class="presenca-overline">Visão da equipe</p>
+            <h3>Profissionais no período</h3>
           </div>
           <small>Resumo por responsavel</small>
         </header>
@@ -530,7 +532,7 @@
                 <strong><%= item.nome %></strong>
                 <div class="presenca-prof-stats">
                   <span><b><%= item.total %></b> agenda(s)</span>
-                  <span><b><%= item.presentes %></b> presencas</span>
+                  <span><b><%= item.presentes %></b> presenças</span>
                   <span><b><%= item.faltas %></b> faltas</span>
                   <span><b><%= item.justificadas %></b> justificadas</span>
                 </div>
@@ -538,7 +540,7 @@
             <% }) %>
           </div>
         <% } else { %>
-          <p class="empty-hint">Nenhum profissional com dados suficientes para ranking nesse periodo.</p>
+          <p class="empty-hint">Nenhum profissional com dados suficientes para ranking nesse período.</p>
         <% } %>
         <footer class="presenca-panel-footer">
           <span>Explorar desempenho da equipe</span>
@@ -552,15 +554,15 @@
         <header class="presenca-panel-head">
           <div>
             <p class="presenca-overline">Escopo atual</p>
-            <h3>Seu relatorio esta focado na sua agenda</h3>
+            <h3>Seu relatório está focado na sua agenda</h3>
           </div>
         </header>
         <p class="presenca-scope-copy">
-          Voce esta vendo somente os atendimentos ligados ao seu usuario. Isso ajuda a acompanhar rapidamente
-          suas presencas, faltas e justificativas sem misturar agendas de outras pessoas.
+          Você está vendo somente os atendimentos ligados ao seu usuário. Isso ajuda a acompanhar rapidamente
+          suas presenças, faltas e justificativas sem misturar agendas de outras pessoas.
         </p>
         <footer class="presenca-panel-footer">
-          <span>Abrir analise da minha agenda</span>
+          <span>Abrir análise da minha agenda</span>
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
         </footer>
       </article>
@@ -571,8 +573,8 @@
     <article class="presenca-panel card-elevated is-clickable">
       <header class="presenca-panel-head">
         <div>
-          <p class="presenca-overline">Ocorrencias recentes</p>
-          <h3>Ultimas faltas e justificativas</h3>
+          <p class="presenca-overline">Ocorrências recentes</p>
+          <h3>Últimas faltas e justificativas</h3>
         </div>
         <small>Detalhes do que mais precisa de acompanhamento</small>
       </header>
@@ -604,10 +606,10 @@
           <% }) %>
         </div>
       <% } else { %>
-        <p class="empty-hint">Nenhuma falta ou justificativa registrada no periodo.</p>
+        <p class="empty-hint">Nenhuma falta ou justificativa registrada no período.</p>
       <% } %>
       <footer class="presenca-panel-footer">
-        <span>Abrir fila de ocorrencias</span>
+        <span>Abrir fila de ocorrências</span>
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
       </footer>
     </article>
@@ -620,7 +622,7 @@
     <header class="presenca-mobile-sheet-head">
       <div>
         <p class="presenca-overline">Filtros</p>
-        <h3 id="presenca-mobile-sheet-title">Refinar agenda de presenca</h3>
+        <h3 id="presenca-mobile-sheet-title">Refinar agenda de presença</h3>
       </div>
       <button type="button" class="btn btn-muted btn-icon" data-presenca-mobile-filters-close aria-label="Fechar filtros">
         <i class="fa-solid fa-xmark"></i>
@@ -634,7 +636,7 @@
       <input type="hidden" name="mes" value="<%= filtros?.mes || '' %>" data-presenca-month-hidden />
 
       <label class="field-wrap">
-        <span class="input-label">Mes</span>
+        <span class="input-label">Mês</span>
         <select class="input-control" data-presenca-mobile-month-select>
           <% (calendarControls?.monthOptions || []).forEach((option) => { %>
             <option value="<%= option.value %>" <%= String(calendarControls?.selectedMonth || '') === String(option.value) ? 'selected' : '' %>>
@@ -713,7 +715,7 @@
   <section class="agenda-modal agenda-presenca-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-presenca-title">
     <header class="agenda-modal-head">
       <div>
-        <h3 id="agenda-presenca-title">Ficha da presenca</h3>
+        <h3 id="agenda-presenca-title">Ficha da presença</h3>
         <p class="agenda-modal-subtitle" id="agenda-presenca-subtitle">Carregando detalhes do agendamento...</p>
       </div>
       <button type="button" class="btn btn-muted btn-icon" id="agenda-presenca-close" aria-label="Fechar">
@@ -741,8 +743,8 @@
       </label>
 
       <label class="field-wrap">
-        <span class="input-label">Observacao interna</span>
-        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: familia avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
+        <span class="input-label">Observação interna</span>
+        <textarea class="input-control textarea-control" id="agenda-presenca-observacao" rows="4" maxlength="1000" placeholder="Opcional. Ex.: família avisou atraso, atendimento realizado normalmente, falta justificada..."></textarea>
       </label>
 
       <div class="agenda-presenca-actions">
@@ -754,10 +756,10 @@
 
       <section class="agenda-presenca-history">
         <header class="agenda-presenca-history-head">
-          <h4>Historico do agendamento</h4>
+          <h4>Histórico do agendamento</h4>
         </header>
         <div class="agenda-presenca-history-list" id="agenda-presenca-history-list">
-          <p class="empty-hint">Nenhum historico carregado.</p>
+          <p class="empty-hint">Nenhum histórico carregado.</p>
         </div>
       </section>
     </div>

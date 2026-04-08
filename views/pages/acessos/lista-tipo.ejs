@@ -45,7 +45,7 @@
 
   <header class="acessos-hero module-card">
     <div class="acessos-hero-main">
-      <span class="acessos-hero-eyebrow">Gestao de acessos</span>
+      <span class="acessos-hero-eyebrow">Gestão de acessos</span>
       <h2><%= sectionTitle %></h2>
       <p><%= subtitle %></p>
 
@@ -62,7 +62,7 @@
       <% if (canManageUsers) { %>
         <button type="button" class="btn acessos-create-btn" data-create-user-open>
           <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-          <span>Criar usuario</span>
+          <span>Criar usuário</span>
         </button>
       <% } %>
     </div>
@@ -73,7 +73,7 @@
       <div class="acessos-panel-head">
         <div>
           <h3>Filtros rapidos</h3>
-          <p>Atalhos definidos pela administracao para acelerar consultas frequentes.</p>
+          <p>Atalhos definidos pela administração para acelerar consultas frequentes.</p>
         </div>
       </div>
       <div class="acessos-quick-filter-row">
@@ -126,7 +126,7 @@
       </label>
 
       <label class="field-wrap">
-        <span class="input-label">Aprovacao</span>
+        <span class="input-label">Aprovação</span>
         <select class="input-control" name="status">
           <option value="todos" <%= filtrosAtuais.status === "todos" ? "selected" : "" %>>Todos</option>
           <option value="pendente" <%= filtrosAtuais.status === "pendente" ? "selected" : "" %>>Pendente</option>
@@ -177,10 +177,10 @@
             <th>Contato</th>
             <th>CPF</th>
             <th>Perfil / Tipo</th>
-            <th>Aprovacao</th>
+            <th>Aprovação</th>
             <th>Acesso</th>
             <th>Criado em</th>
-            <th>Acoes</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -361,7 +361,7 @@
       <% for (let p = inicioPag; p <= fimPag; p += 1) { %>
         <a class="btn btn-xxs <%= p === pageAtual ? 'btn-primary' : 'btn-muted' %>" href="<%= pageHref(p) %>"><%= p %></a>
       <% } %>
-      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Proxima</a>
+      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Próxima</a>
     </nav>
   <% } %>
 
@@ -377,7 +377,7 @@
       >
         <header class="acessos-modal-head">
           <div>
-            <h3 id="acessos-create-user-title" data-user-modal-title>Criar novo usuario</h3>
+            <h3 id="acessos-create-user-title" data-user-modal-title>Criar novo usuário</h3>
             <p data-user-modal-description>Preencha os dados abaixo para liberar um novo acesso manualmente.</p>
           </div>
 
@@ -406,7 +406,7 @@
             </label>
 
             <label class="field-wrap">
-              <span class="input-label">Usuario para login *</span>
+              <span class="input-label">Usuário para login *</span>
               <input class="input-control" type="text" name="login" maxlength="40" required />
             </label>
 
@@ -420,7 +420,7 @@
             </label>
 
             <label class="field-wrap" data-create-user-approval-role-wrap hidden>
-              <span class="input-label">Papel na aprovacao</span>
+              <span class="input-label">Papel na aprovação</span>
               <select class="input-control" name="papelAprovacao">
                 <% (approvalRoleOptions || []).forEach((option) => { %>
                   <option value="<%= option.value %>"><%= option.label %></option>
@@ -438,9 +438,9 @@
             </label>
 
             <label class="field-wrap" data-create-user-access-wrap hidden>
-              <span class="input-label">Nivel do voluntario</span>
+              <span class="input-label">Nível do voluntário</span>
               <select class="input-control" name="nivelAcessoVoluntario">
-                <option value="">Escolha o nivel</option>
+                <option value="">Escolha o nível</option>
                 <% (volunteerAccessOptions || []).forEach((option) => { %>
                   <option value="<%= option.value %>"><%= option.label %></option>
                 <% }) %>
@@ -448,7 +448,7 @@
             </label>
 
             <label class="field-wrap" data-create-user-status-wrap>
-              <span class="input-label">Status de aprovacao</span>
+              <span class="input-label">Status de aprovação</span>
               <select class="input-control" name="statusAprovacao">
                 <option value="aprovado">Aprovado</option>
                 <option value="pendente">Pendente</option>
@@ -483,7 +483,7 @@
               <div class="acessos-custom-fields span-2">
                 <div class="section-title-wrap">
                   <h4 class="section-title">Campos extras do cadastro</h4>
-                  <p class="section-subtitle">Configurados pela central de administracao.</p>
+                  <p class="section-subtitle">Configurados pela central de administração.</p>
                 </div>
                 <div class="acessos-create-grid">
                   <% customFields.forEach((field) => { %>
@@ -508,7 +508,7 @@
                       <label class="field-wrap">
                         <span class="input-label"><%= field.label %></span>
                         <select class="input-control" name="campoExtra_<%= field.chave %>" data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>">
-                          <option value="false">Nao</option>
+                          <option value="false">Não</option>
                           <option value="true">Sim</option>
                         </select>
                         <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
@@ -543,7 +543,7 @@
           <section class="acessos-password-reset-box" data-user-password-reset-wrap hidden>
             <div>
               <strong>Redefinicao de senha</strong>
-              <p>Use este fluxo quando precisar trocar a senha de familia ou voluntario e registrar o motivo na auditoria.</p>
+              <p>Use este fluxo quando precisar trocar a senha de família ou voluntário e registrar o motivo na auditoria.</p>
             </div>
             <button type="button" class="btn btn-muted" data-user-password-reset-open>
               <i class="fa-solid fa-key" aria-hidden="true"></i>
@@ -552,11 +552,11 @@
           </section>
 
           <p class="acessos-create-hint" data-create-user-hint>
-            Perfis internos sao aprovados automaticamente e podem nao aparecer nesta lista filtrada.
+            Perfis internos são aprovados automaticamente e podem não aparecer nesta lista filtrada.
           </p>
 
           <div class="acessos-create-actions">
-            <button type="submit" class="btn btn-primary" data-user-modal-submit>Salvar usuario</button>
+            <button type="submit" class="btn btn-primary" data-user-modal-submit>Salvar usuário</button>
             <button type="button" class="btn btn-muted" data-create-user-close="true">Cancelar</button>
           </div>
         </form>
@@ -609,7 +609,7 @@
                 name="motivo"
                 rows="4"
                 maxlength="500"
-                placeholder="Ex.: familia perdeu o acesso, troca solicitada pela equipe, senha provisoria para primeiro login..."
+                placeholder="Ex.: família perdeu o acesso, troca solicitada pela equipe, senha provisoria para primeiro login..."
                 required
               ></textarea>
             </label>

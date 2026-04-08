@@ -37,7 +37,7 @@
             <td><%= usuario?.email || "-" %></td>
           </tr>
           <tr>
-            <th>Usuario de login</th>
+            <th>Usuário de login</th>
             <td><%= usuario?.login || "-" %></td>
           </tr>
           <tr>
@@ -67,7 +67,7 @@
             </td>
           </tr>
           <tr>
-            <th>Ultimo login</th>
+            <th>Último login</th>
             <td><%= usuario?.ultimoLoginEm ? new Date(usuario.ultimoLoginEm).toLocaleString("pt-BR") : "-" %></td>
           </tr>
           <tr>
@@ -82,7 +82,7 @@
   <section class="module-card">
     <div class="conta-seguranca-head">
       <div>
-        <h3>Seguranca</h3>
+        <h3>Segurança</h3>
         <p>Troca de senha com validacao da senha atual.</p>
       </div>
       <button type="button" class="btn btn-muted" id="btnAbrirModalSenha">Trocar Senha</button>

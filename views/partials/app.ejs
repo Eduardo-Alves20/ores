@@ -71,7 +71,7 @@
         <span class="sidebar-brand-mark">G</span>
         <div class="sidebar-brand-copy">
           <strong>GESA</strong>
-          <small>gestÃ£o social assistencial</small>
+          <small>gestão social assistencial</small>
         </div>
       </div>
 
@@ -87,9 +87,9 @@
             : normalizedProfile === "atendente"
               ? "Atendente"
               : normalizedProfile === "tecnico"
-                ? "TÃ©cnico"
-                : normalizedProfile || "usuÃ¡rio";
-        const moduleBadge = ["admin", "superadmin"].includes(normalizedProfile) ? "Admin" : "UsuÃ¡rio";
+                ? "Técnico"
+                : normalizedProfile || "usuário";
+        const moduleBadge = ["admin", "superadmin"].includes(normalizedProfile) ? "Admin" : "Usuário";
         const helpDeskHref = safeModuleLinks?.helpDeskUrl ? "/modulos/help-desk/acessar" : "/modulos/help-desk";
         const hdiHref = safeModuleLinks?.hdiUrl ? "/modulos/hdi/acessar" : "/modulos/hdi";
         const usuariosGroupOpen = ["usuarios-familia", "usuarios-voluntario"].includes(navKey);
@@ -122,7 +122,7 @@
           <% if (isFamilyPortalUser) { %>
             <a href="/minha-familia" class="sidebar-link <%= navKey === 'minha-familia-home' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>
-              <span>Portal da FamÃ­lia</span>
+              <span>Portal da Família</span>
             </a>
             <a href="/minha-familia/consultas" class="sidebar-link <%= navKey === 'minha-familia-consultas' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
@@ -130,7 +130,7 @@
             </a>
             <a href="/minha-familia/notificacoes" class="sidebar-link <%= navKey === 'minha-familia-notificacoes' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-bell"></i></span>
-              <span>NotificaÃ§Ãµes</span>
+              <span>Notificações</span>
               <% if (safeNotificationCount > 0) { %>
                 <small class="sidebar-link-badge sidebar-link-badge-alert"><%= safeNotificationCount %></small>
               <% } %>
@@ -138,7 +138,7 @@
           <% } else if (hasPerm("portal.minha_familia")) { %>
             <a href="/minha-familia" class="sidebar-link <%= navKey === 'minha-familia' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>
-              <span>Minha FamÃ­lia</span>
+              <span>Minha Família</span>
             </a>
           <% } %>
           <% if (hasPerm("portal.meus_dados")) { %>
@@ -152,7 +152,7 @@
           <% if (hasPerm("dashboard.view")) { %>
             <a href="/painel" class="sidebar-link <%= navKey === 'home' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
-              <span>Tela de InÃ­cio</span>
+              <span>Tela de Início</span>
             </a>
           <% } %>
           <% if (hasPerm("familias.view")) { %>
@@ -170,17 +170,17 @@
                 aria-expanded="<%= usuariosGroupOpen ? 'true' : 'false' %>"
               >
                 <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-address-book"></i></span>
-                <span>UsuÃ¡rios</span>
+                <span>Usuários</span>
                 <span class="sidebar-group-chevron" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
               </button>
               <div class="sidebar-submenu" data-sidebar-group-panel <%= usuariosGroupOpen ? '' : 'hidden' %>>
                 <a href="/acessos/familias" class="sidebar-link sidebar-link-child <%= navKey === 'usuarios-familia' ? 'is-active' : '' %>">
                   <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-people-roof"></i></span>
-                  <span>FamÃ­lias</span>
+                  <span>Famílias</span>
                 </a>
                 <a href="/acessos/voluntarios" class="sidebar-link sidebar-link-child <%= navKey === 'usuarios-voluntario' ? 'is-active' : '' %>">
                   <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-group"></i></span>
-                  <span>VoluntÃ¡rios</span>
+                  <span>Voluntários</span>
                 </a>
               </div>
             </div>
@@ -188,7 +188,7 @@
           <% if (hasPerm("acessos.approve")) { %>
             <a href="/acessos/aprovacoes" class="sidebar-link <%= navKey === 'aprovacoes' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
-              <span>AprovaÃ§Ãµes</span>
+              <span>Aprovações</span>
               <% if (safePendingApprovalCount > 0) { %>
                 <small class="sidebar-link-badge sidebar-link-badge-alert"><%= safePendingApprovalCount %></small>
               <% } %>
@@ -197,7 +197,7 @@
           <% if (currentUser?.perfil === 'superadmin') { %>
             <a href="/seguranca/funcoes" class="sidebar-link <%= navKey === 'seguranca-funcoes' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-shield"></i></span>
-              <span>SeguranÃ§a de Acesso</span>
+              <span>Segurança de Acesso</span>
             </a>
           <% } %>
           <% if (hasPerm("agenda.view")) { %>
@@ -207,7 +207,7 @@
             </a>
             <a href="/agenda/presencas" class="sidebar-link <%= navKey === 'agenda-presencas' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-check"></i></span>
-              <span>PresenÃ§as</span>
+              <span>Presenças</span>
             </a>
           <% } %>
           <% if (hasPerm("relatorios.view")) { %>
@@ -219,7 +219,7 @@
           <% if (canOpenAdminCenter) { %>
             <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-gear"></i></span>
-              <span>AdministraÃ§Ã£o</span>
+              <span>Administração</span>
             </a>
           <% } %>
         <% } %>
@@ -255,7 +255,7 @@
     <div class="app-main">
       <header class="topbar">
         <div class="topbar-heading">
-          <span class="topbar-kicker">OperaÃ§Ã£o social</span>
+          <span class="topbar-kicker">Operação social</span>
           <h1 class="topbar-title"><%= sectionTitle || title || "Tela" %></h1>
         </div>
         <div class="topbar-actions">
@@ -263,8 +263,8 @@
             <a
               href="<%= notificationHref %>"
               class="topbar-icon-btn <%= notificationNavActive ? 'is-active' : '' %>"
-              title="NotificaÃ§Ãµes"
-              aria-label="NotificaÃ§Ãµes"
+              title="Notificações"
+              aria-label="Notificações"
             >
               <i class="fa-solid fa-bell"></i>
               <% if (safeNotificationCount > 0) { %>

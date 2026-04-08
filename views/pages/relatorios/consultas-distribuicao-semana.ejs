@@ -327,7 +327,7 @@
       <p class="consulta-table-summary"><%= detailTable?.summaryLabel || '0 resultados' %></p>
 
       <% if (Number(detailTable?.pagination?.totalPages || 1) > 1) { %>
-        <nav class="consulta-pagination" aria-label="Paginação da análise semanal">
+        <nav class="consulta-pagination" aria-label="Páginação da análise semanal">
           <a class="consulta-pagination-link btn btn-muted <%= !detailTable?.pagination?.hasPrevPage ? 'is-disabled' : '' %>" href="<%= detailTable?.pagination?.hasPrevPage ? detailTable.pagination.prevHref : '#' %>">Anterior</a>
           <% (detailTable?.pagination?.pages || []).forEach((item) => { %>
             <a class="consulta-pagination-link btn <%= item.current ? 'btn-primary' : 'btn-muted' %>" href="<%= item.href %>"><%= item.number %></a>

@@ -1,11 +1,11 @@
 <section class="family-portal-page">
   <header class="family-portal-hero module-card">
     <div class="family-portal-hero-copy">
-      <span class="badge-soft">Portal externo da familia</span>
+      <span class="badge-soft">Portal externo da família</span>
       <h2>Bem-vindo(a), <%= resumoFamilia?.responsavel || usuario?.nome || "Familia" %></h2>
       <p>
-        Aqui voce acompanha os dados principais da familia, os dependentes vinculados,
-        as proximas consultas e as atualizacoes mais recentes da agenda.
+        Aqui você acompanha os dados principais da família, os dependentes vinculados,
+        as próximas consultas e as atualizacoes mais recentes da agenda.
       </p>
     </div>
     <div class="family-portal-hero-actions">
@@ -25,9 +25,9 @@
 
   <% if (!familia) { %>
     <section class="module-card family-empty-state">
-      <h3>Familia ainda nao vinculada</h3>
+      <h3>Família ainda não vinculada</h3>
       <p>
-        Nao encontramos um cadastro familiar associado ao seu acesso. Fale com a equipe
+        Não encontramos um cadastro familiar associado ao seu acesso. Fale com a equipe
         da ONG para concluir esse vinculo e liberar o acompanhamento externo.
       </p>
     </section>
@@ -38,7 +38,7 @@
         <strong class="family-kpi-value"><%= totais?.dependentes || 0 %></strong>
       </article>
       <article class="module-card family-kpi-card">
-        <span class="family-kpi-label">Proximas consultas</span>
+        <span class="family-kpi-label">Próximas consultas</span>
         <strong class="family-kpi-value"><%= totais?.proximasConsultas || 0 %></strong>
       </article>
       <article class="module-card family-kpi-card">
@@ -46,7 +46,7 @@
         <strong class="family-kpi-value"><%= totais?.consultasRealizadas || 0 %></strong>
       </article>
       <article class="module-card family-kpi-card">
-        <span class="family-kpi-label">Notificacoes nao lidas</span>
+        <span class="family-kpi-label">Notificacoes não lidas</span>
         <strong class="family-kpi-value"><%= totais?.notificacoes || 0 %></strong>
       </article>
     </section>
@@ -55,8 +55,8 @@
       <article class="module-card family-panel">
         <header class="family-panel-head">
           <div>
-            <h3>Dados da familia</h3>
-            <p>Informacoes basicas do responsavel e do endereco cadastrado.</p>
+            <h3>Dados da família</h3>
+            <p>Informacoes basicas do responsavel e do endereço cadastrado.</p>
           </div>
         </header>
 
@@ -78,7 +78,7 @@
             <strong><%= resumoFamilia?.email || "-" %></strong>
           </div>
           <div class="family-info-item family-info-item-wide">
-            <span>Endereco</span>
+            <span>Endereço</span>
             <strong><%= resumoFamilia?.endereco || "-" %></strong>
           </div>
         </div>
@@ -88,7 +88,7 @@
         <header class="family-panel-head">
           <div>
             <h3>Dependentes vinculados</h3>
-            <p>Lista de dependentes associados a esta familia.</p>
+            <p>Lista de dependentes associados a esta família.</p>
           </div>
         </header>
 
@@ -119,8 +119,8 @@
       <article class="module-card family-panel">
         <header class="family-panel-head">
           <div>
-            <h3>Proximas consultas</h3>
-            <p>Agenda futura da familia.</p>
+            <h3>Próximas consultas</h3>
+            <p>Agenda futura da família.</p>
           </div>
           <a href="/minha-familia/consultas" class="btn btn-muted">
             <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
@@ -153,7 +153,7 @@
         <header class="family-panel-head">
           <div>
             <h3>Atualizacoes recentes</h3>
-            <p>Ultimos status de consultas e movimentacoes da agenda.</p>
+            <p>Últimos status de consultas e movimentacoes da agenda.</p>
           </div>
           <a href="/minha-familia/notificacoes" class="btn btn-muted">
             <i class="fa-solid fa-bell" aria-hidden="true"></i>
@@ -182,17 +182,17 @@
     <section class="module-card family-panel">
       <header class="family-panel-head">
         <div>
-          <h3>Historico recente de consultas</h3>
+          <h3>Histórico recente de consultas</h3>
           <p>Status recentes, sem exibir anotacoes internas da equipe.</p>
         </div>
         <a href="/minha-familia/consultas" class="btn btn-muted">
           <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-          <span>Ver historico completo</span>
+          <span>Ver histórico completo</span>
         </a>
       </header>
 
       <% if (!historicoRecente || !historicoRecente.length) { %>
-        <p class="empty-hint">Ainda nao ha movimentacoes recentes para exibir.</p>
+        <p class="empty-hint">Ainda não ha movimentacoes recentes para exibir.</p>
       <% } else { %>
         <div class="family-appointment-list">
           <% historicoRecente.forEach((item) => { %>
@@ -205,7 +205,7 @@
                 <span><strong>Dependente:</strong> <%= item.dependenteNome %></span>
                 <span><strong>Profissional:</strong> <%= item.profissionalNome %></span>
                 <span><strong>Agendamento:</strong> <%= item.statusAgendamentoLabel %></span>
-                <span><strong>Presenca:</strong> <%= item.statusPresencaLabel %></span>
+                <span><strong>Presença:</strong> <%= item.statusPresencaLabel %></span>
               </div>
             </article>
           <% }) %>

@@ -11,8 +11,8 @@
 <section class="seguranca-page">
   <header class="seguranca-head module-card">
     <div>
-      <h2>Seguranca de Acesso</h2>
-      <p>Painel do SuperAdmin para criar funcoes, definir permissoes e atribuir acessos por usuario.</p>
+      <h2>Segurança de Acesso</h2>
+      <p>Painel do SuperAdmin para criar funções, definir permissoes e atribuir acessos por usuário.</p>
     </div>
     <span class="badge-soft"><%= Number(roles?.length || 0).toLocaleString("pt-BR") %> funcao(oes)</span>
   </header>
@@ -28,12 +28,12 @@
     <form class="seguranca-funcao-form" method="post" action="<%= editando ? (`/seguranca/funcoes/${roleEdicaoId}/update`) : '/seguranca/funcoes' %>">
       <%- renderCsrfField() %>
       <label class="field-wrap">
-        <span class="input-label">Nome da funcao *</span>
+        <span class="input-label">Nome da função *</span>
         <input class="input-control" type="text" name="nome" maxlength="80" required value="<%= roleEmEdicao?.nome || '' %>" />
       </label>
 
       <label class="field-wrap">
-        <span class="input-label">Slug tecnico *</span>
+        <span class="input-label">Slug técnico *</span>
         <input class="input-control" type="text" name="slug" maxlength="90" placeholder="coordenacao-agenda" value="<%= roleEmEdicao?.slug || '' %>" />
       </label>
 
@@ -51,7 +51,7 @@
       </label>
 
       <div class="seguranca-form-full">
-        <h4 class="seguranca-subtitle">Permissoes da funcao</h4>
+        <h4 class="seguranca-subtitle">Permissoes da função</h4>
         <div class="seguranca-perm-groups">
           <% (permissionGroups || []).forEach((group) => { %>
             <fieldset class="seguranca-perm-group">
@@ -83,23 +83,23 @@
 
   <section class="module-card">
     <header class="seguranca-section-head">
-      <h3>Funcoes Cadastradas</h3>
+      <h3>Funções Cadastradas</h3>
     </header>
 
     <div class="table-wrap">
       <table class="data-table acessos-table" data-stack-mobile="true">
         <thead>
           <tr>
-            <th>Funcao</th>
+            <th>Função</th>
             <th>Permissoes</th>
             <th>Status</th>
-            <th>Acoes</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
           <% if (!roles || !roles.length) { %>
             <tr>
-              <td colspan="4">Nenhuma funcao cadastrada.</td>
+              <td colspan="4">Nenhuma função cadastrada.</td>
             </tr>
           <% } else { %>
             <% roles.forEach((role) => { %>
@@ -138,12 +138,12 @@
 
   <section class="module-card">
     <header class="seguranca-section-head">
-      <h3>Atribuir Funcoes por Usuario</h3>
+      <h3>Atribuir Funções por Usuário</h3>
     </header>
 
     <form class="seguranca-user-filter" method="get" action="/seguranca/funcoes">
       <label class="field-wrap">
-        <span class="input-label">Buscar usuario</span>
+        <span class="input-label">Buscar usuário</span>
         <input class="input-control" type="text" name="userBusca" value="<%= filtros?.userBusca || '' %>" placeholder="Nome, email ou login" />
       </label>
       <div class="filtro-actions">
@@ -156,16 +156,16 @@
       <table class="data-table acessos-table" data-stack-mobile="true">
         <thead>
           <tr>
-            <th>Usuario</th>
+            <th>Usuário</th>
             <th>Perfil</th>
-            <th>Funcoes atribuidas</th>
+            <th>Funções atribuidas</th>
             <th>Atribuir</th>
           </tr>
         </thead>
         <tbody>
           <% if (!usuarios || !usuarios.length) { %>
             <tr>
-              <td colspan="4">Nenhum usuario encontrado.</td>
+              <td colspan="4">Nenhum usuário encontrado.</td>
             </tr>
           <% } else { %>
             <% usuarios.forEach((user) => { %>
@@ -186,12 +186,12 @@
                       <% }) %>
                     </div>
                   <% } else { %>
-                    <span class="seguranca-hint">Sem funcao customizada (usa perfil padrao)</span>
+                    <span class="seguranca-hint">Sem função customizada (usa perfil padrao)</span>
                   <% } %>
                 </td>
                 <td data-label="Atribuir">
                   <% if (String(user.perfil || '').toLowerCase() === 'superadmin') { %>
-                    <span class="seguranca-hint">Nao editavel</span>
+                    <span class="seguranca-hint">Não editavel</span>
                   <% } else { %>
                     <form method="post" action="/seguranca/usuarios/<%= user._id %>/funcoes" class="seguranca-assign-form">
                       <%- renderCsrfField() %>
@@ -209,7 +209,7 @@
                           </label>
                         <% }) %>
                       </div>
-                      <button class="btn btn-muted btn-xxs" type="submit">Salvar funcoes</button>
+                      <button class="btn btn-muted btn-xxs" type="submit">Salvar funções</button>
                     </form>
                   <% } %>
                 </td>

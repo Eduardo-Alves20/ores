@@ -2,6 +2,11 @@ services:
   mongo:
     image: mongo:7.0
     container_name: alento-mongo
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     command:
       - mongod
       - --replSet
@@ -46,6 +51,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: alento-app
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       mongo:
         condition: service_healthy
@@ -68,6 +78,11 @@ services:
   nginx:
     image: nginx:1.27-alpine
     container_name: alento-nginx
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       - alento-app
     ports:
@@ -80,6 +95,11 @@ services:
 
   alento-tunnel:
     image: cloudflare/cloudflared:latest
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       - nginx
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}

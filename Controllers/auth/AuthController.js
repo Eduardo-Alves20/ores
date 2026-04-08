@@ -59,7 +59,7 @@ class AuthController {
     const errorMessage = req.flash("error");
     const reason = String(req.query?.reason || "").trim().toLowerCase();
     if (reason === "senha_alterada") {
-      successMessage.push("Senha alterada com sucesso. FaÃ§a login novamente.");
+      successMessage.push("Senha alterada com sucesso. Faça login novamente.");
     }
     if (reason === "sessao_revogada") {
       errorMessage.push(

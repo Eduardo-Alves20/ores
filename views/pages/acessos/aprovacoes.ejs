@@ -31,13 +31,13 @@
   <header class="acessos-hero module-card">
     <div class="acessos-hero-main">
       <span class="acessos-hero-eyebrow">Triagem de acessos</span>
-      <h2>Aprovacoes Pendentes</h2>
+      <h2>Aprovações Pendentes</h2>
       <p><%= subtitle %></p>
 
       <div class="acessos-hero-stats">
-        <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisao</span>
+        <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisão</span>
         <span class="acessos-hero-stat"><strong><%= totalVotos || 0 %></strong> votos registrados</span>
-        <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por pagina</span>
+        <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por página</span>
       </div>
     </div>
 
@@ -58,7 +58,7 @@
     <div class="acessos-panel-head">
       <div>
         <h3>Refinar fila</h3>
-        <p>Na tabela ficam so os icones. A ficha completa abre quando voce clicar para avaliar.</p>
+        <p>Na tabela ficam só os ícones. A ficha completa abre quando você clicar para avaliar.</p>
       </div>
     </div>
 
@@ -97,10 +97,10 @@
   <section class="module-card acessos-panel acessos-table-panel">
     <div class="acessos-panel-head">
       <div>
-        <h3>Fila de aprovacao</h3>
-        <p>Vote pelos icones e abra a ficha quando quiser ver todos os dados do cadastro.</p>
+        <h3>Fila de aprovação</h3>
+        <p>Vote pelos ícones e abra a ficha quando quiser ver todos os dados do cadastro.</p>
       </div>
-      <span class="badge-soft"><%= totalPendente || 0 %> em analise</span>
+      <span class="badge-soft"><%= totalPendente || 0 %> em análise</span>
     </div>
 
     <div class="table-wrap">
@@ -112,7 +112,7 @@
             <th>Contato</th>
             <th>CPF</th>
             <th>Criado em</th>
-            <th>Aprovacao</th>
+            <th>Aprovação</th>
           </tr>
         </thead>
         <tbody>
@@ -145,8 +145,8 @@
                           type="button"
                           data-approval-open
                           data-user-id="<%= item._id %>"
-                          title="Abrir ficha para votar e definir nivel"
-                          aria-label="Abrir ficha para votar e definir nivel"
+                          title="Abrir ficha para votar e definir nível"
+                          aria-label="Abrir ficha para votar e definir nível"
                         >
                           <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i>
                           <span class="aprovacao-vote-count"><%= item.votosResumo?.aprovar || 0 %></span>
@@ -188,8 +188,8 @@
                         class="aprovacao-open-btn"
                         data-approval-open
                         data-user-id="<%= item._id %>"
-                        title="Abrir ficha de aprovacao"
-                        aria-label="Abrir ficha de aprovacao"
+                        title="Abrir ficha de aprovação"
+                        aria-label="Abrir ficha de aprovação"
                       >
                         <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                       </button>
@@ -212,7 +212,7 @@
       <% for (let p = inicioPag; p <= fimPag; p += 1) { %>
         <a class="btn btn-xxs <%= p === pageAtual ? 'btn-primary' : 'btn-muted' %>" href="<%= pageHref(p) %>"><%= p %></a>
       <% } %>
-      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Proxima</a>
+      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Próxima</a>
     </nav>
   <% } %>
 
@@ -227,7 +227,7 @@
     >
       <header class="acessos-modal-head">
         <div>
-          <h3 id="approval-modal-title">Ficha de aprovacao</h3>
+          <h3 id="approval-modal-title">Ficha de aprovação</h3>
           <p data-approval-description>Veja os dados do cadastro antes de decidir.</p>
         </div>
 
@@ -306,7 +306,7 @@
           </label>
 
           <label class="field-wrap">
-            <span class="input-label">Estado da votacao</span>
+            <span class="input-label">Estado da votação</span>
             <input class="input-control" type="text" readonly data-approval-field="workflowStateLabel" />
           </label>
 
@@ -324,10 +324,10 @@
         <section class="aprovacao-review-form aprovacao-voting-panel">
           <div class="aprovacao-voting-head">
             <div>
-              <h4>Votacao da analise</h4>
-              <p>Dentro da ficha, o voto segue a mesma logica dos icones da listagem.</p>
+              <h4>Votacao da análise</h4>
+              <p>Dentro da ficha, o voto segue a mesma lógica dos ícones da listagem.</p>
             </div>
-            <span class="badge-soft" data-approval-actor-vote-pill>Ainda nao votou</span>
+            <span class="badge-soft" data-approval-actor-vote-pill>Ainda não votou</span>
           </div>
 
           <form
@@ -340,9 +340,9 @@
             <input type="hidden" name="decisao" value="aprovar" />
 
             <label class="field-wrap" data-approval-access-wrap hidden>
-              <span class="input-label">Nivel do voluntario</span>
+              <span class="input-label">Nível do voluntário</span>
               <select class="input-control" name="nivelAcessoVoluntario" data-approval-access-select>
-                <option value="">Escolha o nivel</option>
+                <option value="">Escolha o nível</option>
                 <% (volunteerAccessOptions || []).forEach((option) => { %>
                   <option value="<%= option.value %>"><%= option.label %></option>
                 <% }) %>
@@ -378,7 +378,7 @@
         <section class="aprovacao-review-form aprovacao-reasons-panel" data-approval-reasons-wrap hidden>
           <div class="aprovacao-voting-head">
             <div>
-              <h4>Motivos de rejeicao</h4>
+              <h4>Motivos de rejeição</h4>
               <p>Quando houver justificativa registrada, ela aparece aqui na ficha.</p>
             </div>
           </div>
@@ -389,10 +389,10 @@
         <section class="aprovacao-review-form aprovacao-levels-panel" data-approval-level-votes-wrap hidden>
           <div class="aprovacao-voting-head">
             <div>
-              <h4>Votos por nivel</h4>
-              <p>Somente votos de aprovacao entram na contagem da funcao final do voluntario.</p>
+              <h4>Votos por nível</h4>
+              <p>Somente votos de aprovação entram na contagem da função final do voluntário.</p>
             </div>
-            <span class="badge-soft" data-approval-level-leader-pill>Nenhum nivel lider</span>
+            <span class="badge-soft" data-approval-level-leader-pill>Nenhum nível líder</span>
           </div>
 
           <div class="aprovacao-levels-list" data-approval-level-votes-list></div>
@@ -412,7 +412,7 @@
     >
       <header class="acessos-modal-head">
         <div>
-          <h3 id="reject-vote-modal-title">Registrar voto de rejeicao</h3>
+          <h3 id="reject-vote-modal-title">Registrar voto de rejeição</h3>
           <p data-reject-vote-description>Se quiser, adicione uma justificativa para aparecer na ficha.</p>
         </div>
 
@@ -420,7 +420,7 @@
           type="button"
           class="btn btn-muted btn-icon-sm"
           data-reject-vote-close="true"
-          aria-label="Fechar voto de rejeicao"
+          aria-label="Fechar voto de rejeição"
         >
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
@@ -436,7 +436,7 @@
         <input type="hidden" name="decisao" value="rejeitar" />
 
         <label class="field-wrap">
-          <span class="input-label">Motivo da rejeicao</span>
+          <span class="input-label">Motivo da rejeição</span>
           <textarea class="input-control textarea-control" name="motivo" rows="4" placeholder="Opcional"></textarea>
         </label>
 
@@ -444,7 +444,7 @@
           <button type="button" class="btn btn-muted" data-reject-vote-close="true">Cancelar</button>
           <button class="btn btn-muted acesso-action-reject" type="submit">
             <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i>
-            <span>Registrar rejeicao</span>
+            <span>Registrar rejeição</span>
           </button>
         </div>
       </form>
