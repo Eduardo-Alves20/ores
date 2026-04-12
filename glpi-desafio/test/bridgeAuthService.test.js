@@ -40,13 +40,23 @@ function withEnv(overrides, run) {
     else process.env[key] = value;
   });
 
-  try {
-    return run();
-  } finally {
+  const restore = () => {
     Object.keys(overrides).forEach((key) => {
       if (typeof previous[key] === "undefined") delete process.env[key];
       else process.env[key] = previous[key];
     });
+  };
+
+  try {
+    const result = run();
+    if (result && typeof result.then === "function") {
+      return result.finally(restore);
+    }
+    restore();
+    return result;
+  } catch (error) {
+    restore();
+    throw error;
   }
 }
 
