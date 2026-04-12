@@ -26,6 +26,46 @@
 
   const currentQuery = buildQuery(pageAtual);
   const returnTo = currentQuery ? `${basePath}?${currentQuery}` : basePath;
+  const isVolunteerPage = String(tipoCadastro || "").trim().toLowerCase() === "voluntario";
+  const hasCustomFields = Array.isArray(customFields) && customFields.length > 0;
+  const volunteerWizardSteps = [
+    {
+      key: "identificacao",
+      label: "Identificacao",
+      subtitle: "Quem vai entrar na rede",
+      icon: "fa-solid fa-id-card",
+    },
+    {
+      key: "contato",
+      label: "Contato",
+      subtitle: "Como falar com a pessoa",
+      icon: "fa-solid fa-envelope-open-text",
+    },
+    {
+      key: "atuacao",
+      label: "Atuacao",
+      subtitle: "Area, funcao e repertorio",
+      icon: "fa-solid fa-hand-holding-heart",
+    },
+    {
+      key: "disponibilidade",
+      label: "Disponibilidade",
+      subtitle: "Quando e como pode ajudar",
+      icon: "fa-regular fa-clock",
+    },
+    {
+      key: "acesso",
+      label: "Acesso",
+      subtitle: "Nivel, status e governanca",
+      icon: "fa-solid fa-shield-heart",
+    },
+    {
+      key: "finalizacao",
+      label: "Finalizacao",
+      subtitle: "Senha inicial e campos extras",
+      icon: "fa-solid fa-flag-checkered",
+    },
+  ];
 %>
 
 <section class="acessos-page" data-default-tipo-cadastro="<%= tipoCadastro || 'voluntario' %>">
@@ -62,7 +102,7 @@
       <% if (canManageUsers) { %>
         <button type="button" class="btn acessos-create-btn" data-create-user-open>
           <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-          <span>Criar usuário</span>
+          <span><%= isVolunteerPage ? "Criar voluntario" : "Criar usuario" %></span>
         </button>
       <% } %>
     </div>
@@ -370,7 +410,7 @@
       <div class="acessos-modal-backdrop" data-create-user-close="true"></div>
 
       <section
-        class="acessos-modal-dialog card-elevated"
+        class="acessos-modal-dialog card-elevated <%= isVolunteerPage ? 'acessos-modal-dialog-volunteer' : '' %>"
         role="dialog"
         aria-modal="true"
         aria-labelledby="acessos-create-user-title"
@@ -392,6 +432,480 @@
         </header>
 
         <div class="acessos-modal-error" data-create-user-error hidden></div>
+
+        <% if (isVolunteerPage) { %>
+          <form
+            class="acessos-create-form acessos-create-form-wizard"
+            data-create-user-form
+            data-create-user-layout="volunteer-wizard"
+            autocomplete="off"
+          >
+            <input type="hidden" name="tipoCadastro" value="voluntario" />
+
+            <div class="acessos-wizard-shell" data-volunteer-wizard-root>
+              <section class="acessos-wizard-hero">
+                <div>
+                  <span class="acessos-wizard-eyebrow">Criacao guiada</span>
+                  <h4 class="acessos-wizard-title">Novo voluntario com fluxo por etapas</h4>
+                  <p class="acessos-wizard-subtitle">
+                    O formulario foi reorganizado para acompanhar o raciocinio da equipe: identificar, qualificar, encaixar a disponibilidade e so depois fechar o acesso.
+                  </p>
+                </div>
+
+                <div class="acessos-wizard-meta">
+                  <span class="acessos-wizard-counter" data-wizard-step-counter>Etapa 1 de <%= volunteerWizardSteps.length %></span>
+                  <strong class="acessos-wizard-meta-title" data-wizard-step-label><%= volunteerWizardSteps[0].label %></strong>
+                </div>
+              </section>
+
+              <nav class="acessos-wizard-nav" aria-label="Etapas do cadastro do voluntario" data-wizard-nav>
+                <% volunteerWizardSteps.forEach((step, index) => { %>
+                  <button
+                    type="button"
+                    class="acessos-wizard-step <%= index === 0 ? 'is-current' : '' %>"
+                    data-wizard-step
+                    data-step-index="<%= index %>"
+                  >
+                    <span class="acessos-wizard-step-badge" aria-hidden="true">
+                      <i class="<%= step.icon %>"></i>
+                    </span>
+                    <span class="acessos-wizard-step-copy">
+                      <strong><%= step.label %></strong>
+                      <small><%= step.subtitle %></small>
+                    </span>
+                  </button>
+                <% }) %>
+              </nav>
+
+              <div class="acessos-wizard-progress" aria-hidden="true">
+                <span class="acessos-wizard-progress-fill" data-wizard-progress-fill></span>
+              </div>
+
+              <div class="acessos-wizard-panels">
+                <section class="acessos-wizard-panel is-current" data-wizard-panel data-step-index="0">
+                  <header class="acessos-wizard-panel-head">
+                    <span class="acessos-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-id-card"></i>
+                    </span>
+                    <div>
+                      <h4>Identificacao do voluntario</h4>
+                      <p>Comecamos pelos dados de referencia para localizar e reconhecer a pessoa no fluxo operacional.</p>
+                    </div>
+                  </header>
+
+                  <div class="acessos-create-grid">
+                    <label class="field-wrap span-2">
+                      <span class="input-label">Nome completo *</span>
+                      <input class="input-control" type="text" name="nome" maxlength="120" required />
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">CPF</span>
+                      <input class="input-control" type="text" name="cpf" maxlength="14" inputmode="numeric" data-user-mask="cpf" />
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Data de nascimento</span>
+                      <input class="input-control" type="date" name="dataNascimento" />
+                    </label>
+                  </div>
+                </section>
+
+                <section class="acessos-wizard-panel" data-wizard-panel data-step-index="1" hidden>
+                  <header class="acessos-wizard-panel-head">
+                    <span class="acessos-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-envelope-open-text"></i>
+                    </span>
+                    <div>
+                      <h4>Contato e entrada</h4>
+                      <p>Esses dados garantem contato com a equipe e definem como o voluntario entra no portal.</p>
+                    </div>
+                  </header>
+
+                  <div class="acessos-create-grid">
+                    <label class="field-wrap span-2">
+                      <span class="input-label">Email *</span>
+                      <input class="input-control" type="email" name="email" maxlength="140" required />
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Telefone *</span>
+                      <input class="input-control" type="text" name="telefone" maxlength="20" required data-user-mask="phone" />
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Usuario para login *</span>
+                      <input class="input-control" type="text" name="login" maxlength="40" required />
+                    </label>
+                  </div>
+                </section>
+
+                <section class="acessos-wizard-panel" data-wizard-panel data-step-index="2" hidden>
+                  <header class="acessos-wizard-panel-head">
+                    <span class="acessos-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-hand-holding-heart"></i>
+                    </span>
+                    <div>
+                      <h4>Atuacao e repertorio</h4>
+                      <p>Mapeamos a funcao desejada, a area de contribuicao e aquilo que ja faz parte do repertorio dessa pessoa.</p>
+                    </div>
+                  </header>
+
+                  <div class="acessos-create-grid">
+                    <label class="field-wrap">
+                      <span class="input-label">Funcao principal *</span>
+                      <input
+                        class="input-control"
+                        type="text"
+                        name="dadosCadastro_funcao"
+                        maxlength="120"
+                        required
+                        placeholder="Ex: Mediacao, apoio pedagogico, acolhimento"
+                        data-user-signup-field="funcao"
+                      />
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Area de atuacao *</span>
+                      <input
+                        class="input-control"
+                        type="text"
+                        name="dadosCadastro_area_atuacao"
+                        maxlength="160"
+                        required
+                        placeholder="Ex: Educacao, saude, esporte, tecnologia"
+                        data-user-signup-field="area_atuacao"
+                      />
+                    </label>
+
+                    <label class="field-wrap span-2">
+                      <span class="input-label">Habilidades e pontos fortes</span>
+                      <textarea
+                        class="input-control textarea-control"
+                        name="dadosCadastro_habilidades"
+                        rows="4"
+                        maxlength="800"
+                        placeholder="Liste habilidades, certificacoes, recursos tecnicos ou temas em que essa pessoa pode apoiar com mais seguranca."
+                        data-user-signup-field="habilidades"
+                      ></textarea>
+                    </label>
+
+                    <label class="field-wrap span-2">
+                      <span class="input-label">Experiencia relevante</span>
+                      <textarea
+                        class="input-control textarea-control"
+                        name="dadosCadastro_experiencia"
+                        rows="4"
+                        maxlength="800"
+                        placeholder="Descreva experiencias anteriores, publico com que ja trabalhou ou projetos em que ja atuou."
+                        data-user-signup-field="experiencia"
+                      ></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section class="acessos-wizard-panel" data-wizard-panel data-step-index="3" hidden>
+                  <header class="acessos-wizard-panel-head">
+                    <span class="acessos-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-regular fa-clock"></i>
+                    </span>
+                    <div>
+                      <h4>Disponibilidade</h4>
+                      <p>Essa etapa ajuda a equipe a entender quando o voluntario pode entrar em campo e em qual formato.</p>
+                    </div>
+                  </header>
+
+                  <div class="acessos-create-grid">
+                    <label class="field-wrap span-2">
+                      <span class="input-label">Disponibilidade geral *</span>
+                      <textarea
+                        class="input-control textarea-control"
+                        name="dadosCadastro_disponibilidade"
+                        rows="4"
+                        maxlength="500"
+                        required
+                        placeholder="Ex: Segundas e quartas a tarde, com abertura para eventos aos sabados."
+                        data-user-signup-field="disponibilidade"
+                      ></textarea>
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Dias preferenciais</span>
+                      <input
+                        class="input-control"
+                        type="text"
+                        name="dadosCadastro_dias_disponiveis"
+                        maxlength="120"
+                        placeholder="Ex: Segunda, quarta e sexta"
+                        data-user-signup-field="dias_disponiveis"
+                      />
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Turno preferencial</span>
+                      <select class="input-control" name="dadosCadastro_turno_preferencial" data-user-signup-field="turno_preferencial">
+                        <option value="">Selecione</option>
+                        <option value="manha">Manha</option>
+                        <option value="tarde">Tarde</option>
+                        <option value="noite">Noite</option>
+                        <option value="flexivel">Flexivel</option>
+                      </select>
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Carga horaria desejada</span>
+                      <input
+                        class="input-control"
+                        type="text"
+                        name="dadosCadastro_carga_horaria"
+                        maxlength="120"
+                        placeholder="Ex: 4 horas por semana"
+                        data-user-signup-field="carga_horaria"
+                      />
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Formato de atuacao</span>
+                      <select class="input-control" name="dadosCadastro_formato_atuacao" data-user-signup-field="formato_atuacao">
+                        <option value="">Selecione</option>
+                        <option value="presencial">Presencial</option>
+                        <option value="remoto">Remoto</option>
+                        <option value="hibrido">Hibrido</option>
+                      </select>
+                    </label>
+
+                    <label class="field-wrap span-2">
+                      <span class="input-label">Observacoes de agenda</span>
+                      <textarea
+                        class="input-control textarea-control"
+                        name="dadosCadastro_observacoes_disponibilidade"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Inclua restricoes, preferencias e qualquer detalhe que ajude a equipe a encaixar melhor esse voluntario."
+                        data-user-signup-field="observacoes_disponibilidade"
+                      ></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section class="acessos-wizard-panel" data-wizard-panel data-step-index="4" hidden>
+                  <header class="acessos-wizard-panel-head">
+                    <span class="acessos-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-shield-heart"></i>
+                    </span>
+                    <div>
+                      <h4>Acesso e governanca</h4>
+                      <p>Defina como o voluntario nasce dentro do sistema: perfil, nivel operacional e situacao inicial.</p>
+                    </div>
+                  </header>
+
+                  <div class="acessos-create-grid">
+                    <label class="field-wrap">
+                      <span class="input-label">Perfil *</span>
+                      <select class="input-control" name="perfil" required>
+                        <% (createProfileOptions || []).forEach((option) => { %>
+                          <option value="<%= option.value %>"><%= option.label %></option>
+                        <% }) %>
+                      </select>
+                    </label>
+
+                    <label class="field-wrap" data-create-user-approval-role-wrap hidden>
+                      <span class="input-label">Papel na aprovacao</span>
+                      <select class="input-control" name="papelAprovacao">
+                        <% (approvalRoleOptions || []).forEach((option) => { %>
+                          <option value="<%= option.value %>"><%= option.label %></option>
+                        <% }) %>
+                      </select>
+                    </label>
+
+                    <label class="field-wrap" data-create-user-access-wrap hidden>
+                      <span class="input-label">Nivel do voluntario</span>
+                      <select class="input-control" name="nivelAcessoVoluntario">
+                        <option value="">Escolha o nivel</option>
+                        <% (volunteerAccessOptions || []).forEach((option) => { %>
+                          <option value="<%= option.value %>"><%= option.label %></option>
+                        <% }) %>
+                      </select>
+                    </label>
+
+                    <label class="field-wrap" data-create-user-status-wrap>
+                      <span class="input-label">Status de aprovacao</span>
+                      <select class="input-control" name="statusAprovacao">
+                        <option value="aprovado">Aprovado</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="rejeitado">Rejeitado</option>
+                      </select>
+                    </label>
+
+                    <label class="field-wrap">
+                      <span class="input-label">Acesso inicial</span>
+                      <select class="input-control" name="ativo">
+                        <option value="true" selected>Ativo</option>
+                        <option value="false">Inativo</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <p class="acessos-create-hint acessos-wizard-inline-hint" data-create-user-hint>
+                    Usuarios do portal podem nascer aprovados, pendentes ou rejeitados. Perfis internos sobem aprovados automaticamente.
+                  </p>
+                </section>
+
+                <section class="acessos-wizard-panel" data-wizard-panel data-step-index="5" hidden>
+                  <header class="acessos-wizard-panel-head">
+                    <span class="acessos-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-flag-checkered"></i>
+                    </span>
+                    <div>
+                      <h4>Finalizacao</h4>
+                      <p>Agora fechamos credenciais, anexos protegidos e a revisao final do cadastro antes de salvar.</p>
+                    </div>
+                  </header>
+
+                  <div class="acessos-create-grid">
+                    <label class="field-wrap" data-user-password-field>
+                      <span class="input-label">Senha *</span>
+                      <input class="input-control" type="password" name="senha" required />
+                    </label>
+
+                    <label class="field-wrap" data-user-password-field>
+                      <span class="input-label">Confirmar senha *</span>
+                      <input class="input-control" type="password" name="confirmarSenha" required />
+                    </label>
+                  </div>
+
+                  <p class="acessos-create-hint" data-user-password-hint>
+                    Defina uma senha inicial para esse acesso.
+                  </p>
+
+                  <section class="acessos-secure-upload-section">
+                    <div class="section-title-wrap">
+                      <h4 class="section-title">Anexos protegidos para aprovacao</h4>
+                      <p class="section-subtitle">
+                        O documento e a foto ficam fora da pasta publica, criptografados em repouso e so aparecem na ficha de aprovacao para administracao e assistencia social autorizada.
+                      </p>
+                    </div>
+
+                    <div class="acessos-create-grid">
+                      <label class="field-wrap span-2 acessos-secure-upload-card">
+                        <span class="input-label">Documento de identidade (RG ou CNH) *</span>
+                        <input
+                          class="input-control"
+                          type="file"
+                          name="documentoIdentidadeArquivo"
+                          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+                          data-user-secure-upload-input="documentoIdentidade"
+                          data-user-secure-upload-required-create="true"
+                        />
+                        <small>Aceita PDF, JPG, PNG ou WEBP. Esse arquivo vai ficar restrito ao fluxo de aprovacao.</small>
+                        <div class="acessos-secure-upload-summary" data-user-secure-upload-summary="documentoIdentidade">
+                          <strong data-user-secure-upload-name="documentoIdentidade">Nenhum documento anexado.</strong>
+                          <span data-user-secure-upload-size="documentoIdentidade"></span>
+                          <small data-user-secure-upload-note="documentoIdentidade">Obrigatorio no cadastro novo de voluntario.</small>
+                        </div>
+                      </label>
+
+                      <label class="field-wrap span-2 acessos-secure-upload-card">
+                        <span class="input-label">Foto do rosto ou meio corpo *</span>
+                        <input
+                          class="input-control"
+                          type="file"
+                          name="fotoPerfilArquivo"
+                          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                          capture="user"
+                          data-user-secure-upload-input="fotoPerfil"
+                          data-user-secure-upload-required-create="true"
+                        />
+                        <small>Use uma foto limpa para perfil e cracha futuro. Em celular, o aparelho pode abrir a camera frontal.</small>
+                        <div class="acessos-secure-upload-summary acessos-secure-upload-summary-photo" data-user-secure-upload-summary="fotoPerfil">
+                          <img
+                            class="acessos-secure-upload-preview"
+                            src=""
+                            alt="Pre-visualizacao da foto selecionada"
+                            hidden
+                            data-user-secure-upload-preview="fotoPerfil"
+                          />
+                          <div class="acessos-secure-upload-summary-body">
+                            <strong data-user-secure-upload-name="fotoPerfil">Nenhuma foto anexada.</strong>
+                            <span data-user-secure-upload-size="fotoPerfil"></span>
+                            <small data-user-secure-upload-note="fotoPerfil">Obrigatoria no cadastro novo de voluntario.</small>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </section>
+
+                  <% if (hasCustomFields) { %>
+                    <div class="acessos-custom-fields">
+                      <div class="section-title-wrap">
+                        <h4 class="section-title">Campos extras do cadastro</h4>
+                        <p class="section-subtitle">Configurados pela central de administracao.</p>
+                      </div>
+                      <div class="acessos-create-grid">
+                        <% customFields.forEach((field) => { %>
+                          <% if (field.tipo === 'textarea') { %>
+                            <label class="field-wrap span-2">
+                              <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+                              <textarea class="input-control textarea-control" name="campoExtra_<%= field.chave %>" rows="3" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>"></textarea>
+                              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                            </label>
+                          <% } else if (field.tipo === 'select') { %>
+                            <label class="field-wrap">
+                              <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+                              <select class="input-control" name="campoExtra_<%= field.chave %>" <%= field.obrigatorio ? 'required' : '' %> data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>">
+                                <option value="">Selecione</option>
+                                <% (field.opcoes || []).forEach((option) => { %>
+                                  <option value="<%= option %>"><%= option %></option>
+                                <% }) %>
+                              </select>
+                              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                            </label>
+                          <% } else if (field.tipo === 'booleano') { %>
+                            <label class="field-wrap">
+                              <span class="input-label"><%= field.label %></span>
+                              <select class="input-control" name="campoExtra_<%= field.chave %>" data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>">
+                                <option value="false">Nao</option>
+                                <option value="true">Sim</option>
+                              </select>
+                              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                            </label>
+                          <% } else { %>
+                            <label class="field-wrap">
+                              <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
+                              <input class="input-control" type="<%= field.tipo === 'numero' ? 'number' : field.tipo === 'data' ? 'date' : 'text' %>" name="campoExtra_<%= field.chave %>" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-user-custom-field="<%= field.chave %>" data-user-custom-type="<%= field.tipo %>" />
+                              <% if (field.ajuda) { %><small><%= field.ajuda %></small><% } %>
+                            </label>
+                          <% } %>
+                        <% }) %>
+                      </div>
+                    </div>
+                  <% } %>
+
+                  <section class="acessos-password-reset-box" data-user-password-reset-wrap hidden>
+                    <div>
+                      <strong>Redefinicao de senha</strong>
+                      <p>Use este fluxo quando precisar trocar a senha e registrar o motivo na auditoria.</p>
+                    </div>
+                    <button type="button" class="btn btn-muted" data-user-password-reset-open>
+                      <i class="fa-solid fa-key" aria-hidden="true"></i>
+                      <span>Redefinir senha</span>
+                    </button>
+                  </section>
+                </section>
+              </div>
+
+              <div class="acessos-wizard-actions">
+                <button type="button" class="btn btn-muted" data-wizard-back disabled>Anterior</button>
+
+                <div class="acessos-wizard-actions-end">
+                  <button type="button" class="btn btn-muted" data-create-user-close="true">Cancelar</button>
+                  <button type="button" class="btn btn-primary" data-wizard-next>Proximo</button>
+                  <button type="submit" class="btn btn-primary" data-user-modal-submit hidden>Criar voluntario</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        <% } else { %>
 
         <form class="acessos-create-form" data-create-user-form autocomplete="off">
           <div class="acessos-create-grid">
@@ -560,6 +1074,7 @@
             <button type="button" class="btn btn-muted" data-create-user-close="true">Cancelar</button>
           </div>
         </form>
+        <% } %>
       </section>
     </div>
 

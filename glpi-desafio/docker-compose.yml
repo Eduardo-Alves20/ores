@@ -31,10 +31,13 @@ services:
     container_name: glpi_nginx
     depends_on:
       - app
+    ports:
+      - "8081:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     restart: unless-stopped
     networks:
+      suite: {}
       glpi-private:
         aliases:
           - nginx
@@ -51,6 +54,6 @@ services:
 
 networks:
   suite:
-    name: glpi_suite
+    name: alento_suite
     external: true
   glpi-private:

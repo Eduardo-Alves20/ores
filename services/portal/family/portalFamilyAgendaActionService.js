@@ -1,5 +1,5 @@
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
-const { asObjectId } = require("../../agendaAvailabilityService");
+const { asObjectId } = require("../../shared/agendaAvailabilityService");
 const {
   createAgendaError,
   ensureAgendaObjectId,
@@ -8,10 +8,10 @@ const {
   getStatusAgendamentoForPresence,
   PRESENCA_LABELS,
 } = require("../../agenda/domain/agendaMappingService");
-const { registrarHistoricoAgenda } = require("../../agendaHistoryService");
-const { notify, resolveAdminRecipients } = require("../../notificationService");
+const { registrarHistoricoAgenda } = require("../../shared/agendaHistoryService");
+const { notify, resolveAdminRecipients } = require("../../shared/notificationService");
 const { toDateTimeLabel } = require("../../shared/dateFormattingService");
-const { resolvePresenceReasonByKey } = require("../../systemConfigService");
+const { resolvePresenceReasonByKey } = require("../../shared/systemConfigService");
 const { mapPortalFamilyAgendaEvent } = require("./portalFamilyFormattingService");
 
 function buildFamilyActor(context = {}) {

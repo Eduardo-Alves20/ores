@@ -25,7 +25,7 @@ const {
   handleCspViolationReport,
 } = require("./Controllers/security/SecurityTelemetryController");
 const { PERMISSIONS } = require("./config/permissions");
-const { buildRobotsTxt, buildSitemapXml } = require("./services/seoService");
+const { buildRobotsTxt, buildSitemapXml } = require("./services/shared/seoService");
 const { resolveLandingRouteForUser } = require("./services/shared/navigationService");
 const { cspReportLimiter } = require("./middlewares/rateLimiters");
 

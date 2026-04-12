@@ -7,11 +7,22 @@ const {
   APPROVAL_ROLES,
   getApprovalRoleLabel,
 } = require("../../../config/approvalRoles");
-const { hasAnyPermission } = require("../../accessControlService");
+const { hasAnyPermission } = require("../../shared/accessControlService");
 
 function isAdmin(req) {
   const user = req?.session?.user || {};
   if (isAdminProfile(user.perfil)) return true;
+  return hasAnyPermission(user.permissions || [], [PERMISSIONS.ACESSOS_APPROVE]);
+}
+
+function canReviewSensitiveApprovalData(req) {
+  const user = req?.session?.user || {};
+  const perfil = String(user.perfil || "").toLowerCase();
+
+  if ([PERFIS.SUPERADMIN, PERFIS.ADMIN, PERFIS.ATENDENTE].includes(perfil)) {
+    return true;
+  }
+
   return hasAnyPermission(user.permissions || [], [PERMISSIONS.ACESSOS_APPROVE]);
 }
 
@@ -58,6 +69,7 @@ function buildApprovalRoleOptions() {
 
 module.exports = {
   isAdmin,
+  canReviewSensitiveApprovalData,
   canManageUsers,
   isSuperAdminRequest,
   canManageTargetUser,

@@ -1,4 +1,4 @@
-const { isProdLike } = require("../config/env");
+const { isProdLike } = require("../../config/env");
 
 const SITE_NAME = "GESA";
 const SITE_DISPLAY_NAME = "GESA | Fundacao Alento";

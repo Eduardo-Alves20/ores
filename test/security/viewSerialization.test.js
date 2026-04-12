@@ -5,7 +5,7 @@ const ejs = require("ejs");
 
 const {
   serializeForInlineScript,
-} = require("../../services/viewSerializationService");
+} = require("../../services/shared/viewSerializationService");
 
 const viewsDir = path.resolve(__dirname, "..", "..", "views");
 

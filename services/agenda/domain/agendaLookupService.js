@@ -3,11 +3,11 @@ const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
 const { PERFIS } = require("../../../config/roles");
 const { PERMISSIONS } = require("../../../config/permissions");
-const { hasAnyPermission } = require("../../accessControlService");
+const { hasAnyPermission } = require("../../shared/accessControlService");
 const {
   buildAgendaInterval,
   buildAnySalaConflictFilter,
-} = require("../../agendaAvailabilityService");
+} = require("../../shared/agendaAvailabilityService");
 const { canManageRooms, canViewAll } = require("./agendaPermissionService");
 const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const { parseBoolean, parseDateInput } = require("./agendaDateValueService");

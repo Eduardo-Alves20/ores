@@ -1,5 +1,5 @@
 const Usuario = require("../../../schemas/core/Usuario");
-const { notify, resolveAdminRecipients } = require("../../notificationService");
+const { notify, resolveAdminRecipients } = require("../../shared/notificationService");
 const { toDateTimeLabel } = require("../../shared/dateFormattingService");
 const { PRESENCA_LABELS } = require("./agendaMappingService");
 

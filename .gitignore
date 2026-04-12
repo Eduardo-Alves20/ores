@@ -13,6 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+query
 hdi/cookies.txt
 hdi/*.log
 glpi-desafio/src.zip

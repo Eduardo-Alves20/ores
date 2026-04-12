@@ -4,7 +4,7 @@ const Usuario = require("../../../schemas/core/Usuario");
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
 const { PERFIS } = require("../../../config/roles");
 const { PERMISSIONS } = require("../../../config/permissions");
-const { hasAnyPermission } = require("../../accessControlService");
+const { hasAnyPermission } = require("../../shared/accessControlService");
 const {
   getMonthRange,
   parseDateInput,

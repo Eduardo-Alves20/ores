@@ -1,4 +1,4 @@
-const { registrarAuditoria } = require("../../services/auditService");
+const { registrarAuditoria } = require("../../services/shared/auditService");
 const {
   buildEditPerfilViewModel,
   buildNotificationsPageView,

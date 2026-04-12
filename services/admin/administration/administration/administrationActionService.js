@@ -9,7 +9,7 @@ const {
   saveBirthdayCampaign,
   updateBirthdayCampaignStatus,
   CAMPANHA_ANIVERSARIO_STATUS_LABELS,
-} = require("../../../systemConfigService");
+} = require("../../../shared/systemConfigService");
 
 function createAdministrationError(message, status = 400) {
   const error = new Error(message);

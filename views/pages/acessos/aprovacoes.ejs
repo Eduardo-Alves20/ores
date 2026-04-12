@@ -194,8 +194,21 @@
                         <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                       </button>
                     </div>
+                  <% } else if (canReviewSensitiveApprovalData) { %>
+                    <div class="aprovacao-icon-strip">
+                      <button
+                        type="button"
+                        class="aprovacao-open-btn"
+                        data-approval-open
+                        data-user-id="<%= item._id %>"
+                        title="Abrir ficha de aprovacao"
+                        aria-label="Abrir ficha de aprovacao"
+                      >
+                        <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                      </button>
+                    </div>
                   <% } else { %>
-                    <small>Somente admin_alento aprova.</small>
+                    <small>Somente administracao e assistencia social autorizada podem abrir a ficha.</small>
                   <% } %>
                 </td>
               </tr>
@@ -320,6 +333,71 @@
             <input class="input-control" type="text" readonly data-approval-field="pendingRegularVotesLabel" />
           </label>
         </div>
+
+        <section class="aprovacao-review-form aprovacao-sensitive-panel" data-approval-sensitive-wrap hidden>
+          <div class="aprovacao-voting-head">
+            <div>
+              <h4>Anexos protegidos</h4>
+              <p>Documento e foto ficam criptografados em repouso e so podem ser abertos neste fluxo restrito.</p>
+            </div>
+            <span class="badge-soft">Uso LGPD</span>
+          </div>
+
+          <div class="aprovacao-sensitive-grid">
+            <article class="aprovacao-sensitive-card">
+              <div class="aprovacao-sensitive-card-head">
+                <strong data-approval-attachment-name="documentoIdentidade">Documento de identidade</strong>
+                <span data-approval-attachment-meta="documentoIdentidade">Nao enviado</span>
+              </div>
+              <p class="acesso-row-hint" data-approval-attachment-note="documentoIdentidade">
+                Aceita RG ou CNH em PDF ou imagem.
+              </p>
+              <div class="aprovacao-sensitive-actions">
+                <a
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-muted btn-sm"
+                  hidden
+                  data-approval-attachment-link="documentoIdentidade"
+                >
+                  Abrir documento
+                </a>
+              </div>
+            </article>
+
+            <article class="aprovacao-sensitive-card">
+              <div class="aprovacao-sensitive-card-head">
+                <strong data-approval-attachment-name="fotoPerfil">Foto para perfil/cracha</strong>
+                <span data-approval-attachment-meta="fotoPerfil">Nao enviada</span>
+              </div>
+              <p class="acesso-row-hint" data-approval-attachment-note="fotoPerfil">
+                Foto usada para validacao visual e futura identificacao interna.
+              </p>
+              <div class="aprovacao-sensitive-photo-wrap">
+                <img
+                  class="aprovacao-sensitive-photo"
+                  src=""
+                  alt="Foto protegida do voluntario"
+                  hidden
+                  data-approval-attachment-preview="fotoPerfil"
+                />
+              </div>
+              <div class="aprovacao-sensitive-actions">
+                <a
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-muted btn-sm"
+                  hidden
+                  data-approval-attachment-link="fotoPerfil"
+                >
+                  Abrir foto
+                </a>
+              </div>
+            </article>
+          </div>
+        </section>
 
         <section class="aprovacao-review-form aprovacao-voting-panel">
           <div class="aprovacao-voting-head">

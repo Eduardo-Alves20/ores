@@ -1,11 +1,11 @@
-﻿const Usuario = require("../schemas/core/Usuario");
-const { PERFIS } = require("../config/roles");
+const Usuario = require("../../schemas/core/Usuario");
+const { PERFIS } = require("../../config/roles");
 const {
   PERMISSIONS,
   getDefaultPermissionsForProfile,
   normalizePermissionList,
-} = require("../config/permissions");
-const { getPermissionsForVolunteerAccessLevel } = require("../config/volunteerAccess");
+} = require("../../config/permissions");
+const { getPermissionsForVolunteerAccessLevel } = require("../../config/volunteerAccess");
 
 function normalizeList(list) {
   const input = Array.isArray(list) ? list : [list];

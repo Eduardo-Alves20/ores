@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { AgendaEvento } = require("../schemas/social/AgendaEvento");
+const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 
 const AGENDA_DEFAULT_DURATION_MINUTES = 30;
 

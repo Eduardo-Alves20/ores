@@ -20,7 +20,7 @@ const {
 const {
   listPresenceReasons,
   listQuickFilters,
-} = require("../../services/systemConfigService");
+} = require("../../services/shared/systemConfigService");
 
 class AgendaPresencaPageController {
   static async index(req, res) {

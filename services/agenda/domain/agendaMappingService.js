@@ -1,4 +1,4 @@
-const { getEffectiveEnd } = require("../../agendaAvailabilityService");
+const { getEffectiveEnd } = require("../../shared/agendaAvailabilityService");
 const { toDateTimeLabel } = require("../../shared/dateFormattingService");
 const { PRESENCA_LABELS } = require("../presence/presenceConstants");
 

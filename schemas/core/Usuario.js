@@ -4,6 +4,93 @@ const { PERFIS_LIST, PERFIS } = require("../../config/roles");
 const { VOLUNTARIO_ACCESS_LEVELS } = require("../../config/volunteerAccess");
 const { APPROVAL_ROLES } = require("../../config/approvalRoles");
 
+const ProtectedAssetSchema = new mongoose.Schema(
+  {
+    assetId: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    kind: {
+      type: String,
+      enum: ["documentoIdentidade", "fotoPerfil"],
+      required: true,
+    },
+    label: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    originalName: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    mimeType: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    extension: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    size: {
+      type: Number,
+      min: 0,
+      required: true,
+    },
+    storageKey: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    ivHex: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    authTagHex: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    sha256: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    uploadedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    uploadedBy: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    ownerId: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    purpose: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    encryptionAlgorithm: {
+      type: String,
+      trim: true,
+      default: "aes-256-gcm",
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const UsuarioSchema = new mongoose.Schema(
   {
     nome: { type: String, required: true, trim: true },
@@ -105,6 +192,17 @@ const UsuarioSchema = new mongoose.Schema(
       type: Map,
       of: mongoose.Schema.Types.Mixed,
       default: {},
+    },
+
+    anexosProtegidos: {
+      documentoIdentidade: {
+        type: ProtectedAssetSchema,
+        default: null,
+      },
+      fotoPerfil: {
+        type: ProtectedAssetSchema,
+        default: null,
+      },
     },
 
     votosAprovacao: [

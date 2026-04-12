@@ -5,6 +5,9 @@ const Usuario = require("../../schemas/core/Usuario");
 const UsuarioService = require("../../services/domain/UsuarioService");
 const AcessoPageController = require("../../Controllers/admin/AcessoPageController");
 const {
+  canReviewSensitiveApprovalData,
+} = require("../../services/admin/access/accessPermissionService");
+const {
   approveUserAccess,
   changeUserAccessStatus,
 } = require("../../services/admin/access/accessActionService");
@@ -120,4 +123,30 @@ test("AcessoPageController.detalhe retorna 400 para id invalido", async () => {
   assert.deepEqual(res.payload, {
     erro: "Usuario invalido.",
   });
+});
+
+test("canReviewSensitiveApprovalData libera assistencia social e bloqueia tecnico sem permissao", () => {
+  assert.equal(
+    canReviewSensitiveApprovalData({
+      session: {
+        user: {
+          perfil: "atendente",
+          permissions: [],
+        },
+      },
+    }),
+    true
+  );
+
+  assert.equal(
+    canReviewSensitiveApprovalData({
+      session: {
+        user: {
+          perfil: "tecnico",
+          permissions: [],
+        },
+      },
+    }),
+    false
+  );
 });

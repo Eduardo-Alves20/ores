@@ -1,4 +1,4 @@
-const { parseAgendaDate } = require("../../agendaAvailabilityService");
+const { parseAgendaDate } = require("../../shared/agendaAvailabilityService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 
 function parseDateInput(value) {

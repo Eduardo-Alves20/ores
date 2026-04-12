@@ -4,6 +4,7 @@ const { getLastCommitDate } = require("../services/getLastCommitDate");
 const { logoffAD, loginAD } = require("../services/environment");
 const { saveSSOtoken, autoLoginInProd } = require("../services/auth");
 const { authenticateBridgeToken } = require("../services/bridgeAuthService");
+const { buildSessionUserSnapshot } = require("../services/sessionUserSnapshot");
 const { AMBIENTE } = require("../config/env");
 
 async function renderLogin(res, error = null) {
@@ -15,6 +16,27 @@ async function renderLogin(res, error = null) {
     AMBIENTE,
     error,
   });
+}
+
+function buildBridgeSessionContext(payload = {}) {
+  return {
+    audience: String(payload.aud || "").trim(),
+    authVersion: Number.isFinite(Number(payload?.src?.authVersion))
+      ? Math.max(0, Math.trunc(Number(payload.src.authVersion)))
+      : 0,
+    bridgeRole: String(payload.bridgeRole || "").trim().toLowerCase(),
+    email: String(payload?.src?.email || "").trim().toLowerCase(),
+    issuedAt: Number(payload.iat) * 1000 || Date.now(),
+    issuer: String(payload.iss || "").trim(),
+    jti: String(payload.jti || "").trim(),
+    nivelAcessoVoluntario: String(payload?.src?.nivelAcessoVoluntario || "")
+      .trim()
+      .toLowerCase(),
+    permissions: Array.isArray(payload?.src?.permissions) ? payload.src.permissions : [],
+    perfilOrigem: String(payload?.src?.perfil || "").trim().toLowerCase(),
+    sourceUserId: String(payload.sub || "").trim(),
+    tipoCadastro: String(payload?.src?.tipoCadastro || "").trim().toLowerCase(),
+  };
 }
 
 function regenerateSession(req) {
@@ -73,7 +95,8 @@ async function register(req, res) {
     });
 
     req.session.userId = user._id;
-    req.session.user = user;
+    req.session.user = buildSessionUserSnapshot(user);
+    delete req.session.bridge;
 
     res.redirect("/");
   } catch (error) {
@@ -95,8 +118,9 @@ async function login(req, res) {
         req.session.startTime = Date.now();
         req.session.logged = true;
         req.session.userId = localUser._id;
-        req.session.user = localUser;
+        req.session.user = buildSessionUserSnapshot(localUser);
         req.session.type = "usuario";
+        delete req.session.bridge;
 
         return res.redirect("/");
       }
@@ -126,10 +150,11 @@ async function login(req, res) {
       req.session.startTime = Date.now();
       req.session.logged = true;
       req.session.userId = user._id;
-      req.session.user = user;
+      req.session.user = buildSessionUserSnapshot(user);
       req.session.type = "usuario";
       req.session.sso_token = adData.token;
       req.session.ssoIssuedAt = Date.now();
+      delete req.session.bridge;
 
       await saveSSOtoken(res, adData.token);
 
@@ -150,16 +175,16 @@ async function login(req, res) {
 async function bridgeLogin(req, res) {
   try {
     const bridgeToken = String(req.body?.bridge_token || "").trim();
-    const { user } = await authenticateBridgeToken(bridgeToken);
+    const { payload, user } = await authenticateBridgeToken(bridgeToken);
 
     await regenerateSession(req);
 
     req.session.startTime = Date.now();
     req.session.logged = true;
     req.session.userId = user._id;
-    req.session.user = user;
+    req.session.user = buildSessionUserSnapshot(user);
     req.session.type = "usuario";
-    req.session.bridge = "alento";
+    req.session.bridge = buildBridgeSessionContext(payload);
 
     return res.redirect("/");
   } catch (error) {

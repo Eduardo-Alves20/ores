@@ -45,6 +45,27 @@ function usuarioLogPayload(usuario) {
   };
 }
 
+function buildBridgeSessionContext(payload = {}) {
+  return {
+    audience: String(payload.aud || "").trim(),
+    authVersion: Number.isFinite(Number(payload?.src?.authVersion))
+      ? Math.max(0, Math.trunc(Number(payload.src.authVersion)))
+      : 0,
+    bridgeRole: String(payload.bridgeRole || "").trim().toLowerCase(),
+    email: String(payload?.src?.email || "").trim().toLowerCase(),
+    issuedAt: Number(payload.iat) * 1000 || Date.now(),
+    issuer: String(payload.iss || "").trim(),
+    jti: String(payload.jti || "").trim(),
+    nivelAcessoVoluntario: String(payload?.src?.nivelAcessoVoluntario || "")
+      .trim()
+      .toLowerCase(),
+    permissions: Array.isArray(payload?.src?.permissions) ? payload.src.permissions : [],
+    perfilOrigem: String(payload?.src?.perfil || "").trim().toLowerCase(),
+    sourceUserId: String(payload.sub || "").trim(),
+    tipoCadastro: String(payload?.src?.tipoCadastro || "").trim().toLowerCase(),
+  };
+}
+
 export function authGet(req, res) {
   if (req.session?.usuario) return res.redirect("/app");
   if (String(req.query?.reason || "").trim() === "senha_alterada") {
@@ -126,6 +147,7 @@ export async function authPost(req, res) {
         usuario: usuario.usuario,
         perfil: usuario.perfil,
       };
+      delete req.session.bridge;
       req.session.flash = {
         tipo: "success",
         mensagem: "Login realizado com sucesso.",
@@ -186,6 +208,7 @@ export async function authPost(req, res) {
         usuario: "admin",
         perfil: "admin",
       };
+      delete req.session.bridge;
       req.session.flash = {
         tipo: "success",
         mensagem: "Login realizado com sucesso.",
@@ -259,7 +282,7 @@ export async function bridgePost(req, res) {
   const bridgeToken = String(req.body?.bridge_token || "").trim();
 
   try {
-    const { usuario } = await authenticateBridgeToken(bridgeToken);
+    const { payload, usuario } = await authenticateBridgeToken(bridgeToken);
 
     await regenerarSessao(req);
 
@@ -269,6 +292,7 @@ export async function bridgePost(req, res) {
       usuario: usuario.usuario,
       perfil: usuario.perfil,
     };
+    req.session.bridge = buildBridgeSessionContext(payload);
     req.session.flash = {
       tipo: "success",
       mensagem: "Login realizado com sucesso.",

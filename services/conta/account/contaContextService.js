@@ -4,7 +4,7 @@ const UsuarioService = require("../../domain/UsuarioService");
 const {
   hasAnyPermission,
   resolvePermissionsForUserId,
-} = require("../../accessControlService");
+} = require("../../shared/accessControlService");
 const { buildSessionUserPayload } = require("../../security/sessionSecurityService");
 
 function getCurrentUserId(req) {

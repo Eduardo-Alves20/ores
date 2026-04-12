@@ -1,5 +1,5 @@
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
-const { listPresenceReasons } = require("../../systemConfigService");
+const { listPresenceReasons } = require("../../shared/systemConfigService");
 const {
   getMonthRange,
   parseDateInput,

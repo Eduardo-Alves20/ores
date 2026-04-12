@@ -1,5 +1,5 @@
-const Usuario = require("../schemas/core/Usuario");
-const { Notificacao } = require("../schemas/core/Notificacao");
+const Usuario = require("../../schemas/core/Usuario");
+const { Notificacao } = require("../../schemas/core/Notificacao");
 
 const EMAIL_PROVIDER_RESEND = "resend";
 

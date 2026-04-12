@@ -1,8 +1,8 @@
-const Usuario = require("../schemas/core/Usuario");
-const { PERFIS } = require("../config/roles");
-const { APPROVAL_ROLES } = require("../config/approvalRoles");
-const { VOLUNTARIO_ACCESS_LEVELS } = require("../config/volunteerAccess");
-const { hashSenha } = require("./security/passwordService");
+const Usuario = require("../../schemas/core/Usuario");
+const { PERFIS } = require("../../config/roles");
+const { APPROVAL_ROLES } = require("../../config/approvalRoles");
+const { VOLUNTARIO_ACCESS_LEVELS } = require("../../config/volunteerAccess");
+const { hashSenha } = require("../security/passwordService");
 
 function isDevLike() {
   const env = String(process.env.AMBIENTE || process.env.NODE_ENV || "")

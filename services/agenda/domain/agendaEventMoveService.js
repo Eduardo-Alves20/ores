@@ -1,5 +1,5 @@
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
-const { asObjectId, getEffectiveEnd } = require("../../agendaAvailabilityService");
+const { asObjectId, getEffectiveEnd } = require("../../shared/agendaAvailabilityService");
 const { toDateTimeLabel } = require("../../shared/dateFormattingService");
 const { canMutateEvent } = require("./agendaPermissionService");
 const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");

@@ -5,7 +5,8 @@
   "main": "src/app.js", 
   "scripts": {
     "dev": "nodemon src/app.js",
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "test": "node --test"
   },
   "author": "Valmir Mendes Virtuoso Filho / CGE-RJ / Extreme Digital Solutions",
   "dependencies": {

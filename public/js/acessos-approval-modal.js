@@ -39,6 +39,35 @@
     const levelVotesWrap = approvalModal.querySelector("[data-approval-level-votes-wrap]");
     const levelVotesList = approvalModal.querySelector("[data-approval-level-votes-list]");
     const levelLeaderPill = approvalModal.querySelector("[data-approval-level-leader-pill]");
+    const sensitiveWrap = approvalModal.querySelector("[data-approval-sensitive-wrap]");
+    const attachmentMetaFields = Array.from(
+      approvalModal.querySelectorAll("[data-approval-attachment-meta]")
+    ).reduce((acc, element) => {
+      const key = String(element.getAttribute("data-approval-attachment-meta") || "").trim();
+      if (key) acc[key] = element;
+      return acc;
+    }, {});
+    const attachmentNoteFields = Array.from(
+      approvalModal.querySelectorAll("[data-approval-attachment-note]")
+    ).reduce((acc, element) => {
+      const key = String(element.getAttribute("data-approval-attachment-note") || "").trim();
+      if (key) acc[key] = element;
+      return acc;
+    }, {});
+    const attachmentLinkFields = Array.from(
+      approvalModal.querySelectorAll("[data-approval-attachment-link]")
+    ).reduce((acc, element) => {
+      const key = String(element.getAttribute("data-approval-attachment-link") || "").trim();
+      if (key) acc[key] = element;
+      return acc;
+    }, {});
+    const attachmentPreviewFields = Array.from(
+      approvalModal.querySelectorAll("[data-approval-attachment-preview]")
+    ).reduce((acc, element) => {
+      const key = String(element.getAttribute("data-approval-attachment-preview") || "").trim();
+      if (key) acc[key] = element;
+      return acc;
+    }, {});
 
     const rejectVoteModal = root.querySelector("[data-reject-vote-modal]");
     const rejectVoteCloseButtons =
@@ -174,6 +203,26 @@
       if (levelLeaderPill) {
         levelLeaderPill.textContent = "Nenhum nivel lider";
       }
+      if (sensitiveWrap) {
+        sensitiveWrap.hidden = true;
+      }
+      Object.keys(attachmentMetaFields).forEach((key) => {
+        attachmentMetaFields[key].textContent = "Nao enviado";
+      });
+      Object.keys(attachmentNoteFields).forEach((key) => {
+        attachmentNoteFields[key].textContent =
+          key === "fotoPerfil"
+            ? "Foto usada para validacao visual e futura identificacao interna."
+            : "Aceita RG ou CNH em PDF ou imagem.";
+      });
+      Object.keys(attachmentLinkFields).forEach((key) => {
+        attachmentLinkFields[key].hidden = true;
+        attachmentLinkFields[key].setAttribute("href", "#");
+      });
+      Object.keys(attachmentPreviewFields).forEach((key) => {
+        attachmentPreviewFields[key].hidden = true;
+        attachmentPreviewFields[key].setAttribute("src", "");
+      });
       setApprovalError("");
     }
 
@@ -279,6 +328,69 @@
         .join("");
     }
 
+    function renderProtectedAttachments(attachments = {}) {
+      const documentAsset = attachments?.documentoIdentidade || null;
+      const profilePhotoAsset = attachments?.fotoPerfil || null;
+      const hasAnyAttachment = !!(documentAsset || profilePhotoAsset);
+
+      if (sensitiveWrap) {
+        sensitiveWrap.hidden = !hasAnyAttachment;
+      }
+
+      [
+        { key: "documentoIdentidade", asset: documentAsset },
+        { key: "fotoPerfil", asset: profilePhotoAsset },
+      ].forEach(({ key, asset }) => {
+        const metaField = attachmentMetaFields[key];
+        const noteField = attachmentNoteFields[key];
+        const linkField = attachmentLinkFields[key];
+        const previewField = attachmentPreviewFields[key];
+
+        if (!asset) {
+          if (metaField) metaField.textContent = "Nao enviado";
+          if (noteField) {
+            noteField.textContent =
+              key === "fotoPerfil"
+                ? "Foto usada para validacao visual e futura identificacao interna."
+                : "Aceita RG ou CNH em PDF ou imagem.";
+          }
+          if (linkField) {
+            linkField.hidden = true;
+            linkField.setAttribute("href", "#");
+          }
+          if (previewField) {
+            previewField.hidden = true;
+            previewField.setAttribute("src", "");
+          }
+          return;
+        }
+
+        if (metaField) {
+          metaField.textContent = [asset.originalName || "", asset.sizeLabel || ""]
+            .filter(Boolean)
+            .join(" - ");
+        }
+
+        if (noteField) {
+          noteField.textContent =
+            key === "fotoPerfil"
+              ? "Uso futuro para perfil interno e cracha, com acesso restrito neste fluxo."
+              : "Documento protegido para conferencia de identidade antes da aprovacao.";
+        }
+
+        if (linkField) {
+          linkField.hidden = !asset.viewUrl;
+          linkField.setAttribute("href", asset.viewUrl || "#");
+        }
+
+        if (previewField) {
+          const canPreviewImage = !!asset.viewUrl && !!asset.isImage;
+          previewField.hidden = !canPreviewImage;
+          previewField.setAttribute("src", canPreviewImage ? asset.viewUrl : "");
+        }
+      });
+    }
+
     function populateApprovalModal(data) {
       const isVolunteer = String(data?.tipoCadastro || "").trim().toLowerCase() === "voluntario";
       const approveVotes = Number(data?.votosResumo?.aprovar || 0);
@@ -358,6 +470,7 @@
         accessSelect.value = isVolunteer ? String(data?.nivelAcessoVoluntario || "") : "";
       }
 
+      renderProtectedAttachments(data?.anexosProtegidos || {});
       renderRejectReasons(data?.rejeicoesComMotivo || []);
 
       if (isVolunteer) {

@@ -1,8 +1,16 @@
 const express = require("express");
+const multer = require("multer");
 const rateLimit = require("express-rate-limit");
 const AuthController = require("../../Controllers/auth/AuthController");
 const { requireAuth } = require("../../middlewares/authSession");
+const {
+  attachCsrfLocals,
+  createCsrfError,
+  resolveCsrfTokenFromRequest,
+  tokensMatch,
+} = require("../../middlewares/csrfProtection");
 const { createAdaptiveThrottleGuard } = require("../../services/security/adaptiveThrottleService");
+const { ASSET_DEFINITIONS } = require("../../services/security/secureVolunteerAssetService");
 
 const router = express.Router();
 const isDevLike = ["dev", "development", "local", "test", "teste"].includes(
@@ -44,10 +52,47 @@ const cadastroAdaptiveGuard = createAdaptiveThrottleGuard({
     "Muitas tentativas de cadastro com falha. Aguarde alguns minutos antes de tentar novamente.",
 });
 
+const cadastroUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    files: 2,
+    fileSize: Math.max(
+      ASSET_DEFINITIONS.documentoIdentidade.maxBytes,
+      ASSET_DEFINITIONS.fotoPerfil.maxBytes
+    ),
+  },
+});
+
+function handleCadastroUploads(req, res, next) {
+  cadastroUpload.fields([
+    { name: "documentoIdentidadeArquivo", maxCount: 1 },
+    { name: "fotoPerfilArquivo", maxCount: 1 },
+  ])(req, res, (error) => {
+    req.uploadError = error || null;
+    next();
+  });
+}
+
+function enforceCsrfAfterUpload(req, res, next) {
+  const expectedToken = attachCsrfLocals(req, res);
+  const receivedToken = resolveCsrfTokenFromRequest(req);
+  if (!tokensMatch(expectedToken, receivedToken)) {
+    return next(createCsrfError());
+  }
+  return next();
+}
+
 router.get("/login", AuthController.loginPage);
 router.post("/login", loginLimiter, loginAdaptiveGuard, AuthController.login);
 router.get("/cadastro", AuthController.cadastroPage);
-router.post("/cadastro", cadastroLimiter, cadastroAdaptiveGuard, AuthController.cadastro);
+router.post(
+  "/cadastro",
+  cadastroLimiter,
+  cadastroAdaptiveGuard,
+  handleCadastroUploads,
+  enforceCsrfAfterUpload,
+  AuthController.cadastro
+);
 router.post("/logout", requireAuth, AuthController.logout);
 router.get("/me", requireAuth, AuthController.me);
 

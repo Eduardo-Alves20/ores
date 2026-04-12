@@ -2,7 +2,7 @@ const { AgendaSala } = require("../../../../schemas/social/AgendaSala");
 const {
   buildAdministrationSnapshot,
   getAdministrationOptions,
-} = require("../../../systemConfigService");
+} = require("../../../shared/systemConfigService");
 
 function getAdministrationActorId(req) {
   return req?.session?.user?.id || null;

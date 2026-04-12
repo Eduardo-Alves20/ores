@@ -1,6 +1,8 @@
 const { PERFIS } = require("../../config/roles");
 const { createBridgeToken, resolveBridgeConfig } = require("../../services/security/bridgeTokenService");
 
+const DEV_LIKE_ENVIRONMENTS = new Set(["dev", "development", "local", "test", "teste"]);
+
 const MODULES = Object.freeze({
   "help-desk": {
     slug: "help-desk",
@@ -46,6 +48,13 @@ const MODULES = Object.freeze({
   },
 });
 
+function isDevLikeRuntime() {
+  const currentEnv = String(process.env.AMBIENTE || process.env.NODE_ENV || "")
+    .trim()
+    .toLowerCase();
+  return DEV_LIKE_ENVIRONMENTS.has(currentEnv);
+}
+
 function resolveModuleAccess(user = null) {
   const perfil = String(user?.perfil || "").trim().toLowerCase();
   const isAdmin = perfil === PERFIS.ADMIN || perfil === PERFIS.SUPERADMIN;
@@ -66,9 +75,24 @@ function resolveLaunchUrl(moduleView) {
 
   try {
     const parsed = new URL(rawUrl);
-    if (!["http:", "https:"].includes(parsed.protocol)) {
+    const protocol = String(parsed.protocol || "").trim().toLowerCase();
+
+    if (!["http:", "https:"].includes(protocol)) {
       return "";
     }
+
+    if ((parsed.username || parsed.password) && (parsed.username !== "" || parsed.password !== "")) {
+      return "";
+    }
+
+    if (protocol === "http:" && !isDevLikeRuntime()) {
+      return "";
+    }
+
+    parsed.hash = "";
+    parsed.username = "";
+    parsed.password = "";
+
     return parsed.toString();
   } catch (_) {
     return "";
@@ -132,7 +156,11 @@ class ModulosPageController {
       user: req?.session?.user || null,
     });
 
-    if (!formAction || !bridge) {
+    if (!formAction) {
+      return res.redirect(`/modulos/${moduleView.slug}`);
+    }
+
+    if (!bridge) {
       return res.redirect(`/modulos/${moduleView.slug}`);
     }
 

@@ -5,7 +5,7 @@ const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS", "TRACE"]);
 const CSRF_FIELD_NAME = "_csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const FALLBACK_HEADER_NAMES = [CSRF_HEADER_NAME, "x-xsrf-token", "csrf-token"];
-const CSRF_EXEMPT_PATHS = new Set([CSP_REPORT_PATH]);
+const CSRF_EXEMPT_PATHS = new Set([CSP_REPORT_PATH, "/cadastro", "/auth/cadastro"]);
 
 function wantsHtml(req) {
   return typeof req?.accepts === "function" && !!req.accepts("html");
@@ -48,6 +48,11 @@ function resolveCsrfTokenFromRequest(req) {
   const body = req?.body && typeof req.body === "object" ? req.body : null;
   if (body && typeof body[CSRF_FIELD_NAME] !== "undefined") {
     return String(body[CSRF_FIELD_NAME] || "");
+  }
+
+  const query = req?.query && typeof req.query === "object" ? req.query : null;
+  if (query && typeof query[CSRF_FIELD_NAME] !== "undefined") {
+    return String(query[CSRF_FIELD_NAME] || "");
   }
 
   const headers = req?.headers || {};

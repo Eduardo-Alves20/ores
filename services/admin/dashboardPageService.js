@@ -8,12 +8,12 @@ const Usuario = require("../../schemas/core/Usuario");
 const AuditTrail = require("../../schemas/core/AuditTrail");
 const { PERFIS } = require("../../config/roles");
 const { PERMISSIONS } = require("../../config/permissions");
-const { hasAnyPermission } = require("../accessControlService");
-const { asObjectId, resolveScopedFamilyIds } = require("../volunteerScopeService");
+const { hasAnyPermission } = require("../shared/accessControlService");
+const { asObjectId, resolveScopedFamilyIds } = require("../shared/volunteerScopeService");
 const {
   buildBirthdayWindowLabel,
   getBirthdayCampaignForDashboard,
-} = require("../systemConfigService");
+} = require("../shared/systemConfigService");
 
 const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
   month: "short",

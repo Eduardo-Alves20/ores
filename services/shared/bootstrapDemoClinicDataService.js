@@ -1,10 +1,10 @@
-const Familia = require("../schemas/social/Familia");
-const { Paciente } = require("../schemas/social/Paciente");
-const { Atendimento } = require("../schemas/social/Atendimento");
-const { AgendaEvento } = require("../schemas/social/AgendaEvento");
-const { AgendaSala, normalizeSalaKey } = require("../schemas/social/AgendaSala");
-const Usuario = require("../schemas/core/Usuario");
-const { PERFIS } = require("../config/roles");
+const Familia = require("../../schemas/social/Familia");
+const { Paciente } = require("../../schemas/social/Paciente");
+const { Atendimento } = require("../../schemas/social/Atendimento");
+const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
+const { AgendaSala, normalizeSalaKey } = require("../../schemas/social/AgendaSala");
+const Usuario = require("../../schemas/core/Usuario");
+const { PERFIS } = require("../../config/roles");
 
 function isDevLike() {
   const env = String(process.env.AMBIENTE || process.env.NODE_ENV || "")

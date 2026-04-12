@@ -13,6 +13,7 @@ function normalizeRequestedProfile(value) {
 
 function buildCreatePayload(body = {}) {
   return {
+    _id: body?._id,
     nome: body?.nome,
     email: body?.email,
     login: body?.login,
@@ -22,10 +23,14 @@ function buildCreatePayload(body = {}) {
     cpf: body?.cpf,
     perfil: body?.perfil,
     tipoCadastro: body?.tipoCadastro,
+    nivelAcessoVoluntario: body?.nivelAcessoVoluntario,
     statusAprovacao: body?.statusAprovacao,
     motivoAprovacao: body?.motivoAprovacao,
     papelAprovacao: body?.papelAprovacao,
     ativo: body?.ativo,
+    camposExtras: body?.camposExtras,
+    dadosCadastro: body?.dadosCadastro,
+    anexosProtegidos: body?.anexosProtegidos,
   };
 }
 
