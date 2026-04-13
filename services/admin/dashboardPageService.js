@@ -538,6 +538,48 @@ function buildQuickAction(options) {
   };
 }
 
+function buildDashboardLayoutPreferences({
+  normalizedProfile,
+  userId,
+  canViewFamilies,
+  canViewAgenda,
+}) {
+  const profile = String(normalizedProfile || "").trim().toLowerCase();
+  const isTecnico = profile === PERFIS.TECNICO;
+  const isAtendente = profile === PERFIS.ATENDENTE;
+
+  return {
+    storageKey: `alento.dashboard.layout.${String(userId || profile || "anon")}`,
+    blocks: [
+      {
+        id: "priorities",
+        label: "Prioridades",
+        defaultVisible: true,
+      },
+      {
+        id: "summary",
+        label: "Resumo",
+        defaultVisible: true,
+      },
+      {
+        id: "primary-charts",
+        label: "Graficos",
+        defaultVisible: canViewAgenda,
+      },
+      {
+        id: "secondary-charts",
+        label: "Insights",
+        defaultVisible: canViewAgenda && !isAtendente,
+      },
+      {
+        id: "recent-table",
+        label: "Cadastros",
+        defaultVisible: canViewFamilies && !isTecnico,
+      },
+    ],
+  };
+}
+
 async function buildDashboardViewModel(req) {
   const now = new Date();
   const user = req?.session?.user || null;
@@ -1076,6 +1118,13 @@ async function buildDashboardViewModel(req) {
     distribution,
   });
 
+  const dashboardLayoutPreferences = buildDashboardLayoutPreferences({
+    normalizedProfile,
+    userId: user?.id,
+    canViewFamilies,
+    canViewAgenda,
+  });
+
   return {
     title: "Painel",
     sectionTitle: "Painel Administrativo",
@@ -1151,6 +1200,7 @@ async function buildDashboardViewModel(req) {
         enabled: canViewFamilies && canUseGlobalSearch,
         endpoint: "/busca",
       },
+      preferences: dashboardLayoutPreferences,
     },
   };
 }

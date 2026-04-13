@@ -7,6 +7,8 @@
     down: "fa-solid fa-arrow-trend-down",
     flat: "fa-solid fa-minus",
   };
+  const layoutPreferences = dashboardData?.preferences || {};
+  const layoutBlocks = Array.isArray(layoutPreferences?.blocks) ? layoutPreferences.blocks : [];
 %>
 
 <section class="dashboard-home">
@@ -64,9 +66,30 @@
           <% }) %>
         </div>
       <% } %>
+
+      <% if (layoutBlocks.length) { %>
+        <section class="dashboard-layout-controls card-elevated" data-dashboard-layout-controls>
+          <div class="dashboard-layout-controls-head">
+            <strong>Personalizar painel</strong>
+            <button type="button" class="dashboard-layout-reset" data-dashboard-layout-reset>Restaurar</button>
+          </div>
+          <div class="dashboard-layout-chip-row">
+            <% layoutBlocks.forEach((block) => { %>
+              <button
+                type="button"
+                class="dashboard-layout-chip <%= block.defaultVisible === false ? '' : 'is-active' %>"
+                data-dashboard-toggle-block="<%= block.id %>"
+                aria-pressed="<%= block.defaultVisible === false ? 'false' : 'true' %>"
+              >
+                <%= block.label %>
+              </button>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
     </div>
 
-    <aside class="dashboard-priority-panel">
+    <aside class="dashboard-priority-panel" data-dashboard-block="priorities">
       <section class="dashboard-priority-section">
         <div class="dashboard-panel-head compact">
           <div>
@@ -173,7 +196,7 @@
     </aside>
   </header>
 
-  <section class="dashboard-summary-grid">
+  <section class="dashboard-summary-grid" data-dashboard-block="summary">
     <% (summaryCards || []).forEach((card) => { %>
       <% const trend = card?.trend || null; %>
       <% const cardInner = `
@@ -211,7 +234,7 @@
     <% }) %>
   </section>
 
-  <section class="dashboard-grid dashboard-grid-primary">
+  <section class="dashboard-grid dashboard-grid-primary" data-dashboard-block="primary-charts">
     <article class="dashboard-panel card-elevated dashboard-panel-timeline">
       <header class="dashboard-panel-head">
         <div>
@@ -287,7 +310,7 @@
     </article>
   </section>
 
-  <section class="dashboard-grid dashboard-grid-secondary">
+  <section class="dashboard-grid dashboard-grid-secondary" data-dashboard-block="secondary-charts">
     <article class="dashboard-panel card-elevated">
       <header class="dashboard-panel-head">
         <div>
@@ -356,7 +379,7 @@
     </article>
   </section>
 
-  <section class="dashboard-panel card-elevated dashboard-table-panel">
+  <section class="dashboard-panel card-elevated dashboard-table-panel" data-dashboard-block="recent-table">
     <header class="dashboard-panel-head">
       <div>
         <p class="dashboard-panel-overline">Cadastros recentes</p>

@@ -273,6 +273,87 @@
     }, 140);
   });
 
+  const layoutConfig = payload?.preferences || {};
+  const layoutButtons = Array.from(document.querySelectorAll("[data-dashboard-toggle-block]"));
+  const layoutResetButton = document.querySelector("[data-dashboard-layout-reset]");
+  const dashboardBlocks = Array.from(document.querySelectorAll("[data-dashboard-block]"));
+  const blockNodeMap = new Map(
+    dashboardBlocks.map((node) => [String(node.getAttribute("data-dashboard-block") || ""), node]),
+  );
+  const storageKey = String(layoutConfig?.storageKey || "alento.dashboard.layout.default");
+  const blockDefaults = Array.isArray(layoutConfig?.blocks)
+    ? layoutConfig.blocks.reduce((acc, item) => {
+        const id = String(item?.id || "").trim();
+        if (!id) return acc;
+        acc[id] = item?.defaultVisible !== false;
+        return acc;
+      }, {})
+    : {};
+
+  function readLayoutState() {
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw) return { ...blockDefaults };
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return { ...blockDefaults };
+      return { ...blockDefaults, ...parsed };
+    } catch (_) {
+      return { ...blockDefaults };
+    }
+  }
+
+  function writeLayoutState(state) {
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(state || {}));
+    } catch (_) {
+      // Ignore storage errors (private mode / quota).
+    }
+  }
+
+  function applyLayoutState(state) {
+    const safeState = state || {};
+
+    blockNodeMap.forEach((node, blockId) => {
+      const visible = safeState[blockId] !== false;
+      node.hidden = !visible;
+    });
+
+    layoutButtons.forEach((button) => {
+      const blockId = String(button.getAttribute("data-dashboard-toggle-block") || "").trim();
+      const visible = safeState[blockId] !== false;
+      button.classList.toggle("is-active", visible);
+      button.setAttribute("aria-pressed", visible ? "true" : "false");
+    });
+  }
+
+  if (layoutButtons.length && blockNodeMap.size) {
+    let layoutState = readLayoutState();
+    applyLayoutState(layoutState);
+
+    layoutButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const blockId = String(button.getAttribute("data-dashboard-toggle-block") || "").trim();
+        if (!blockId || !Object.prototype.hasOwnProperty.call(layoutState, blockId)) return;
+
+        const nextState = { ...layoutState, [blockId]: layoutState[blockId] === false };
+        const visibleCount = Object.values(nextState).filter((value) => value !== false).length;
+        if (visibleCount < 1) return;
+
+        layoutState = nextState;
+        applyLayoutState(layoutState);
+        writeLayoutState(layoutState);
+      });
+    });
+
+    if (layoutResetButton) {
+      layoutResetButton.addEventListener("click", function () {
+        layoutState = { ...blockDefaults };
+        applyLayoutState(layoutState);
+        writeLayoutState(layoutState);
+      });
+    }
+  }
+
   const searchForm = document.querySelector("[data-dashboard-search]");
   const searchInput = document.querySelector("[data-dashboard-search-input]");
   const searchResults = document.querySelector("[data-dashboard-search-results]");
