@@ -2092,3 +2092,13 @@
 .presenca-active-filter-chip {
   text-decoration: none;
 }
+
+.presenca-status-legend {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 767px) {
+  .presenca-status-legend {
+    margin-bottom: 10px;
+  }
+}

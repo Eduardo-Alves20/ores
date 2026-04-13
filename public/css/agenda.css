@@ -292,6 +292,56 @@
   color: #5d504a;
 }
 
+.agenda-status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.agenda-status-legend-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+
+.agenda-status-legend-item.is-agendado,
+.agenda-status-legend-item.is-pendente {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.16);
+}
+
+.agenda-status-legend-item.is-presente {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+  border-color: rgba(22, 163, 74, 0.16);
+}
+
+.agenda-status-legend-item.is-falta {
+  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.16);
+}
+
+.agenda-status-legend-item.is-falta-justificada {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.18);
+}
+
+.agenda-status-legend-item.is-cancelado {
+  background: rgba(100, 116, 139, 0.14);
+  color: #475569;
+  border-color: rgba(100, 116, 139, 0.16);
+}
+
 .agenda-calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1099,6 +1149,10 @@
 
   .agenda-calendar-actions .btn {
     flex: 1;
+  }
+
+  .agenda-status-legend {
+    margin-bottom: 8px;
   }
 
   .agenda-day-head .btn,
