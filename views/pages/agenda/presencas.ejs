@@ -338,6 +338,7 @@
               href="<%= buildPresencaHref({ mes: String(cell?.key || '').slice(0, 7), dia: cell?.key || '' }) %>"
               class="agenda-day-cell presenca-calendar-cell <%= cell?.isToday ? 'is-today' : '' %> <%= cell?.isSelected ? 'is-selected' : '' %>"
               data-presenca-nav
+              aria-label="Abrir dia <%= Number(cell?.dayNumber || 0) %> com <%= Number(cell?.total || 0) %> registro(s)"
             >
               <div class="agenda-day-number"><%= Number(cell?.dayNumber || 0) %></div>
               <div class="agenda-day-meta">
@@ -768,7 +769,7 @@
         <header class="agenda-presenca-history-head">
           <h4>Histórico do agendamento</h4>
         </header>
-        <div class="agenda-presenca-history-list" id="agenda-presenca-history-list">
+        <div class="agenda-presenca-history-list" id="agenda-presenca-history-list" aria-live="polite">
           <p class="empty-hint">Nenhum histórico carregado.</p>
         </div>
       </section>

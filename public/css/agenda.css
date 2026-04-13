@@ -864,7 +864,7 @@
   border: 1px dashed #d8b8aa;
   border-radius: 10px;
   background: #fff7f2;
-  color: #7a6258;
+  color: #5f4d46;
   font-size: 0.78rem;
   line-height: 1.5;
   padding: 10px 12px;
@@ -884,7 +884,7 @@
 
 .agenda-form-hint {
   margin: 12px 0 0;
-  color: #8a7a73;
+  color: #5f4d46;
   font-size: 0.78rem;
 }
 
@@ -894,6 +894,29 @@
   color: #8a2f22;
   font-size: 0.73rem;
   font-weight: 700;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.agenda-day-cell:focus-visible,
+.agenda-event-card:focus-visible,
+.presenca-mobile-day-card:focus-visible,
+.presenca-panel-link:focus-visible,
+.presenca-mobile-fab:focus-visible,
+.presenca-mobile-filter-toggle:focus-visible,
+.agenda-modal-close-btn:focus-visible,
+.btn-icon:focus-visible {
+  outline: 3px solid #0f766e;
+  outline-offset: 2px;
 }
 
 .input-control.agenda-field-invalid {

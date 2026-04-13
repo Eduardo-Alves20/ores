@@ -4,6 +4,7 @@
     currentEventId: "",
     lastFilterUrl: "",
     lastModalFocus: null,
+    lastSheetFocus: null,
     touchStartX: 0,
     touchStartY: 0,
     touchTarget: null,
@@ -40,11 +41,49 @@
     }
   }
 
+  function getFocusableElements(container) {
+    if (!container || typeof container.querySelectorAll !== "function") return [];
+    return Array.from(
+      container.querySelectorAll(
+        "button:not([disabled]), [href], input:not([disabled]):not([type='hidden']), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+      )
+    ).filter((node) => node.offsetParent !== null || node === document.activeElement);
+  }
+
+  function trapTabNavigation(event, container) {
+    if (!event || event.key !== "Tab") return;
+    const focusables = getFocusableElements(container);
+    if (!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   function openMobileFilters() {
     const elements = getElements();
     if (!elements.mobileSheetBackdrop) return;
+    state.lastSheetFocus = document.activeElement || null;
     elements.mobileSheetBackdrop.hidden = false;
     document.body.style.overflow = "hidden";
+    const firstFocusable =
+      elements.mobileSheetBackdrop.querySelector("[data-presenca-mobile-filters-close]") ||
+      getFocusableElements(elements.mobileSheetBackdrop)[0] ||
+      null;
+    if (firstFocusable && typeof firstFocusable.focus === "function") {
+      window.setTimeout(() => firstFocusable.focus(), 0);
+    }
   }
 
   function closeMobileFilters() {
@@ -52,6 +91,11 @@
     if (!elements.mobileSheetBackdrop) return;
     elements.mobileSheetBackdrop.hidden = true;
     restoreBodyScroll();
+    const previousFocus = state.lastSheetFocus;
+    state.lastSheetFocus = null;
+    if (previousFocus && typeof previousFocus.focus === "function") {
+      window.setTimeout(() => previousFocus.focus(), 0);
+    }
   }
 
   function syncMonthField(form) {
@@ -356,6 +400,15 @@
 
   document.addEventListener("keydown", (event) => {
     const elements = getElements();
+    if (elements.backdrop && !elements.backdrop.hidden) {
+      const modal = elements.backdrop.querySelector("[role='dialog']");
+      trapTabNavigation(event, modal);
+    }
+    if (elements.mobileSheetBackdrop && !elements.mobileSheetBackdrop.hidden) {
+      const sheet = elements.mobileSheetBackdrop.querySelector("[role='dialog']");
+      trapTabNavigation(event, sheet);
+    }
+
     if (event.key === "Escape") {
       if (elements.backdrop && !elements.backdrop.hidden) {
         closeModal();
