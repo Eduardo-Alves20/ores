@@ -104,6 +104,16 @@
   background: rgba(255, 255, 255, 0.76);
 }
 
+.administracao-form-feedback {
+  border-radius: 12px;
+  border: 1px solid #f0b0a5;
+  background: #fff0ed;
+  color: #8a2f22;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 12px;
+}
+
 .administracao-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -226,6 +236,26 @@
   margin-top: 6px;
   color: #82675d;
   font-size: 0.82rem;
+}
+
+.administracao-field-feedback {
+  display: block;
+  margin-top: 6px;
+  color: #8a2f22;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.input-control.administracao-field-invalid {
+  border-color: #e39b8f;
+  box-shadow: 0 0 0 2px rgba(214, 87, 66, 0.13);
+  background: #fff9f8;
+}
+
+.input-control.administracao-field-valid {
+  border-color: #8ac8a2;
+  box-shadow: 0 0 0 2px rgba(46, 125, 73, 0.12);
+  background: #f9fffb;
 }
 
 .check-card {

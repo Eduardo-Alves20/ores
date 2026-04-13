@@ -29,6 +29,230 @@
       syncFilterFields,
     } = forms;
 
+    function getFeedbackNode(form, fieldName) {
+      if (!form) return null;
+      return form.querySelector(`[data-admin-feedback-for='${fieldName}']`);
+    }
+
+    function getFormFeedbackNode(form) {
+      if (!form) return null;
+      return form.querySelector("[data-admin-form-feedback]");
+    }
+
+    function getFormFieldNode(form, fieldName) {
+      if (!form) return null;
+      if (form === filterForm && fieldName === "valor") {
+        const valueInput = filterForm.querySelector("[data-admin-filter-value-input]");
+        const valueSelect = filterForm.querySelector("[data-admin-filter-value-select]");
+        return valueSelect && !valueSelect.hidden ? valueSelect : valueInput;
+      }
+
+      const direct = form.elements?.[fieldName];
+      if (!direct) return null;
+
+      if (typeof direct.length === "number" && !direct.tagName) {
+        return direct[0] || null;
+      }
+      return direct;
+    }
+
+    function hasFieldValue(inputNode) {
+      if (!inputNode) return false;
+      const type = String(inputNode.type || "").toLowerCase();
+      if (type === "checkbox" || type === "radio") {
+        return inputNode.checked === true;
+      }
+      return String(inputNode.value || "").trim() !== "";
+    }
+
+    function setFormFeedback(form, message) {
+      const node = getFormFeedbackNode(form);
+      if (!node) return;
+      const safeMessage = String(message || "").trim();
+      const hasMessage = Boolean(safeMessage);
+      node.hidden = !hasMessage;
+      node.textContent = hasMessage ? safeMessage : "";
+    }
+
+    function setFieldFeedback(form, fieldName, message) {
+      const inputNode = getFormFieldNode(form, fieldName);
+      const feedbackNode = getFeedbackNode(form, fieldName);
+      const safeMessage = String(message || "").trim();
+      const hasMessage = Boolean(safeMessage);
+
+      if (feedbackNode) {
+        feedbackNode.hidden = !hasMessage;
+        feedbackNode.textContent = hasMessage ? safeMessage : "";
+      }
+
+      if (inputNode?.classList) {
+        inputNode.classList.toggle("administracao-field-invalid", hasMessage);
+        inputNode.classList.toggle("administracao-field-valid", !hasMessage && hasFieldValue(inputNode));
+      }
+
+      if (inputNode && typeof inputNode.setCustomValidity === "function") {
+        inputNode.setCustomValidity(hasMessage ? safeMessage : "");
+      }
+    }
+
+    function clearFormValidation(form, fields) {
+      setFormFeedback(form, "");
+      (fields || []).forEach((fieldName) => setFieldFeedback(form, fieldName, ""));
+    }
+
+    function getFilterValue() {
+      if (!filterForm) return "";
+      const valueInput = filterForm.querySelector("[data-admin-filter-value-input]");
+      const valueSelect = filterForm.querySelector("[data-admin-filter-value-select]");
+      return String(
+        valueSelect && !valueSelect.hidden
+          ? valueSelect.value
+          : valueInput?.value,
+      ).trim();
+    }
+
+    function validateRoomName() {
+      const value = String(roomForm?.elements?.nome?.value || "").trim();
+      if (!value) return "Informe o nome da sala.";
+      if (value.length < 3) return "Use pelo menos 3 caracteres no nome da sala.";
+      return "";
+    }
+
+    function validateReasonName() {
+      const value = String(reasonForm?.elements?.nome?.value || "").trim();
+      if (!value) return "Informe o nome da justificativa.";
+      if (value.length < 3) return "Use pelo menos 3 caracteres no nome.";
+      return "";
+    }
+
+    function validateFieldArea() {
+      const value = String(fieldForm?.elements?.area?.value || "").trim();
+      if (!value) return "Selecione a area do campo.";
+      return "";
+    }
+
+    function validateFieldType() {
+      const value = String(fieldForm?.elements?.tipo?.value || "").trim();
+      if (!value) return "Selecione o tipo do campo.";
+      return "";
+    }
+
+    function validateFieldLabel() {
+      const value = String(fieldForm?.elements?.label?.value || "").trim();
+      if (!value) return "Informe o nome do campo.";
+      if (value.length < 3) return "Use pelo menos 3 caracteres no nome do campo.";
+      return "";
+    }
+
+    function validateFieldOptions() {
+      const type = String(fieldForm?.elements?.tipo?.value || "").trim();
+      if (type !== "select") return "";
+      const options = String(fieldForm?.elements?.opcoes?.value || "")
+        .split(/\r?\n/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+      if (!options.length) {
+        return "Informe pelo menos uma opcao quando o tipo for seletor.";
+      }
+      return "";
+    }
+
+    function validateFilterArea() {
+      const value = String(filterForm?.elements?.area?.value || "").trim();
+      if (!value) return "Selecione a area do filtro.";
+      return "";
+    }
+
+    function validateFilterField() {
+      const value = String(filterForm?.elements?.campo?.value || "").trim();
+      if (!value) return "Selecione o campo que sera filtrado.";
+      return "";
+    }
+
+    function validateFilterValue() {
+      const value = getFilterValue();
+      if (!value) return "Informe o valor do filtro.";
+      return "";
+    }
+
+    function validateFilterName() {
+      const value = String(filterForm?.elements?.nome?.value || "").trim();
+      if (!value) return "Informe o nome do atalho.";
+      if (value.length < 3) return "Use pelo menos 3 caracteres no nome do atalho.";
+      return "";
+    }
+
+    const validationConfig = {
+      room: {
+        form: roomForm,
+        fields: ["nome"],
+        validators: {
+          nome: validateRoomName,
+        },
+      },
+      reason: {
+        form: reasonForm,
+        fields: ["nome"],
+        validators: {
+          nome: validateReasonName,
+        },
+      },
+      field: {
+        form: fieldForm,
+        fields: ["area", "tipo", "label", "opcoes"],
+        validators: {
+          area: validateFieldArea,
+          tipo: validateFieldType,
+          label: validateFieldLabel,
+          opcoes: validateFieldOptions,
+        },
+      },
+      filter: {
+        form: filterForm,
+        fields: ["area", "campo", "valor", "nome"],
+        validators: {
+          area: validateFilterArea,
+          campo: validateFilterField,
+          valor: validateFilterValue,
+          nome: validateFilterName,
+        },
+      },
+    };
+
+    function validateAdminForm(formKey, options = {}) {
+      const strict = Boolean(options.strict);
+      const config = validationConfig[formKey];
+      if (!config?.form) return true;
+
+      const errors = config.fields.map((fieldName) => {
+        const validator = config.validators[fieldName];
+        const message = typeof validator === "function" ? validator() : "";
+        setFieldFeedback(config.form, fieldName, message);
+        return { fieldName, message };
+      });
+
+      const firstError = errors.find((item) => Boolean(String(item.message || "").trim()));
+      setFormFeedback(
+        config.form,
+        firstError && strict ? "Revise os campos destacados antes de salvar." : "",
+      );
+
+      if (firstError && strict) {
+        const inputNode = getFormFieldNode(config.form, firstError.fieldName);
+        if (inputNode && typeof inputNode.focus === "function") {
+          inputNode.focus();
+        }
+      }
+
+      return !firstError;
+    }
+
+    function clearAdminFormValidation(formKey) {
+      const config = validationConfig[formKey];
+      if (!config?.form) return;
+      clearFormValidation(config.form, config.fields);
+    }
+
     root.addEventListener("click", async (event) => {
       const roomEdit = event.target.closest("[data-room-edit]");
       if (roomEdit && roomForm) {
@@ -39,6 +263,7 @@
         roomForm.elements.ativo.value = String(
           typeof payload?.ativo === "boolean" ? payload.ativo : true
         );
+        clearAdminFormValidation("room");
         roomForm.elements.nome.focus();
         return;
       }
@@ -81,6 +306,7 @@
         Array.from(reasonForm.querySelectorAll("input[name='aplicaEm']")).forEach((input) => {
           input.checked = Array.isArray(payload?.aplicaEm) && payload.aplicaEm.includes(input.value);
         });
+        clearAdminFormValidation("reason");
         reasonForm.elements.nome.focus();
         return;
       }
@@ -131,6 +357,7 @@
           ? payload.opcoes.join("\n")
           : "";
         syncFieldTypeOptions();
+        clearAdminFormValidation("field");
         fieldForm.elements.label.focus();
         return;
       }
@@ -173,6 +400,7 @@
         );
         filterForm.elements.ordem.value = String(payload?.ordem || 0);
         filterForm.elements.destaque.checked = payload?.destaque === true;
+        clearAdminFormValidation("filter");
         filterForm.elements.nome.focus();
         return;
       }
@@ -204,15 +432,19 @@
 
       if (event.target.closest("[data-admin-room-reset]")) {
         resetRoomForm();
+        clearAdminFormValidation("room");
       }
       if (event.target.closest("[data-admin-reason-reset]")) {
         resetReasonForm();
+        clearAdminFormValidation("reason");
       }
       if (event.target.closest("[data-admin-field-reset]")) {
         resetFieldForm();
+        clearAdminFormValidation("field");
       }
       if (event.target.closest("[data-admin-filter-reset]")) {
         resetFilterForm();
+        clearAdminFormValidation("filter");
       }
       if (event.target.closest("[data-admin-birthday-reset]")) {
         resetBirthdayForm();
@@ -301,6 +533,7 @@
 
     roomForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (!validateAdminForm("room", { strict: true })) return;
       const roomId = String(roomForm.elements.id.value || "").trim();
       const payload = {
         nome: String(roomForm.elements.nome.value || "").trim(),
@@ -330,6 +563,7 @@
 
     reasonForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (!validateAdminForm("reason", { strict: true })) return;
       const reasonId = String(reasonForm.elements.id.value || "").trim();
       const payload = collectReasonPayload();
 
@@ -355,6 +589,7 @@
 
     fieldForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (!validateAdminForm("field", { strict: true })) return;
       const fieldId = String(fieldForm.elements.id.value || "").trim();
       const payload = collectFieldPayload();
 
@@ -380,6 +615,7 @@
 
     filterForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (!validateAdminForm("filter", { strict: true })) return;
       const filterId = String(filterForm.elements.id.value || "").trim();
       const payload = collectFilterPayload();
 
@@ -428,18 +664,75 @@
       }
     });
 
-    fieldForm?.elements?.tipo?.addEventListener("change", syncFieldTypeOptions);
+    roomForm?.elements?.nome?.addEventListener("input", () => {
+      setFormFeedback(roomForm, "");
+      validateAdminForm("room", { strict: false });
+    });
+    roomForm?.elements?.nome?.addEventListener("blur", () => {
+      validateAdminForm("room", { strict: false });
+    });
+
+    reasonForm?.elements?.nome?.addEventListener("input", () => {
+      setFormFeedback(reasonForm, "");
+      validateAdminForm("reason", { strict: false });
+    });
+    reasonForm?.elements?.nome?.addEventListener("blur", () => {
+      validateAdminForm("reason", { strict: false });
+    });
+
+    fieldForm?.elements?.area?.addEventListener("change", () => {
+      setFormFeedback(fieldForm, "");
+      validateAdminForm("field", { strict: false });
+    });
+    fieldForm?.elements?.tipo?.addEventListener("change", () => {
+      syncFieldTypeOptions();
+      setFormFeedback(fieldForm, "");
+      validateAdminForm("field", { strict: false });
+    });
+    fieldForm?.elements?.label?.addEventListener("input", () => {
+      setFormFeedback(fieldForm, "");
+      validateAdminForm("field", { strict: false });
+    });
+    fieldForm?.elements?.label?.addEventListener("blur", () => {
+      validateAdminForm("field", { strict: false });
+    });
+    fieldForm?.elements?.opcoes?.addEventListener("input", () => {
+      setFormFeedback(fieldForm, "");
+      validateAdminForm("field", { strict: false });
+    });
+    fieldForm?.elements?.opcoes?.addEventListener("blur", () => {
+      validateAdminForm("field", { strict: false });
+    });
+
     filterForm?.elements?.area?.addEventListener("change", () => {
       syncFilterFields("", "");
+      setFormFeedback(filterForm, "");
+      validateAdminForm("filter", { strict: false });
     });
     filterForm?.querySelector("[data-admin-filter-field]")?.addEventListener("change", () => {
       syncFilterFields(filterForm.elements.campo.value, "");
+      setFormFeedback(filterForm, "");
+      validateAdminForm("filter", { strict: false });
     });
     filterForm?.querySelector("[data-admin-filter-value-input]")?.addEventListener("input", (event) => {
       filterForm.elements.valor.value = event.target.value;
+      setFormFeedback(filterForm, "");
+      validateAdminForm("filter", { strict: false });
+    });
+    filterForm?.querySelector("[data-admin-filter-value-input]")?.addEventListener("blur", () => {
+      validateAdminForm("filter", { strict: false });
     });
     filterForm?.querySelector("[data-admin-filter-value-select]")?.addEventListener("change", (event) => {
       filterForm.elements.valor.value = event.target.value;
+      setFormFeedback(filterForm, "");
+      validateAdminForm("filter", { strict: false });
+    });
+    filterForm?.elements?.nome?.addEventListener("input", () => {
+      setFormFeedback(filterForm, "");
+      validateAdminForm("filter", { strict: false });
+    });
+    filterForm?.elements?.nome?.addEventListener("blur", () => {
+      validateAdminForm("filter", { strict: false });
     });
 
     resetRoomForm();
@@ -447,5 +740,9 @@
     resetFieldForm();
     resetFilterForm();
     resetBirthdayForm();
+    clearAdminFormValidation("room");
+    clearAdminFormValidation("reason");
+    clearAdminFormValidation("field");
+    clearAdminFormValidation("filter");
   };
 })();

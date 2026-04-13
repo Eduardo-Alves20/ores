@@ -60,12 +60,14 @@
         <span class="badge-soft"><%= salas.filter((item) => item.ativo).length %> ativas</span>
       </header>
 
-      <form class="administracao-form" data-admin-room-form>
+      <form class="administracao-form" data-admin-room-form novalidate>
         <input type="hidden" name="id" value="" />
+        <div class="administracao-form-feedback" data-admin-form-feedback hidden></div>
         <div class="administracao-form-grid">
           <label class="field-wrap">
             <span class="input-label">Nome da sala *</span>
             <input class="input-control" type="text" name="nome" maxlength="120" required />
+            <small class="administracao-field-feedback" data-admin-feedback-for="nome" hidden></small>
           </label>
 
           <label class="field-wrap">
@@ -138,12 +140,14 @@
         <span class="badge-soft"><%= metrics.justificativasAtivas || 0 %> ativas</span>
       </header>
 
-      <form class="administracao-form" data-admin-reason-form>
+      <form class="administracao-form" data-admin-reason-form novalidate>
         <input type="hidden" name="id" value="" />
+        <div class="administracao-form-feedback" data-admin-form-feedback hidden></div>
         <div class="administracao-form-grid">
           <label class="field-wrap">
             <span class="input-label">Nome *</span>
             <input class="input-control" type="text" name="nome" maxlength="120" required />
+            <small class="administracao-field-feedback" data-admin-feedback-for="nome" hidden></small>
           </label>
 
           <label class="field-wrap">
@@ -236,8 +240,9 @@
         <span class="badge-soft"><%= metrics.camposAtivos || 0 %> ativos</span>
       </header>
 
-      <form class="administracao-form" data-admin-field-form>
+      <form class="administracao-form" data-admin-field-form novalidate>
         <input type="hidden" name="id" value="" />
+        <div class="administracao-form-feedback" data-admin-form-feedback hidden></div>
         <div class="administracao-form-grid">
           <label class="field-wrap">
             <span class="input-label">Area *</span>
@@ -246,6 +251,7 @@
                 <option value="<%= item.value %>"><%= item.label %></option>
               <% }) %>
             </select>
+            <small class="administracao-field-feedback" data-admin-feedback-for="area" hidden></small>
           </label>
 
           <label class="field-wrap">
@@ -255,11 +261,13 @@
                 <option value="<%= item.value %>"><%= item.label %></option>
               <% }) %>
             </select>
+            <small class="administracao-field-feedback" data-admin-feedback-for="tipo" hidden></small>
           </label>
 
           <label class="field-wrap">
             <span class="input-label">Nome do campo *</span>
             <input class="input-control" type="text" name="label" maxlength="120" required />
+            <small class="administracao-field-feedback" data-admin-feedback-for="label" hidden></small>
           </label>
 
           <label class="field-wrap">
@@ -293,6 +301,7 @@
           <label class="field-wrap span-2" data-admin-field-options-wrap hidden>
             <span class="input-label">Opcoes do select</span>
             <textarea class="input-control textarea-control" name="opcoes" rows="4" placeholder="Uma opcao por linha"></textarea>
+            <small class="administracao-field-feedback" data-admin-feedback-for="opcoes" hidden></small>
           </label>
 
           <label class="check-card check-card-inline">
@@ -367,9 +376,10 @@
         <span class="badge-soft"><%= metrics.filtrosAtivos || 0 %> ativos</span>
       </header>
 
-      <form class="administracao-form" data-admin-filter-form>
+      <form class="administracao-form" data-admin-filter-form novalidate>
         <input type="hidden" name="id" value="" />
         <input type="hidden" name="valor" value="" />
+        <div class="administracao-form-feedback" data-admin-form-feedback hidden></div>
         <div class="administracao-form-grid">
           <label class="field-wrap">
             <span class="input-label">Area *</span>
@@ -378,22 +388,26 @@
                 <option value="<%= item.value %>"><%= item.label %></option>
               <% }) %>
             </select>
+            <small class="administracao-field-feedback" data-admin-feedback-for="area" hidden></small>
           </label>
 
           <label class="field-wrap">
             <span class="input-label">Campo *</span>
             <select class="input-control" name="campo" required data-admin-filter-field></select>
+            <small class="administracao-field-feedback" data-admin-feedback-for="campo" hidden></small>
           </label>
 
           <label class="field-wrap" data-admin-filter-value-wrap>
             <span class="input-label">Valor *</span>
             <input class="input-control" type="text" name="valorInput" required data-admin-filter-value-input />
             <select class="input-control" name="valorSelect" hidden data-admin-filter-value-select></select>
+            <small class="administracao-field-feedback" data-admin-feedback-for="valor" hidden></small>
           </label>
 
           <label class="field-wrap">
             <span class="input-label">Nome do atalho *</span>
             <input class="input-control" type="text" name="nome" maxlength="100" required />
+            <small class="administracao-field-feedback" data-admin-feedback-for="nome" hidden></small>
           </label>
 
           <label class="field-wrap span-2">
