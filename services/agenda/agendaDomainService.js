@@ -8,6 +8,7 @@ module.exports = {
   ...require("./domain/agendaRelationService"),
   ...require("./domain/agendaNotificationService"),
   ...require("./domain/agendaLookupService"),
+  ...require("./domain/agendaProfessionalAvailabilityService"),
   ...require("./domain/agendaRoomService"),
   ...require("./domain/agendaEventQueryService"),
   ...require("./domain/agendaEventMutationService"),

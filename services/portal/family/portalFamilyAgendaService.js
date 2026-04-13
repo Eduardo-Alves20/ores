@@ -136,6 +136,7 @@ async function buildPortalFamilyAgendaPageView(context = {}, query = {}) {
       "/js/agenda-shared.js",
       "/js/agenda-attendance.js",
       "/js/portal-family-agenda.js",
+      "/js/portal-family-scheduling.js",
     ],
     familia: context?.familia || null,
     notificationCount: Number(context?.notificationSummary?.unread || 0),
@@ -147,8 +148,14 @@ async function buildPortalFamilyAgendaPageView(context = {}, query = {}) {
     ),
     familyAgendaConfig: {
       eventsEndpoint: "/minha-familia/consultas/eventos",
+      professionalsEndpoint: "/minha-familia/consultas/profissionais",
+      bookingEndpoint: "/minha-familia/consultas/agendar",
       absenceEndpoint: "/minha-familia/consultas/eventos",
       rescheduleEndpoint: "/minha-familia/consultas/eventos",
+      dependentes: (context?.dependentes || []).map((item) => ({
+        id: String(item?._id || ""),
+        nome: item?.nome || "Dependente",
+      })),
       referenceDate: monthData.referenceDate
         ? monthData.referenceDate.toISOString()
         : new Date().toISOString(),

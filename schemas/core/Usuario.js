@@ -194,6 +194,49 @@ const UsuarioSchema = new mongoose.Schema(
       default: {},
     },
 
+    agendaDisponibilidade: {
+      ativo: {
+        type: Boolean,
+        default: false,
+      },
+      dias: [
+        {
+          _id: false,
+          diaSemana: {
+            type: Number,
+            min: 0,
+            max: 6,
+            required: true,
+          },
+          inicio: {
+            type: String,
+            trim: true,
+            default: "",
+            maxlength: 5,
+          },
+          fim: {
+            type: String,
+            trim: true,
+            default: "",
+            maxlength: 5,
+          },
+          ativo: {
+            type: Boolean,
+            default: true,
+          },
+        },
+      ],
+      updatedAt: {
+        type: Date,
+        default: null,
+      },
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Usuario",
+        default: null,
+      },
+    },
+
     anexosProtegidos: {
       documentoIdentidade: {
         type: ProtectedAssetSchema,

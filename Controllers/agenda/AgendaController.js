@@ -3,14 +3,17 @@ const {
   changeAgendaEventStatus,
   createAgendaRoom,
   createAgendaEvent,
+  buildProfessionalWeekSlots,
   getAgendaEventDetail,
   getSessionUser,
   listAgendaEvents,
   listAgendaProfessionals,
   listAgendaRooms,
   listAvailableAgendaRooms,
+  loadOwnAgendaAvailability,
   moveAgendaEvent,
   registerAgendaAttendance,
+  updateOwnAgendaAvailability,
   updateAgendaEvent,
   updateAgendaRoom,
 } = require("../../services/agenda/agendaDomainService");
@@ -61,6 +64,54 @@ class AgendaController {
         res,
         "Erro ao listar profissionais da agenda:",
         "Erro interno ao listar profissionais.",
+        error
+      );
+    }
+  }
+
+  static async horariosProfissional(req, res) {
+    try {
+      return res.status(200).json(
+        await buildProfessionalWeekSlots({
+          profissionalId: req.params?.id,
+          referencia: req.query?.referencia,
+        })
+      );
+    } catch (error) {
+      return respondAgendaError(
+        res,
+        "Erro ao carregar horarios do profissional:",
+        "Erro interno ao carregar horarios.",
+        error
+      );
+    }
+  }
+
+  static async minhaDisponibilidade(req, res) {
+    try {
+      return res.status(200).json(
+        await loadOwnAgendaAvailability(getSessionUser(req))
+      );
+    } catch (error) {
+      return respondAgendaError(
+        res,
+        "Erro ao carregar disponibilidade do profissional:",
+        "Erro interno ao carregar a disponibilidade.",
+        error
+      );
+    }
+  }
+
+  static async salvarMinhaDisponibilidade(req, res) {
+    try {
+      return res.status(200).json(
+        await updateOwnAgendaAvailability(getSessionUser(req), req.body || {})
+      );
+    } catch (error) {
+      return respondAgendaError(
+        res,
+        "Erro ao salvar disponibilidade do profissional:",
+        "Erro interno ao salvar a disponibilidade.",
         error
       );
     }
