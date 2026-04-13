@@ -10,6 +10,9 @@
         <select id="agenda-responsavel-filtro" class="input-control"></select>
       </label>
       <button type="button" class="btn btn-muted" id="agenda-hoje-btn">Hoje</button>
+      <% if (agendaConfig?.permissions?.canManageAvailability) { %>
+        <button type="button" class="btn btn-muted" id="agenda-disponibilidade-btn">Minha Disponibilidade</button>
+      <% } %>
       <% if (agendaConfig?.permissions?.canManageRooms) { %>
         <button type="button" class="btn btn-muted" id="agenda-salas-btn">Salas</button>
       <% } %>
@@ -260,6 +263,66 @@
 </div>
 
 <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(agendaConfig?.attendanceJustifications || []) %></script>
+
+<div class="agenda-modal-backdrop" id="agenda-disponibilidade-backdrop" hidden>
+  <section class="agenda-modal agenda-availability-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-disponibilidade-title">
+    <header class="agenda-modal-head">
+      <div>
+        <h3 id="agenda-disponibilidade-title">Minha disponibilidade</h3>
+        <p class="agenda-modal-subtitle">Defina os dias e horarios em que voce atende para o portal da familia mostrar apenas janelas livres.</p>
+      </div>
+      <button type="button" class="btn btn-muted btn-icon" id="agenda-disponibilidade-close" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </header>
+
+    <div class="agenda-presenca-shell agenda-availability-shell">
+      <div class="agenda-availability-status">
+        <label class="agenda-availability-toggle">
+          <input type="checkbox" id="agenda-disponibilidade-ativo" />
+          <span>Disponibilizar meus horarios para agendamento da familia</span>
+        </label>
+        <p class="agenda-form-hint">Cada linha ativa libera horarios de 30 em 30 minutos dentro da faixa informada.</p>
+      </div>
+
+      <div class="agenda-availability-grid" id="agenda-disponibilidade-grid">
+        <% [
+          { value: 1, label: "Segunda-feira" },
+          { value: 2, label: "Terca-feira" },
+          { value: 3, label: "Quarta-feira" },
+          { value: 4, label: "Quinta-feira" },
+          { value: 5, label: "Sexta-feira" },
+          { value: 6, label: "Sabado" },
+          { value: 0, label: "Domingo" },
+        ].forEach((day) => { %>
+          <article class="agenda-availability-day-card" data-availability-day-card data-dia-semana="<%= day.value %>">
+            <label class="agenda-availability-day-head">
+              <input type="checkbox" data-availability-enabled />
+              <span><%= day.label %></span>
+            </label>
+
+            <div class="agenda-availability-time-row">
+              <label class="field-wrap">
+                <span class="input-label">Inicio</span>
+                <input class="input-control" type="time" data-availability-start value="08:00" />
+              </label>
+
+              <label class="field-wrap">
+                <span class="input-label">Fim</span>
+                <input class="input-control" type="time" data-availability-end value="12:00" />
+              </label>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+
+      <div class="agenda-form-actions">
+        <button type="button" class="btn btn-muted" id="agenda-disponibilidade-cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="agenda-disponibilidade-submit">Salvar disponibilidade</button>
+      </div>
+    </div>
+  </section>
+</div>
 
 <div class="agenda-modal-backdrop" id="agenda-salas-backdrop" hidden>
   <section class="agenda-modal agenda-salas-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-salas-title">

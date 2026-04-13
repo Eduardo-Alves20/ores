@@ -66,6 +66,15 @@ function buildPortalQuickLinks(user) {
     });
   }
 
+  if (tipoCadastro !== "familia" && hasPerm(user, PERMISSIONS.AGENDA_VIEW)) {
+    links.push({
+      href: "/agenda?modal=disponibilidade",
+      label: "Minha Disponibilidade",
+      description: "Configure seus dias e horarios para liberar agendamento da familia.",
+      icon: "fa-clock",
+    });
+  }
+
   return links;
 }
 

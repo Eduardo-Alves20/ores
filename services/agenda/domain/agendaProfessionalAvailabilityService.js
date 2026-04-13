@@ -210,7 +210,7 @@ async function loadOwnAgendaAvailability(user) {
 async function updateOwnAgendaAvailability(user, body = {}) {
   ensureAgendaPermission(
     user,
-    PERMISSIONS.AGENDA_CREATE,
+    PERMISSIONS.AGENDA_VIEW,
     "Acesso negado para configurar disponibilidade."
   );
 

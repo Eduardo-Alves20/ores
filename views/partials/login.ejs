@@ -63,9 +63,7 @@
           .concat(typeof infoMessage !== "undefined" ? __normalizeFlash(infoMessage) : []),
       };
     %>
-    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %>>
-      window.__APP_FLASH = <%- serializeForInlineScript(__appFlashPayload) %>;
-    </script>
+    <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="app-flash-data" type="application/json"><%- serializeForInlineScript(__appFlashPayload) %></script>
     <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="<%= appendAssetVersion('/js/csrf.js') %>" defer></script>
     <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> src="<%= appendAssetVersion('/js/ui-alerts.js') %>" defer></script>

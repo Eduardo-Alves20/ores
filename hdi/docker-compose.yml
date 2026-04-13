@@ -36,7 +36,9 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     restart: unless-stopped
     networks:
-      suite: {}
+      suite:
+        aliases:
+          - hdi-origin
       hdi-private:
         aliases:
           - nginx

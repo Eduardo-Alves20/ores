@@ -17,6 +17,7 @@ function buildPermissions(user) {
   const canChangeStatus = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_STATUS]);
   const canRegisterAttendance = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_ATTENDANCE]);
   const canManageRooms = canViewAll;
+  const canManageAvailability = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_VIEW]);
 
   return {
     canViewAll,
@@ -27,6 +28,7 @@ function buildPermissions(user) {
     canChangeStatus,
     canRegisterAttendance,
     canManageRooms,
+    canManageAvailability,
   };
 }
 
@@ -48,6 +50,7 @@ class AgendaPageController {
         "/js/agenda-calendar.js",
         "/js/agenda-form.js",
         "/js/agenda.js",
+        "/js/agenda-availability.js",
       ],
       agendaConfig: {
         user: {

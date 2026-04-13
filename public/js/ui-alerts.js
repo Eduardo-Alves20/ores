@@ -13,6 +13,24 @@
     return typeof window.Swal !== "undefined" && typeof window.Swal.fire === "function";
   }
 
+  function readAppFlash() {
+    if (window.__APP_FLASH && typeof window.__APP_FLASH === "object") {
+      return window.__APP_FLASH;
+    }
+
+    const payloadNode = document.getElementById("app-flash-data");
+    if (!payloadNode) {
+      return {};
+    }
+
+    try {
+      const raw = String(payloadNode.textContent || "").trim();
+      return raw ? JSON.parse(raw) : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
   function notify(type, message, options = {}) {
     const text = String(message || "").trim();
     if (!text) return Promise.resolve();
@@ -120,7 +138,8 @@
     true
   );
 
-  const flash = window.__APP_FLASH || {};
+  const flash = readAppFlash();
+  window.__APP_FLASH = flash;
   const success = toArray(flash.success);
   const error = toArray(flash.error);
   const warning = toArray(flash.warning);

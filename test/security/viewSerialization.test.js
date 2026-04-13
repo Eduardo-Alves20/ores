@@ -90,10 +90,10 @@ test("login.ejs serializa flash inline sem injetar HTML executavel", async () =>
 
   assert.match(
     html,
-    /window\.__APP_FLASH = \{"success":\["\\u003c\/script\\u003e\\u003cscript\\u003ealert\(\\"flash\\"\)\\u003c\/script\\u003e"\],"error":\[\],"warning":\[\],"info":\[\]\};/,
+    /<script[^>]*id="app-flash-data"[^>]*type="application\/json"[^>]*>\{"success":\["\\u003c\/script\\u003e\\u003cscript\\u003ealert\(\\"flash\\"\)\\u003c\/script\\u003e"\],"error":\[\],"warning":\[\],"info":\[\]\}<\/script>/,
   );
   assert.doesNotMatch(
     html,
-    /window\.__APP_FLASH = \{"success":\["<\/script><script>alert\("flash"\)<\/script>"\]/,
+    /<script[^>]*id="app-flash-data"[^>]*>\{"success":\["<\/script><script>alert\("flash"\)<\/script>"\]/,
   );
 });
