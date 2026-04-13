@@ -123,6 +123,33 @@
         .replace(/'/g, "&#39;");
     }
 
+    async function confirmVoteAction(decision) {
+      const normalizedDecision = String(decision || "").trim().toLowerCase();
+      const actionLabel = normalizedDecision === "rejeitar" ? "rejeitar" : "aprovar";
+      const title =
+        actionLabel === "rejeitar"
+          ? "Confirmar voto de rejeição?"
+          : "Confirmar voto de aprovação?";
+      const text = currentApprovalUserName
+        ? `Você está prestes a ${actionLabel} o cadastro de ${currentApprovalUserName}.`
+        : `Você está prestes a ${actionLabel} este cadastro.`;
+
+      if (window.Swal && typeof window.Swal.fire === "function") {
+        const result = await window.Swal.fire({
+          title,
+          text,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText:
+            actionLabel === "rejeitar" ? "Sim, rejeitar" : "Sim, aprovar",
+          cancelButtonText: "Cancelar",
+        });
+        return !!result?.isConfirmed;
+      }
+
+      return window.confirm(`${title}\n\n${text}`);
+    }
+
     function setApprovalError(message) {
       if (!approvalError) return;
       const text = String(message || "").trim();
@@ -537,19 +564,27 @@
       openRejectVoteModal();
     });
 
-    approveVoteForm?.addEventListener("submit", () => {
+    approveVoteForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const confirmed = await confirmVoteAction("aprovar");
+      if (!confirmed) return;
       if (approveVoteButton) {
         approveVoteButton.disabled = true;
       }
+      approveVoteForm.submit();
     });
 
-    rejectVoteForm?.addEventListener("submit", () => {
+    rejectVoteForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const confirmed = await confirmVoteAction("rejeitar");
+      if (!confirmed) return;
       if (rejectVoteSubmit) {
         rejectVoteSubmit.disabled = true;
       }
       if (rejectVoteReasonField) {
         rejectVoteReasonField.disabled = true;
       }
+      rejectVoteForm.submit();
     });
 
     document.addEventListener("keydown", (event) => {

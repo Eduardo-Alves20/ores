@@ -484,6 +484,22 @@
   flex-wrap: nowrap;
 }
 
+.aprovacao-icon-legend {
+  margin: 8px 0 0;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #7f7069;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.aprovacao-icon-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .aprovacao-vote-btn {
   min-width: 64px;
   height: 38px;

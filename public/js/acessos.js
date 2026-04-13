@@ -31,6 +31,33 @@
   const openEditModal = userModal?.openEditModal || (() => {});
   const openApprovalModal = approvalModal?.openApprovalModal || (() => {});
 
+  async function confirmVoteAction(decision, userName) {
+    const normalizedDecision = String(decision || "").trim().toLowerCase();
+    const actionLabel = normalizedDecision === "rejeitar" ? "rejeitar" : "aprovar";
+    const title =
+      actionLabel === "rejeitar"
+        ? "Confirmar voto de rejeição?"
+        : "Confirmar voto de aprovação?";
+    const text = userName
+      ? `Você está prestes a ${actionLabel} o cadastro de ${userName}.`
+      : `Você está prestes a ${actionLabel} este cadastro.`;
+
+    if (window.Swal && typeof window.Swal.fire === "function") {
+      const result = await window.Swal.fire({
+        title,
+        text,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText:
+          actionLabel === "rejeitar" ? "Sim, rejeitar" : "Sim, aprovar",
+        cancelButtonText: "Cancelar",
+      });
+      return !!result?.isConfirmed;
+    }
+
+    return window.confirm(`${title}\n\n${text}`);
+  }
+
   root.addEventListener("click", (event) => {
     const editBtn = event.target.closest("[data-action='edit-user']");
     if (editBtn) {
@@ -91,5 +118,22 @@
 
     if (event.key !== "Escape") return;
     closeAllMenus();
+  });
+
+  root.addEventListener("submit", async (event) => {
+    const voteForm = event.target.closest(".aprovacao-vote-form");
+    if (!voteForm) return;
+    event.preventDefault();
+
+    const decision = voteForm.querySelector("[name='decisao']")?.value || "";
+    const row = voteForm.closest("tr");
+    const userName = row
+      ? String(row.querySelector("td[data-label='Nome'] strong")?.textContent || "").trim()
+      : "";
+    const confirmed = await confirmVoteAction(decision, userName);
+    if (!confirmed) {
+      return;
+    }
+    voteForm.submit();
   });
 })();
