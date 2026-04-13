@@ -6,6 +6,7 @@ const {
   FAMILY_NOTIFICATION_LIMIT_OPTIONS,
 } = require("./portalFamilyPolicyService");
 const { mapNotificationCard } = require("./portalFamilyFormattingService");
+const { escapeRegex } = require("../../shared/searchUtilsService");
 
 function parseNotificationType(value) {
   const normalized = String(value || "").trim().toLowerCase();
@@ -23,6 +24,10 @@ function parseNotificationLimit(value, fallback = 20) {
   const parsed = Number.parseInt(String(value || ""), 10);
   if (FAMILY_NOTIFICATION_LIMIT_OPTIONS.includes(parsed)) return parsed;
   return fallback;
+}
+
+function parseNotificationSearch(value) {
+  return String(value || "").trim().slice(0, 80);
 }
 
 function normalizeNotificationUserId(userId) {
@@ -83,6 +88,19 @@ function buildNotificationStatusFilter(status) {
   return {};
 }
 
+function buildNotificationSearchFilter(busca) {
+  if (!busca) return {};
+  const regex = new RegExp(escapeRegex(busca), "i");
+  return {
+    $or: [
+      { titulo: regex },
+      { mensagem: regex },
+      { evento: regex },
+      { "payload.meta.kind": regex },
+    ],
+  };
+}
+
 async function loadPortalFamilyNotificationSummary(userId) {
   if (!userId) {
     return {
@@ -132,6 +150,7 @@ async function buildPortalFamilyNotificationsPageView({ userId, query = {} }) {
   const tipo = parseNotificationType(query?.tipo);
   const status = parseNotificationStatus(query?.status);
   const limit = parseNotificationLimit(query?.limit, 20);
+  const busca = parseNotificationSearch(query?.busca);
   const filtroBase = buildNotificationBaseFilter(userId);
   if (!filtroBase) {
     return {
@@ -153,6 +172,7 @@ async function buildPortalFamilyNotificationsPageView({ userId, query = {} }) {
         tipo,
         status,
         limit,
+        busca,
         limitOptions: FAMILY_NOTIFICATION_LIMIT_OPTIONS,
       },
     };
@@ -162,16 +182,20 @@ async function buildPortalFamilyNotificationsPageView({ userId, query = {} }) {
     ...filtroBase,
     ...buildNotificationStatusFilter(status),
     ...buildNotificationTypeFilter(tipo),
+    ...buildNotificationSearchFilter(busca),
   };
 
-  const [docs, total, unread] = await Promise.all([
+  const [docs, total, unread, alerts] = await Promise.all([
     Notificacao.find(filtroLista).sort({ createdAt: -1 }).limit(limit).lean(),
     Notificacao.countDocuments(filtroBase),
     Notificacao.countDocuments({ ...filtroBase, lidoEm: null }),
+    Notificacao.countDocuments({
+      ...filtroBase,
+      ...buildNotificationTypeFilter("alert"),
+    }),
   ]);
 
   const notificacoes = docs.map(mapNotificationCard);
-  const alertas = notificacoes.filter((item) => item.tipo === "alert").length;
 
   return {
     title: "Notificacoes da Familia",
@@ -185,13 +209,14 @@ async function buildPortalFamilyNotificationsPageView({ userId, query = {} }) {
     totais: {
       total,
       unread,
-      alerts: alertas,
+      alerts,
       listed: notificacoes.length,
     },
     filtros: {
       tipo,
       status,
       limit,
+      busca,
       limitOptions: FAMILY_NOTIFICATION_LIMIT_OPTIONS,
     },
   };
@@ -243,6 +268,7 @@ module.exports = {
   normalizeNotificationId,
   normalizeNotificationUserId,
   parseNotificationLimit,
+  parseNotificationSearch,
   parseNotificationStatus,
   parseNotificationType,
 };

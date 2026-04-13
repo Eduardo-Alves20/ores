@@ -9,6 +9,7 @@ const {
   markPortalFamilyNotificationAsRead,
   normalizeNotificationId,
   normalizeNotificationUserId,
+  parseNotificationSearch,
 } = require("../../services/portal/family/portalFamilyNotificationService");
 
 test("normalizeNotificationId e normalizeNotificationUserId validam object ids", () => {
@@ -106,5 +107,58 @@ test("servicos de notificacao retornam vazio para userId invalido", async () => 
   } finally {
     Notificacao.countDocuments = originalCountDocuments;
     Notificacao.find = originalFind;
+  }
+});
+
+test("parseNotificationSearch normaliza busca e limita tamanho", () => {
+  assert.equal(parseNotificationSearch("  consulta remarcada  "), "consulta remarcada");
+  assert.equal(parseNotificationSearch(""), "");
+  assert.equal(parseNotificationSearch("a".repeat(200)).length, 80);
+});
+
+test("buildPortalFamilyNotificationsPageView aplica filtro de busca com regex escapada", async () => {
+  const originalFind = Notificacao.find;
+  const originalCountDocuments = Notificacao.countDocuments;
+  let capturedFilter = null;
+
+  Notificacao.find = (filter) => {
+    capturedFilter = filter;
+    return {
+      sort() {
+        return this;
+      },
+      limit() {
+        return this;
+      },
+      lean() {
+        return [];
+      },
+    };
+  };
+
+  Notificacao.countDocuments = async () => 0;
+
+  try {
+    await buildPortalFamilyNotificationsPageView({
+      userId: "507f1f77bcf86cd799439011",
+      query: {
+        busca: "consulta (teste)",
+      },
+    });
+
+    assert.ok(capturedFilter);
+    assert.equal(capturedFilter.usuarioId, "507f1f77bcf86cd799439011");
+    assert.ok(Array.isArray(capturedFilter.$or));
+    const regexValues = capturedFilter.$or
+      .map((item) => Object.values(item)[0])
+      .filter((value) => value instanceof RegExp);
+    assert.ok(regexValues.length >= 1);
+    regexValues.forEach((regex) => {
+      assert.equal(regex.flags.includes("i"), true);
+      assert.equal(regex.test("consulta (teste)"), true);
+    });
+  } finally {
+    Notificacao.find = originalFind;
+    Notificacao.countDocuments = originalCountDocuments;
   }
 });

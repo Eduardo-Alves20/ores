@@ -1,4 +1,14 @@
 <section class="family-portal-page">
+  <%
+    const filtroTipo = String(filtros?.tipo || "todos");
+    const filtroStatus = String(filtros?.status || "todos");
+    const filtroLimit = Number(filtros?.limit || 20);
+    const filtroBusca = String(filtros?.busca || "");
+    const encode = (value) => encodeURIComponent(String(value || ""));
+    const naoLidasHref = `/minha-familia/notificacoes?tipo=${encode(filtroTipo)}&status=nao_lidas&limit=${encode(filtroLimit)}&busca=${encode(filtroBusca)}`;
+    const alertasHref = `/minha-familia/notificacoes?tipo=alert&status=${encode(filtroStatus)}&limit=${encode(filtroLimit)}&busca=${encode(filtroBusca)}`;
+    const recentesHref = `/minha-familia/notificacoes?tipo=todos&status=todos&limit=${encode(filtroLimit)}&busca=${encode(filtroBusca)}`;
+  %>
   <header class="family-portal-hero module-card">
     <div class="family-portal-hero-copy">
       <span class="badge-soft">Notificacoes</span>
@@ -44,7 +54,34 @@
     </article>
   </section>
 
+  <section class="family-notification-quick-filters module-card">
+    <a href="<%= naoLidasHref %>" class="family-filter-chip <%= filtroStatus === 'nao_lidas' ? 'is-active' : '' %>">
+      <span>Somente nao lidas</span>
+      <strong><%= totais?.unread || 0 %></strong>
+    </a>
+    <a href="<%= alertasHref %>" class="family-filter-chip <%= filtroTipo === 'alert' ? 'is-active' : '' %>">
+      <span>Somente alertas</span>
+      <strong><%= totais?.alerts || 0 %></strong>
+    </a>
+    <a href="<%= recentesHref %>" class="family-filter-chip <%= filtroTipo === 'todos' && filtroStatus === 'todos' ? 'is-active' : '' %>">
+      <span>Ver todas</span>
+      <strong><%= totais?.total || 0 %></strong>
+    </a>
+  </section>
+
   <form class="family-filters module-card" method="get" action="/minha-familia/notificacoes">
+    <label class="field-wrap filtro-item">
+      <span class="input-label">Buscar</span>
+      <input
+        class="input-control"
+        type="search"
+        name="busca"
+        value="<%= filtroBusca %>"
+        maxlength="80"
+        placeholder="Titulo, mensagem ou tipo da notificacao"
+      />
+    </label>
+
     <label class="field-wrap filtro-item">
       <span class="input-label">Tipo</span>
       <select class="input-control" name="tipo">
@@ -91,6 +128,9 @@
             <div class="notificacao-badges">
               <span class="notif-tipo"><%= item.tipoLabel %></span>
               <span class="notif-status"><%= item.eventoLabel %></span>
+              <% if (!item.lida) { %>
+                <span class="notif-unread-pill">Nao lida</span>
+              <% } %>
             </div>
             <time class="notif-data" datetime="<%= item.criadoEmIso || '' %>"><%= item.criadoEmLabel %></time>
           </div>
