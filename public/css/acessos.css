@@ -312,6 +312,61 @@
   align-items: center;
 }
 
+.acesso-actions-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.acesso-actions-trigger {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #d8cdc6;
+  border-radius: 999px;
+  background: #f4efec;
+  color: #6d5f57;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.acesso-actions-trigger:hover {
+  background: #ede5e0;
+  border-color: #c9bcb4;
+}
+
+.acesso-actions-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(178, 74, 50, 0.17);
+}
+
+.acesso-actions-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  display: none;
+  min-width: 210px;
+  max-width: min(280px, 80vw);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid #e5d8d1;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(61, 31, 21, 0.16);
+}
+
+.acesso-actions-menu.is-open .acesso-actions-dropdown {
+  display: grid;
+  gap: 6px;
+}
+
+.acesso-actions-menu-item {
+  width: 100%;
+}
+
 .acessos-action-form {
   margin: 0;
 }
@@ -1486,6 +1541,11 @@ body.acessos-modal-open {
   .acessos-action-stack {
     margin-top: 6px;
     width: 100%;
+  }
+
+  .acesso-actions-dropdown {
+    right: auto;
+    left: 0;
   }
 
   .aprovacoes-actions {

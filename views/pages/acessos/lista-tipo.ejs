@@ -275,12 +275,24 @@
                 <td class="acessos-actions-col" data-label="Acoes">
                   <% if (item.canEdit || item.canAdminister) { %>
                     <div class="acessos-action-stack">
+                      <div class="acesso-actions-menu">
+                        <button
+                          class="acesso-actions-trigger"
+                          type="button"
+                          data-action="menu-toggle"
+                          aria-expanded="false"
+                          aria-label="Abrir menu de ações"
+                        >
+                          <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
+                        </button>
+                        <div class="acesso-actions-dropdown" role="menu" aria-label="Ações do cadastro">
                       <% if (item.canEdit) { %>
                         <button
-                          class="table-action-btn table-action-btn-edit acessos-action-btn acesso-action-edit"
+                          class="table-action-btn table-action-btn-edit acessos-action-btn acesso-action-edit acesso-actions-menu-item"
                           type="button"
                           data-action="edit-user"
                           data-user-id="<%= item._id %>"
+                          role="menuitem"
                         >
                           <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                           <span>Editar</span>
@@ -291,7 +303,8 @@
                         <% if (item.statusAprovacaoNormalized === "pendente" && item.perfil === "usuario") { %>
                           <a
                             href="/acessos/aprovacoes"
-                            class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-approve"
+                            class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-approve acesso-actions-menu-item"
+                            role="menuitem"
                           >
                             <i class="fa-solid fa-check-to-slot" aria-hidden="true"></i>
                             <span>Votar na fila</span>
@@ -300,7 +313,7 @@
                         <form
                           method="post"
                           action="/acessos/<%= item._id %>/aprovar"
-                          class="acessos-action-form"
+                          class="acessos-action-form acesso-actions-menu-item"
                           data-confirm="true"
                           data-confirm-title="Aprovar cadastro?"
                           data-confirm-text="Deseja aprovar o cadastro de <%= item.nome || 'usuario' %>?"
@@ -310,7 +323,7 @@
                         >
                           <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-approve" type="submit">
+                          <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-approve" type="submit" role="menuitem">
                             <i class="fa-solid fa-check" aria-hidden="true"></i>
                             <span>Aprovar</span>
                           </button>
@@ -322,7 +335,7 @@
                         <form
                           method="post"
                           action="/acessos/<%= item._id %>/aprovar"
-                          class="acessos-action-form"
+                          class="acessos-action-form acesso-actions-menu-item"
                           data-confirm="true"
                           data-confirm-title="Aprovar e ativar acesso?"
                           data-confirm-text="Deseja aprovar e ativar o acesso de <%= item.nome || 'usuario' %>?"
@@ -333,7 +346,7 @@
                           <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                           <input type="hidden" name="ativo" value="true" />
-                          <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-secondary" type="submit">
+                          <button class="table-action-btn table-action-btn-success acessos-action-btn acesso-action-secondary" type="submit" role="menuitem">
                             <i class="fa-solid fa-user-check" aria-hidden="true"></i>
                             <span>Aprovar + ativar</span>
                           </button>
@@ -344,7 +357,7 @@
                         <form
                           method="post"
                           action="/acessos/<%= item._id %>/rejeitar"
-                          class="acessos-action-form"
+                          class="acessos-action-form acesso-actions-menu-item"
                           data-confirm="true"
                           data-confirm-title="Rejeitar cadastro?"
                           data-confirm-text="Deseja rejeitar o cadastro de <%= item.nome || 'usuario' %>? Essa acao bloqueia o acesso."
@@ -354,7 +367,7 @@
                         >
                           <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-                          <button class="table-action-btn table-action-btn-danger acessos-action-btn acesso-action-reject" type="submit">
+                          <button class="table-action-btn table-action-btn-danger acessos-action-btn acesso-action-reject" type="submit" role="menuitem">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                             <span>Rejeitar</span>
                           </button>
@@ -365,7 +378,7 @@
                         <form
                           method="post"
                           action="/acessos/<%= item._id %>/status"
-                          class="acessos-action-form"
+                          class="acessos-action-form acesso-actions-menu-item"
                           data-confirm="true"
                           data-confirm-title="<%= item.ativo ? 'Inativar acesso?' : 'Ativar acesso?' %>"
                           data-confirm-text="<%= item.ativo ? ('Deseja inativar o acesso de ' + (item.nome || 'usuario') + '?') : ('Deseja ativar o acesso de ' + (item.nome || 'usuario') + '?') %>"
@@ -376,12 +389,14 @@
                           <%- renderCsrfField() %>
                           <input type="hidden" name="returnTo" value="<%= returnTo %>" />
                           <input type="hidden" name="ativo" value="<%= item.ativo ? 'false' : 'true' %>" />
-                          <button class="table-action-btn table-action-btn-neutral acessos-action-btn acesso-action-neutral" type="submit">
+                          <button class="table-action-btn table-action-btn-neutral acessos-action-btn acesso-action-neutral" type="submit" role="menuitem">
                             <i class="fa-solid <%= item.ativo ? 'fa-user-slash' : 'fa-power-off' %>" aria-hidden="true"></i>
                             <span><%= item.ativo ? "Inativar" : "Ativar" %></span>
                           </button>
                         </form>
                       <% } %>
+                        </div>
+                      </div>
                     </div>
                   <% } else { %>
                     <small>-</small>
