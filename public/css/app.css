@@ -501,6 +501,37 @@
   gap: 10px;
 }
 
+.conta-inline-feedback {
+  grid-column: 1 / -1;
+  border-radius: 10px;
+  border: 1px solid #f0b0a5;
+  background: #fff0ed;
+  color: #8a2f22;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 12px;
+}
+
+.conta-field-feedback {
+  display: block;
+  margin-top: 5px;
+  color: #8a2f22;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.input-control.conta-field-invalid {
+  border-color: #e39b8f;
+  box-shadow: 0 0 0 2px rgba(214, 87, 66, 0.13);
+  background: #fff9f8;
+}
+
+.input-control.conta-field-valid {
+  border-color: #8ac8a2;
+  box-shadow: 0 0 0 2px rgba(46, 125, 73, 0.12);
+  background: #f9fffb;
+}
+
 .conta-form-grid .input-control:disabled {
   background: #f7f1ed;
   color: #8f837d;

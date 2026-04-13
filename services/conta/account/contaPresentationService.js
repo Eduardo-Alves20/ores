@@ -63,6 +63,7 @@ function buildEditPerfilViewModel({
     navKey: "perfil",
     layout: "partials/app.ejs",
     pageClass: "page-conta-perfil-editar",
+    extraJs: ["/js/conta-perfil-editar.js"],
     isAdmin,
     isSuperAdmin,
     usuario,

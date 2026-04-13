@@ -28,12 +28,14 @@
       </div>
     <% } %>
 
-    <form method="post" action="/perfil/editar" class="form-stack conta-form-grid">
+    <form method="post" action="/perfil/editar" class="form-stack conta-form-grid" id="conta-perfil-editar-form" novalidate>
       <%- renderCsrfField() %>
+      <div class="conta-inline-feedback" id="conta-perfil-feedback" hidden></div>
       <% if (isAdmin) { %>
         <label class="field-wrap">
           <span class="input-label">Nome</span>
-          <input class="input-control" type="text" name="nome" required value="<%= usuario?.nome || '' %>" />
+          <input class="input-control" type="text" name="nome" required value="<%= usuario?.nome || '' %>" data-validate-field="nome" />
+          <small class="conta-field-feedback" data-feedback-for="nome" hidden></small>
         </label>
       <% } else { %>
         <label class="field-wrap">
@@ -44,13 +46,15 @@
 
       <label class="field-wrap">
         <span class="input-label">Email</span>
-        <input class="input-control" type="email" name="email" required value="<%= usuario?.email || '' %>" />
+        <input class="input-control" type="email" name="email" required value="<%= usuario?.email || '' %>" data-validate-field="email" />
+        <small class="conta-field-feedback" data-feedback-for="email" hidden></small>
       </label>
 
       <% if (isAdmin) { %>
         <label class="field-wrap">
           <span class="input-label">Usuário de login</span>
-          <input class="input-control" type="text" name="login" required value="<%= usuario?.login || '' %>" />
+          <input class="input-control" type="text" name="login" required value="<%= usuario?.login || '' %>" data-validate-field="login" />
+          <small class="conta-field-feedback" data-feedback-for="login" hidden></small>
         </label>
       <% } else { %>
         <label class="field-wrap">
@@ -61,13 +65,15 @@
 
       <label class="field-wrap">
         <span class="input-label">Telefone</span>
-        <input class="input-control" type="text" name="telefone" value="<%= usuario?.telefone || '' %>" />
+        <input class="input-control" type="text" name="telefone" value="<%= usuario?.telefone || '' %>" data-validate-field="telefone" />
+        <small class="conta-field-feedback" data-feedback-for="telefone" hidden></small>
       </label>
 
       <% if (isAdmin) { %>
         <label class="field-wrap">
           <span class="input-label">CPF</span>
-          <input class="input-control" type="text" name="cpf" value="<%= usuario?.cpf || '' %>" />
+          <input class="input-control" type="text" name="cpf" value="<%= usuario?.cpf || '' %>" data-validate-field="cpf" />
+          <small class="conta-field-feedback" data-feedback-for="cpf" hidden></small>
         </label>
 
         <% if (isSuperAdmin) { %>
