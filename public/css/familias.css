@@ -157,6 +157,42 @@
   box-shadow: 0 14px 28px rgba(62, 34, 24, 0.05);
 }
 
+.family-record-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.family-record-tab {
+  border: 1px solid #e4d6cd;
+  background: #fff8f4;
+  color: #7a4331;
+  border-radius: 999px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.family-record-tab:hover,
+.family-record-tab:focus-visible {
+  transform: translateY(-1px);
+  background: #fff1ea;
+  border-color: #d7b9ab;
+  outline: none;
+}
+
+.family-record-tab.is-active {
+  background: linear-gradient(135deg, #b24a32 0%, #9f3f29 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(164, 66, 44, 0.2);
+}
+
 .section-title-wrap {
   margin-bottom: 12px;
 }
@@ -1095,6 +1131,10 @@
   }
 
   .workflow-tabs {
+    flex-direction: column;
+  }
+
+  .family-record-tabs {
     flex-direction: column;
   }
 

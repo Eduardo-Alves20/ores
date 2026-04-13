@@ -37,7 +37,54 @@
     </div>
   </header>
 
-  <section class="familia-resumo card-elevated">
+  <nav class="family-record-tabs" aria-label="Secoes da ficha familiar">
+    <button
+      type="button"
+      class="family-record-tab is-active"
+      data-record-tab="overview"
+      role="tab"
+      aria-selected="true"
+      aria-controls="family-record-overview"
+    >
+      <i class="fa-solid fa-id-card-clip" aria-hidden="true"></i>
+      <span>Dados gerais</span>
+    </button>
+    <button
+      type="button"
+      class="family-record-tab"
+      data-record-tab="dependentes"
+      role="tab"
+      aria-selected="false"
+      aria-controls="family-record-workflow"
+    >
+      <i class="fa-solid fa-people-group" aria-hidden="true"></i>
+      <span>Dependentes</span>
+    </button>
+    <button
+      type="button"
+      class="family-record-tab"
+      data-record-tab="historico"
+      role="tab"
+      aria-selected="false"
+      aria-controls="family-record-workflow"
+    >
+      <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
+      <span>Historico</span>
+    </button>
+    <button
+      type="button"
+      class="family-record-tab"
+      data-record-tab="presencas"
+      role="tab"
+      aria-selected="false"
+      aria-controls="family-record-workflow"
+    >
+      <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+      <span>Presencas</span>
+    </button>
+  </nav>
+
+  <section class="familia-resumo card-elevated" id="family-record-overview">
     <div class="familia-resumo-head">
       <div>
         <p class="familias-overline">Visão geral</p>
@@ -74,7 +121,7 @@
     <p class="observacao-livre"><strong>Observações:</strong> <span id="resumo-observacoes"><%= familia?.observacoes || "-" %></span></p>
   </section>
 
-  <section class="detail-workflow card-elevated">
+  <section class="detail-workflow card-elevated" id="family-record-workflow" hidden>
     <header class="workflow-toolbar">
       <div>
         <h2 class="section-title" id="workflow-title">Ficha de Dependentes</h2>

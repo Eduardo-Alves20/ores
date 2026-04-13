@@ -19,6 +19,9 @@
     if (!familiaId) return;
 
     const refs = {
+      recordTabs: Array.from(root.querySelectorAll("[data-record-tab]")),
+      recordOverviewPanel: document.getElementById("family-record-overview"),
+      recordWorkflowPanel: document.getElementById("family-record-workflow"),
       workflowTitle: document.getElementById("workflow-title"),
       workflowSubtitle: document.getElementById("workflow-subtitle"),
       workflowMainBtn: document.getElementById("workflow-main-btn"),
@@ -91,6 +94,7 @@
       historicoOrigin: "pacientes",
       registroOrigin: "historico",
       registroMode: "create",
+      recordTab: "overview",
       viewFlags,
     };
 
@@ -113,8 +117,67 @@
       renderProfissionalOptions,
       renderResumo,
       setRegistroMode,
-      setView,
+      setView: setWorkflowView,
     } = ui;
+
+    function renderRecordTabState(activeTab) {
+      const normalized = String(activeTab || "overview").trim() || "overview";
+      state.recordTab = normalized;
+      refs.recordTabs.forEach((tab) => {
+        const isActive = tab.dataset.recordTab === normalized;
+        tab.classList.toggle("is-active", isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+    }
+
+    function syncRecordTabFromView(view) {
+      const normalized = String(view || "").trim();
+      const recordTab =
+        normalized === "presencas"
+          ? "presencas"
+          : normalized === "historico" ||
+              normalized === "atendimento" ||
+              normalized === "registro"
+            ? "historico"
+            : "dependentes";
+
+      if (refs.recordOverviewPanel) refs.recordOverviewPanel.hidden = true;
+      if (refs.recordWorkflowPanel) refs.recordWorkflowPanel.hidden = false;
+      renderRecordTabState(recordTab);
+    }
+
+    function setView(view, options = {}) {
+      const syncRecordTab = options.syncRecordTab !== false;
+      setWorkflowView(view);
+      if (syncRecordTab) {
+        syncRecordTabFromView(view);
+      }
+    }
+
+    function activateRecordTab(recordTab) {
+      const normalized = String(recordTab || "overview").trim() || "overview";
+      if (normalized === "overview") {
+        if (refs.recordOverviewPanel) refs.recordOverviewPanel.hidden = false;
+        if (refs.recordWorkflowPanel) refs.recordWorkflowPanel.hidden = true;
+        renderRecordTabState("overview");
+        if (refs.breadcrumbDependente) refs.breadcrumbDependente.hidden = true;
+        if (refs.breadcrumbDependenteSep) refs.breadcrumbDependenteSep.hidden = true;
+        return;
+      }
+
+      if (normalized === "dependentes") {
+        setView(state.selectedDependenteId ? "dependente" : "pacientes", {
+          syncRecordTab: false,
+        });
+      } else if (normalized === "presencas") {
+        setView("presencas", { syncRecordTab: false });
+      } else {
+        setView("historico", { syncRecordTab: false });
+      }
+      if (refs.recordOverviewPanel) refs.recordOverviewPanel.hidden = true;
+      if (refs.recordWorkflowPanel) refs.recordWorkflowPanel.hidden = false;
+      renderRecordTabState(normalized);
+    }
 
     function buildPresencaCounters(items) {
       return (Array.isArray(items) ? items : []).reduce(
@@ -310,6 +373,12 @@
           return;
         }
         setView(state.selectedDependenteId ? "dependente" : "pacientes");
+      });
+    });
+
+    refs.recordTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        activateRecordTab(tab.dataset.recordTab);
       });
     });
 
@@ -721,7 +790,8 @@
       }
     });
 
-    setView("pacientes");
+    setView("pacientes", { syncRecordTab: false });
+    activateRecordTab("overview");
     closePacienteForm();
     closeDependenteForm();
     renderProfissionalOptions();
