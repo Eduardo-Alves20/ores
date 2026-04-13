@@ -83,6 +83,7 @@
     let approvalBusy = false;
     let currentApprovalUserId = "";
     let currentApprovalUserName = "";
+    let lastFocusedElement = null;
 
     function formatDateTime(value) {
       if (!value) return "-";
@@ -121,6 +122,44 @@
         .replace(/>/g, "&gt;")
         .replace(/\"/g, "&quot;")
         .replace(/'/g, "&#39;");
+    }
+
+    function getFocusableElements(container) {
+      if (!container) return [];
+      return Array.from(
+        container.querySelectorAll(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(
+        (element) =>
+          element instanceof HTMLElement &&
+          !element.hasAttribute("hidden") &&
+          element.getAttribute("aria-hidden") !== "true"
+      );
+    }
+
+    function focusFirstElement(container) {
+      const focusable = getFocusableElements(container);
+      if (!focusable.length) return;
+      focusable[0].focus();
+    }
+
+    function trapTabNavigation(event, container) {
+      if (event.key !== "Tab") return;
+      const focusable = getFocusableElements(container);
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
     async function confirmVoteAction(decision) {
@@ -254,8 +293,15 @@
     }
 
     function showApprovalModal() {
+      if (!lastFocusedElement && document.activeElement instanceof HTMLElement) {
+        lastFocusedElement = document.activeElement;
+      }
       approvalModal.hidden = false;
       syncBodyModalState();
+      const dialog = approvalModal.querySelector(".acessos-modal-dialog");
+      window.setTimeout(() => {
+        focusFirstElement(dialog);
+      }, 20);
     }
 
     function openRejectVoteModal() {
@@ -268,12 +314,18 @@
           : "Se quiser, adicione uma justificativa para aparecer na ficha.";
       }
       window.setTimeout(() => {
-        rejectVoteReasonField?.focus();
+        if (rejectVoteReasonField) {
+          rejectVoteReasonField.focus();
+          return;
+        }
+        const dialog = rejectVoteModal.querySelector(".acessos-modal-dialog");
+        focusFirstElement(dialog);
       }, 30);
     }
 
     function closeRejectVoteModal() {
       if (!rejectVoteModal) return;
+      const wasOpen = !rejectVoteModal.hidden;
       rejectVoteModal.hidden = true;
       if (rejectVoteForm) {
         rejectVoteForm.action = "";
@@ -286,15 +338,23 @@
         rejectVoteSubmit.disabled = false;
       }
       syncBodyModalState();
+      if (wasOpen && !approvalModal.hidden && rejectVoteButton instanceof HTMLElement) {
+        rejectVoteButton.focus();
+      }
     }
 
     function closeApprovalModal() {
       approvalLoadToken += 1;
+      const shouldRestoreFocus = !approvalModal.hidden;
       approvalModal.hidden = true;
       closeRejectVoteModal();
       syncBodyModalState();
       setApprovalBusyState(false);
       setApprovalError("");
+      if (shouldRestoreFocus && lastFocusedElement instanceof HTMLElement) {
+        lastFocusedElement.focus();
+      }
+      lastFocusedElement = null;
     }
 
     function renderRejectReasons(reasons = []) {
@@ -588,6 +648,16 @@
     });
 
     document.addEventListener("keydown", (event) => {
+      if (event.key === "Tab") {
+        if (rejectVoteModal && !rejectVoteModal.hidden) {
+          trapTabNavigation(event, rejectVoteModal.querySelector(".acessos-modal-dialog"));
+          return;
+        }
+        if (!approvalModal.hidden) {
+          trapTabNavigation(event, approvalModal.querySelector(".acessos-modal-dialog"));
+        }
+      }
+
       if (event.key !== "Escape") return;
       if (rejectVoteModal && !rejectVoteModal.hidden) {
         closeRejectVoteModal();
