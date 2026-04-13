@@ -90,8 +90,8 @@
                 ? "Técnico"
                 : normalizedProfile || "usuário";
         const moduleBadge = ["admin", "superadmin"].includes(normalizedProfile) ? "Admin" : "Usuário";
-        const helpDeskHref = "/modulos/help-desk/acessar";
-        const hdiHref = "/modulos/hdi/acessar";
+        const helpDeskHref = "/modulos/help-desk";
+        const hdiHref = "/modulos/hdi";
         const usuariosGroupOpen = ["usuarios-familia", "usuarios-voluntario"].includes(navKey);
         const isFamilyPortalUser = String(currentUser?.tipoCadastro || "").toLowerCase() === "familia"
           && hasPerm("portal.minha_familia");

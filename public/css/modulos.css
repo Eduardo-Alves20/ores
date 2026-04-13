@@ -65,6 +65,45 @@
   gap: 12px;
 }
 
+.module-guidance-card {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.module-guidance-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.module-guidance-head h3 {
+  margin: 0;
+  color: #8d3d2b;
+  font-size: 1.06rem;
+}
+
+.module-guidance-list {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 7px;
+  color: #564c47;
+  line-height: 1.55;
+}
+
+.module-guidance-note {
+  margin: 0;
+  border: 1px solid #ead8ce;
+  border-radius: 14px;
+  background: #fdf8f4;
+  color: #6e625c;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 11px 12px;
+}
+
 .module-metric-card {
   padding: 18px;
   display: grid;
