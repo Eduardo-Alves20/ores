@@ -1,9 +1,26 @@
-﻿const express = require("express");
+const express = require("express");
 const AcessoPageController = require("../../Controllers/admin/AcessoPageController");
 const { requireAuth, requirePermission } = require("../../middlewares/authSession");
 const { PERMISSIONS } = require("../../config/permissions");
+const {
+  canReviewSensitiveApprovalData,
+} = require("../../services/admin/access/accessPermissionService");
 
 const router = express.Router();
+
+function requireApprovalReviewAccess(req, res, next) {
+  if (canReviewSensitiveApprovalData(req)) {
+    return next();
+  }
+
+  if (req.accepts("html")) {
+    return res.redirect("/painel");
+  }
+
+  return res.status(403).json({
+    erro: "Acesso restrito a administracao e assistencia social.",
+  });
+}
 
 router.get(
   "/acessos/familias",
@@ -29,8 +46,15 @@ router.get(
 router.get(
   "/acessos/:id/detalhe",
   requireAuth,
-  requirePermission(PERMISSIONS.ACESSOS_APPROVE),
+  requireApprovalReviewAccess,
   AcessoPageController.detalhe
+);
+
+router.get(
+  "/acessos/:id/anexos/:kind",
+  requireAuth,
+  requireApprovalReviewAccess,
+  AcessoPageController.visualizarAnexoProtegido
 );
 
 router.post(
@@ -62,5 +86,3 @@ router.post(
 );
 
 module.exports = router;
-
-

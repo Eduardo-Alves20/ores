@@ -1,5 +1,5 @@
 const { AgendaEvento, TIPOS_AGENDA } = require("../../../schemas/social/AgendaEvento");
-const { asObjectId, buildAgendaInterval } = require("../../agendaAvailabilityService");
+const { asObjectId, buildAgendaInterval } = require("../../shared/agendaAvailabilityService");
 const { canAssignOthers, canMutateEvent } = require("./agendaPermissionService");
 const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const {

@@ -1,5 +1,5 @@
-const { registrarAuditoria } = require("../../services/auditService");
-const { refreshSessionPermissions } = require("../../services/accessControlService");
+const { registrarAuditoria } = require("../../services/shared/auditService");
+const { refreshSessionPermissions } = require("../../services/shared/accessControlService");
 const {
   assignSecurityRolesToUser,
   buildSecurityAccessPageView,

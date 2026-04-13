@@ -6,7 +6,7 @@ const {
   AGENDA_DEFAULT_DURATION_MINUTES,
   asObjectId,
   buildAgendaInterval,
-} = require("../../agendaAvailabilityService");
+} = require("../../shared/agendaAvailabilityService");
 const { toDateTimeLabel } = require("../../shared/dateFormattingService");
 const { canAssignOthers } = require("./agendaPermissionService");
 const { createAgendaError } = require("./agendaErrorService");

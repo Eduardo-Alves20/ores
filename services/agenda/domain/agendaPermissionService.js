@@ -1,5 +1,5 @@
 const { PERMISSIONS } = require("../../../config/permissions");
-const { hasAnyPermission } = require("../../accessControlService");
+const { hasAnyPermission } = require("../../shared/accessControlService");
 
 function getSessionUser(req) {
   return req?.session?.user || null;

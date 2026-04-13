@@ -1,9 +1,10 @@
-const { registrarAuditoria } = require("../../services/auditService");
+const { registrarAuditoria } = require("../../services/shared/auditService");
 const {
   approveUserAccess,
   buildApprovalQueuePageView,
   buildUserTypePageView,
   changeUserAccessStatus,
+  loadProtectedApprovalAsset,
   loadApprovalDetailPayload,
   parseBoolean,
   rejectUserAccess,
@@ -11,6 +12,9 @@ const {
   voteUserApproval,
 } = require("../../services/admin/acessoPageService");
 const { logSanitizedError } = require("../../services/security/logSanitizerService");
+const {
+  readProtectedAssetBuffer,
+} = require("../../services/security/secureVolunteerAssetService");
 
 const DEFAULT_APPROVAL_RETURN_TO = "/acessos/aprovacoes";
 
@@ -132,6 +136,57 @@ class AcessoPageController {
         userId: req?.session?.user?.id || null,
       });
       return res.status(500).json({ erro: "Erro ao carregar a ficha de aprovacao." });
+    }
+  }
+
+  static async visualizarAnexoProtegido(req, res) {
+    try {
+      const attachmentPayload = await loadProtectedApprovalAsset(
+        req.params?.id,
+        req.params?.kind
+      );
+
+      if (!attachmentPayload?.asset) {
+        return res.status(404).json({ erro: "Anexo protegido nao encontrado." });
+      }
+
+      const { asset, buffer } = await readProtectedAssetBuffer(attachmentPayload.asset);
+      const isInlinePreview =
+        String(asset?.mimeType || "").startsWith("image/") ||
+        String(asset?.mimeType || "") === "application/pdf";
+      const safeFileName = String(asset?.originalName || "arquivo").replace(/["\r\n]/g, "");
+
+      res.setHeader("Content-Type", asset.mimeType || "application/octet-stream");
+      res.setHeader("Content-Length", String(buffer.length));
+      res.setHeader("Cache-Control", "private, no-store, max-age=0, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+      res.setHeader("Referrer-Policy", "no-referrer");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+      res.setHeader(
+        "Content-Disposition",
+        `${isInlinePreview ? "inline" : "attachment"}; filename="${safeFileName}"`
+      );
+
+      return res.status(200).send(buffer);
+    } catch (error) {
+      if (error?.status === 400) {
+        return res.status(400).json({
+          erro: error?.publicMessage || error?.message || "Anexo protegido invalido.",
+        });
+      }
+
+      if (error?.status === 404 || error?.code === "ENOENT") {
+        return res.status(404).json({ erro: "Anexo protegido nao encontrado." });
+      }
+
+      logSanitizedError("Erro ao exibir anexo protegido de aprovacao:", error, {
+        route: req?.originalUrl || req?.url || "",
+        userId: req?.session?.user?.id || null,
+        targetUserId: req?.params?.id || "",
+      });
+      return res.status(500).json({ erro: "Erro ao abrir o anexo protegido." });
     }
   }
 

@@ -9,7 +9,7 @@ const { escapeRegex } = require("../../shared/searchUtilsService");
 const {
   hasOwnAssistidosScope,
   resolveScopedFamilyIds,
-} = require("../../volunteerScopeService");
+} = require("../../shared/volunteerScopeService");
 const { mapAgendaPresenca } = require("./familiaPresentationService");
 const { ensureAccessibleFamily } = require("./familiaGuardService");
 

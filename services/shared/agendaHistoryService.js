@@ -1,5 +1,5 @@
-const { AgendaHistorico } = require("../schemas/social/AgendaHistorico");
-const { normalizeProfileValue } = require("../config/roles");
+const { AgendaHistorico } = require("../../schemas/social/AgendaHistorico");
+const { normalizeProfileValue } = require("../../config/roles");
 
 async function registrarHistoricoAgenda({
   req = null,

@@ -1,4 +1,4 @@
-﻿const AuditTrail = require("../schemas/core/AuditTrail");
+const AuditTrail = require("../../schemas/core/AuditTrail");
 
 async function registrarAuditoria(req, payload) {
   try {

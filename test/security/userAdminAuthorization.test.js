@@ -6,6 +6,7 @@ const Usuario = require("../../schemas/core/Usuario");
 const UsuarioService = require("../../services/domain/UsuarioService");
 const {
   changeManagedUserStatus,
+  createManagedUser,
   updateManagedUser,
 } = require("../../services/admin/user/userActionService");
 
@@ -98,5 +99,76 @@ test("updateManagedUser impede admin de promover usuario para superadmin", async
     assert.equal(updateCalled, false);
   } finally {
     UsuarioService.atualizar = originalAtualizar;
+  }
+});
+
+test("createManagedUser encaminha dados extras do voluntario para o UsuarioService", async () => {
+  const originalCriar = UsuarioService.criar;
+  let capturedPayload = null;
+
+  UsuarioService.criar = async (payload) => {
+    capturedPayload = payload;
+    return {
+      _id: USER_ID,
+      nome: payload?.nome || "Voluntario Teste",
+    };
+  };
+
+  try {
+    await createManagedUser({
+      body: {
+        nome: "Voluntario Teste",
+        email: "voluntario@alento.test",
+        login: "voluntario.teste",
+        senha: "SenhaSegura123!",
+        perfil: PERFIS.USUARIO,
+        tipoCadastro: "voluntario",
+        nivelAcessoVoluntario: "operacional",
+        camposExtras: {
+          disponibilidade_expandida: "Segunda e quarta a tarde",
+        },
+        dadosCadastro: {
+          area_atuacao: "Educacao inclusiva",
+          disponibilidade: "Tardes de segunda e quarta",
+        },
+        anexosProtegidos: {
+          documentoIdentidade: {
+            assetId: "asset-documento",
+            kind: "documentoIdentidade",
+            originalName: "rg.pdf",
+          },
+          fotoPerfil: {
+            assetId: "asset-foto",
+            kind: "fotoPerfil",
+            originalName: "perfil.webp",
+          },
+        },
+      },
+      actorContext: { usuarioId: ACTOR_ID },
+      currentProfile: PERFIS.ADMIN,
+    });
+
+    assert.deepEqual(capturedPayload?.dadosCadastro, {
+      area_atuacao: "Educacao inclusiva",
+      disponibilidade: "Tardes de segunda e quarta",
+    });
+    assert.deepEqual(capturedPayload?.camposExtras, {
+      disponibilidade_expandida: "Segunda e quarta a tarde",
+    });
+    assert.equal(capturedPayload?.nivelAcessoVoluntario, "operacional");
+    assert.deepEqual(capturedPayload?.anexosProtegidos, {
+      documentoIdentidade: {
+        assetId: "asset-documento",
+        kind: "documentoIdentidade",
+        originalName: "rg.pdf",
+      },
+      fotoPerfil: {
+        assetId: "asset-foto",
+        kind: "fotoPerfil",
+        originalName: "perfil.webp",
+      },
+    });
+  } finally {
+    UsuarioService.criar = originalCriar;
   }
 });

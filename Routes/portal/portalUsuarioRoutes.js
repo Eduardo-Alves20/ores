@@ -31,6 +31,25 @@ router.get(
   requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
   PortalFamiliaController.consultasEventos
 );
+router.get(
+  "/minha-familia/consultas/profissionais",
+  requireAuth,
+  requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
+  PortalFamiliaController.consultasProfissionais
+);
+router.get(
+  "/minha-familia/consultas/profissionais/:id/horarios",
+  requireAuth,
+  requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
+  PortalFamiliaController.consultasHorariosProfissional
+);
+router.post(
+  "/minha-familia/consultas/agendar",
+  requireAuth,
+  portalMutationLimiter,
+  requirePermission(PERMISSIONS.PORTAL_MINHA_FAMILIA),
+  PortalFamiliaController.agendarConsulta
+);
 router.patch(
   "/minha-familia/consultas/eventos/:id/falta",
   requireAuth,

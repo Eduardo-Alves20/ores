@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const { AgendaEvento } = require("../schemas/social/AgendaEvento");
-const { Atendimento } = require("../schemas/social/Atendimento");
-const { PERMISSIONS } = require("../config/permissions");
+const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
+const { Atendimento } = require("../../schemas/social/Atendimento");
+const { PERMISSIONS } = require("../../config/permissions");
 const { hasAnyPermission } = require("./accessControlService");
 
 function asObjectId(value) {

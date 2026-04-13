@@ -1,6 +1,6 @@
 const Usuario = require("../../../schemas/core/Usuario");
 const { PERMISSIONS } = require("../../../config/permissions");
-const { hasAnyPermission } = require("../../accessControlService");
+const { hasAnyPermission } = require("../../shared/accessControlService");
 const { createAgendaError } = require("./agendaErrorService");
 
 function ensureAgendaPermission(user, permission, message) {

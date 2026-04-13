@@ -1,5 +1,5 @@
 const Familia = require("../../../schemas/social/Familia");
-const { normalizeCustomFieldValues } = require("../../systemConfigService");
+const { normalizeCustomFieldValues } = require("../../shared/systemConfigService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { createFamiliaError } = require("./familiaContextService");
 const { ensureAccessibleFamily } = require("./familiaGuardService");

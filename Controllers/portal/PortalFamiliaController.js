@@ -2,14 +2,18 @@ const {
   buildPortalFamilyConsultasPageView,
   buildPortalFamilyHomePageView,
   buildPortalFamilyNotificacoesPageView,
+  createFamilyScheduledAppointment,
+  listProfessionalsWithAvailability,
   loadPortalFamilyAgendaMonthData,
   loadPortalFamilyContext,
+  buildProfessionalWeekSlots,
   markAllPortalFamilyNotificationsAsRead,
   markPortalFamilyNotificationAsRead,
   registerFamilyAbsence,
   requestFamilyReschedule,
 } = require("../../services/portal/portalFamiliaPageService");
 const { logSanitizedError } = require("../../services/security/logSanitizerService");
+const { applyAgendaSideEffects } = require("../../services/agenda/agendaControllerService");
 
 function renderPortalPageError(req, res, logMessage, publicMessage, error) {
   logSanitizedError(logMessage, error, {
@@ -129,6 +133,78 @@ class PortalFamiliaController {
       });
       return res.status(error?.status || 500).json({
         erro: error?.publicMessage || "Erro ao carregar a agenda da familia.",
+      });
+    }
+  }
+
+  static async consultasProfissionais(req, res) {
+    try {
+      const context = await loadContextOrJsonError(req, res);
+      if (!context) return null;
+
+      return res.status(200).json({
+        profissionais: await listProfessionalsWithAvailability(),
+      });
+    } catch (error) {
+      logSanitizedError(
+        "Erro ao listar profissionais disponiveis para a familia:",
+        error,
+        {
+          route: req?.originalUrl || req?.url || "",
+          userId: req?.session?.user?.id || null,
+        }
+      );
+      return res.status(error?.status || 500).json({
+        erro: error?.publicMessage || "Erro ao carregar os profissionais.",
+      });
+    }
+  }
+
+  static async consultasHorariosProfissional(req, res) {
+    try {
+      const context = await loadContextOrJsonError(req, res);
+      if (!context) return null;
+
+      return res.status(200).json(
+        await buildProfessionalWeekSlots({
+          profissionalId: req.params?.id,
+          referencia: req.query?.referencia,
+        })
+      );
+    } catch (error) {
+      logSanitizedError(
+        "Erro ao listar horarios do profissional para a familia:",
+        error,
+        {
+          route: req?.originalUrl || req?.url || "",
+          userId: req?.session?.user?.id || null,
+        }
+      );
+      return res.status(error?.status || 500).json({
+        erro: error?.publicMessage || "Erro ao carregar os horarios.",
+      });
+    }
+  }
+
+  static async agendarConsulta(req, res) {
+    try {
+      const context = await loadContextOrJsonError(req, res);
+      if (!context) return null;
+
+      const result = await createFamilyScheduledAppointment(context, req.body || {});
+      await applyAgendaSideEffects(req, result);
+
+      return res.status(201).json({
+        mensagem: result?.mensagem || "Consulta agendada com sucesso.",
+        evento: result?.evento || null,
+      });
+    } catch (error) {
+      logSanitizedError("Erro ao agendar consulta pelo portal da familia:", error, {
+        route: req?.originalUrl || req?.url || "",
+        userId: req?.session?.user?.id || null,
+      });
+      return res.status(error?.status || 500).json({
+        erro: error?.publicMessage || "Erro ao agendar a consulta.",
       });
     }
   }

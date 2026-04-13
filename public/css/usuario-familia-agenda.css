@@ -47,6 +47,137 @@
   background: #fff;
 }
 
+.family-agenda-week-nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.family-agenda-week-nav-btn {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 14px;
+}
+
+.family-booking-modal {
+  width: min(960px, 100%);
+}
+
+.family-booking-shell {
+  gap: 16px;
+}
+
+.family-booking-top-grid {
+  align-items: end;
+}
+
+.family-booking-week {
+  border: 1px solid #ead9d0;
+  border-radius: 18px;
+  padding: 14px;
+  background: linear-gradient(180deg, #fff 0%, #fff8f4 100%);
+}
+
+.family-booking-week-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.family-booking-week-head h4 {
+  margin: 0;
+  color: #5a392f;
+}
+
+.family-booking-week-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.family-booking-day {
+  border: 1px solid #e8cdbf;
+  border-radius: 18px;
+  background: #fff;
+  padding: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.family-booking-day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.family-booking-day-head strong {
+  color: #4f332a;
+}
+
+.family-booking-day-count {
+  font-size: 0.74rem;
+  color: #8b6b60;
+  font-weight: 700;
+}
+
+.family-booking-slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.family-booking-slot-btn {
+  border: 1px solid #dbbaab;
+  border-radius: 12px;
+  background: #fff8f4;
+  color: #7b3d2d;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: grid;
+  gap: 2px;
+  cursor: pointer;
+  min-width: 104px;
+  text-align: left;
+}
+
+.family-booking-slot-btn small {
+  font-size: 0.67rem;
+  color: #8f6a5c;
+  font-weight: 700;
+}
+
+.family-booking-slot-btn.is-selected {
+  border-color: #b24a32;
+  box-shadow: 0 0 0 2px rgba(178, 74, 50, 0.12);
+  background: #fff1e8;
+}
+
+.family-booking-selection {
+  border: 1px dashed #dcbcab;
+  border-radius: 16px;
+  background: #fffaf7;
+  padding: 14px;
+  display: grid;
+  gap: 4px;
+}
+
+.family-booking-selection strong {
+  color: #5a392f;
+}
+
+.family-booking-selection p {
+  margin: 0;
+  color: #7a6258;
+  font-size: 0.84rem;
+}
+
 .family-agenda-empty-day {
   display: grid;
   gap: 8px;
@@ -62,6 +193,20 @@
   }
 
   .family-agenda-toolbar .btn {
+    width: 100%;
+  }
+
+  .family-booking-week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .family-booking-week-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .family-booking-slot-btn {
     width: 100%;
   }
 }

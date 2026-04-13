@@ -6,6 +6,9 @@ const { PERMISSIONS } = require("../../config/permissions");
 const router = express.Router();
 
 router.get("/agenda/profissionais", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaController.listarProfissionais);
+router.get("/agenda/profissionais/:id/horarios", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaController.horariosProfissional);
+router.get("/agenda/disponibilidade/me", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaController.minhaDisponibilidade);
+router.put("/agenda/disponibilidade/me", requirePermission(PERMISSIONS.AGENDA_CREATE), AgendaController.salvarMinhaDisponibilidade);
 router.get("/agenda/salas", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaController.listarSalas);
 router.get("/agenda/salas/disponiveis", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaController.listarSalasDisponiveis);
 router.post("/agenda/salas", requirePermission(PERMISSIONS.AGENDA_VIEW_ALL), AgendaController.criarSala);

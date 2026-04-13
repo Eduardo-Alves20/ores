@@ -1,4 +1,4 @@
-﻿const Usuario = require("../../schemas/core/Usuario");
+const Usuario = require("../../schemas/core/Usuario");
 const { PERFIS, normalizeProfileValue } = require("../../config/roles");
 const { normalizeVolunteerAccessLevel } = require("../../config/volunteerAccess");
 const { APPROVAL_ROLES, normalizeApprovalRole } = require("../../config/approvalRoles");
@@ -8,10 +8,14 @@ const {
   hashSenha,
   compararSenha,
 } = require("../security/passwordService");
-const { normalizeCustomFieldValues } = require("../systemConfigService");
+const { normalizeCustomFieldValues } = require("../shared/systemConfigService");
 const { parseBoolean } = require("../shared/valueParsingService");
 const { escapeRegex } = require("../shared/searchUtilsService");
 const { ensureValidObjectId } = require("../shared/objectIdValidationService");
+const {
+  normalizeStoredProtectedAsset,
+  sanitizeProtectedAttachmentBundleForClient,
+} = require("../security/secureVolunteerAssetService");
 const {
   buildUserListFilter,
   normalizeUserListOptions,
@@ -161,7 +165,28 @@ function sanitizeUser(usuario) {
   if (!usuario) return null;
   const u = usuario.toObject ? usuario.toObject({ flattenMaps: true }) : { ...usuario };
   delete u.senha;
+  if (u.anexosProtegidos) {
+    u.anexosProtegidos = sanitizeProtectedAttachmentBundleForClient(u.anexosProtegidos);
+  }
   return u;
+}
+
+function normalizeProtectedAttachmentBundle(value) {
+  if (typeof value === "undefined") return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {
+      documentoIdentidade: null,
+      fotoPerfil: null,
+    };
+  }
+
+  return {
+    documentoIdentidade: normalizeStoredProtectedAsset(
+      value.documentoIdentidade,
+      "documentoIdentidade"
+    ),
+    fotoPerfil: normalizeStoredProtectedAsset(value.fotoPerfil, "fotoPerfil"),
+  };
 }
 
 async function buscarUsuarioPorIdentificador(identificador) {
@@ -222,13 +247,16 @@ class UsuarioService {
     });
     const filtro = buildUserListFilter(options);
 
-    return Usuario.paginate(filtro, {
+    const resultado = await Usuario.paginate(filtro, {
       page: options.page,
       limit: options.limit,
       sort: options.sort,
       select: "-senha",
       lean: true,
     });
+
+    resultado.docs = (resultado.docs || []).map((doc) => sanitizeUser(doc));
+    return resultado;
   }
 
   static async buscarPorId(id) {
@@ -244,11 +272,16 @@ class UsuarioService {
   }
 
   static async criar(dados, contexto = {}) {
+    const predefinedId = String(dados._id || "").trim();
+    const normalizedPredefinedId = predefinedId
+      ? ensureValidObjectId(predefinedId, "Identificador de usuario invalido.")
+      : undefined;
     const email = String(dados.email || "").toLowerCase().trim();
     const senha = String(dados.senha || "");
     const cpf = normalizeCpf(dados.cpf);
     const dataNascimento = normalizeBirthDate(dados.dataNascimento);
     const dadosCadastro = normalizeSignupDataMap(dados.dadosCadastro);
+    const anexosProtegidos = normalizeProtectedAttachmentBundle(dados.anexosProtegidos);
     const hasLogin = Object.prototype.hasOwnProperty.call(dados, "login");
     const login = normalizeLogin(dados.login);
     const ativoParsed = parseBoolean(dados.ativo);
@@ -297,6 +330,7 @@ class UsuarioService {
     }
 
     const payload = {
+      _id: normalizedPredefinedId,
       nome: String(dados.nome).trim(),
       email,
       login: login || undefined,
@@ -315,6 +349,10 @@ class UsuarioService {
       motivoAprovacao: String(dados.motivoAprovacao || "").trim(),
       camposExtras,
       dadosCadastro: dadosCadastro || {},
+      anexosProtegidos: anexosProtegidos || {
+        documentoIdentidade: null,
+        fotoPerfil: null,
+      },
       ultimoLoginEm: null,
       criadoPor: contexto.usuarioId || null,
       atualizadoPor: contexto.usuarioId || null,
@@ -329,12 +367,16 @@ class UsuarioService {
     const hasCpf = Object.prototype.hasOwnProperty.call(dados, "cpf");
     const hasDataNascimento = Object.prototype.hasOwnProperty.call(dados, "dataNascimento");
     const hasDadosCadastro = Object.prototype.hasOwnProperty.call(dados, "dadosCadastro");
+    const hasAnexosProtegidos = Object.prototype.hasOwnProperty.call(dados, "anexosProtegidos");
     const cpf = normalizeCpf(dados.cpf);
     const dataNascimento = hasDataNascimento
       ? normalizeBirthDate(dados.dataNascimento)
       : undefined;
     const dadosCadastro = hasDadosCadastro
       ? normalizeSignupDataMap(dados.dadosCadastro)
+      : undefined;
+    const anexosProtegidos = hasAnexosProtegidos
+      ? normalizeProtectedAttachmentBundle(dados.anexosProtegidos)
       : undefined;
     const hasLogin = Object.prototype.hasOwnProperty.call(dados, "login");
     const login = normalizeLogin(dados.login);
@@ -404,6 +446,7 @@ class UsuarioService {
         ? await normalizeCustomFieldValues("usuario", dados.camposExtras || {})
         : undefined,
       dadosCadastro,
+      anexosProtegidos,
     };
 
     if (statusAprovacao === "aprovado") {

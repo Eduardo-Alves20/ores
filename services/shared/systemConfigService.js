@@ -8,7 +8,7 @@ const {
   CAMPANHA_ANIVERSARIO_PUBLICOS,
   CAMPANHA_ANIVERSARIO_CANAIS,
   CAMPANHA_ANIVERSARIO_ACOES,
-} = require("../schemas/core/ConfiguracaoSistema");
+} = require("../../schemas/core/ConfiguracaoSistema");
 
 const FILTER_AREA_DEFINITIONS = Object.freeze({
   assistidos_familias: {

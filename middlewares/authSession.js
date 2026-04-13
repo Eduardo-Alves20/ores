@@ -2,7 +2,7 @@ const { PERFIS } = require("../config/roles");
 const {
   hasAnyPermission,
   resolvePermissionsFromSession,
-} = require("../services/accessControlService");
+} = require("../services/shared/accessControlService");
 const { resolveLandingRouteForUser } = require("../services/shared/navigationService");
 const {
   loadSessionValidationSnapshot,

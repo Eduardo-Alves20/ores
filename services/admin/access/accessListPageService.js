@@ -8,7 +8,7 @@ const { getApprovalRoleLabel } = require("../../../config/approvalRoles");
 const {
   listCustomFields,
   listQuickFilters,
-} = require("../../systemConfigService");
+} = require("../../shared/systemConfigService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { escapeRegex } = require("../../shared/searchUtilsService");
 const {
@@ -20,6 +20,7 @@ const {
 const {
   buildApprovalRoleOptions,
   buildCreateProfileOptions,
+  canReviewSensitiveApprovalData,
   canManageTargetUser,
   canManageUsers,
   isAdmin,
@@ -170,6 +171,7 @@ async function buildUserTypePageView(req, config) {
       limitOptions: LIMIT_OPTIONS,
     },
     isAdmin: isAdmin(req),
+    canReviewSensitiveApprovalData: canReviewSensitiveApprovalData(req),
     canManageUsers: canManageUsers(req),
     createProfileOptions: buildCreateProfileOptions(req),
     volunteerAccessOptions: VOLUNTARIO_ACCESS_OPTIONS,
@@ -240,7 +242,7 @@ async function buildApprovalQueuePageView(req) {
       sectionTitle: "Aprovacoes",
       navKey: "aprovacoes",
     }),
-    subtitle: "Fila de cadastro pendente para aprovacao do admin_alento.",
+    subtitle: "Fila de cadastro pendente com conferencia restrita para administracao e assistencia social autorizada.",
     usuarios,
     totalPendente,
     totalVotos,
@@ -252,6 +254,7 @@ async function buildApprovalQueuePageView(req) {
       limitOptions: LIMIT_OPTIONS,
     },
     isAdmin: isAdmin(req),
+    canReviewSensitiveApprovalData: canReviewSensitiveApprovalData(req),
     volunteerAccessOptions: VOLUNTARIO_ACCESS_OPTIONS,
     approvalRoleOptions: buildApprovalRoleOptions(),
     approvalElectorate: electorate,

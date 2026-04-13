@@ -10,25 +10,124 @@
       ? currentFormData.dadosCadastro
       : {};
   const currentType = String(currentFormData?.tipoCadastro || "").trim().toLowerCase();
-  const currentPanel = currentType
-    ? (String(currentFormData?.fluxoEtapa || "").trim().toLowerCase() === "acesso" ? "acesso" : "dados")
-    : "escolha";
-  const currentProgressStep = currentPanel === "escolha" ? 1 : currentPanel === "dados" ? 2 : 3;
+  const volunteerWizardSteps = [
+    {
+      key: "profissional",
+      label: "Profissional",
+      subtitle: "Nome, função e área",
+      icon: "fa-solid fa-user-tie",
+    },
+    {
+      key: "atividade",
+      label: "Atividade",
+      subtitle: "Nome e descrição",
+      icon: "fa-solid fa-clipboard-list",
+    },
+    {
+      key: "objetivo",
+      label: "Objetivo",
+      subtitle: "Resultados pretendidos",
+      icon: "fa-solid fa-bullseye",
+    },
+    {
+      key: "publico",
+      label: "Público",
+      subtitle: "Quem participa",
+      icon: "fa-solid fa-people-group",
+    },
+    {
+      key: "metodologia",
+      label: "Método",
+      subtitle: "Passo a passo",
+      icon: "fa-solid fa-list-check",
+    },
+    {
+      key: "cronograma",
+      label: "Cronograma",
+      subtitle: "Dias, horário e período",
+      icon: "fa-regular fa-calendar-days",
+    },
+    {
+      key: "recursos",
+      label: "Recursos",
+      subtitle: "Materiais e apoio",
+      icon: "fa-solid fa-toolbox",
+    },
+    {
+      key: "resultados",
+      label: "Resultados",
+      subtitle: "Benefícios esperados",
+      icon: "fa-solid fa-sparkles",
+    },
+    {
+      key: "avaliacao",
+      label: "Avaliação",
+      subtitle: "Monitoramento",
+      icon: "fa-solid fa-chart-column",
+    },
+    {
+      key: "indicadores",
+      label: "Indicadores",
+      subtitle: "Como medir resultado",
+      icon: "fa-solid fa-ruler-combined",
+    },
+    {
+      key: "desafios",
+      label: "Desafios",
+      subtitle: "Riscos e estratégias",
+      icon: "fa-regular fa-lightbulb",
+    },
+    {
+      key: "integracao",
+      label: "Integração",
+      subtitle: "Articulação com a equipe",
+      icon: "fa-solid fa-handshake",
+    },
+    {
+      key: "observacoes",
+      label: "Observações",
+      subtitle: "Informações adicionais",
+      icon: "fa-regular fa-note-sticky",
+    },
+    {
+      key: "validacao",
+      label: "Validação",
+      subtitle: "Acesso, documento e foto",
+      icon: "fa-solid fa-file-shield",
+    },
+  ];
+  const volunteerWizardStepKeys = volunteerWizardSteps.map((step) => step.key);
+  const rawCurrentStep = String(currentFormData?.fluxoEtapa || "").trim().toLowerCase();
+  const currentVolunteerStep = volunteerWizardStepKeys.includes(rawCurrentStep)
+    ? rawCurrentStep
+    : volunteerWizardSteps[0].key;
+  const currentVolunteerStepIndex = Math.max(volunteerWizardStepKeys.indexOf(currentVolunteerStep), 0);
+  const currentVolunteerProgress = volunteerWizardSteps.length
+    ? ((currentVolunteerStepIndex + 1) / volunteerWizardSteps.length) * 100
+    : 100;
+  const currentPanel = !currentType
+    ? "escolha"
+    : currentType === "voluntario"
+      ? currentVolunteerStep
+      : rawCurrentStep === "acesso"
+        ? "acesso"
+        : "dados";
+  const currentProgressStep = currentPanel === "escolha" ? 1 : currentPanel === "acesso" ? 3 : 2;
 
   const cadastroVariants = [
     {
       key: "familia",
       label: "Família",
       selectDescription: "Cadastro para famílias que serão acompanhadas pela ONG",
-      headerTitle: "Cadastro — Família",
-      accessTitle: "Acesso — Família",
+      headerTitle: "Cadastro - Família",
+      accessTitle: "Acesso - Família",
       accessDescription: "Informe como essa família vai acessar o sistema depois da aprovação.",
       icon: "fa-regular fa-heart",
       theme: "family",
       profileFields: [
         {
           key: "nome",
-          label: "Nome do responsável",
+          label: "Nome do responsavel",
           type: "text",
           placeholder: "Maria da Silva",
           required: true,
@@ -55,9 +154,9 @@
         },
         {
           extraKey: "endereco",
-          label: "Endereço",
+          label: "Endereco",
           type: "text",
-          placeholder: "Rua, número, bairro",
+          placeholder: "Rua, numero, bairro",
           required: true,
           autocomplete: "street-address",
         },
@@ -117,89 +216,16 @@
     {
       key: "voluntario",
       label: "Voluntário",
-      selectDescription: "Quero doar meu tempo e habilidades para ajudar",
-      headerTitle: "Cadastro — Voluntário",
-      accessTitle: "Acesso — Voluntário",
-      accessDescription: "Crie os dados de acesso para acompanhar as próximas etapas com a equipe.",
+      selectDescription: "Quero doar meu tempo e minhas habilidades para ajudar",
       icon: "fa-solid fa-users",
       theme: "volunteer",
-      profileFields: [
-        {
-          key: "nome",
-          label: "Nome completo",
-          type: "text",
-          placeholder: "João Santos",
-          required: true,
-          autocomplete: "name",
-        },
-        {
-          key: "email",
-          label: "E-mail",
-          type: "email",
-          placeholder: "joao@email.com",
-          required: true,
-          autocomplete: "email",
-        },
-        {
-          key: "telefone",
-          label: "Telefone",
-          type: "text",
-          placeholder: "(00) 00000-0000",
-          required: true,
-          inputmode: "tel",
-          autocomplete: "tel",
-          mask: "phone",
-        },
-        {
-          extraKey: "area_atuacao",
-          label: "Área de atuação / Habilidade",
-          type: "text",
-          placeholder: "Ex: Educação, saúde, tecnologia",
-          required: true,
-        },
-        {
-          extraKey: "disponibilidade",
-          label: "Disponibilidade",
-          type: "text",
-          placeholder: "Ex: Sábados pela manhã",
-          required: true,
-        },
-      ],
-      accessFields: [
-        {
-          key: "login",
-          label: "Usuário para login",
-          type: "text",
-          placeholder: "joao.santos",
-          required: true,
-          autocomplete: "username",
-        },
-        {
-          key: "senha",
-          label: "Senha",
-          type: "password",
-          placeholder: senhaPlaceholder,
-          required: true,
-          autocomplete: "new-password",
-          toggle: true,
-        },
-        {
-          key: "confirmarSenha",
-          label: "Confirmar senha",
-          type: "password",
-          placeholder: "Repita a senha",
-          required: true,
-          autocomplete: "new-password",
-          toggle: true,
-        },
-      ],
     },
     {
       key: "orgao_publico",
       label: "Órgão Público",
       selectDescription: "Representante de instituição ou órgão governamental",
-      headerTitle: "Cadastro — Órgão Público",
-      accessTitle: "Acesso — Órgão Público",
+      headerTitle: "Cadastro - órgão Público",
+      accessTitle: "Acesso - órgão Público",
       accessDescription: "Defina os dados de acesso do representante para seguir no fluxo de homologação.",
       icon: "fa-regular fa-building",
       theme: "public",
@@ -208,7 +234,7 @@
           extraKey: "orgao_nome",
           label: "Nome do órgão / instituição",
           type: "text",
-          placeholder: "Secretaria de Assistência Social",
+          placeholder: "Secretaria de Assistencia Social",
           required: true,
         },
         {
@@ -279,6 +305,8 @@
   const isCurrentVariant = (variantKey) => currentType === variantKey;
   const getRootValue = (variantKey, key) => (isCurrentVariant(variantKey) ? String(currentFormData?.[key] || "") : "");
   const getExtraValue = (variantKey, key) => (isCurrentVariant(variantKey) ? String(currentExtraData?.[key] || "") : "");
+  const isTruthyExtra = (variantKey, key) =>
+    ["1", "true", "sim", "on", "yes"].includes(getExtraValue(variantKey, key).trim().toLowerCase());
 %>
 
 <section class="auth-viewport auth-viewport-cadastro">
@@ -289,7 +317,7 @@
   <div class="auth-bubble bubble-e"></div>
 
   <div
-    class="cadastro-shell"
+    class="cadastro-shell <%= currentType === 'voluntario' ? 'is-volunteer-active' : '' %>"
     data-cadastro-root
     data-active-type="<%= currentType %>"
     data-active-step="<%= currentPanel %>"
@@ -301,7 +329,7 @@
       <h1 class="cadastro-hero-title">Bem-vindo à nossa rede</h1>
       <p class="cadastro-hero-subtitle">Cada pessoa faz a diferença</p>
 
-      <div class="cadastro-progress" aria-label="Progresso do cadastro">
+      <div class="cadastro-progress" aria-label="Progresso do cadastro" data-cadastro-progress <%= currentType === 'voluntario' ? 'hidden' : '' %>>
         <% for (let step = 1; step <= 3; step += 1) { %>
           <span
             class="cadastro-progress-item <%= currentProgressStep === step ? 'is-active' : '' %>"
@@ -309,6 +337,11 @@
             data-step="<%= step %>"
           ></span>
         <% } %>
+      </div>
+
+      <div class="cadastro-hero-journey" data-cadastro-volunteer-journey <%= currentType === 'voluntario' ? '' : 'hidden' %>>
+        <i class="fa-solid fa-route" aria-hidden="true"></i>
+        <span>Cadastro guiado de voluntário em <%= volunteerWizardSteps.length %> etapas</span>
       </div>
     </header>
 
@@ -357,191 +390,1244 @@
 
       <% cadastroVariants.forEach((variant) => { %>
         <% const showVariant = currentType === variant.key; %>
-        <% const activeVariantPanel = showVariant ? currentPanel : "dados"; %>
+        <% const activeVariantPanel = showVariant ? currentPanel : variant.key === "voluntario" ? volunteerWizardSteps[0].key : "dados"; %>
         <form
           method="post"
           action="/cadastro"
           autocomplete="off"
-          class="cadastro-form-shell"
+          enctype="multipart/form-data"
+          class="cadastro-form-shell <%= variant.key === 'voluntario' ? 'cadastro-form-shell-volunteer' : '' %>"
           data-cadastro-form
           data-cadastro-variant="<%= variant.key %>"
+          data-cadastro-layout="<%= variant.key === 'voluntario' ? 'volunteer-wizard' : 'standard' %>"
           <%= showVariant ? "" : "hidden" %>
         >
           <%- renderCsrfField() %>
           <input type="hidden" name="tipoCadastro" value="<%= variant.key %>" />
           <input type="hidden" name="fluxoEtapa" value="<%= activeVariantPanel %>" data-cadastro-step-input />
 
-          <section
-            class="cadastro-card cadastro-form-card card-elevated <%= activeVariantPanel === 'dados' ? 'is-active' : '' %>"
-            data-cadastro-panel="dados"
-          >
-            <header class="cadastro-card-head theme-<%= variant.theme %>">
-              <button
-                type="button"
-                class="cadastro-back-btn"
-                data-cadastro-back="escolha"
-                aria-label="Voltar para escolher o perfil"
-              >
-                <i class="fa-solid fa-arrow-left"></i>
-              </button>
+          <% if (variant.key === "voluntario") { %>
+            <section class="cadastro-volunteer-wizard card-elevated" data-cadastro-wizard-root>
+              <header class="cadastro-wizard-hero">
+                <div class="cadastro-wizard-hero-main">
+                  <button
+                    type="button"
+                    class="cadastro-back-btn cadastro-wizard-choice-back"
+                    data-cadastro-back="escolha"
+                    aria-label="Voltar para escolher o perfil"
+                  >
+                    <i class="fa-solid fa-arrow-left"></i>
+                  </button>
 
-              <span class="cadastro-card-icon" aria-hidden="true">
-                <i class="<%= variant.icon %>"></i>
-              </span>
+                  <div>
+                    <span class="cadastro-wizard-eyebrow">Planejamento e cadastro do voluntário</span>
+                    <h2>Formulário de planejamento das atividades</h2>
+                    <p>
+                      Seguimos o roteiro técnico enviado no documento para entender sua proposta de atividade,
+                      organizar o cadastro e fechar tudo com acesso protegido e validação segura.
+                    </p>
+                  </div>
+                </div>
 
-              <div>
-                <h2><%= variant.headerTitle %></h2>
-              </div>
-            </header>
+                <div class="cadastro-wizard-meta">
+                  <span class="cadastro-wizard-counter" data-cadastro-wizard-counter>
+                    Etapa <%= currentVolunteerStepIndex + 1 %> de <%= volunteerWizardSteps.length %>
+                  </span>
+                  <strong class="cadastro-wizard-meta-title" data-cadastro-wizard-label>
+                    <%= volunteerWizardSteps[currentVolunteerStepIndex].label %>
+                  </strong>
+                </div>
+              </header>
 
-            <div class="cadastro-card-body">
-              <div class="cadastro-field-grid">
-                <% variant.profileFields.forEach((field) => { %>
-                  <% const fieldName = field.extraKey ? `dadosCadastro[${field.extraKey}]` : field.key; %>
-                  <% const fieldValue = field.extraKey ? getExtraValue(variant.key, field.extraKey) : getRootValue(variant.key, field.key); %>
-                  <% const fieldId = `cadastro-${variant.key}-${field.extraKey || field.key}`; %>
-
-                  <label class="field-wrap cadastro-field" for="<%= fieldId %>">
-                    <span class="input-label">
-                      <%= field.label %><% if (field.required) { %><span class="cadastro-required">*</span><% } %>
+              <nav class="cadastro-wizard-nav" aria-label="Etapas do cadastro do voluntário">
+                <% volunteerWizardSteps.forEach((step, index) => { %>
+                  <% const isCurrentStep = activeVariantPanel === step.key; %>
+                  <% const isCompletedStep = index < currentVolunteerStepIndex; %>
+                  <button
+                    type="button"
+                    class="cadastro-wizard-step <%= isCurrentStep ? 'is-current' : '' %> <%= isCompletedStep ? 'is-complete' : '' %>"
+                    data-cadastro-wizard-step
+                    data-step-index="<%= index %>"
+                    data-step-key="<%= step.key %>"
+                    aria-current="<%= isCurrentStep ? 'step' : 'false' %>"
+                  >
+                    <span class="cadastro-wizard-step-badge" aria-hidden="true">
+                      <i class="<%= step.icon %>"></i>
                     </span>
+                    <span class="cadastro-wizard-step-copy">
+                      <strong><%= step.label %></strong>
+                      <small><%= step.subtitle %></small>
+                    </span>
+                  </button>
+                <% }) %>
+              </nav>
 
-                    <% if (field.type === "textarea") { %>
-                      <textarea
-                        class="input-control cadastro-input"
-                        id="<%= fieldId %>"
-                        name="<%= fieldName %>"
-                        rows="3"
-                        placeholder="<%= field.placeholder || '' %>"
-                        <%= field.required ? "required" : "" %>
-                      ><%= fieldValue %></textarea>
-                    <% } else { %>
+              <div class="cadastro-wizard-progress" aria-hidden="true">
+                <span
+                  class="cadastro-wizard-progress-fill"
+                  data-cadastro-wizard-progress-fill
+                  style="width: <%= currentVolunteerProgress %>%"
+                ></span>
+              </div>
+
+              <div class="cadastro-wizard-panels">
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'profissional' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="0"
+                  data-step-key="profissional"
+                  <%= activeVariantPanel === 'profissional' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-user-tie"></i>
+                    </span>
+                    <div>
+                      <h3>Identificação do profissional</h3>
+                      <p>Começamos pelos dados básicos do profissional responsável pela proposta e pelo cadastro.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-nome">
+                      <span class="input-label">Nome do profissional<span class="cadastro-required">*</span></span>
                       <input
                         class="input-control cadastro-input"
-                        id="<%= fieldId %>"
-                        name="<%= fieldName %>"
-                        type="<%= field.type || 'text' %>"
-                        maxlength="<%= field.maxlength || 140 %>"
-                        placeholder="<%= field.placeholder || '' %>"
-                        value="<%= fieldValue %>"
-                        <%= field.required ? "required" : "" %>
-                        <%= field.inputmode ? `inputmode="${field.inputmode}"` : "" %>
-                        <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
-                        <%= field.mask ? `data-mask="${field.mask}"` : "" %>
+                        id="cadastro-voluntario-nome"
+                        name="nome"
+                        type="text"
+                        maxlength="140"
+                        placeholder="Digite seu nome completo"
+                        value="<%= getRootValue('voluntario', 'nome') %>"
+                        autocomplete="name"
+                        required
                       />
-                    <% } %>
-                  </label>
-                <% }) %>
-              </div>
+                    </label>
 
-              <div class="cadastro-actions">
-                <button
-                  type="button"
-                  class="btn btn-accent btn-block cadastro-submit-btn"
-                  data-cadastro-next
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-funcao">
+                      <span class="input-label">Função<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-funcao"
+                        name="dadosCadastro_funcao"
+                        type="text"
+                        maxlength="120"
+                        placeholder="Ex: Psicólogo, arte-educador, terapeuta ocupacional"
+                        value="<%= getExtraValue('voluntario', 'funcao') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-area">
+                      <span class="input-label">Área de atuação<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-area"
+                        name="dadosCadastro_area_atuacao"
+                        type="text"
+                        maxlength="160"
+                        placeholder="Ex: Saúde mental, educação especial, inclusão, esporte"
+                        value="<%= getExtraValue('voluntario', 'area_atuacao') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-cpf">
+                      <span class="input-label">CPF</span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-cpf"
+                        name="cpf"
+                        type="text"
+                        maxlength="14"
+                        placeholder="000.000.000-00"
+                        value="<%= getRootValue('voluntario', 'cpf') %>"
+                        inputmode="numeric"
+                        data-mask="cpf"
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-data-nascimento">
+                      <span class="input-label">Data de nascimento</span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-data-nascimento"
+                        name="dadosCadastro_data_nascimento"
+                        type="date"
+                        value="<%= getExtraValue('voluntario', 'data_nascimento') %>"
+                      />
+                    </label>
+                  </div>
+                </section>
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'atividade' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="1"
+                  data-step-key="atividade"
+                  <%= activeVariantPanel === 'atividade' ? '' : 'hidden' %>
                 >
-                  Continuar cadastro
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section
-            class="cadastro-card cadastro-form-card card-elevated <%= activeVariantPanel === 'acesso' ? 'is-active' : '' %>"
-            data-cadastro-panel="acesso"
-          >
-            <header class="cadastro-card-head theme-<%= variant.theme %>">
-              <button
-                type="button"
-                class="cadastro-back-btn"
-                data-cadastro-back="dados"
-                aria-label="Voltar para os dados do cadastro"
-              >
-                <i class="fa-solid fa-arrow-left"></i>
-              </button>
-
-              <span class="cadastro-card-icon" aria-hidden="true">
-                <i class="<%= variant.icon %>"></i>
-              </span>
-
-              <div>
-                <h2><%= variant.accessTitle %></h2>
-                <p><%= variant.accessDescription %></p>
-              </div>
-            </header>
-
-            <div class="cadastro-card-body">
-              <% if (variant.key !== "familia") { %>
-                <div class="cadastro-access-note">
-                  <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
-                  <span>
-                    O e-mail <strong data-cadastro-email-preview><%= getRootValue(variant.key, "email") || "informado acima" %></strong> será usado no processo.
-                  </span>
-                </div>
-              <% } %>
-
-              <div class="cadastro-field-grid">
-                <% variant.accessFields.forEach((field) => { %>
-                  <% const fieldValue = getRootValue(variant.key, field.key); %>
-                  <% const fieldId = `cadastro-${variant.key}-${field.key}`; %>
-
-                  <label class="field-wrap cadastro-field" for="<%= fieldId %>">
-                    <span class="input-label">
-                      <%= field.label %><% if (field.required) { %><span class="cadastro-required">*</span><% } %>
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-clipboard-list"></i>
                     </span>
+                    <div>
+                      <h3>Identificação da atividade</h3>
+                      <p>Descreva com clareza a atividade que será proposta e o que será realizado na prática.</p>
+                    </div>
+                  </header>
 
-                    <% if (field.toggle) { %>
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-nome-atividade">
+                      <span class="input-label">Nome da atividade<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-nome-atividade"
+                        name="dadosCadastro_nome_atividade"
+                        type="text"
+                        maxlength="180"
+                        placeholder="Ex: Oficina de Arte Terapia"
+                        value="<%= getExtraValue('voluntario', 'nome_atividade') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-descricao-atividade">
+                      <span class="input-label">Descrição da atividade (o que será realizado)<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-descricao-atividade"
+                        name="dadosCadastro_descricao_atividade"
+                        rows="5"
+                        maxlength="1200"
+                        placeholder="Descreva detalhadamente o que será realizado com os participantes."
+                        required
+                      ><%= getExtraValue('voluntario', 'descricao_atividade') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'objetivo' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="2"
+                  data-step-key="objetivo"
+                  <%= activeVariantPanel === 'objetivo' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-bullseye"></i>
+                    </span>
+                    <div>
+                      <h3>Objetivo</h3>
+                      <p>Mostre o propósito central da proposta e os resultados específicos que você espera alcançar.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-objetivo-geral">
+                      <span class="input-label">Objetivo geral da atividade<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-objetivo-geral"
+                        name="dadosCadastro_objetivo_geral"
+                        rows="4"
+                        maxlength="900"
+                        placeholder="Qual é o objetivo principal dessa atividade?"
+                        required
+                      ><%= getExtraValue('voluntario', 'objetivo_geral') %></textarea>
+                    </label>
+
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-objetivos-especificos">
+                      <span class="input-label">Objetivos específicos (se houver)</span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-objetivos-especificos"
+                        name="dadosCadastro_objetivos_especificos"
+                        rows="4"
+                        maxlength="900"
+                        placeholder="Liste os objetivos específicos que complementam a proposta."
+                      ><%= getExtraValue('voluntario', 'objetivos_especificos') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'publico' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="3"
+                  data-step-key="publico"
+                  <%= activeVariantPanel === 'publico' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-people-group"></i>
+                    </span>
+                    <div>
+                      <h3>Público-alvo</h3>
+                      <p>Explique para quem a atividade é pensada e qual será o perfil das pessoas atendidas.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-faixa-etaria">
+                      <span class="input-label">Faixa etária<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-faixa-etaria"
+                        name="dadosCadastro_faixa_etaria"
+                        type="text"
+                        maxlength="120"
+                        placeholder="Ex: 6 a 12 anos"
+                        value="<%= getExtraValue('voluntario', 'faixa_etaria') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-participantes-turma">
+                      <span class="input-label">Número estimado de participantes por turma<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-participantes-turma"
+                        name="dadosCadastro_participantes_por_turma"
+                        type="text"
+                        maxlength="80"
+                        placeholder="Ex: 10 participantes"
+                        value="<%= getExtraValue('voluntario', 'participantes_por_turma') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-perfil-participantes">
+                      <span class="input-label">Perfil dos participantes<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-perfil-participantes"
+                        name="dadosCadastro_perfil_participantes"
+                        rows="4"
+                        maxlength="900"
+                        placeholder="Ex: TEA, síndrome de Down, vulnerabilidade social, primeira infância, juventude."
+                        required
+                      ><%= getExtraValue('voluntario', 'perfil_participantes') %></textarea>
+                    </label>
+                  </div>
+                </section>
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'metodologia' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="4"
+                  data-step-key="metodologia"
+                  <%= activeVariantPanel === 'metodologia' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-list-check"></i>
+                    </span>
+                    <div>
+                      <h3>Metodologia</h3>
+                      <p>Descreva o passo a passo da condução da atividade e a dinâmica prevista para os encontros.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-metodologia">
+                      <span class="input-label">Como a atividade será desenvolvida?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-metodologia"
+                        name="dadosCadastro_metodologia_atividade"
+                        rows="6"
+                        maxlength="1400"
+                        placeholder="Descreva o passo a passo ou a dinâmica da atividade."
+                        required
+                      ><%= getExtraValue('voluntario', 'metodologia_atividade') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'cronograma' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="5"
+                  data-step-key="cronograma"
+                  <%= activeVariantPanel === 'cronograma' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-regular fa-calendar-days"></i>
+                    </span>
+                    <div>
+                      <h3>Cronograma</h3>
+                      <p>Defina a frequência da atividade, o horário previsto e o período total da proposta.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-dias-semana">
+                      <span class="input-label">Dias da semana<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-dias-semana"
+                        name="dadosCadastro_dias_semana"
+                        type="text"
+                        maxlength="160"
+                        placeholder="Ex: Segunda e quarta"
+                        value="<%= getExtraValue('voluntario', 'dias_semana') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-horario">
+                      <span class="input-label">Horário<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-horario"
+                        name="dadosCadastro_horario"
+                        type="text"
+                        maxlength="120"
+                        placeholder="Ex: 14h às 16h"
+                        value="<%= getExtraValue('voluntario', 'horario') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-duracao">
+                      <span class="input-label">Duração de cada atendimento<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-duracao"
+                        name="dadosCadastro_duracao_atendimento"
+                        type="text"
+                        maxlength="120"
+                        placeholder="Ex: 1 hora"
+                        value="<%= getExtraValue('voluntario', 'duracao_atendimento') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-inicio-periodo">
+                      <span class="input-label">Início do período<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-inicio-periodo"
+                        name="dadosCadastro_periodo_inicio"
+                        type="date"
+                        value="<%= getExtraValue('voluntario', 'periodo_inicio') %>"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-fim-periodo">
+                      <span class="input-label">Fim do período<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-fim-periodo"
+                        name="dadosCadastro_periodo_fim"
+                        type="date"
+                        value="<%= getExtraValue('voluntario', 'periodo_fim') %>"
+                        required
+                      />
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'recursos' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="6"
+                  data-step-key="recursos"
+                  <%= activeVariantPanel === 'recursos' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-toolbox"></i>
+                    </span>
+                    <div>
+                      <h3>Recursos necessários</h3>
+                      <p>Liste materiais, espaço e apoio profissional que a atividade exigirá para funcionar bem.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-materiais">
+                      <span class="input-label">Materiais utilizados<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-materiais"
+                        name="dadosCadastro_materiais_utilizados"
+                        rows="4"
+                        maxlength="900"
+                        placeholder="Liste os materiais necessários para a atividade."
+                        required
+                      ><%= getExtraValue('voluntario', 'materiais_utilizados') %></textarea>
+                    </label>
+
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-espaco">
+                      <span class="input-label">Espaço necessário<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-espaco"
+                        name="dadosCadastro_espaco_necessario"
+                        type="text"
+                        maxlength="240"
+                        placeholder="Ex: Sala ampla com mesas, tatame, quadra, laboratório"
+                        value="<%= getExtraValue('voluntario', 'espaco_necessario') %>"
+                        required
+                      />
+                    </label>
+
+                    <fieldset class="cadastro-field span-2 cadastro-inline-options">
+                      <legend class="input-label">Necessidade de apoio de outros profissionais?<span class="cadastro-required">*</span></legend>
+                      <div class="cadastro-option-grid">
+                        <label class="cadastro-option-pill">
+                          <input
+                            type="radio"
+                            name="dadosCadastro_necessidade_apoio_outros_profissionais"
+                            value="sim"
+                            <%= getExtraValue('voluntario', 'necessidade_apoio_outros_profissionais') === 'sim' ? 'checked' : '' %>
+                            required
+                            data-cadastro-support-radio
+                          />
+                          <span>Sim</span>
+                        </label>
+                        <label class="cadastro-option-pill">
+                          <input
+                            type="radio"
+                            name="dadosCadastro_necessidade_apoio_outros_profissionais"
+                            value="nao"
+                            <%= getExtraValue('voluntario', 'necessidade_apoio_outros_profissionais') === 'nao' ? 'checked' : '' %>
+                            required
+                            data-cadastro-support-radio
+                          />
+                          <span>Não</span>
+                        </label>
+                      </div>
+                    </fieldset>
+
+                    <label
+                      class="field-wrap cadastro-field span-2 cadastro-conditional-inline"
+                      for="cadastro-voluntario-apoio-quais"
+                      data-cadastro-support-details-wrap
+                      <%= getExtraValue('voluntario', 'necessidade_apoio_outros_profissionais') === 'sim' ? '' : 'hidden' %>
+                    >
+                      <span class="input-label">Se sim, quais?</span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-apoio-quais"
+                        name="dadosCadastro_apoio_outros_profissionais_quais"
+                        type="text"
+                        maxlength="240"
+                        placeholder="Ex: Psicólogo, fonoaudiólogo, assistente social"
+                        value="<%= getExtraValue('voluntario', 'apoio_outros_profissionais_quais') %>"
+                        data-cadastro-support-details
+                        <%= getExtraValue('voluntario', 'necessidade_apoio_outros_profissionais') === 'sim' ? 'required' : 'disabled' %>
+                      />
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'resultados' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="7"
+                  data-step-key="resultados"
+                  <%= activeVariantPanel === 'resultados' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-sparkles"></i>
+                    </span>
+                    <div>
+                      <h3>Resultados esperados</h3>
+                      <p>Conte quais benefícios a atividade pretende gerar para os participantes.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-beneficios-esperados">
+                      <span class="input-label">Quais benefícios a atividade pretende gerar?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-beneficios-esperados"
+                        name="dadosCadastro_beneficios_esperados"
+                        rows="5"
+                        maxlength="1100"
+                        placeholder="Descreva os benefícios esperados para os participantes."
+                        required
+                      ><%= getExtraValue('voluntario', 'beneficios_esperados') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'avaliacao' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="8"
+                  data-step-key="avaliacao"
+                  <%= activeVariantPanel === 'avaliacao' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-chart-column"></i>
+                    </span>
+                    <div>
+                      <h3>Avaliação e monitoramento</h3>
+                      <p>Explique como a atividade será acompanhada, registrada e avaliada ao longo do tempo.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-avaliacao-como">
+                      <span class="input-label">Como será feita a avaliação dos participantes?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-avaliacao-como"
+                        name="dadosCadastro_avaliacao_como"
+                        rows="4"
+                        maxlength="900"
+                        placeholder="Descreva como será feita a avaliação dos participantes."
+                        required
+                      ><%= getExtraValue('voluntario', 'avaliacao_como') %></textarea>
+                    </label>
+
+                    <fieldset class="cadastro-field span-2 cadastro-inline-options">
+                      <legend class="input-label">Formas principais de avaliação</legend>
+                      <div class="cadastro-option-grid">
+                        <label class="cadastro-option-pill">
+                          <input
+                            type="checkbox"
+                            name="dadosCadastro_avaliacao_observacao"
+                            value="sim"
+                            <%= isTruthyExtra('voluntario', 'avaliacao_observacao') ? 'checked' : '' %>
+                          />
+                          <span>Observação</span>
+                        </label>
+                        <label class="cadastro-option-pill">
+                          <input
+                            type="checkbox"
+                            name="dadosCadastro_avaliacao_relatorio"
+                            value="sim"
+                            <%= isTruthyExtra('voluntario', 'avaliacao_relatorio') ? 'checked' : '' %>
+                          />
+                          <span>Relatório</span>
+                        </label>
+                        <label class="cadastro-option-pill">
+                          <input
+                            type="checkbox"
+                            name="dadosCadastro_avaliacao_frequencia"
+                            value="sim"
+                            <%= isTruthyExtra('voluntario', 'avaliacao_frequencia') ? 'checked' : '' %>
+                          />
+                          <span>Frequência</span>
+                        </label>
+                        <label class="cadastro-option-pill">
+                          <input
+                            type="checkbox"
+                            name="dadosCadastro_avaliacao_outros"
+                            value="sim"
+                            <%= isTruthyExtra('voluntario', 'avaliacao_outros') ? 'checked' : '' %>
+                            data-cadastro-evaluation-other-toggle
+                          />
+                          <span>Outros</span>
+                        </label>
+                      </div>
+                    </fieldset>
+
+                    <label
+                      class="field-wrap cadastro-field span-2 cadastro-conditional-inline"
+                      for="cadastro-voluntario-avaliacao-outros"
+                      data-cadastro-evaluation-other-wrap
+                      <%= isTruthyExtra('voluntario', 'avaliacao_outros') ? '' : 'hidden' %>
+                    >
+                      <span class="input-label">Se marcar “Outros”, detalhe aqui</span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-avaliacao-outros"
+                        name="dadosCadastro_avaliacao_outros_descricao"
+                        type="text"
+                        maxlength="240"
+                        placeholder="Descreva outra forma de avaliação"
+                        value="<%= getExtraValue('voluntario', 'avaliacao_outros_descricao') %>"
+                        data-cadastro-evaluation-other
+                        <%= isTruthyExtra('voluntario', 'avaliacao_outros') ? 'required' : 'disabled' %>
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-registro-atividades">
+                      <span class="input-label">Haverá registro das atividades? Como?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-registro-atividades"
+                        name="dadosCadastro_registro_atividades_como"
+                        rows="4"
+                        maxlength="900"
+                        placeholder="Descreva se haverá registro e como ele será feito."
+                        required
+                      ><%= getExtraValue('voluntario', 'registro_atividades_como') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'indicadores' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="9"
+                  data-step-key="indicadores"
+                  <%= activeVariantPanel === 'indicadores' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-ruler-combined"></i>
+                    </span>
+                    <div>
+                      <h3>Indicadores de resultado</h3>
+                      <p>Defina quais sinais ou indicadores mostrarão que a atividade está dando resultado.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-indicadores">
+                      <span class="input-label">Como será possível perceber que a atividade está dando resultado?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-indicadores"
+                        name="dadosCadastro_indicadores_resultado"
+                        rows="5"
+                        maxlength="1000"
+                        placeholder="Descreva os indicadores de resultado esperados."
+                        required
+                      ><%= getExtraValue('voluntario', 'indicadores_resultado') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'desafios' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="10"
+                  data-step-key="desafios"
+                  <%= activeVariantPanel === 'desafios' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-regular fa-lightbulb"></i>
+                    </span>
+                    <div>
+                      <h3>Desafios e estratégias</h3>
+                      <p>Antecipe dificuldades possíveis e registre como você pretende agir diante delas.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-dificuldades">
+                      <span class="input-label">Quais dificuldades podem surgir?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-dificuldades"
+                        name="dadosCadastro_dificuldades_previstas"
+                        rows="4"
+                        maxlength="1000"
+                        placeholder="Liste as principais dificuldades previstas."
+                        required
+                      ><%= getExtraValue('voluntario', 'dificuldades_previstas') %></textarea>
+                    </label>
+
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-estrategias">
+                      <span class="input-label">Como pretende lidar com essas situações?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-estrategias"
+                        name="dadosCadastro_estrategias_desafios"
+                        rows="4"
+                        maxlength="1000"
+                        placeholder="Descreva as estratégias para lidar com essas situações."
+                        required
+                      ><%= getExtraValue('voluntario', 'estrategias_desafios') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'integracao' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="11"
+                  data-step-key="integracao"
+                  <%= activeVariantPanel === 'integracao' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-handshake"></i>
+                    </span>
+                    <div>
+                      <h3>Integração com a equipe</h3>
+                      <p>Explique como a proposta conversa com outras áreas, profissionais ou frentes da instituição.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-integracao-equipe">
+                      <span class="input-label">A atividade se articula com outras áreas ou profissionais? Como?<span class="cadastro-required">*</span></span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-integracao-equipe"
+                        name="dadosCadastro_integracao_equipe"
+                        rows="5"
+                        maxlength="1000"
+                        placeholder="Descreva como a atividade se integra com outras áreas ou profissionais."
+                        required
+                      ><%= getExtraValue('voluntario', 'integracao_equipe') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'observacoes' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="12"
+                  data-step-key="observacoes"
+                  <%= activeVariantPanel === 'observacoes' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-regular fa-note-sticky"></i>
+                    </span>
+                    <div>
+                      <h3>Observações gerais</h3>
+                      <p>Use este espaço para registrar informações complementares, sugestões ou combinações importantes.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-observacoes-gerais">
+                      <span class="input-label">Espaço livre para observações gerais</span>
+                      <textarea
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-observacoes-gerais"
+                        name="dadosCadastro_observacoes_gerais"
+                        rows="5"
+                        maxlength="1200"
+                        placeholder="Sugestões, observações ou informações relevantes."
+                      ><%= getExtraValue('voluntario', 'observacoes_gerais') %></textarea>
+                    </label>
+                  </div>
+                </section>
+
+                <section
+                  class="cadastro-wizard-panel <%= activeVariantPanel === 'validacao' ? 'is-current' : '' %>"
+                  data-cadastro-wizard-panel
+                  data-step-index="13"
+                  data-step-key="validacao"
+                  <%= activeVariantPanel === 'validacao' ? '' : 'hidden' %>
+                >
+                  <header class="cadastro-wizard-panel-head">
+                    <span class="cadastro-wizard-panel-icon" aria-hidden="true">
+                      <i class="fa-solid fa-file-shield"></i>
+                    </span>
+                    <div>
+                      <h3>Acesso, revisão e validação protegida</h3>
+                      <p>Fechamos o cadastro com os dados de acesso, uma revisão resumida do plano e os anexos protegidos.</p>
+                    </div>
+                  </header>
+
+                  <div class="cadastro-final-review-grid cadastro-final-review-grid-wide">
+                    <article class="cadastro-final-review-card">
+                      <small>Profissional</small>
+                      <strong data-cadastro-review-name><%= getRootValue('voluntario', 'nome') || 'Seu nome aparecerá aqui' %></strong>
+                      <span data-cadastro-review-role><%= [getExtraValue('voluntario', 'funcao'), getExtraValue('voluntario', 'area_atuacao')].filter(Boolean).join(' · ') || 'Função e área ainda não informadas' %></span>
+                    </article>
+
+                    <article class="cadastro-final-review-card">
+                      <small>Atividade</small>
+                      <strong data-cadastro-review-activity><%= getExtraValue('voluntario', 'nome_atividade') || 'Atividade ainda não detalhada' %></strong>
+                      <span data-cadastro-review-activity-detail><%= getExtraValue('voluntario', 'objetivo_geral') || 'O objetivo principal aparecerá aqui' %></span>
+                    </article>
+
+                    <article class="cadastro-final-review-card">
+                      <small>Público-alvo</small>
+                      <strong data-cadastro-review-public><%= getExtraValue('voluntario', 'faixa_etaria') || 'Público-alvo ainda não preenchido' %></strong>
+                      <span data-cadastro-review-public-detail><%= [getExtraValue('voluntario', 'perfil_participantes'), getExtraValue('voluntario', 'participantes_por_turma')].filter(Boolean).join(' · ') || 'Faixa etária, perfil e estimativa aparecerão aqui' %></span>
+                    </article>
+
+                    <article class="cadastro-final-review-card">
+                      <small>Cronograma</small>
+                      <strong data-cadastro-review-schedule><%= getExtraValue('voluntario', 'dias_semana') || 'Cronograma ainda não preenchido' %></strong>
+                      <span data-cadastro-review-schedule-detail><%= [getExtraValue('voluntario', 'horario'), getExtraValue('voluntario', 'duracao_atendimento')].filter(Boolean).join(' · ') || 'Dias, horário e duração aparecerão aqui' %></span>
+                    </article>
+                  </div>
+
+                  <div class="cadastro-access-note cadastro-access-note-volunteer">
+                    <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
+                    <span>
+                      O e-mail <strong data-cadastro-email-preview><%= getRootValue('voluntario', 'email') || 'informado abaixo' %></strong> será usado nas comunicações sobre a análise do cadastro.
+                    </span>
+                  </div>
+
+                  <div class="cadastro-wizard-grid">
+                    <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-email">
+                      <span class="input-label">E-mail<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-email"
+                        name="email"
+                        type="email"
+                        maxlength="140"
+                        placeholder="voce@email.com"
+                        value="<%= getRootValue('voluntario', 'email') %>"
+                        autocomplete="email"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-telefone">
+                      <span class="input-label">Telefone<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-telefone"
+                        name="telefone"
+                        type="text"
+                        maxlength="20"
+                        placeholder="(00) 00000-0000"
+                        value="<%= getRootValue('voluntario', 'telefone') %>"
+                        inputmode="tel"
+                        autocomplete="tel"
+                        data-mask="phone"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-login">
+                      <span class="input-label">Usuário para login<span class="cadastro-required">*</span></span>
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-login"
+                        name="login"
+                        type="text"
+                        maxlength="40"
+                        placeholder="Como você quer entrar no sistema"
+                        value="<%= getRootValue('voluntario', 'login') %>"
+                        autocomplete="username"
+                        required
+                      />
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-senha">
+                      <span class="input-label">Senha<span class="cadastro-required">*</span></span>
                       <div class="field-icon-wrap">
                         <input
                           class="input-control cadastro-input"
-                          id="<%= fieldId %>"
-                          name="<%= field.key %>"
+                          id="cadastro-voluntario-senha"
+                          name="senha"
                           type="password"
                           maxlength="120"
-                          placeholder="<%= field.placeholder || '' %>"
-                          value="<%= fieldValue %>"
-                          <%= field.required ? "required" : "" %>
-                          <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
-                          data-cadastro-access-input
+                          placeholder="<%= senhaPlaceholder %>"
+                          autocomplete="new-password"
+                          required
                         />
                         <button
                           class="field-icon-toggle"
                           type="button"
-                          data-password-toggle="<%= fieldId %>"
+                          data-password-toggle="cadastro-voluntario-senha"
                           aria-label="Mostrar senha"
                           aria-pressed="false"
                         >
                           <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
                         </button>
                       </div>
-                    <% } else { %>
-                      <input
-                        class="input-control cadastro-input"
-                        id="<%= fieldId %>"
-                        name="<%= field.key %>"
-                        type="<%= field.type || 'text' %>"
-                        maxlength="<%= field.maxlength || 140 %>"
-                        placeholder="<%= field.placeholder || '' %>"
-                        value="<%= fieldValue %>"
-                        <%= field.required ? "required" : "" %>
-                        <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
-                        data-cadastro-access-input
-                      />
-                    <% } %>
-                  </label>
-                <% }) %>
+                    </label>
+
+                    <label class="field-wrap cadastro-field" for="cadastro-voluntario-confirmar-senha">
+                      <span class="input-label">Confirmar senha<span class="cadastro-required">*</span></span>
+                      <div class="field-icon-wrap">
+                        <input
+                          class="input-control cadastro-input"
+                          id="cadastro-voluntario-confirmar-senha"
+                          name="confirmarSenha"
+                          type="password"
+                          maxlength="120"
+                          placeholder="Repita sua senha"
+                          autocomplete="new-password"
+                          required
+                        />
+                        <button
+                          class="field-icon-toggle"
+                          type="button"
+                          data-password-toggle="cadastro-voluntario-confirmar-senha"
+                          aria-label="Mostrar senha"
+                          aria-pressed="false"
+                        >
+                          <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
+                        </button>
+                      </div>
+                    </label>
+                  </div>
+
+                  <section class="cadastro-secure-upload-block cadastro-secure-upload-block-final">
+                    <div class="cadastro-secure-upload-head">
+                      <h3>Documentos e foto com proteção reforçada</h3>
+                      <p>
+                        O documento e a foto ficam fora da área pública, criptografados em repouso e visíveis apenas
+                        para administração e assistência social autorizada no fluxo de aprovação.
+                      </p>
+                    </div>
+
+                    <div class="cadastro-wizard-grid">
+                      <label class="field-wrap cadastro-field span-2 cadastro-secure-upload-card" for="cadastro-voluntario-documento">
+                        <span class="input-label">Documento de identidade<span class="cadastro-required">*</span></span>
+                        <input
+                          class="input-control cadastro-input"
+                          id="cadastro-voluntario-documento"
+                          name="documentoIdentidadeArquivo"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+                          required
+                          data-cadastro-secure-upload-input="documentoIdentidade"
+                        />
+                        <small class="cadastro-secure-upload-copy">Aceita RG ou CNH em PDF, JPG, PNG ou WEBP.</small>
+                        <div class="cadastro-secure-upload-summary" data-cadastro-secure-upload-summary="documentoIdentidade">
+                          <strong data-cadastro-secure-upload-name="documentoIdentidade">Nenhum documento selecionado.</strong>
+                          <span data-cadastro-secure-upload-size="documentoIdentidade"></span>
+                        </div>
+                      </label>
+
+                      <label class="field-wrap cadastro-field span-2 cadastro-secure-upload-card" for="cadastro-voluntario-foto">
+                        <span class="input-label">Foto do rosto ou meio corpo<span class="cadastro-required">*</span></span>
+                        <input
+                          class="input-control cadastro-input"
+                          id="cadastro-voluntario-foto"
+                          name="fotoPerfilArquivo"
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                          capture="user"
+                          required
+                          data-cadastro-secure-upload-input="fotoPerfil"
+                        />
+                        <small class="cadastro-secure-upload-copy">Você pode tirar a foto na hora pelo celular ou enviar uma imagem pronta para perfil e crachá.</small>
+                        <div class="cadastro-secure-upload-summary cadastro-secure-upload-summary-photo" data-cadastro-secure-upload-summary="fotoPerfil">
+                          <img
+                            class="cadastro-secure-upload-preview"
+                            src=""
+                            alt="Pré-visualização da foto do voluntário"
+                            hidden
+                            data-cadastro-secure-upload-preview="fotoPerfil"
+                          />
+                          <div class="cadastro-secure-upload-summary-body">
+                            <strong data-cadastro-secure-upload-name="fotoPerfil">Nenhuma foto selecionada.</strong>
+                            <span data-cadastro-secure-upload-size="fotoPerfil"></span>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </section>
+
+                  <div class="cadastro-wizard-inline-note cadastro-wizard-inline-note-strong">
+                    Ao enviar, seu cadastro segue para análise da equipe da Alento. Você será avisado quando o acesso estiver liberado.
+                  </div>
+                </section>
               </div>
 
-              <div class="cadastro-submit-block">
-                <p class="cadastro-submit-copy">
-                  Seu cadastro segue para análise da equipe e você será avisado quando o acesso estiver liberado.
-                </p>
-                <button type="submit" class="btn btn-accent btn-block cadastro-submit-btn">
-                  Finalizar cadastro
+              <div class="cadastro-wizard-actions">
+                <button
+                  type="button"
+                  class="btn btn-muted"
+                  data-cadastro-wizard-back
+                  <%= currentVolunteerStepIndex <= 0 ? "disabled" : "" %>
+                >
+                  Anterior
                 </button>
+
+                <div class="cadastro-wizard-actions-end">
+                  <button type="button" class="btn btn-muted" data-cadastro-back="escolha">Trocar perfil</button>
+                  <button
+                    type="button"
+                    class="btn btn-accent"
+                    data-cadastro-wizard-next
+                    <%= currentVolunteerStepIndex === volunteerWizardSteps.length - 1 ? "hidden" : "" %>
+                  >
+                    Próximo
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-accent cadastro-submit-btn"
+                    data-cadastro-wizard-submit
+                    <%= currentVolunteerStepIndex === volunteerWizardSteps.length - 1 ? "" : "hidden" %>
+                  >
+                    Enviar cadastro
+                  </button>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          <% } else { %>
+            <section
+              class="cadastro-card cadastro-form-card card-elevated <%= activeVariantPanel === 'dados' ? 'is-active' : '' %>"
+              data-cadastro-panel="dados"
+            >
+              <header class="cadastro-card-head theme-<%= variant.theme %>">
+                <button
+                  type="button"
+                  class="cadastro-back-btn"
+                  data-cadastro-back="escolha"
+                  aria-label="Voltar para escolher o perfil"
+                >
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+
+                <span class="cadastro-card-icon" aria-hidden="true">
+                  <i class="<%= variant.icon %>"></i>
+                </span>
+
+                <div>
+                  <h2><%= variant.headerTitle %></h2>
+                </div>
+              </header>
+
+              <div class="cadastro-card-body">
+                <div class="cadastro-field-grid">
+                  <% (variant.profileFields || []).forEach((field) => { %>
+                    <% const fieldName = field.extraKey ? `dadosCadastro[${field.extraKey}]` : field.key; %>
+                    <% const fieldValue = field.extraKey ? getExtraValue(variant.key, field.extraKey) : getRootValue(variant.key, field.key); %>
+                    <% const fieldId = `cadastro-${variant.key}-${field.extraKey || field.key}`; %>
+
+                    <label class="field-wrap cadastro-field" for="<%= fieldId %>">
+                      <span class="input-label">
+                        <%= field.label %><% if (field.required) { %><span class="cadastro-required">*</span><% } %>
+                      </span>
+
+                      <% if (field.type === "textarea") { %>
+                        <textarea
+                          class="input-control cadastro-input"
+                          id="<%= fieldId %>"
+                          name="<%= fieldName %>"
+                          rows="3"
+                          placeholder="<%= field.placeholder || '' %>"
+                          <%= field.required ? "required" : "" %>
+                        ><%= fieldValue %></textarea>
+                      <% } else { %>
+                        <input
+                          class="input-control cadastro-input"
+                          id="<%= fieldId %>"
+                          name="<%= fieldName %>"
+                          type="<%= field.type || 'text' %>"
+                          maxlength="<%= field.maxlength || 140 %>"
+                          placeholder="<%= field.placeholder || '' %>"
+                          value="<%= fieldValue %>"
+                          <%= field.required ? "required" : "" %>
+                          <%= field.inputmode ? `inputmode="${field.inputmode}"` : "" %>
+                          <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
+                          <%= field.mask ? `data-mask="${field.mask}"` : "" %>
+                        />
+                      <% } %>
+                    </label>
+                  <% }) %>
+                </div>
+
+                <div class="cadastro-actions">
+                  <button
+                    type="button"
+                    class="btn btn-accent btn-block cadastro-submit-btn"
+                    data-cadastro-next
+                  >
+                    Continuar cadastro
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section
+              class="cadastro-card cadastro-form-card card-elevated <%= activeVariantPanel === 'acesso' ? 'is-active' : '' %>"
+              data-cadastro-panel="acesso"
+            >
+              <header class="cadastro-card-head theme-<%= variant.theme %>">
+                <button
+                  type="button"
+                  class="cadastro-back-btn"
+                  data-cadastro-back="dados"
+                  aria-label="Voltar para os dados do cadastro"
+                >
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+
+                <span class="cadastro-card-icon" aria-hidden="true">
+                  <i class="<%= variant.icon %>"></i>
+                </span>
+
+                <div>
+                  <h2><%= variant.accessTitle %></h2>
+                  <p><%= variant.accessDescription %></p>
+                </div>
+              </header>
+
+              <div class="cadastro-card-body">
+                <% if (variant.key !== "familia") { %>
+                  <div class="cadastro-access-note">
+                    <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
+                    <span>
+                      O e-mail <strong data-cadastro-email-preview><%= getRootValue(variant.key, "email") || "informado acima" %></strong> será usado no processo.
+                    </span>
+                  </div>
+                <% } %>
+
+                <div class="cadastro-field-grid">
+                  <% (variant.accessFields || []).forEach((field) => { %>
+                    <% const fieldValue = getRootValue(variant.key, field.key); %>
+                    <% const fieldId = `cadastro-${variant.key}-${field.key}`; %>
+
+                    <label class="field-wrap cadastro-field" for="<%= fieldId %>">
+                      <span class="input-label">
+                        <%= field.label %><% if (field.required) { %><span class="cadastro-required">*</span><% } %>
+                      </span>
+
+                      <% if (field.toggle) { %>
+                        <div class="field-icon-wrap">
+                          <input
+                            class="input-control cadastro-input"
+                            id="<%= fieldId %>"
+                            name="<%= field.key %>"
+                            type="password"
+                            maxlength="120"
+                            placeholder="<%= field.placeholder || '' %>"
+                            value=""
+                            <%= field.required ? "required" : "" %>
+                            <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
+                            data-cadastro-access-input
+                          />
+                          <button
+                            class="field-icon-toggle"
+                            type="button"
+                            data-password-toggle="<%= fieldId %>"
+                            aria-label="Mostrar senha"
+                            aria-pressed="false"
+                          >
+                            <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
+                          </button>
+                        </div>
+                      <% } else { %>
+                        <input
+                          class="input-control cadastro-input"
+                          id="<%= fieldId %>"
+                          name="<%= field.key %>"
+                          type="<%= field.type || 'text' %>"
+                          maxlength="<%= field.maxlength || 140 %>"
+                          placeholder="<%= field.placeholder || '' %>"
+                          value="<%= fieldValue %>"
+                          <%= field.required ? "required" : "" %>
+                          <%= field.autocomplete ? `autocomplete="${field.autocomplete}"` : "" %>
+                          data-cadastro-access-input
+                        />
+                      <% } %>
+                    </label>
+                  <% }) %>
+                </div>
+
+                <div class="cadastro-submit-block">
+                  <p class="cadastro-submit-copy">
+                    Seu cadastro segue para análise da equipe e você será avisado quando o acesso estiver liberado.
+                  </p>
+                  <button type="submit" class="btn btn-accent btn-block cadastro-submit-btn">
+                    Finalizar cadastro
+                  </button>
+                </div>
+              </div>
+            </section>
+          <% } %>
         </form>
       <% }) %>
     </div>

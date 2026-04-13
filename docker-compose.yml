@@ -11,6 +11,8 @@ services:
       - mongod
       - --replSet
       - rs0
+      - --wiredTigerCacheSizeGB
+      - "0.50"
       - --bind_ip_all
       - --port
       - "27017"
@@ -111,8 +113,10 @@ services:
 
 volumes:
   mongo-data:
+    external: true
     name: glpi-desafio_mongo_data
   mongo-config:
+    external: true
     name: glpi_suite_mongo_config
 
 networks:

@@ -4,8 +4,8 @@ const {
   AGENDA_ROOM_REQUIRED_TYPES,
   AGENDA_DEFAULT_DURATION_MINUTES,
 } = require("../../schemas/social/AgendaEvento");
-const { hasAnyPermission } = require("../../services/accessControlService");
-const { listPresenceReasons } = require("../../services/systemConfigService");
+const { hasAnyPermission } = require("../../services/shared/accessControlService");
+const { listPresenceReasons } = require("../../services/shared/systemConfigService");
 
 function buildPermissions(user) {
   const permissionList = user?.permissions || [];

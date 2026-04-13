@@ -1,5 +1,5 @@
-const { registrarAuditoria } = require("../auditService");
-const { registrarHistoricoAgenda } = require("../agendaHistoryService");
+const { registrarAuditoria } = require("../shared/auditService");
+const { registrarHistoricoAgenda } = require("../shared/agendaHistoryService");
 const { dispatchAgendaNotifications } = require("./domain/agendaNotificationService");
 
 function respondAgendaError(res, logMessage, fallbackMessage, error) {

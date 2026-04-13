@@ -1,6 +1,6 @@
 const { PERMISSIONS } = require("../../config/permissions");
-const { hasAnyPermission } = require("../../services/accessControlService");
-const { listCustomFields, listQuickFilters } = require("../../services/systemConfigService");
+const { hasAnyPermission } = require("../../services/shared/accessControlService");
+const { listCustomFields, listQuickFilters } = require("../../services/shared/systemConfigService");
 const { ensureAccessibleFamily } = require("../../services/familia/api/familiaGuardService");
 
 function buildViewFlags(req) {

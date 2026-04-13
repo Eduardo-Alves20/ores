@@ -7,6 +7,7 @@ const {
 const { ensureValidObjectId } = require("../../shared/objectIdValidationService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { canManageTargetUser } = require("./accessPermissionService");
+const { normalizeAssetKind } = require("../../security/secureVolunteerAssetService");
 const {
   buildApprovalWorkflowSummary,
   mapApprovalDetail,
@@ -35,6 +36,15 @@ function ensureAccessUserId(id) {
   }
 }
 
+function resolveProtectedAttachmentField(kind) {
+  const normalizedKind = normalizeAssetKind(kind);
+  if (!normalizedKind) {
+    throw createActionError("Tipo de anexo protegido invalido.", 400);
+  }
+
+  return normalizedKind;
+}
+
 async function loadApprovalDetailPayload(id, actorId = null) {
   const normalizedId = ensureAccessUserId(id);
   const electorate = await resolveApprovalElectorate();
@@ -45,6 +55,24 @@ async function loadApprovalDetailPayload(id, actorId = null) {
   }
 
   return mapApprovalDetail(usuario, actorId, electorate);
+}
+
+async function loadProtectedApprovalAsset(id, kind) {
+  const normalizedId = ensureAccessUserId(id);
+  const field = resolveProtectedAttachmentField(kind);
+  const usuario = await Usuario.findById(normalizedId)
+    .select("anexosProtegidos nome tipoCadastro")
+    .lean();
+
+  if (!usuario) {
+    return null;
+  }
+
+  return {
+    usuario,
+    asset: usuario?.anexosProtegidos?.[field] || null,
+    field,
+  };
 }
 
 async function approveUserAccess({ id, actorId = null, body = {} }) {
@@ -298,6 +326,7 @@ async function voteUserApproval({
 
 module.exports = {
   loadApprovalDetailPayload,
+  loadProtectedApprovalAsset,
   approveUserAccess,
   rejectUserAccess,
   changeUserAccessStatus,

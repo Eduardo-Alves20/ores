@@ -1,6 +1,6 @@
 const { PERFIS } = require("../../config/roles");
 const { PERMISSIONS } = require("../../config/permissions");
-const { hasAnyPermission } = require("../accessControlService");
+const { hasAnyPermission } = require("./accessControlService");
 
 function userPermissions(user) {
   return Array.isArray(user?.permissions) ? user.permissions : [];

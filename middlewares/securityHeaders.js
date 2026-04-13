@@ -42,6 +42,32 @@ function joinDirective(name, values) {
   return `${name} ${values.join(" ")}`;
 }
 
+function normalizeCspHost(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    const parsed = new URL(raw);
+    if (!["http:", "https:"].includes(parsed.protocol)) return "";
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch (_) {
+    return "";
+  }
+}
+
+function resolveFormActionAllowList() {
+  const fromEnv = String(process.env.CSP_FORM_ACTION_ALLOW || "")
+    .split(/[,\s]+/)
+    .map((item) => normalizeCspHost(item))
+    .filter(Boolean);
+
+  const fromModules = [
+    normalizeCspHost(process.env.HELPDESK_URL),
+    normalizeCspHost(process.env.HDI_URL),
+  ].filter(Boolean);
+
+  return Array.from(new Set([...fromEnv, ...fromModules]));
+}
+
 function buildCspDirectives({ nonce, reportEndpoint, strict }) {
   const scriptSrcValues = strict
     ? ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'", "https://cdn.jsdelivr.net"]
@@ -70,7 +96,7 @@ function buildCspDirectives({ nonce, reportEndpoint, strict }) {
     joinDirective("frame-src", ["'self'"]),
     joinDirective("object-src", ["'none'"]),
     joinDirective("base-uri", ["'self'"]),
-    joinDirective("form-action", ["'self'"]),
+    joinDirective("form-action", ["'self'"].concat(resolveFormActionAllowList())),
     joinDirective("frame-ancestors", ["'self'"]),
     joinDirective("manifest-src", ["'self'"]),
     joinDirective("report-uri", [reportEndpoint]),

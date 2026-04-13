@@ -1,6 +1,7 @@
 const { AMBIENTE, LDAP_AUTH, LDAP_AUTH_TOKEN } = require("../config/env");
 const User = require("../models/User");
 const { authApi } = require("./environment");
+const { buildSessionUserSnapshot } = require("./sessionUserSnapshot");
 
 async function autoLoginInProd(req, res) {
   const mysession = await verifySession(req, res);
@@ -14,8 +15,9 @@ async function autoLoginInProd(req, res) {
   req.session.startTime = Date.now();
   req.session.logged = true;
   req.session.userId = user._id;
-  req.session.user = user;
+  req.session.user = buildSessionUserSnapshot(user);
   req.session.type = "usuario";
+  delete req.session.bridge;
 
   // Dados do SSO
   req.session.sso_token = req.cookies?.sso_token;

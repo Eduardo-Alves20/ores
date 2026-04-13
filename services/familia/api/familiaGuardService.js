@@ -7,7 +7,7 @@ const { PERFIS } = require("../../../config/roles");
 const {
   canAccessFamily,
   hasOwnAssistidosScope,
-} = require("../../volunteerScopeService");
+} = require("../../shared/volunteerScopeService");
 const { createFamiliaError } = require("./familiaContextService");
 const { ensureValidObjectId } = require("../../shared/objectIdValidationService");
 

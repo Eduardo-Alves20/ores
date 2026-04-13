@@ -5,11 +5,11 @@ const {
   AGENDA_ROOM_REQUIRED_TYPES,
 } = require("../../../schemas/social/AgendaEvento");
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
-const { listarHistoricoAgenda } = require("../../agendaHistoryService");
+const { listarHistoricoAgenda } = require("../../shared/agendaHistoryService");
 const {
   asObjectId,
   findSalaConflict,
-} = require("../../agendaAvailabilityService");
+} = require("../../shared/agendaAvailabilityService");
 const { isProvided } = require("./agendaDateValueService");
 const { mapHistorico } = require("./agendaMappingService");
 

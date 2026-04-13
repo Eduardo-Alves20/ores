@@ -2,8 +2,8 @@ const {
   AgendaEvento,
   AGENDA_PRESENCA_STATUS_LIST,
 } = require("../../../schemas/social/AgendaEvento");
-const { asObjectId } = require("../../agendaAvailabilityService");
-const { resolvePresenceReasonByKey } = require("../../systemConfigService");
+const { asObjectId } = require("../../shared/agendaAvailabilityService");
+const { resolvePresenceReasonByKey } = require("../../shared/systemConfigService");
 const { canRegisterAttendance } = require("./agendaPermissionService");
 const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const { mapEvento, getStatusAgendamentoForPresence, PRESENCA_LABELS } = require("./agendaMappingService");

@@ -14,12 +14,15 @@ const {
 const {
   hasAnyPermission,
   resolvePermissionsForUserId,
-} = require("../../accessControlService");
+} = require("../../shared/accessControlService");
 const {
   perfilLabel,
   statusLabel,
   tipoLabel,
 } = require("./accessPresentationService");
+const {
+  sanitizeProtectedAttachmentBundleForClient,
+} = require("../../security/secureVolunteerAssetService");
 
 function shouldUseVotingFlow(usuario) {
   const perfil = String(usuario?.perfil || "").trim().toLowerCase();
@@ -398,6 +401,16 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
   const workflowResumo = buildApprovalWorkflowSummary(doc, resolvedElectorate);
   const presidentId = String(workflowResumo?.president?.id || "");
   const rejeicoesComMotivo = await buildRejectReasonCards(doc);
+  const attachments = sanitizeProtectedAttachmentBundleForClient(doc?.anexosProtegidos || {});
+  const userId = String(doc?._id || "").trim();
+
+  if (attachments.documentoIdentidade) {
+    attachments.documentoIdentidade.viewUrl = `/acessos/${userId}/anexos/documentoIdentidade`;
+  }
+
+  if (attachments.fotoPerfil) {
+    attachments.fotoPerfil.viewUrl = `/acessos/${userId}/anexos/fotoPerfil`;
+  }
 
   return {
     _id: doc?._id,
@@ -418,6 +431,8 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
     ativo: !!doc?.ativo,
     createdAt: doc?.createdAt || null,
     updatedAt: doc?.updatedAt || null,
+    dadosCadastro: doc?.dadosCadastro || {},
+    anexosProtegidos: attachments,
     votosResumo: summarizeApprovalVotes(doc?.votosAprovacao, actorId, presidentId),
     workflowResumo,
     rejeicoesComMotivo,

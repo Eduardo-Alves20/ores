@@ -1,5 +1,5 @@
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
-const { asObjectId } = require("../../agendaAvailabilityService");
+const { asObjectId } = require("../../shared/agendaAvailabilityService");
 const { canManageRooms } = require("./agendaPermissionService");
 const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
 const {

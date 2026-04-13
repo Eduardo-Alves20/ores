@@ -1,7 +1,7 @@
-﻿const Usuario = require("../schemas/core/Usuario");
-const UsuarioService = require("./domain/UsuarioService");
-const { PERFIS } = require("../config/roles");
-const { hashSenha } = require("./security/passwordService");
+const Usuario = require("../../schemas/core/Usuario");
+const UsuarioService = require("../domain/UsuarioService");
+const { PERFIS } = require("../../config/roles");
+const { hashSenha } = require("../security/passwordService");
 const crypto = require("crypto");
 
 async function ensureAdminFromEnv() {

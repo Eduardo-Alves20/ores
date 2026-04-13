@@ -5,6 +5,12 @@
       <p>Visualize em calendário apenas as consultas vinculadas a sua família, sem anotacoes internas da equipe.</p>
     </div>
     <div class="agenda-toolbar family-agenda-toolbar">
+      <% if (familia) { %>
+        <button type="button" class="btn btn-primary" id="family-agenda-book-btn">
+          <i class="fa-solid fa-calendar-plus" aria-hidden="true"></i>
+          <span>Agendar consulta</span>
+        </button>
+      <% } %>
       <a href="/minha-familia" class="btn btn-muted">
         <i class="fa-solid fa-house" aria-hidden="true"></i>
         <span>Voltar ao portal</span>
@@ -191,6 +197,77 @@
           <div class="agenda-form-actions">
             <button type="button" class="btn btn-muted" id="family-agenda-remarcacao-cancel">Cancelar</button>
             <button type="button" class="btn btn-primary" id="family-agenda-remarcacao-submit">Enviar solicitacao</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="agenda-modal-backdrop" id="family-agenda-book-backdrop" hidden>
+      <section class="agenda-modal family-booking-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="family-agenda-book-title">
+        <header class="agenda-modal-head">
+          <div>
+            <h3 id="family-agenda-book-title">Agendar nova consulta</h3>
+            <p class="agenda-modal-subtitle">Escolha o dependente, selecione o profissional e reserve um horario disponivel.</p>
+          </div>
+          <button type="button" class="btn btn-muted btn-icon" id="family-agenda-book-close" aria-label="Fechar">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="agenda-presenca-shell family-booking-shell">
+          <div class="agenda-form-grid family-booking-top-grid">
+            <label class="field-wrap">
+              <span class="input-label">Dependente</span>
+              <select class="input-control" id="family-agenda-book-paciente"></select>
+            </label>
+
+            <label class="field-wrap">
+              <span class="input-label">Profissional</span>
+              <select class="input-control" id="family-agenda-book-profissional">
+                <option value="">Selecione</option>
+              </select>
+            </label>
+          </div>
+
+          <section class="family-booking-week card-elevated">
+            <header class="family-booking-week-head">
+              <div>
+                <p class="agenda-day-overline">Horarios livres</p>
+                <h4 id="family-agenda-book-week-title">Carregando semana...</h4>
+              </div>
+              <div class="family-agenda-week-nav">
+                <button
+                  type="button"
+                  class="btn btn-muted family-agenda-week-nav-btn"
+                  id="family-agenda-book-week-prev"
+                  aria-label="Semana anterior"
+                >
+                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-muted family-agenda-week-nav-btn"
+                  id="family-agenda-book-week-next"
+                  aria-label="Proxima semana"
+                >
+                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </button>
+              </div>
+            </header>
+
+            <div class="family-booking-week-grid" id="family-agenda-book-slots">
+              <p class="empty-hint">Selecione um profissional para ver os horarios.</p>
+            </div>
+          </section>
+
+          <div class="family-booking-selection" id="family-agenda-book-selection">
+            <strong>Nenhum horario selecionado.</strong>
+            <p>Toque em um horario disponivel para concluir o agendamento.</p>
+          </div>
+
+          <div class="agenda-form-actions">
+            <button type="button" class="btn btn-muted" id="family-agenda-book-cancel">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="family-agenda-book-submit">Confirmar agendamento</button>
           </div>
         </div>
       </section>

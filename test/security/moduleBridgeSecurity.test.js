@@ -66,6 +66,7 @@ test("show desabilita bridge quando URL externa e insegura", () => {
       ModulosPageController.show(req, res, () => {});
 
       assert.equal(res.statusCode, 200);
+      assert.equal(res.redirectUrl, "");
       assert.equal(res.rendered.payload.moduleView.launchUrl, "");
       assert.equal(res.rendered.payload.moduleView.bridgeEnabled, false);
       assert.equal(res.rendered.payload.moduleView.isLive, false);
@@ -89,9 +90,57 @@ test("show exige credenciais do perfil atual para liberar acesso automatico", ()
 
       ModulosPageController.show(req, res, () => {});
 
+      assert.equal(res.redirectUrl, "");
       assert.equal(res.rendered.payload.moduleView.launchUrl, "https://helpdesk.exemplo.com/login");
       assert.equal(res.rendered.payload.moduleView.bridgeEnabled, false);
       assert.equal(res.rendered.payload.moduleView.isLive, false);
+    }
+  );
+});
+
+test("show desabilita bridge quando a URL do modulo embute credenciais", () => {
+  withEnv(
+    {
+      HELPDESK_URL: "https://usuario:senha@helpdesk.exemplo.com/login",
+      HELPDESK_USER_LOGIN: "usuario",
+      HELPDESK_BRIDGE_SECRET: "segredo",
+    },
+    () => {
+      const req = {
+        params: { slug: "help-desk" },
+        session: { user: { perfil: "usuario" } },
+      };
+      const res = createMockResponse();
+
+      ModulosPageController.show(req, res, () => {});
+
+      assert.equal(res.redirectUrl, "");
+      assert.equal(res.rendered.payload.moduleView.launchUrl, "");
+      assert.equal(res.rendered.payload.moduleView.bridgeEnabled, false);
+    }
+  );
+});
+
+test("show exige HTTPS para URL externa em ambiente de producao", () => {
+  withEnv(
+    {
+      AMBIENTE: "producao",
+      HELPDESK_URL: "http://helpdesk.exemplo.com/login",
+      HELPDESK_USER_LOGIN: "usuario",
+      HELPDESK_BRIDGE_SECRET: "segredo",
+    },
+    () => {
+      const req = {
+        params: { slug: "help-desk" },
+        session: { user: { perfil: "usuario" } },
+      };
+      const res = createMockResponse();
+
+      ModulosPageController.show(req, res, () => {});
+
+      assert.equal(res.redirectUrl, "");
+      assert.equal(res.rendered.payload.moduleView.launchUrl, "");
+      assert.equal(res.rendered.payload.moduleView.bridgeEnabled, false);
     }
   );
 });
@@ -138,6 +187,27 @@ test("bridge renderiza token assinado em vez de credenciais em claro", () => {
       assert.match(res.rendered.payload.bridge.bridgeEndpoint, /^https:\/\/helpdesk\.exemplo\.com\/bridge\/sso$/);
       assert.equal("username" in res.rendered.payload.bridge, false);
       assert.equal("password" in res.rendered.payload.bridge, false);
+    }
+  );
+});
+
+test("bridge falha fechado quando a sessao autenticada esta sem identificador", () => {
+  withEnv(
+    {
+      HELPDESK_URL: "https://helpdesk.exemplo.com/login",
+      HELPDESK_USER_LOGIN: "usuario",
+      HELPDESK_BRIDGE_SECRET: "segredo-super-forte",
+    },
+    () => {
+      const req = {
+        params: { slug: "help-desk" },
+        session: { user: { perfil: "usuario" } },
+      };
+      const res = createMockResponse();
+
+      ModulosPageController.bridge(req, res, () => {});
+
+      assert.equal(res.redirectUrl, "/modulos/help-desk");
     }
   );
 });

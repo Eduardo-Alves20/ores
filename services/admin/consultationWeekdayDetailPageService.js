@@ -1,4 +1,4 @@
-﻿const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const { Atendimento } = require("../../schemas/social/Atendimento");
@@ -6,7 +6,7 @@ const Usuario = require("../../schemas/core/Usuario");
 const { Paciente } = require("../../schemas/social/Paciente");
 const Familia = require("../../schemas/social/Familia");
 const { PERMISSIONS } = require("../../config/permissions");
-const { hasAnyPermission } = require("../accessControlService");
+const { hasAnyPermission } = require("../shared/accessControlService");
 
 const WEEKDAY_META = Object.freeze([
   { key: "todos", numericKey: null, label: "Todos os dias", shortLabel: "Todos" },

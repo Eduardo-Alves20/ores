@@ -1,7 +1,7 @@
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
 const { PERMISSIONS } = require("../../../config/permissions");
-const { hasAnyPermission } = require("../../accessControlService");
-const { asObjectId } = require("../../agendaAvailabilityService");
+const { hasAnyPermission } = require("../../shared/accessControlService");
+const { asObjectId } = require("../../shared/agendaAvailabilityService");
 const {
   canMutateEvent,
   canViewAll,
