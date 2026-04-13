@@ -4,6 +4,37 @@
   min-width: 0;
 }
 
+.familias-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #7f6b61;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.familias-breadcrumb-link {
+  color: #8f432f;
+  text-decoration: none;
+}
+
+.familias-breadcrumb-link:hover,
+.familias-breadcrumb-link:focus-visible {
+  color: #783827;
+  text-decoration: underline;
+}
+
+.familias-breadcrumb-sep {
+  color: #b19a8f;
+  font-weight: 600;
+}
+
+.familias-breadcrumb-current {
+  color: #5e4c44;
+}
+
 .familias-header {
   display: flex;
   justify-content: space-between;

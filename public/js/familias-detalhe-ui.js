@@ -43,6 +43,25 @@
       );
     }
 
+    function syncDependenteBreadcrumb() {
+      if (!refs.breadcrumbDependente || !refs.breadcrumbDependenteSep) return;
+      const dependente = getSelectedDependente();
+      const showDependenteCrumb =
+        state.activeView === "dependente" &&
+        Boolean(String(dependente?.nome || "").trim());
+
+      refs.breadcrumbDependente.hidden = !showDependenteCrumb;
+      refs.breadcrumbDependenteSep.hidden = !showDependenteCrumb;
+
+      if (showDependenteCrumb) {
+        refs.breadcrumbDependente.textContent = `Dependente: ${String(
+          dependente.nome,
+        ).trim()}`;
+      } else {
+        refs.breadcrumbDependente.textContent = "Dependente";
+      }
+    }
+
     function getAtendimentoPaciente(item) {
       const itemPacienteId = item?.pacienteId?._id || item?.pacienteId || null;
       return (
@@ -150,6 +169,7 @@
           refs.dependenteEditarBtn.disabled = true;
           refs.dependenteEditarBtn.hidden = !can("canEditPatient");
         }
+        syncDependenteBreadcrumb();
         return;
       }
 
@@ -180,6 +200,7 @@
           ${statusAction}
         </div>
       `;
+      syncDependenteBreadcrumb();
     }
 
     function renderAtendimentoFicha() {
@@ -381,6 +402,7 @@
 
       if (view !== "pacientes") closePacienteForm();
       if (view !== "dependente") closeDependenteForm();
+      syncDependenteBreadcrumb();
     }
 
     function renderResumo(familia) {
@@ -488,6 +510,7 @@
         );
         refs.pacienteSelect.innerHTML = options.join("");
       }
+      syncDependenteBreadcrumb();
     }
 
     function renderAtendimentos(atendimentos) {

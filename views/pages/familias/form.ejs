@@ -4,6 +4,18 @@
   data-mode="<%= modo %>"
   data-familia-id="<%= familia?._id || '' %>"
 >
+  <nav class="familias-breadcrumb" aria-label="Trilha de navegacao">
+    <a class="familias-breadcrumb-link" href="/painel">Painel</a>
+    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <a class="familias-breadcrumb-link" href="/familias">Assistidos</a>
+    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <% if (modo === "editar" && familia?._id) { %>
+      <a class="familias-breadcrumb-link" href="/familias/<%= familia._id %>"><%= familia?.responsavel?.nome || "Familia" %></a>
+      <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <% } %>
+    <span class="familias-breadcrumb-current"><%= modo === "editar" ? "Editar familia" : "Nova familia" %></span>
+  </nav>
+
   <header class="familias-header card-elevated">
     <div>
       <p class="familias-overline">Cadastro central</p>

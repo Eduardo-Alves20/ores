@@ -1,4 +1,14 @@
 ﻿<section class="page-shell familias-layout" data-page="familia-detalhe" data-familia-id="<%= familia._id %>">
+  <nav class="familias-breadcrumb" aria-label="Trilha de navegacao">
+    <a class="familias-breadcrumb-link" href="/painel">Painel</a>
+    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <a class="familias-breadcrumb-link" href="/familias">Assistidos</a>
+    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <span class="familias-breadcrumb-current"><%= familia?.responsavel?.nome || "Familia" %></span>
+    <span class="familias-breadcrumb-sep" aria-hidden="true" id="familia-breadcrumb-dependente-sep" hidden>/</span>
+    <span class="familias-breadcrumb-current" id="familia-breadcrumb-dependente" hidden>Dependente</span>
+  </nav>
+
   <header class="familias-header familias-hero familias-hero-detail card-elevated">
     <div class="familias-hero-main">
       <p class="familias-overline">Prontuario familiar</p>

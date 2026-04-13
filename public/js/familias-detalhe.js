@@ -49,6 +49,10 @@
       familiaPresencasPill: document.getElementById("familia-presencas-pill"),
       statusBadge: document.getElementById("resumo-status"),
       statusBtn: document.getElementById("familia-toggle-status"),
+      breadcrumbDependenteSep: document.getElementById(
+        "familia-breadcrumb-dependente-sep",
+      ),
+      breadcrumbDependente: document.getElementById("familia-breadcrumb-dependente"),
       pacienteNovoBtn: document.getElementById("paciente-novo-btn"),
       pacienteCancelarBtn: document.getElementById("paciente-cancelar-btn"),
       pacienteForm: document.getElementById("paciente-form"),
