@@ -217,6 +217,10 @@
             </a>
           <% } %>
           <% if (canOpenAdminCenter) { %>
+            <a href="/painel/usuarios-online" class="sidebar-link <%= navKey === 'usuarios-online' ? 'is-active' : '' %>">
+              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>
+              <span>Usuarios online</span>
+            </a>
             <a href="/administracao" class="sidebar-link <%= navKey === 'admin' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-gear"></i></span>
               <span>Administração</span>

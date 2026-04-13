@@ -1,0 +1,55 @@
+<section class="online-users-page">
+  <header class="module-card online-users-hero">
+    <div>
+      <h2>Usuarios online</h2>
+      <p>
+        Lista de sessoes ativas no sistema. Visivel somente para admin/superadmin.
+      </p>
+    </div>
+    <div class="online-users-hero-stats">
+      <span class="online-users-stat">
+        <strong><%= Number(onlineUsers?.total || 0).toLocaleString("pt-BR") %></strong>
+        <small>ativos agora</small>
+      </span>
+      <span class="online-users-stat">
+        <strong><%= Number(onlineUsers?.windowMinutes || 10).toLocaleString("pt-BR") %> min</strong>
+        <small>janela de atividade</small>
+      </span>
+      <a href="/painel/usuarios-online" class="btn btn-muted">Atualizar</a>
+    </div>
+  </header>
+
+  <section class="module-card online-users-table-card">
+    <% if (Array.isArray(onlineUsers?.items) && onlineUsers.items.length) { %>
+      <div class="online-users-table-wrap">
+        <table class="data-table online-users-table" data-stack-mobile="true">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Perfil</th>
+              <th>Ultima atividade</th>
+              <th>Sessoes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% onlineUsers.items.forEach((item) => { %>
+              <tr>
+                <td data-label="Usuario">
+                  <div class="online-users-person">
+                    <span class="online-users-dot <%= item.isNow ? 'is-now' : '' %>"></span>
+                    <span><%= item.nome %></span>
+                  </div>
+                </td>
+                <td data-label="Perfil"><%= item.perfilLabel || "-" %></td>
+                <td data-label="Ultima atividade"><%= item.lastSeenLabel || "-" %></td>
+                <td data-label="Sessoes"><%= Number(item.sessions || 0).toLocaleString("pt-BR") %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <p class="empty-hint"><%= onlineUsers?.emptyMessage || "Nenhum usuario online agora." %></p>
+    <% } %>
+  </section>
+</section>

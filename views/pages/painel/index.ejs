@@ -134,6 +134,42 @@
           </div>
         <% } %>
       </section>
+
+      <% if (onlineUsersWidget?.enabled) { %>
+        <section class="dashboard-priority-section">
+          <div class="dashboard-panel-head compact">
+            <div>
+              <p class="dashboard-panel-overline">Sessoes ativas</p>
+              <h3>Usuarios online (<%= Number(onlineUsersWidget?.total || 0).toLocaleString("pt-BR") %>)</h3>
+            </div>
+          </div>
+
+          <% if (Array.isArray(onlineUsersWidget?.items) && onlineUsersWidget.items.length) { %>
+            <div class="dashboard-birthday-list">
+              <% onlineUsersWidget.items.forEach((item) => { %>
+                <article class="dashboard-birthday-card <%= item.isNow ? 'is-today' : '' %>">
+                  <span class="dashboard-birthday-avatar" aria-hidden="true"><%= item.nome.split(/\s+/).filter(Boolean).slice(0, 2).map((chunk) => chunk.charAt(0).toUpperCase()).join("") || "US" %></span>
+                  <span class="dashboard-birthday-copy">
+                    <strong><%= item.nome %></strong>
+                    <small><%= item.perfilLabel %></small>
+                  </span>
+                  <span class="dashboard-birthday-meta">
+                    <span class="dashboard-birthday-chip <%= item.isNow ? 'is-today' : '' %>"><%= item.lastSeenLabel %></span>
+                    <% if (Number(item.sessions || 0) > 1) { %>
+                      <span class="dashboard-birthday-chip is-type"><%= item.sessions %> sessoes</span>
+                    <% } %>
+                  </span>
+                </article>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="dashboard-empty-inline">
+              <i class="fa-solid fa-user-clock" aria-hidden="true"></i>
+              <p><%= onlineUsersWidget?.emptyMessage || "Nenhum usuario online agora." %></p>
+            </div>
+          <% } %>
+        </section>
+      <% } %>
     </aside>
   </header>
 

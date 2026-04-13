@@ -18,6 +18,7 @@ const segurancaRoutes = require("./Routes/admin/segurancaRoutes");
 const administracaoRoutes = require("./Routes/admin/administracaoRoutes");
 const modulosRoutes = require("./Routes/modulos/modulosRoutes");
 const DashboardController = require("./Controllers/admin/DashboardController");
+const OnlineUsersPageController = require("./Controllers/admin/OnlineUsersPageController");
 const AgendaPageController = require("./Controllers/agenda/AgendaPageController");
 const AgendaPresencaPageController = require("./Controllers/agenda/AgendaPresencaPageController");
 const {
@@ -29,7 +30,7 @@ const { buildRobotsTxt, buildSitemapXml } = require("./services/shared/seoServic
 const { resolveLandingRouteForUser } = require("./services/shared/navigationService");
 const { cspReportLimiter } = require("./middlewares/rateLimiters");
 
-const { requireAuth, requirePermission } = require("./middlewares/authSession");
+const { requireAuth, requireAdmin, requirePermission } = require("./middlewares/authSession");
 
 const router = express.Router();
 
@@ -97,6 +98,7 @@ router.use("/administracao", administracaoRoutes);
 router.use("/api/administracao", administracaoRoutes);
 
 router.get("/painel", requirePermission(PERMISSIONS.DASHBOARD_VIEW), DashboardController.index);
+router.get("/painel/usuarios-online", requireAdmin, OnlineUsersPageController.index);
 router.get("/agenda", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaPageController.index);
 router.get(
   "/agenda/presencas",

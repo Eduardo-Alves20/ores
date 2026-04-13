@@ -14,6 +14,19 @@ function getSessionUser(req) {
   return req?.session?.user || null;
 }
 
+const SESSION_ACTIVITY_MIN_INTERVAL_MS = 60 * 1000;
+
+function markSessionActivity(req) {
+  if (!req?.session || !req?.session?.user) return;
+
+  const now = Date.now();
+  const previous = Date.parse(String(req.session.lastActivityAt || ""));
+
+  if (!Number.isFinite(previous) || now - previous >= SESSION_ACTIVITY_MIN_INTERVAL_MS) {
+    req.session.lastActivityAt = new Date(now).toISOString();
+  }
+}
+
 function isHtmlRequest(req) {
   return !!req.accepts("html");
 }
@@ -65,6 +78,7 @@ function createAttachCurrentUser(deps = {}) {
         req.session.user.nome = String(snapshot?.nome || "").trim();
         req.session.user.email = String(snapshot?.email || "").trim().toLowerCase();
         req.session.user.authVersion = normalizeAuthVersion(snapshot?.authVersion);
+        markSessionActivity(req);
       }
 
       if (user && (!Array.isArray(user.permissions) || !user.permissions.length)) {

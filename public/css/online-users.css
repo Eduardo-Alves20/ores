@@ -1,0 +1,97 @@
+.page-online-users .app-content {
+  padding: clamp(16px, 2vw, 28px);
+}
+
+.online-users-page {
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.online-users-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+}
+
+.online-users-hero h2 {
+  margin: 0 0 6px;
+}
+
+.online-users-hero p {
+  margin: 0;
+  color: #6f625c;
+}
+
+.online-users-hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.online-users-stat {
+  min-width: 130px;
+  border: 1px solid #eadcd3;
+  background: #fff8f4;
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.online-users-stat strong {
+  color: #3c2922;
+}
+
+.online-users-stat small {
+  color: #7a6c66;
+}
+
+.online-users-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.online-users-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.online-users-table {
+  width: 100%;
+  min-width: 680px;
+}
+
+.online-users-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.online-users-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+}
+
+.online-users-dot.is-now {
+  background: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.16);
+}
+
+@media (max-width: 860px) {
+  .online-users-hero {
+    flex-direction: column;
+  }
+
+  .online-users-hero-stats {
+    justify-content: flex-start;
+  }
+}

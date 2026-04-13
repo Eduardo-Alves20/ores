@@ -14,6 +14,7 @@ const {
   buildBirthdayWindowLabel,
   getBirthdayCampaignForDashboard,
 } = require("../shared/systemConfigService");
+const { buildOnlineUsersWidget } = require("./onlineUsersWidgetService");
 
 const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
   month: "short",
@@ -630,6 +631,7 @@ async function buildDashboardViewModel(req) {
     recentAbsencesCount,
     birthdayCampaign,
     birthdayUsers,
+    onlineUsersWidget,
     currentAttendanceDocs,
     previousAttendanceDocs,
     cadastrosSeries,
@@ -709,6 +711,10 @@ async function buildDashboardViewModel(req) {
     })
       .select("nome tipoCadastro dataNascimento")
       .lean(),
+    buildOnlineUsersWidget({
+      enabled: canManageAdministration,
+      currentSessionUser: user,
+    }),
     attendanceRateCurrentMatch
       ? AgendaEvento.find(attendanceRateCurrentMatch).select("statusPresenca").lean()
       : Promise.resolve([]),
@@ -1094,6 +1100,7 @@ async function buildDashboardViewModel(req) {
     summaryCards,
     alerts: alertItems.slice(0, 3),
     birthdayWidget,
+    onlineUsersWidget,
     charts: {
       timeline: {
         title: "Evolução de cadastros e atendimentos",
