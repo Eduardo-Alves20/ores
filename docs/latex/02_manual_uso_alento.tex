@@ -1,0 +1,102 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{Sistema Instituto Alento \\ Manual de Uso}
+\author{Instituto Alento}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Acesso ao sistema}
+\subsection{Login}
+\begin{enumerate}
+\item Acesse \texttt{/login}.
+\item Informe usuario e senha.
+\item Clique em \textit{Entrar}.
+\end{enumerate}
+
+\subsection{Recuperacao de acesso}
+Se o usuario nao conseguir entrar:
+\begin{itemize}[leftmargin=*]
+\item conferir se a conta esta ativa;
+\item validar perfil e permissao com o Admin;
+\item redefinir senha, quando aplicavel.
+\end{itemize}
+
+\section{Uso por perfil}
+\subsection{Admin}
+\begin{enumerate}
+\item Abrir \texttt{/painel} para ver indicadores.
+\item Entrar em \texttt{/familias} para cadastro e consulta.
+\item Entrar em \texttt{/agenda} para criar ou editar compromissos.
+\item Entrar em \texttt{/agenda/presencas} para registrar presenca/falta.
+\item Entrar em \texttt{/administracao} para manter salas, justificativas, campos extras e filtros.
+\end{enumerate}
+
+\subsection{Medico/Voluntario}
+\begin{enumerate}
+\item Abrir agenda do dia.
+\item Conferir pacientes e horarios.
+\item Registrar presenca e observacoes.
+\item Ajustar disponibilidade, quando autorizado.
+\end{enumerate}
+
+\subsection{Familia}
+\begin{enumerate}
+\item Consultar agenda e notificacoes.
+\item Solicitar ou acompanhar consulta do dependente.
+\item Atualizar dados de contato em \textit{Meus Dados}.
+\end{enumerate}
+
+\section{Passo a passo: agendar consulta}
+\begin{enumerate}
+\item Acessar \texttt{/agenda}.
+\item Clicar em \textit{Novo Agendamento}.
+\item Preencher: titulo, data, hora, tipo, profissional.
+\item Selecionar sala quando o tipo de atendimento exigir.
+\item Vincular familia e dependente.
+\item Salvar.
+\end{enumerate}
+
+\section{Passo a passo: registrar presenca}
+\begin{enumerate}
+\item Acessar \texttt{/agenda/presencas}.
+\item Escolher o compromisso.
+\item Marcar status: presente, falta ou falta justificada.
+\item Salvar observacao, se necessario.
+\end{enumerate}
+
+\section{Regras importantes de preenchimento}
+\begin{itemize}[leftmargin=*]
+\item Campos com asterisco sao obrigatorios.
+\item Em formularios com validacao em tempo real, corrigir campos destacados antes de salvar.
+\item Evitar abreviacoes confusas em nomes e observacoes.
+\end{itemize}
+
+\section{Checklist de qualidade operacional}
+\begin{itemize}[leftmargin=*]
+\item Todo compromisso deve ter data e hora validas.
+\item Toda falta deve ter status correto e justificativa quando existir.
+\item Toda alteracao sensivel deve ser feita por perfil autorizado.
+\end{itemize}
+
+\section{Erros comuns e como resolver}
+\subsection{Nao consigo salvar formulario}
+Revisar campos destacados em vermelho e tentar novamente.
+
+\subsection{Nao aparece opcao de menu}
+Usuario pode estar sem permissao para aquele recurso.
+
+\subsection{Nao aparece sala livre}
+Trocar horario ou confirmar se existem salas ativas no cadastro.
+
+\end{document}

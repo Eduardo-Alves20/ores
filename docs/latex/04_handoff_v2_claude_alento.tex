@@ -1,0 +1,100 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+\title{Alento v2.0 \\ Handoff para Nova Branch}
+\author{Instituto Alento}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Objetivo deste documento}
+Este documento prepara a base para a branch \texttt{v2.0}, onde novas modalidades e novos modulos serao criados.
+O foco e permitir evolucao sem quebrar a operacao atual.
+
+\section{Estrategia de branching recomendada}
+\begin{itemize}[leftmargin=*]
+\item Base atual: \texttt{main} (producao estavel).
+\item Nova frente: \texttt{feature/v2.0-core}.
+\item Sub-branches por modulo:
+\begin{itemize}[leftmargin=*]
+\item \texttt{feature/v2.0-modalidades}
+\item \texttt{feature/v2.0-modulo-x}
+\item \texttt{feature/v2.0-modulo-y}
+\end{itemize}
+\item Integracao por PR pequeno e frequente para reduzir risco.
+\end{itemize}
+
+\section{Contrato minimo para novos modulos}
+\begin{enumerate}
+\item Definir objetivo funcional do modulo.
+\item Definir perfil que pode ver e editar.
+\item Definir rotas web e API.
+\item Definir schema de dados e validacoes.
+\item Definir telas e fluxo de uso.
+\item Definir logs e auditoria basica.
+\item Definir casos de teste criticos.
+\end{enumerate}
+
+\section{Checklist de compatibilidade com v1}
+\begin{itemize}[leftmargin=*]
+\item Nao quebrar login, sessao e permissoes existentes.
+\item Nao remover campos usados por telas ativas.
+\item Nao alterar resposta de API sem versao ou adaptacao.
+\item Manter rotas antigas funcionando durante transicao.
+\item Migracoes de dados devem ser reversiveis quando possivel.
+\end{itemize}
+
+\section{Padrao de implementacao para a v2.0}
+\subsection{Backend}
+\begin{itemize}[leftmargin=*]
+\item Controller fino e regra no service.
+\item Validacao de entrada antes de consultar o banco.
+\item Mensagens de erro claras e padronizadas.
+\end{itemize}
+
+\subsection{Frontend}
+\begin{itemize}[leftmargin=*]
+\item Formularios com validacao em tempo real.
+\item Feedback visual simples (erro e sucesso).
+\item Acessibilidade minima: foco, contraste e labels.
+\end{itemize}
+
+\subsection{Seguranca}
+\begin{itemize}[leftmargin=*]
+\item Reforcar controle de permissao por rota.
+\item Revisar CSRF e rate limit em novos endpoints.
+\item Evitar exposicao de dados sensiveis em logs.
+\end{itemize}
+
+\section{Plano de migracao sugerido}
+\begin{enumerate}
+\item Congelar requisitos da v2.0 em backlog fechado.
+\item Implementar primeiro a camada de dados e permissoes.
+\item Implementar telas em modulos menores.
+\item Rodar teste regressivo da v1 a cada merge.
+\item Liberar homologacao interna.
+\item Liberar producao em lotes.
+\end{enumerate}
+
+\section{Criterios para aceite}
+\begin{itemize}[leftmargin=*]
+\item Build e testes verdes.
+\item Fluxos principais da v1 funcionando.
+\item Novos fluxos da v2.0 com evidencia de teste.
+\item Documentacao atualizada no mesmo PR do modulo.
+\end{itemize}
+
+\section{Resumo para equipe}
+\textbf{Regra de ouro:} evoluir rapido, mas com isolamento por branch, contrato claro por modulo e integracao curta e frequente.
+
+\end{document}
