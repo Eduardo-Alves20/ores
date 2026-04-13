@@ -781,12 +781,13 @@
 }
 
 .agenda-modal {
-  width: min(760px, 100%);
-  max-height: min(92vh, 880px);
+  width: min(900px, 100%);
+  max-height: min(94vh, 920px);
   overflow: auto;
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 20px;
+  box-shadow: 0 28px 52px rgba(28, 16, 10, 0.24);
 }
 
 .agenda-modal-head {
@@ -795,16 +796,37 @@
   background: #fff;
   z-index: 5;
   border-bottom: 1px solid #eadbd2;
-  padding: 12px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .agenda-modal-head h3 {
   margin: 0;
   color: var(--brand);
+}
+
+.agenda-modal-close-btn {
+  min-height: 38px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 999px;
+  border-color: #d8b7aa;
+  background: #fff4ee;
+  color: #8a3c29;
+  font-weight: 800;
+}
+
+.agenda-modal-close-btn:hover,
+.agenda-modal-close-btn:focus-visible {
+  border-color: #c88e7b;
+  background: #fde8de;
+  color: #743021;
 }
 
 .btn-icon {
@@ -814,7 +836,7 @@
 }
 
 .agenda-form {
-  padding: 12px;
+  padding: 14px 16px 16px;
 }
 
 .agenda-form-grid {
@@ -855,6 +877,17 @@
   font-size: 0.78rem;
 }
 
+.agenda-save-hint {
+  margin: 12px 0 0;
+  border: 1px solid #e6d2c7;
+  border-radius: 12px;
+  background: #fff7f2;
+  color: #6f594f;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  padding: 9px 11px;
+}
+
 .agenda-form-actions {
   margin-top: 12px;
   display: flex;
@@ -873,7 +906,7 @@
 }
 
 .agenda-presenca-shell {
-  padding: 12px;
+  padding: 14px 16px 16px;
   display: grid;
   gap: 12px;
 }
@@ -1262,6 +1295,26 @@
 
   .agenda-modal-backdrop {
     padding: 8px;
+  }
+
+  .agenda-modal {
+    border-radius: 14px;
+    max-height: calc(100vh - 16px);
+  }
+
+  .agenda-modal-head {
+    padding: 12px;
+  }
+
+  .agenda-form,
+  .agenda-presenca-shell {
+    padding: 12px;
+  }
+
+  .agenda-modal-close-btn {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.78rem;
   }
 
   .agenda-availability-time-row {

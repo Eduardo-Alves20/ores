@@ -229,6 +229,19 @@
     formatHistoryItems(context, state.attendanceHistory);
   }
 
+  function shouldKeepBodyLocked(context) {
+    const elements = context?.elements || {};
+    const availabilityBackdrop = document.getElementById(
+      "agenda-disponibilidade-backdrop",
+    );
+    return Boolean(
+      (elements.modalBackdrop && !elements.modalBackdrop.hidden) ||
+        (elements.salasBackdrop && !elements.salasBackdrop.hidden) ||
+        (elements.presencaBackdrop && !elements.presencaBackdrop.hidden) ||
+        (availabilityBackdrop && !availabilityBackdrop.hidden),
+    );
+  }
+
   function closeAttendanceModal(context) {
     const state = context?.state || {};
     const elements = context?.elements || {};
@@ -242,11 +255,12 @@
     elements.presencaObservacao.value = "";
     elements.presencaHistoryList.innerHTML =
       '<p class="empty-hint">Nenhum historico carregado.</p>';
-    document.body.style.overflow =
-      !elements.modalBackdrop.hidden ||
-      (elements.salasBackdrop && !elements.salasBackdrop.hidden)
-        ? "hidden"
-        : "";
+    document.body.style.overflow = shouldKeepBodyLocked(context) ? "hidden" : "";
+    const previousFocus = state.attendanceReturnFocus;
+    state.attendanceReturnFocus = null;
+    if (previousFocus && typeof previousFocus.focus === "function") {
+      window.setTimeout(() => previousFocus.focus(), 0);
+    }
   }
 
   async function openAttendanceModal(context, eventId) {
@@ -255,6 +269,7 @@
     if (!eventId) return;
 
     state.attendanceEventId = String(eventId);
+    state.attendanceReturnFocus = document.activeElement || null;
     elements.presencaBackdrop.hidden = false;
     document.body.style.overflow = "hidden";
     elements.presencaSubtitle.textContent =
@@ -263,6 +278,9 @@
     elements.presencaStatusPresenca.textContent = "Carregando";
     elements.presencaHistoryList.innerHTML =
       '<p class="empty-hint">Carregando historico...</p>';
+    if (elements.presencaCloseBtn && typeof elements.presencaCloseBtn.focus === "function") {
+      window.setTimeout(() => elements.presencaCloseBtn.focus(), 0);
+    }
 
     try {
       const data = await requestJson(`/api/agenda/eventos/${eventId}`);

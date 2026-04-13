@@ -33,19 +33,73 @@
     const requiresSala = (tipoAtendimento) =>
       requiresRoomSelection(roomRequiredTypes, tipoAtendimento);
 
+    function getFirstFocusable(container) {
+      if (!container || typeof container.querySelector !== "function") return null;
+      return container.querySelector(
+        "button:not([disabled]), [href], input:not([disabled]):not([type='hidden']), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
+      );
+    }
+
+    function focusElementLater(element) {
+      if (!element || typeof element.focus !== "function") return;
+      window.setTimeout(() => element.focus(), 0);
+    }
+
+    function shouldLockBodyScroll() {
+      const availabilityBackdrop = document.getElementById(
+        "agenda-disponibilidade-backdrop",
+      );
+      return Boolean(
+        (elements.modalBackdrop && !elements.modalBackdrop.hidden) ||
+          (elements.salasBackdrop && !elements.salasBackdrop.hidden) ||
+          (elements.presencaBackdrop && !elements.presencaBackdrop.hidden) ||
+          (availabilityBackdrop && !availabilityBackdrop.hidden),
+      );
+    }
+
+    function applyBodyScrollLock() {
+      document.body.style.overflow = shouldLockBodyScroll() ? "hidden" : "";
+    }
+
     function setModalOpen(open) {
+      if (open && elements.modalBackdrop.hidden) {
+        state.modalReturnFocus = document.activeElement || null;
+      }
       elements.modalBackdrop.hidden = !open;
-      document.body.style.overflow =
-        open || (elements.salasBackdrop && !elements.salasBackdrop.hidden)
-          ? "hidden"
-          : "";
+      applyBodyScrollLock();
+
+      if (open) {
+        focusElementLater(
+          getFirstFocusable(elements.form) || getFirstFocusable(elements.modalBackdrop),
+        );
+        return;
+      }
+
+      const previousFocus = state.modalReturnFocus;
+      state.modalReturnFocus = null;
+      focusElementLater(previousFocus);
     }
 
     function setSecondaryModalOpen(backdrop, open) {
       if (!backdrop) return;
+      if (!state.secondaryModalReturnFocus) {
+        state.secondaryModalReturnFocus = {};
+      }
+      const key = String(backdrop.id || "secondary");
+      if (open && backdrop.hidden) {
+        state.secondaryModalReturnFocus[key] = document.activeElement || null;
+      }
       backdrop.hidden = !open;
-      document.body.style.overflow =
-        open || !elements.modalBackdrop.hidden ? "hidden" : "";
+      applyBodyScrollLock();
+
+      if (open) {
+        focusElementLater(getFirstFocusable(backdrop));
+        return;
+      }
+
+      const previousFocus = state.secondaryModalReturnFocus[key];
+      delete state.secondaryModalReturnFocus[key];
+      focusElementLater(previousFocus);
     }
 
     function getCurrentFormStartIso() {

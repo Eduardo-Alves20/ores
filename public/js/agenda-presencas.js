@@ -3,6 +3,7 @@
   const state = {
     currentEventId: "",
     lastFilterUrl: "",
+    lastModalFocus: null,
     touchStartX: 0,
     touchStartY: 0,
     touchTarget: null,
@@ -15,6 +16,7 @@
   function getElements() {
     return {
       backdrop: document.getElementById("agenda-presenca-backdrop"),
+      closeBtn: document.getElementById("agenda-presenca-close"),
       subtitle: document.getElementById("agenda-presenca-subtitle"),
       statusAgendamento: document.getElementById("agenda-presenca-status-agendamento"),
       statusPresenca: document.getElementById("agenda-presenca-status-presenca"),
@@ -234,6 +236,11 @@
       elements.historyList.innerHTML = '<p class="empty-hint">Nenhum historico carregado.</p>';
     }
     restoreBodyScroll();
+    const previousFocus = state.lastModalFocus;
+    state.lastModalFocus = null;
+    if (previousFocus && typeof previousFocus.focus === "function") {
+      window.setTimeout(() => previousFocus.focus(), 0);
+    }
   }
 
   async function openModal(eventId) {
@@ -241,6 +248,7 @@
     if (!eventId || !elements.backdrop) return;
 
     closeMobileFilters();
+    state.lastModalFocus = document.activeElement || null;
     state.currentEventId = String(eventId);
     elements.backdrop.hidden = false;
     document.body.style.overflow = "hidden";
@@ -249,6 +257,9 @@
     if (elements.statusAgendamento) elements.statusAgendamento.textContent = "Carregando";
     if (elements.statusPresenca) elements.statusPresenca.textContent = "Carregando";
     if (elements.historyList) elements.historyList.innerHTML = '<p class="empty-hint">Carregando historico...</p>';
+    if (elements.closeBtn && typeof elements.closeBtn.focus === "function") {
+      window.setTimeout(() => elements.closeBtn.focus(), 0);
+    }
 
     try {
       const data = await requestJson(`/api/agenda/eventos/${eventId}`);
@@ -296,6 +307,13 @@
     if (closeMobileFiltersBtn) {
       event.preventDefault();
       closeMobileFilters();
+      return;
+    }
+
+    const closeModalBtn = event.target.closest("#agenda-presenca-close");
+    if (closeModalBtn) {
+      event.preventDefault();
+      closeModal();
       return;
     }
 

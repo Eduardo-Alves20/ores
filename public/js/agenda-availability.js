@@ -24,11 +24,41 @@
   const state = {
     loading: false,
     saving: false,
+    lastFocus: null,
   };
 
+  function shouldLockBodyScroll() {
+    const mainBackdrop = document.getElementById("agenda-modal-backdrop");
+    const attendanceBackdrop = document.getElementById("agenda-presenca-backdrop");
+    const roomsBackdrop = document.getElementById("agenda-salas-backdrop");
+    return Boolean(
+      (elements.backdrop && !elements.backdrop.hidden) ||
+        (mainBackdrop && !mainBackdrop.hidden) ||
+        (attendanceBackdrop && !attendanceBackdrop.hidden) ||
+        (roomsBackdrop && !roomsBackdrop.hidden),
+    );
+  }
+
   function setModalOpen(open) {
+    if (open && elements.backdrop.hidden) {
+      state.lastFocus = document.activeElement || null;
+    }
     elements.backdrop.hidden = !open;
-    document.body.style.overflow = open ? "hidden" : "";
+    document.body.style.overflow = shouldLockBodyScroll() ? "hidden" : "";
+
+    if (open) {
+      const focusTarget = elements.closeBtn || elements.enabledToggle;
+      if (focusTarget && typeof focusTarget.focus === "function") {
+        window.setTimeout(() => focusTarget.focus(), 0);
+      }
+      return;
+    }
+
+    const previousFocus = state.lastFocus;
+    state.lastFocus = null;
+    if (previousFocus && typeof previousFocus.focus === "function") {
+      window.setTimeout(() => previousFocus.focus(), 0);
+    }
   }
 
   function toggleDayCard(card) {
