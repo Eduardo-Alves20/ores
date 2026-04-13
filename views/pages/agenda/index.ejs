@@ -134,20 +134,24 @@
     </header>
 
     <form id="agenda-form" class="agenda-form">
+      <div class="agenda-form-feedback" id="agenda-form-feedback" hidden></div>
       <div class="agenda-form-grid">
         <label class="field-wrap span-2">
           <span class="input-label">Título *</span>
           <input class="input-control" type="text" name="titulo" required maxlength="140" />
+          <small class="agenda-field-feedback" id="agenda-feedback-titulo" hidden></small>
         </label>
 
         <label class="field-wrap">
           <span class="input-label">Data *</span>
           <input class="input-control" type="date" name="data" required />
+          <small class="agenda-field-feedback" id="agenda-feedback-data" hidden></small>
         </label>
 
         <label class="field-wrap">
           <span class="input-label">Hora *</span>
           <input class="input-control" type="time" name="hora" required />
+          <small class="agenda-field-feedback" id="agenda-feedback-hora" hidden></small>
         </label>
 
         <label class="field-wrap">
@@ -165,6 +169,7 @@
           <select class="input-control" name="salaId" id="agenda-sala-select">
             <option value="">Carregando salas...</option>
           </select>
+          <small class="agenda-field-feedback" id="agenda-feedback-sala" hidden></small>
         </label>
 
         <div class="agenda-room-hint span-2" id="agenda-sala-hint">

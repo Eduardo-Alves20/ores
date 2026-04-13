@@ -839,6 +839,17 @@
   padding: 14px 16px 16px;
 }
 
+.agenda-form-feedback {
+  margin-bottom: 10px;
+  border: 1px solid #f0b0a5;
+  border-radius: 10px;
+  background: #fff0ed;
+  color: #8a2f22;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 12px;
+}
+
 .agenda-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -875,6 +886,26 @@
   margin: 12px 0 0;
   color: #8a7a73;
   font-size: 0.78rem;
+}
+
+.agenda-field-feedback {
+  display: block;
+  margin-top: 4px;
+  color: #8a2f22;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.input-control.agenda-field-invalid {
+  border-color: #e39b8f;
+  box-shadow: 0 0 0 2px rgba(214, 87, 66, 0.13);
+  background: #fff9f8;
+}
+
+.input-control.agenda-field-valid {
+  border-color: #8ac8a2;
+  box-shadow: 0 0 0 2px rgba(46, 125, 73, 0.12);
+  background: #f9fffb;
 }
 
 .agenda-save-hint {

@@ -32,6 +32,7 @@
     const resolveEndIso = (startIso) => buildEndIso(startIso, slotMinutes);
     const requiresSala = (tipoAtendimento) =>
       requiresRoomSelection(roomRequiredTypes, tipoAtendimento);
+    let hasSubmitValidation = false;
 
     function getFirstFocusable(container) {
       if (!container || typeof container.querySelector !== "function") return null;
@@ -113,6 +114,132 @@
       return String(elements.form.dataset.eventId || "").trim();
     }
 
+    function setFormFeedback(message) {
+      if (!elements.formFeedback) return;
+      const safeMessage = String(message || "").trim();
+      elements.formFeedback.hidden = !safeMessage;
+      elements.formFeedback.textContent = safeMessage;
+    }
+
+    function setFieldFeedback(fieldName, message) {
+      const feedbackMap = {
+        titulo: elements.feedbackTitulo,
+        data: elements.feedbackData,
+        hora: elements.feedbackHora,
+        salaId: elements.feedbackSala,
+      };
+      const inputMap = {
+        titulo: elements.form?.elements?.titulo,
+        data: elements.form?.elements?.data,
+        hora: elements.form?.elements?.hora,
+        salaId: elements.salaSelect,
+      };
+
+      const feedbackNode = feedbackMap[fieldName] || null;
+      const inputNode = inputMap[fieldName] || null;
+      const safeMessage = String(message || "").trim();
+      const hasMessage = Boolean(safeMessage);
+      const hasValue = Boolean(String(inputNode?.value || "").trim());
+
+      if (feedbackNode) {
+        feedbackNode.hidden = !hasMessage;
+        feedbackNode.textContent = hasMessage ? safeMessage : "";
+      }
+
+      if (inputNode?.classList) {
+        inputNode.classList.toggle("agenda-field-invalid", hasMessage);
+        inputNode.classList.toggle("agenda-field-valid", !hasMessage && hasValue);
+      }
+
+      if (inputNode && typeof inputNode.setCustomValidity === "function") {
+        inputNode.setCustomValidity(hasMessage ? safeMessage : "");
+      }
+    }
+
+    function clearValidationFeedback() {
+      setFormFeedback("");
+      setFieldFeedback("titulo", "");
+      setFieldFeedback("data", "");
+      setFieldFeedback("hora", "");
+      setFieldFeedback("salaId", "");
+      hasSubmitValidation = false;
+    }
+
+    function validateTitulo() {
+      const value = String(elements.form?.elements?.titulo?.value || "").trim();
+      if (!value) return "Informe um titulo para o agendamento.";
+      if (value.length < 3) return "Use pelo menos 3 caracteres no titulo.";
+      return "";
+    }
+
+    function validateData() {
+      const value = String(elements.form?.elements?.data?.value || "").trim();
+      if (!value) return "Informe a data do atendimento.";
+      return "";
+    }
+
+    function validateHora() {
+      const value = String(elements.form?.elements?.hora?.value || "").trim();
+      if (!value) return "Informe a hora do atendimento.";
+      if (!/^\d{2}:\d{2}$/.test(value)) return "Hora invalida. Use o formato HH:MM.";
+      return "";
+    }
+
+    function validateDataHoraCombinada() {
+      const dataValue = String(elements.form?.elements?.data?.value || "").trim();
+      const horaValue = String(elements.form?.elements?.hora?.value || "").trim();
+      if (!dataValue || !horaValue) return "";
+      const inicio = mergeDateAndTime(dataValue, horaValue);
+      if (!inicio) return "Data e hora informadas nao formam um horario valido.";
+      return "";
+    }
+
+    function validateSala(fieldOptions = {}) {
+      const required = requiresSala(elements.tipoSelect.value);
+      if (!required) return "";
+      const salaValue = String(elements.salaSelect?.value || "").trim();
+      if (salaValue) return "";
+      if (!fieldOptions.strict) return "";
+
+      const hasDate = String(elements.form?.elements?.data?.value || "").trim();
+      const hasTime = String(elements.form?.elements?.hora?.value || "").trim();
+      if (!hasDate || !hasTime) {
+        return "Informe data e hora para carregar as salas disponiveis.";
+      }
+      return "Selecione uma sala para esse tipo de atendimento.";
+    }
+
+    function validateForm(options = {}) {
+      const strict = Boolean(options.strict);
+      setFormFeedback("");
+
+      const errors = {
+        titulo: validateTitulo(),
+        data: validateData(),
+        hora: validateHora(),
+        dataHora: validateDataHoraCombinada(),
+        salaId: validateSala({ strict }),
+      };
+
+      if (!errors.hora && errors.dataHora) {
+        errors.hora = errors.dataHora;
+      }
+
+      setFieldFeedback("titulo", errors.titulo);
+      setFieldFeedback("data", errors.data);
+      setFieldFeedback("hora", errors.hora);
+      setFieldFeedback("salaId", errors.salaId);
+
+      const firstError = [errors.titulo, errors.data, errors.hora, errors.salaId].find(
+        (message) => Boolean(String(message || "").trim()),
+      );
+      if (firstError && strict) {
+        setFormFeedback("Revise os campos destacados antes de salvar.");
+      }
+
+      return !firstError;
+    }
+
     function setSalaHintMessage(message, tone) {
       if (!elements.salaHint) return;
       elements.salaHint.textContent = message || "";
@@ -169,6 +296,7 @@
           '<option value="">Informe data e hora</option>';
         elements.salaSelect.disabled = true;
         setSalaHintMessage("Informe data e hora para consultar as salas livres.");
+        setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
         return;
       }
 
@@ -200,6 +328,7 @@
             : "Nenhuma sala livre neste horario. Voce ainda pode salvar sem sala vinculada.",
           required ? "warning" : "default",
         );
+        setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
         return;
       }
 
@@ -207,6 +336,7 @@
         `${state.availableSalas.length} sala(s) livre(s) para esse horario.`,
         "success",
       );
+      setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
     }
 
     function syncSalaRequirement() {
@@ -217,6 +347,7 @@
           : "Sala de atendimento";
       }
       elements.salaSelect.required = required;
+      setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
     }
 
     async function loadSalasCatalogo() {
@@ -538,6 +669,7 @@
 
       fillPatientsOptions([]);
       await loadFamilies(elements.familiaBusca.value || "");
+      clearValidationFeedback();
       setModalOpen(true);
       await loadAvailableSalas("");
     }
@@ -606,6 +738,7 @@
         elements.pacienteSelect.value = "";
       }
 
+      clearValidationFeedback();
       setModalOpen(true);
       await loadAvailableSalas(String(evento?.sala?._id || ""));
     }
@@ -620,11 +753,14 @@
       setSalaHintMessage(
         "As salas livres para este horario aparecem automaticamente aqui.",
       );
+      clearValidationFeedback();
     }
 
     async function handleFormSubmit(event) {
       event.preventDefault();
       if (state.saving) return;
+      hasSubmitValidation = true;
+      if (!validateForm({ strict: true })) return;
 
       const modo = elements.form.dataset.mode || "create";
       const eventoId = elements.form.dataset.eventId || "";
@@ -689,6 +825,7 @@
         }
 
         state.selectedDay = toDayString(inicio);
+        hasSubmitValidation = false;
         closeModal();
         await loadMonthEvents();
       } catch (error) {
@@ -698,6 +835,44 @@
         elements.formSubmit.disabled = false;
       }
     }
+
+    function bindRealtimeValidation() {
+      const tituloInput = elements.form?.elements?.titulo;
+      const dataInput = elements.form?.elements?.data;
+      const horaInput = elements.form?.elements?.hora;
+      const salaInput = elements.salaSelect;
+
+      if (tituloInput && typeof tituloInput.addEventListener === "function") {
+        tituloInput.addEventListener("input", () => {
+          setFormFeedback("");
+          setFieldFeedback("titulo", validateTitulo());
+        });
+      }
+
+      if (dataInput && typeof dataInput.addEventListener === "function") {
+        dataInput.addEventListener("change", () => {
+          setFormFeedback("");
+          setFieldFeedback("data", validateData());
+          setFieldFeedback("hora", validateDataHoraCombinada());
+        });
+      }
+
+      if (horaInput && typeof horaInput.addEventListener === "function") {
+        horaInput.addEventListener("change", () => {
+          setFormFeedback("");
+          setFieldFeedback("hora", validateHora() || validateDataHoraCombinada());
+        });
+      }
+
+      if (salaInput && typeof salaInput.addEventListener === "function") {
+        salaInput.addEventListener("change", () => {
+          setFormFeedback("");
+          setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
+        });
+      }
+    }
+
+    bindRealtimeValidation();
 
     async function handleDayListActions(event) {
       const target = event.target.closest("button[data-action]");
@@ -818,6 +993,7 @@
       setSecondaryModalOpen,
       setTipoOptions,
       syncSalaRequirement,
+      validateForm,
     };
   }
 
