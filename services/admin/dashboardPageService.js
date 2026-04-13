@@ -275,6 +275,7 @@ function buildCard(options) {
     title: options.title,
     value: options.value,
     caption: options.caption,
+    periodLabel: options.periodLabel || "",
     trend: options.trend || null,
     progress: options.progress || null,
     href: options.href || "",
@@ -816,6 +817,7 @@ async function buildDashboardViewModel(req) {
       icon: "fa-solid fa-people-group",
       title: "Dependentes ativos",
       value: toLocaleNumber(totalDependentesAtivos),
+      periodLabel: "Base atual",
       caption: `${toLocaleNumber(totalFamiliasAtivas)} família(s) ativas na base`,
       trend: buildTrend(totalDependentesAtivos, totalDependentesMesAnteriorAtivos, {
         suffix: "desde o início do mês",
@@ -827,6 +829,7 @@ async function buildDashboardViewModel(req) {
       icon: "fa-solid fa-user-plus",
       title: "Novos cadastros no mês",
       value: toLocaleNumber(cadastrosMesAtual),
+      periodLabel: "Mês atual",
       caption: "Famílias adicionadas no recorte atual",
       trend: buildTrend(cadastrosMesAtual, cadastrosMesAnterior, {
         suffix: "vs mês anterior comparável",
@@ -838,6 +841,7 @@ async function buildDashboardViewModel(req) {
       icon: "fa-solid fa-calendar-check",
       title: "Atendimentos hoje",
       value: toLocaleNumber(atendimentosHoje),
+      periodLabel: "Hoje",
       caption:
         agendaHojeTotal > 0
           ? `${toLocaleNumber(agendaHojeTotal)} compromisso(s) previstos para hoje`
@@ -856,6 +860,7 @@ async function buildDashboardViewModel(req) {
       icon: "fa-solid fa-user-check",
       title: "Taxa de comparecimento",
       value: `${attendanceRateCurrent}%`,
+      periodLabel: "Últimos 30 dias",
       caption:
         attendanceCurrentTotal > 0
           ? `${toLocaleNumber(attendanceCurrentPresentes)} presença(s) em ${toLocaleNumber(attendanceCurrentTotal)} agenda(s) concluídas`

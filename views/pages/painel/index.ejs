@@ -202,7 +202,10 @@
       <% const cardInner = `
         <div class="dashboard-summary-icon" aria-hidden="true"><i class="${card.icon}"></i></div>
         <div class="dashboard-summary-copy">
-          <span class="dashboard-summary-title">${card.title}</span>
+          <span class="dashboard-summary-title-row">
+            <span class="dashboard-summary-title">${card.title}</span>
+            ${card.periodLabel ? `<small class="dashboard-summary-period">${card.periodLabel}</small>` : ""}
+          </span>
           <strong class="dashboard-summary-value">${card.value}</strong>
           <small class="dashboard-summary-caption">${card.caption || ""}</small>
         </div>

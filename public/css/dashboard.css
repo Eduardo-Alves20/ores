@@ -612,12 +612,35 @@
   gap: 6px;
 }
 
+.dashboard-summary-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .dashboard-summary-title {
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--dashboard-muted);
+}
+
+.dashboard-summary-period {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(178, 74, 50, 0.1);
+  color: var(--dashboard-brand-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .dashboard-summary-value {
