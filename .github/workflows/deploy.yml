@@ -1,0 +1,29 @@
+name: Deploy Windows Docker
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync project files to deploy folder
+        shell: powershell
+        run: |
+          $dest = "C:\deploy\ores"
+          if (!(Test-Path $dest)) {
+            New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          }
+          robocopy $env:GITHUB_WORKSPACE $dest /MIR /XD .git .github node_modules
+          if ($LASTEXITCODE -le 7) { exit 0 } else { exit $LASTEXITCODE }
+
+      - name: Rebuild and restart containers
+        shell: powershell
+        run: |
+          Set-Location "C:\deploy\ores"
+          docker compose up -d --build --remove-orphans
