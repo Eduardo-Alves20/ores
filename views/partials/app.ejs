@@ -68,10 +68,16 @@
 
     <aside class="sidebar" data-sidebar>
       <div class="sidebar-brand">
-        <span class="sidebar-brand-mark">G</span>
+        <img
+          src="/images/logo-ores.svg"
+          alt="ORES/DC"
+          class="sidebar-brand-logo"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';"
+        />
+        <span class="sidebar-brand-mark" style="display:none;">O</span>
         <div class="sidebar-brand-copy">
-          <strong>GESA</strong>
-          <small>gestão social assistencial</small>
+          <strong>ORES/DC</strong>
+          <small>gestão social</small>
         </div>
       </div>
 
@@ -259,7 +265,7 @@
     <div class="app-main">
       <header class="topbar">
         <div class="topbar-heading">
-          <span class="topbar-kicker">Operação social</span>
+          <span class="topbar-kicker">ORES/DC</span>
           <h1 class="topbar-title"><%= sectionTitle || title || "Tela" %></h1>
         </div>
         <div class="topbar-actions">

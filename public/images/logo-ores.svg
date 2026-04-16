@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42" fill="none">
+  <!-- Substituir este arquivo pela logo oficial ORES/DC -->
+  <!-- Caminho esperado: /public/images/logo-ores.svg -->
+  <rect width="42" height="42" rx="12" fill="#1C5D85"/>
+  <text x="21" y="27" text-anchor="middle" font-family="Manrope, Segoe UI, sans-serif" font-size="18" font-weight="800" fill="#ffffff">O</text>
+</svg>

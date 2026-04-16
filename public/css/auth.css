@@ -16,7 +16,7 @@
 .auth-bubble {
   position: absolute;
   border-radius: 50%;
-  background: #b24a32;
+  background: var(--brand);
   filter: blur(0.1px);
   opacity: 1;
   z-index: 0;
@@ -162,7 +162,7 @@
 }
 
 .field-icon-toggle:focus-visible {
-  outline: 2px solid #d39b87;
+  outline: 2px solid var(--ores-secondary);
   outline-offset: -2px;
   border-radius: 8px;
 }
@@ -184,7 +184,7 @@
 }
 
 .auth-action-btn:focus-visible {
-  outline: 3px solid rgba(178, 74, 50, 0.22);
+  outline: 3px solid rgba(28, 93, 133, 0.22);
   outline-offset: 2px;
 }
 

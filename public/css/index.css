@@ -1,21 +1,36 @@
 :root {
-  --bg: #f2e9e4;
+  /* Paleta oficial ORES/DC */
+  --ores-primary: #1C5D85;
+  --ores-secondary: #4FA6C8;
+  --ores-accent: #7CC7E8;
+  --ores-hover: #174C6C;
+  --ores-text: #6B6B6B;
+  --ores-bg: #F5F7FA;
+  --ores-surface: #FFFFFF;
+  --ores-border: #D9E2EC;
+  --ores-muted: #AEB8C2;
+  --ores-success: #2E8B57;
+  --ores-warning: #D9A441;
+  --ores-danger: #C94B4B;
+
+  /* Variáveis mapeadas ao tema ORES/DC */
+  --bg: #F5F7FA;
   --panel: #ffffff;
-  --panel-soft: #f7f4f2;
-  --line: #dfd3cc;
-  --line-strong: #cdbdb3;
-  --text: #1e1a18;
-  --muted: #7e746f;
-  --brand: #b24a32;
-  --brand-strong: #9f3f29;
-  --brand-soft: #edd9cf;
-  --success: #41d36f;
-  --warning: #edc955;
+  --panel-soft: #EEF3F8;
+  --line: #D9E2EC;
+  --line-strong: #BDD0E0;
+  --text: #1A2B3C;
+  --muted: #AEB8C2;
+  --brand: #1C5D85;
+  --brand-strong: #174C6C;
+  --brand-soft: #D6EBF7;
+  --success: #2E8B57;
+  --warning: #D9A441;
   --neutral-status: #cfcfcf;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 18px;
-  --shadow-soft: 0 8px 24px rgba(86, 46, 33, 0.08);
+  --shadow-soft: 0 8px 24px rgba(28, 93, 133, 0.08);
 }
 
 *,
@@ -77,7 +92,7 @@ video {
   margin: 0 0 7px;
   font-size: 0.84rem;
   font-weight: 700;
-  color: #4d433e;
+  color: #3D5166;
 }
 
 .input-control {
@@ -99,7 +114,7 @@ input.input-control {
 
 .input-control:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(178, 74, 50, 0.15);
+  box-shadow: 0 0 0 3px rgba(28, 93, 133, 0.15);
 }
 
 .form-stack {
@@ -140,13 +155,13 @@ input.input-control {
 }
 
 .btn-muted {
-  color: #5d4f47;
+  color: #3D5166;
   border: 1px solid var(--line-strong);
-  background: #efe5df;
+  background: var(--panel-soft);
 }
 
 .btn-muted:hover {
-  background: #e6d7cf;
+  background: #DDE8F2;
 }
 
 .btn-block {
@@ -158,8 +173,8 @@ input.input-control {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: #efe4de;
-  color: #9f3f29;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
   padding: 5px 10px;
   font-size: 0.74rem;
   font-weight: 800;
