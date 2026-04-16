@@ -13,8 +13,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Sync project files to deploy folder
-        shell: powershell -ExecutionPolicy Bypass
+        shell: powershell
         run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
           $dest = "C:\deploy\ores"
           if (!(Test-Path $dest)) {
             New-Item -ItemType Directory -Path $dest -Force | Out-Null
@@ -23,7 +24,8 @@ jobs:
           if ($LASTEXITCODE -le 7) { exit 0 } else { exit $LASTEXITCODE }
 
       - name: Rebuild and restart containers
-        shell: powershell -ExecutionPolicy Bypass
+        shell: powershell
         run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
           Set-Location "C:\deploy\ores"
           docker compose up -d --build --remove-orphans
