@@ -47,7 +47,7 @@
       <% }) %>
     <% } %>
   </head>
-  <body class="app-shell <%= pageClass || '' %>">
+  <body class="app-shell <%= typeof pageClass !== 'undefined' ? pageClass : '' %>">
     <button
       class="mobile-nav-toggle"
       type="button"
@@ -69,12 +69,10 @@
     <aside class="sidebar" data-sidebar>
       <div class="sidebar-brand">
         <img
-          src="/images/logo-ores.svg"
+          src="<%= appendAssetVersion('/static/images/logo-ores.svg') %>"
           alt="ORES/DC"
           class="sidebar-brand-logo"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';"
         />
-        <span class="sidebar-brand-mark" style="display:none;">O</span>
         <div class="sidebar-brand-copy">
           <strong>ORES/DC</strong>
           <small>gestão social</small>
@@ -87,7 +85,7 @@
         const normalizedProfile = String(currentUser?.perfil || "").toLowerCase();
         const canOpenAdminCenter = ["admin", "superadmin"].includes(normalizedProfile);
         const profileLabel = normalizedProfile === "admin"
-          ? "admin_alento"
+          ? "admin_ORES"
           : normalizedProfile === "superadmin"
             ? "SuperAdmin"
             : normalizedProfile === "atendente"
@@ -95,9 +93,6 @@
               : normalizedProfile === "tecnico"
                 ? "Técnico"
                 : normalizedProfile || "usuário";
-        const moduleBadge = ["admin", "superadmin"].includes(normalizedProfile) ? "Admin" : "Usuário";
-        const helpDeskHref = "/modulos/help-desk";
-        const hdiHref = "/modulos/hdi";
         const usuariosGroupOpen = ["usuarios-familia", "usuarios-voluntario"].includes(navKey);
         const isFamilyPortalUser = String(currentUser?.tipoCadastro || "").toLowerCase() === "familia"
           && hasPerm("portal.minha_familia");
@@ -234,23 +229,6 @@
           <% } %>
         <% } %>
 
-        <div class="sidebar-section-label">Modulos integrados</div>
-
-        <a
-          href="<%= helpDeskHref %>"
-          class="sidebar-link <%= navKey === 'modulo-helpdesk' ? 'is-active' : '' %>">
-          <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-headset"></i></span>
-          <span>Help Desk</span>
-          <small class="sidebar-link-badge"><%= moduleBadge %></small>
-        </a>
-
-        <a
-          href="<%= hdiHref %>"
-          class="sidebar-link <%= navKey === 'modulo-hdi' ? 'is-active' : '' %>">
-          <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-diagram-project"></i></span>
-          <span>HDI</span>
-          <small class="sidebar-link-badge"><%= moduleBadge %></small>
-        </a>
       </nav>
 
       <form method="post" action="/auth/logout" class="sidebar-logout">
@@ -332,4 +310,3 @@
     <% } %>
   </body>
 </html>
-

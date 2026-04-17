@@ -423,7 +423,7 @@
       if (hint) {
         hint.textContent = isPortalUser
           ? "Usuarios do portal podem nascer aprovados, pendentes ou rejeitados. Se o perfil for usuario, o nivel do voluntario aparece aqui."
-          : "Perfis internos sao aprovados automaticamente. Se criar ou editar admin_alento, atendente ou tecnico, ele pode nao aparecer nesta listagem filtrada.";
+          : "Perfis internos sao aprovados automaticamente. Se criar ou editar admin_ORES, atendente ou tecnico, ele pode nao aparecer nesta listagem filtrada.";
       }
 
       Object.keys(secureUploadState).forEach((kind) => {

@@ -16,7 +16,7 @@ const USER_ID = "507f191e810c19729de860ea";
 const ACTOR_ID = "507f1f77bcf86cd799439011";
 
 test("secureVolunteerAssetService criptografa o arquivo em disco e recupera o conteudo correto", async () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "alento-secure-asset-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ORES-secure-asset-"));
   const previousRoot = process.env.SECURE_UPLOADS_DIR;
   const previousKey = process.env.SECURE_FILE_ENCRYPTION_KEY;
   process.env.SECURE_UPLOADS_DIR = tempDir;
@@ -76,7 +76,7 @@ test("secureVolunteerAssetService criptografa o arquivo em disco e recupera o co
 });
 
 test("secureVolunteerAssetService rejeita extensao nao permitida mesmo quando o campo espera documento", async () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "alento-secure-asset-invalid-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ORES-secure-asset-invalid-"));
   const previousRoot = process.env.SECURE_UPLOADS_DIR;
   const previousKey = process.env.SECURE_FILE_ENCRYPTION_KEY;
   process.env.SECURE_UPLOADS_DIR = tempDir;

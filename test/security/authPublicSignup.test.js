@@ -33,7 +33,7 @@ test("AuthController.cadastro exige documento e foto no cadastro p?blico de volu
     const req = {
       body: {
         nome: "Voluntario Publico",
-        email: "voluntario.publico@alento.test",
+        email: "voluntario.publico@ORES.test",
         login: "voluntario.publico",
         telefone: "(21) 99999-9999",
         tipoCadastro: "voluntario",
@@ -64,7 +64,7 @@ test("AuthController.cadastro traduz falha de upload do multer para resposta 400
   const req = {
     body: {
       nome: "Voluntario Publico",
-      email: "voluntario.publico@alento.test",
+      email: "voluntario.publico@ORES.test",
       login: "voluntario.publico",
       telefone: "(21) 99999-9999",
       tipoCadastro: "voluntario",
@@ -105,7 +105,7 @@ test("AuthController.cadastro reconstr?i dadosCadastro enviados pelo multipart p
     const req = {
       body: {
         nome: "Familia Publica",
-        email: "familia.publica@alento.test",
+        email: "familia.publica@ORES.test",
         login: "familia.publica",
         cpf: "123.456.789-09",
         telefone: "(21) 99999-0000",

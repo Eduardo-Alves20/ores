@@ -58,13 +58,6 @@ router.get(
 );
 
 router.post(
-  "/acessos/:id/votar",
-  requireAuth,
-  requirePermission(PERMISSIONS.ACESSOS_APPROVE),
-  AcessoPageController.votar
-);
-
-router.post(
   "/acessos/:id/aprovar",
   requireAuth,
   requirePermission(PERMISSIONS.ACESSOS_APPROVE),

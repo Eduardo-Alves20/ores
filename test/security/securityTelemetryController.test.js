@@ -29,7 +29,7 @@ function createMockResponse() {
 test("normalizeCspReportPayload entende formatos legacy e report-to", () => {
   const legacy = normalizeCspReportPayload({
     "csp-report": {
-      "document-uri": "https://alento.local/painel",
+      "document-uri": "https://ORES.local/painel",
       "blocked-uri": "inline",
       "effective-directive": "script-src",
       "violated-directive": "script-src-elem",
@@ -42,19 +42,19 @@ test("normalizeCspReportPayload entende formatos legacy e report-to", () => {
     {
       type: "csp-violation",
       body: {
-        "document-uri": "https://alento.local/painel",
+        "document-uri": "https://ORES.local/painel",
       },
     },
   ]);
 
   assert.equal(legacy?.effectiveDirective, "script-src");
   assert.equal(legacy?.lineNumber, 12);
-  assert.equal(reportToBody?.["document-uri"], "https://alento.local/painel");
+  assert.equal(reportToBody?.["document-uri"], "https://ORES.local/painel");
   assert.ok(CSP_REPORT_BODY_TYPES.includes("application/csp-report"));
 });
 
 test("handleCspViolationReport registra evento e retorna 204", () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "alento-csp-report-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ORES-csp-report-"));
   const logPath = path.join(tempDir, "security-events.log");
   const previousPath = process.env.SECURITY_EVENT_LOG_PATH;
   process.env.SECURITY_EVENT_LOG_PATH = logPath;
@@ -64,7 +64,7 @@ test("handleCspViolationReport registra evento e retorna 204", () => {
     originalUrl: "/api/security/csp-report",
     body: {
       "csp-report": {
-        "document-uri": "https://alento.local/painel",
+        "document-uri": "https://ORES.local/painel",
         "blocked-uri": "inline",
         "effective-directive": "script-src",
       },

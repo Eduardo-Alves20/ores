@@ -79,12 +79,12 @@ function Get-DbNameFromUri {
 
   $lastSlash = $clean.LastIndexOf("/")
   if ($lastSlash -lt 0 -or $lastSlash -eq ($clean.Length - 1)) {
-    return "ALENTO"
+    return "ORES"
   }
 
   $db = $clean.Substring($lastSlash + 1).Trim()
   if ([string]::IsNullOrWhiteSpace($db)) {
-    return "ALENTO"
+    return "ORES"
   }
 
   return $db
@@ -119,7 +119,7 @@ function Resolve-MongoContainer {
 
   $preferred = $mongoRows | Where-Object {
     $name = ($_ -split "\|", 2)[0].ToLowerInvariant()
-    return $name.Contains("alento") -or $name.Contains("glpi")
+    return $name.Contains("ORES") -or $name.Contains("glpi")
   } | Select-Object -First 1
 
   if ($preferred) {
@@ -138,7 +138,7 @@ if ([string]::IsNullOrWhiteSpace($MongoUri)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($MongoUri)) {
-  $MongoUri = "mongodb://127.0.0.1:27017/ALENTO?directConnection=true"
+  $MongoUri = "mongodb://127.0.0.1:27017/ORES?directConnection=true"
 }
 
 if ($Acao -eq "exportar") {
@@ -146,7 +146,7 @@ if ($Acao -eq "exportar") {
     $backupDir = Join-Path $projectRoot "backups"
     New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
     $ts = Get-Date -Format "yyyyMMdd-HHmmss"
-    $Arquivo = Join-Path $backupDir "alento-$ts.archive.gz"
+    $Arquivo = Join-Path $backupDir "ORES-$ts.archive.gz"
   } else {
     $parent = Split-Path $Arquivo -Parent
     if ($parent) {
@@ -169,7 +169,7 @@ if ($Acao -eq "exportar") {
     $container = Resolve-MongoContainer -PreferredContainer $MongoContainer
     if ($container) {
       $dbName = Get-DbNameFromUri -Uri $MongoUri
-      $tmpArchive = "/tmp/alento-export-$((Get-Date).ToString('yyyyMMdd-HHmmss')).archive.gz"
+      $tmpArchive = "/tmp/ORES-export-$((Get-Date).ToString('yyyyMMdd-HHmmss')).archive.gz"
 
       Write-Host "mongodump local nao encontrado. Usando Docker (container: $container)." -ForegroundColor Yellow
       & docker exec $container mongodump "--db=$dbName" "--archive=$tmpArchive" "--gzip"
@@ -240,7 +240,7 @@ if ($Acao -eq "importar") {
   } else {
     $container = Resolve-MongoContainer -PreferredContainer $MongoContainer
     if ($container) {
-      $tmpArchive = "/tmp/alento-import-$((Get-Date).ToString('yyyyMMdd-HHmmss')).archive.gz"
+      $tmpArchive = "/tmp/ORES-import-$((Get-Date).ToString('yyyyMMdd-HHmmss')).archive.gz"
       Write-Host "mongorestore local nao encontrado. Usando Docker (container: $container)." -ForegroundColor Yellow
 
       & docker cp "$Arquivo" "$container`:$tmpArchive"

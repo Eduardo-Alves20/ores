@@ -81,7 +81,7 @@
     }
   }
 
-  window.AlentoAdministracaoShared = {
+  window.ORESAdministracaoShared = {
     confirmAction,
     notifyError,
     notifySuccess,

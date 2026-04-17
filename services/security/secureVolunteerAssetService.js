@@ -170,7 +170,7 @@ function resolveEncryptionKey() {
     String(process.env.SECURE_FILE_ENCRYPTION_KEY || "").trim() ||
     String(process.env.SECRET || "").trim() ||
     String(process.env.COOKIE_PARSER_KEY || "").trim() ||
-    "alento-secure-file-key-change-me";
+    "ORES-secure-file-key-change-me";
 
   return crypto.createHash("sha256").update(baseKeyMaterial).digest();
 }

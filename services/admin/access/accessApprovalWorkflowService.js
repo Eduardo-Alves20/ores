@@ -25,9 +25,7 @@ const {
 } = require("../../security/secureVolunteerAssetService");
 
 function shouldUseVotingFlow(usuario) {
-  const perfil = String(usuario?.perfil || "").trim().toLowerCase();
-  const statusAprovacao = String(usuario?.statusAprovacao || "").trim().toLowerCase();
-  return perfil === PERFIS.USUARIO && statusAprovacao === "pendente";
+  return false;
 }
 
 function normalizeApprovalVotes(votos = []) {
@@ -128,72 +126,13 @@ function buildLevelVoteSummary(votos = []) {
 }
 
 async function resolveApprovalElectorate() {
-  const candidates = await Usuario.find({
-    ativo: true,
-    $or: [
-      { perfil: { $ne: PERFIS.USUARIO } },
-      { funcoesAcesso: { $exists: true, $ne: [] } },
-    ],
-  })
-    .select("_id nome email login perfil papelAprovacao")
-    .lean();
-
-  const candidatesWithPermissions = await Promise.all(
-    candidates.map(async (candidate) => ({
-      candidate,
-      permissions: await resolvePermissionsForUserId(candidate._id, candidate.perfil),
-    }))
-  );
-
-  const approvers = candidatesWithPermissions
-    .filter(
-      ({ candidate, permissions }) =>
-        String(candidate.perfil || "").toLowerCase() === PERFIS.SUPERADMIN ||
-        hasAnyPermission(permissions, [PERMISSIONS.ACESSOS_APPROVE])
-    )
-    .map(({ candidate }) => ({
-      _id: String(candidate._id),
-      nome: String(candidate.nome || "").trim() || String(candidate.email || "").trim() || "Administrador",
-      email: String(candidate.email || "").trim(),
-      login: String(candidate.login || "").trim(),
-      perfil: String(candidate.perfil || "").trim(),
-      papelAprovacao: normalizeApprovalRole(candidate.papelAprovacao, APPROVAL_ROLES.MEMBRO),
-      hasExplicitApprovalRole: !!candidate.papelAprovacao,
-    }));
-
-  const explicitApprovers = approvers.filter((item) => item.hasExplicitApprovalRole);
-  const activeApprovers = explicitApprovers.length ? explicitApprovers : approvers;
-
-  activeApprovers.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-
-  const envPresidentLogin = String(process.env.PRESIDENT_LOGIN || process.env.DEMO_PRESIDENT_LOGIN || "")
-    .trim()
-    .toLowerCase();
-  const envPresidentEmail = String(process.env.PRESIDENT_EMAIL || process.env.DEMO_PRESIDENT_EMAIL || "")
-    .trim()
-    .toLowerCase();
-
-  const president =
-    activeApprovers.find((item) => item.papelAprovacao === APPROVAL_ROLES.PRESIDENTE) ||
-    activeApprovers.find(
-      (item) =>
-        (envPresidentLogin && String(item.login || "").toLowerCase() === envPresidentLogin) ||
-        (envPresidentEmail && String(item.email || "").toLowerCase() === envPresidentEmail)
-    ) ||
-    activeApprovers.find((item) => String(item.perfil || "").toLowerCase() === PERFIS.SUPERADMIN) ||
-    activeApprovers.find((item) => String(item.perfil || "").toLowerCase() === PERFIS.ADMIN) ||
-    null;
-
-  const presidentId = president?._id ? String(president._id) : "";
-  const regularApprovers = activeApprovers.filter((item) => String(item._id) !== presidentId);
-
   return {
-    approvers: activeApprovers,
-    president,
-    presidentId,
-    regularApprovers,
-    totalApprovers: activeApprovers.length,
-    totalRegularApprovers: regularApprovers.length,
+    approvers: [],
+    president: null,
+    presidentId: "",
+    regularApprovers: [],
+    totalApprovers: 0,
+    totalRegularApprovers: 0,
   };
 }
 
@@ -204,154 +143,43 @@ function pickLeadingLevels(levelVotes = []) {
 }
 
 function buildApprovalWorkflowSummary(usuario, electorate) {
-  const doc = usuario?.toObject ? usuario.toObject() : usuario;
-  const votos = normalizeApprovalVotes(doc?.votosAprovacao);
-  const presidentId = String(electorate?.presidentId || "");
-  const regularIds = (electorate?.regularApprovers || []).map((item) => String(item._id));
-  const regularVotes = votos.filter((item) => regularIds.includes(String(item.adminId)));
-  const presidentVote = presidentId ? votos.find((item) => String(item.adminId) === presidentId) || null : null;
-  const pendingRegularApprovers = (electorate?.regularApprovers || []).filter(
-    (item) => !regularVotes.some((vote) => String(vote.adminId) === String(item._id))
-  );
-  const regularDecisionCounts = countDecisionVotes(regularVotes);
-  const levelVotesAll = buildLevelVoteSummary(votos);
-  const levelVotesRegular = buildLevelVoteSummary(regularVotes);
-  const levelVoteByValue = new Map(levelVotesAll.map((item) => [item.value, item]));
-  const leadingRegularLevels = pickLeadingLevels(levelVotesRegular);
-  const leadingAllLevels = pickLeadingLevels(levelVotesAll);
+  const doc = usuario?.toObject ? usuario.toObject() : usuario || {};
+  const status = String(doc?.statusAprovacao || "aprovado").trim().toLowerCase();
   const isVolunteer = String(doc?.tipoCadastro || "").toLowerCase() === "voluntario";
-  const totalRegularApprovers = Number(electorate?.totalRegularApprovers || 0);
-  const regularMajorityThreshold = totalRegularApprovers > 0
-    ? Math.floor(totalRegularApprovers / 2) + 1
-    : 1;
+  const level = isVolunteer ? normalizeVolunteerAccessLevel(doc?.nivelAcessoVoluntario, null) : null;
 
-  let stateKey = "coletando_votos";
-  let stateLabel = "Coletando votos";
-  let finalDecision = "";
-  let finalLevel = "";
-  let requiresPresidentDecision = false;
-  let presidentReason = "";
-  let leaderLevel = leadingRegularLevels.length === 1 ? leadingRegularLevels[0] : null;
-  let resolvedByPresident = false;
-  let resolvedLevelByPresident = false;
-
-  if (regularIds.length === 0) {
-    if (presidentVote) {
-      finalDecision = presidentVote.decisao;
-      resolvedByPresident = true;
-      if (finalDecision === "aprovar" && isVolunteer) {
-        finalLevel = presidentVote.nivelAcessoVoluntario || "";
-        if (!finalLevel) {
-          requiresPresidentDecision = true;
-          stateKey = "aguardando_presidente";
-          stateLabel = "Aguardando decisao do presidente";
-        }
-      }
-    } else if (electorate?.president) {
-      requiresPresidentDecision = true;
-      stateKey = "aguardando_presidente";
-      stateLabel = "Aguardando decisao do presidente";
-    }
-  } else if (regularDecisionCounts.aprovar >= regularMajorityThreshold) {
-    finalDecision = "aprovar";
-  } else if (regularDecisionCounts.rejeitar >= regularMajorityThreshold) {
-    finalDecision = "rejeitar";
-  } else if (pendingRegularApprovers.length > 0) {
-    stateKey = "coletando_votos";
-    stateLabel = "Coletando votos";
-  } else if (presidentVote) {
-    finalDecision = presidentVote.decisao;
-    resolvedByPresident = true;
-  } else {
-    requiresPresidentDecision = true;
-    stateKey = "aguardando_presidente";
-    stateLabel = "Empate de aprovacao: aguardando presidente";
-  }
-
-  if (finalDecision === "aprovar" && isVolunteer) {
-    if (leaderLevel && !leaderLevel.isTiedLeader) {
-      finalLevel = leaderLevel.value;
-    } else if (presidentVote?.decisao === "aprovar" && presidentVote?.nivelAcessoVoluntario) {
-      finalLevel = presidentVote.nivelAcessoVoluntario;
-      resolvedLevelByPresident = true;
-      leaderLevel = levelVoteByValue.get(finalLevel) || {
-        value: finalLevel,
-        label: getVolunteerAccessLabel(finalLevel),
-        count: 1,
-        isLeader: true,
-        isTiedLeader: false,
-      };
-    } else {
-      requiresPresidentDecision = true;
-      finalDecision = "";
-      stateKey = "aguardando_presidente";
-      stateLabel = "Empate de nivel: aguardando presidente";
-    }
-  }
-
-  if (!leaderLevel && leadingAllLevels.length === 1) {
-    leaderLevel = leadingAllLevels[0];
-  }
-
-  if (!leaderLevel && finalLevel) {
-    leaderLevel = levelVoteByValue.get(finalLevel) || {
-      value: finalLevel,
-      label: getVolunteerAccessLabel(finalLevel),
-      count: 0,
-      isLeader: true,
-      isTiedLeader: false,
-    };
-  }
-
-  if (finalDecision === "aprovar" && !requiresPresidentDecision) {
-    stateKey = "decisao_automatica";
-    stateLabel = resolvedByPresident || resolvedLevelByPresident
-      ? "Aprovado com decisao do presidente"
-      : "Aprovado automaticamente";
-  }
-
-  if (finalDecision === "rejeitar" && !requiresPresidentDecision) {
-    stateKey = "decisao_automatica";
-    stateLabel = resolvedByPresident
-      ? "Rejeitado com decisao do presidente"
-      : "Rejeitado automaticamente";
-  }
-
-  if (finalDecision === "rejeitar") {
-    const latestRejectVote = [...votos]
-      .filter((item) => item.decisao === "rejeitar" && item.motivo)
-      .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())[0];
-    presidentReason = String(presidentVote?.motivo || latestRejectVote?.motivo || "").trim();
-  }
+  const stateByStatus = {
+    pendente: "Aguardando decisao do administrador",
+    aprovado: "Aprovado por administrador",
+    rejeitado: "Rejeitado por administrador",
+  };
 
   return {
-    stateKey,
-    stateLabel,
-    finalDecision,
-    finalLevel,
-    requiresPresidentDecision,
-    isResolved: !!finalDecision && (!isVolunteer || !!finalLevel),
-    president: electorate?.president
-      ? {
-          id: String(electorate.president._id || ""),
-          nome: electorate.president.nome,
-          papelAprovacao: electorate.president.papelAprovacao,
-        }
+    stateKey: status,
+    stateLabel: stateByStatus[status] || "Status de aprovacao",
+    finalDecision: status === "aprovado" || status === "rejeitado" ? status : "",
+    finalLevel: level || "",
+    requiresPresidentDecision: false,
+    isResolved: status !== "pendente" && (!isVolunteer || !!level),
+    president: null,
+    presidentVote: null,
+    totalApprovers: 1,
+    totalRegularApprovers: 1,
+    regularMajorityThreshold: 1,
+    regularVotesReceived: 0,
+    pendingRegularVotes: status === "pendente" ? 1 : 0,
+    pendingRegularApproverNames: [],
+    decisionCountsRegular: { aprovar: status === "aprovado" ? 1 : 0, rejeitar: status === "rejeitado" ? 1 : 0 },
+    levelVotes: isVolunteer && level
+      ? [{ value: level, label: getVolunteerAccessLabel(level), count: 1, isLeader: true, isTiedLeader: false }]
+      : [],
+    leaderLevel: isVolunteer && level
+      ? { value: level, label: getVolunteerAccessLabel(level), count: 1, isLeader: true, isTiedLeader: false }
       : null,
-    presidentVote,
-    totalApprovers: Number(electorate?.totalApprovers || 0),
-    totalRegularApprovers,
-    regularMajorityThreshold,
-    regularVotesReceived: regularVotes.length,
-    pendingRegularVotes: pendingRegularApprovers.length,
-    pendingRegularApproverNames: pendingRegularApprovers.map((item) => item.nome),
-    decisionCountsRegular: regularDecisionCounts,
-    levelVotes: levelVotesAll,
-    leaderLevel,
-    finalLevelLabel: getVolunteerAccessLabel(finalLevel),
-    presidentReason,
-    resolvedByPresident,
-    resolvedLevelByPresident,
+    finalLevelLabel: getVolunteerAccessLabel(level),
+    presidentReason: String(doc?.motivoAprovacao || "").trim(),
+    resolvedByPresident: false,
+    resolvedLevelByPresident: false,
   };
 }
 
@@ -397,9 +225,8 @@ async function buildRejectReasonCards(usuario) {
 
 async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
   const doc = usuario?.toObject ? usuario.toObject() : usuario;
-  const resolvedElectorate = electorate || (await resolveApprovalElectorate());
-  const workflowResumo = buildApprovalWorkflowSummary(doc, resolvedElectorate);
-  const presidentId = String(workflowResumo?.president?.id || "");
+  const workflowResumo = buildApprovalWorkflowSummary(doc);
+  const presidentId = "";
   const rejeicoesComMotivo = await buildRejectReasonCards(doc);
   const attachments = sanitizeProtectedAttachmentBundleForClient(doc?.anexosProtegidos || {});
   const userId = String(doc?._id || "").trim();
@@ -440,52 +267,11 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
 }
 
 async function tryFinalizeApprovalDecision(usuarioId, actorId = null, electorate = null) {
-  const usuario = await Usuario.findById(usuarioId)
-    .select("-senha")
-    .lean();
-
-  if (!usuario) {
-    return { usuario: null, workflowResumo: null, finalized: false };
-  }
-
-  const resolvedElectorate = electorate || (await resolveApprovalElectorate());
-  const workflowResumo = buildApprovalWorkflowSummary(usuario, resolvedElectorate);
-
-  if (!workflowResumo.isResolved || String(usuario.statusAprovacao || "").toLowerCase() !== "pendente") {
-    return { usuario, workflowResumo, finalized: false };
-  }
-
-  const payload =
-    workflowResumo.finalDecision === "aprovar"
-      ? {
-          statusAprovacao: "aprovado",
-          ativo: true,
-          motivoAprovacao: "",
-          nivelAcessoVoluntario:
-            String(usuario.tipoCadastro || "").toLowerCase() === "voluntario"
-              ? workflowResumo.finalLevel
-              : null,
-        }
-      : {
-          statusAprovacao: "rejeitado",
-          ativo: false,
-          motivoAprovacao: workflowResumo.presidentReason || "",
-          nivelAcessoVoluntario: null,
-        };
-
-  const resolutionActorId =
-    workflowResumo.resolvedByPresident || workflowResumo.resolvedLevelByPresident
-      ? String(workflowResumo?.president?.id || actorId || "")
-      : String(actorId || "");
-
-  const updated = await UsuarioService.atualizar(usuarioId, payload, {
-    usuarioId: resolutionActorId || actorId,
-  });
-
+  const usuario = await Usuario.findById(usuarioId).select("-senha").lean();
   return {
-    usuario: updated,
-    workflowResumo,
-    finalized: true,
+    usuario,
+    workflowResumo: buildApprovalWorkflowSummary(usuario),
+    finalized: false,
   };
 }
 

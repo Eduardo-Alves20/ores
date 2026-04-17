@@ -3,6 +3,7 @@ const { PERFIS } = require("../../config/roles");
 const { APPROVAL_ROLES } = require("../../config/approvalRoles");
 const { VOLUNTARIO_ACCESS_LEVELS } = require("../../config/volunteerAccess");
 const { hashSenha } = require("../security/passwordService");
+const { loadUserConfig } = require("./userConfigService");
 
 function isDevLike() {
   const env = String(process.env.AMBIENTE || process.env.NODE_ENV || "")
@@ -87,81 +88,107 @@ async function ensureDemoUsers() {
     return;
   }
 
-  const seededUsers = await Promise.all([
-    upsertDemoUser({
-      email: process.env.DEMO_ADMIN_EMAIL || "admindemo@alento.local",
+  const userConfig = loadUserConfig();
+  const configDemoUsers = Array.isArray(userConfig?.demoUsers) ? userConfig.demoUsers : [];
+
+  const fallbackDemoUsers = [
+    {
+      email: process.env.DEMO_ADMIN_EMAIL || "admindemo@ORES.local",
       login: process.env.DEMO_ADMIN_LOGIN || "admindemo",
       fallbackLogin: "admindemo",
-      nome: process.env.DEMO_ADMIN_NAME || "Administrador Demo",
-      senha: process.env.DEMO_ADMIN_PASSWORD || "admin123",
-      perfil: PERFIS.ADMIN,
-    }),
-    upsertDemoUser({
-      email: process.env.DEMO_USER_EMAIL || "usuariodemo@alento.local",
+      name: process.env.DEMO_ADMIN_NAME || "Administrador Demo",
+      password: process.env.DEMO_ADMIN_PASSWORD || "admin123",
+      profile: PERFIS.ADMIN,
+    },
+    {
+      email: process.env.DEMO_USER_EMAIL || "usuariodemo@ORES.local",
       login: process.env.DEMO_USER_LOGIN || "usuariodemo",
       fallbackLogin: "usuariodemo",
-      nome: process.env.DEMO_USER_NAME || "Usuario Demo",
-      senha: process.env.DEMO_USER_PASSWORD || "usuario123",
-      perfil: PERFIS.USUARIO,
-      nivelAcessoVoluntario: VOLUNTARIO_ACCESS_LEVELS.SERVICO_SOCIAL,
-      dataNascimento: "1992-03-25",
-    }),
-    upsertDemoUser({
-      email: "admin1@alento.local",
+      name: process.env.DEMO_USER_NAME || "Usuario Demo",
+      password: process.env.DEMO_USER_PASSWORD || "usuario123",
+      profile: PERFIS.USUARIO,
+      volunteerAccessLevel: VOLUNTARIO_ACCESS_LEVELS.SERVICO_SOCIAL,
+      birthDate: "1992-03-25",
+    },
+    {
+      email: "admin1@ORES.local",
       login: "admin1",
       fallbackLogin: "admin1",
-      nome: "Admin 1",
-      senha: "123",
-      perfil: PERFIS.ADMIN,
-      papelAprovacao: APPROVAL_ROLES.PRESIDENTE,
-    }),
-    upsertDemoUser({
-      email: "admin2@alento.local",
+      name: "Admin 1",
+      password: "123",
+      profile: PERFIS.ADMIN,
+      approvalRole: APPROVAL_ROLES.PRESIDENTE,
+    },
+    {
+      email: "admin2@ORES.local",
       login: "admin2",
       fallbackLogin: "admin2",
-      nome: "Admin 2",
-      senha: "123",
-      perfil: PERFIS.ADMIN,
-    }),
-    upsertDemoUser({
-      email: "admin3@alento.local",
+      name: "Admin 2",
+      password: "123",
+      profile: PERFIS.ADMIN,
+    },
+    {
+      email: "admin3@ORES.local",
       login: "admin3",
       fallbackLogin: "admin3",
-      nome: "Admin 3",
-      senha: "123",
-      perfil: PERFIS.ADMIN,
-    }),
-    upsertDemoUser({
-      email: "helena.demo@alento.local",
+      name: "Admin 3",
+      password: "123",
+      profile: PERFIS.ADMIN,
+    },
+    {
+      email: "helena.demo@ORES.local",
       login: "familia1",
       fallbackLogin: "familia1",
-      nome: "Helena Demo Souza",
-      senha: "123",
-      perfil: PERFIS.USUARIO,
-      tipoCadastro: "familia",
-      dataNascimento: "1987-03-23",
-    }),
-    upsertDemoUser({
-      email: "joana.demo@alento.local",
+      name: "Helena Demo Souza",
+      password: "123",
+      profile: PERFIS.USUARIO,
+      registrationType: "familia",
+      birthDate: "1987-03-23",
+    },
+    {
+      email: "joana.demo@ORES.local",
       login: "familia2",
       fallbackLogin: "familia2",
-      nome: "Joana Demo Almeida",
-      senha: "123",
-      perfil: PERFIS.USUARIO,
-      tipoCadastro: "familia",
-      dataNascimento: "1990-03-27",
-    }),
-    upsertDemoUser({
-      email: "carlos.demo@alento.local",
+      name: "Joana Demo Almeida",
+      password: "123",
+      profile: PERFIS.USUARIO,
+      registrationType: "familia",
+      birthDate: "1990-03-27",
+    },
+    {
+      email: "carlos.demo@ORES.local",
       login: "familia3",
       fallbackLogin: "familia3",
-      nome: "Carlos Demo Costa",
-      senha: "123",
-      perfil: PERFIS.USUARIO,
-      tipoCadastro: "familia",
-      dataNascimento: "1985-03-28",
-    }),
-  ]);
+      name: "Carlos Demo Costa",
+      password: "123",
+      profile: PERFIS.USUARIO,
+      registrationType: "familia",
+      birthDate: "1985-03-28",
+    },
+  ];
+
+  const sourceUsers = configDemoUsers.length ? configDemoUsers : fallbackDemoUsers;
+  const seededUsers = await Promise.all(
+    sourceUsers.map((user) =>
+      upsertDemoUser({
+        email: user.email,
+        login: user.login,
+        fallbackLogin: user.fallbackLogin || user.login,
+        nome: user.name || user.nome,
+        senha: user.password || user.senha,
+        perfil: String(user.profile || user.perfil || "").trim().toLowerCase() || PERFIS.USUARIO,
+        tipoCadastro: user.registrationType || user.tipoCadastro || "voluntario",
+        papelAprovacao: user.approvalRole || user.papelAprovacao || APPROVAL_ROLES.MEMBRO,
+        nivelAcessoVoluntario:
+          user.volunteerAccessLevel ||
+          user.nivelAcessoVoluntario ||
+          (String(user.profile || user.perfil || "").trim().toLowerCase() === PERFIS.USUARIO
+            ? VOLUNTARIO_ACCESS_LEVELS.SERVICO_SOCIAL
+            : null),
+        dataNascimento: user.birthDate || user.dataNascimento || null,
+      })
+    )
+  );
 
   console.log(
     `Usuarios demo sincronizados: ${seededUsers

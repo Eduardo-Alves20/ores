@@ -9,7 +9,6 @@ const {
   parseBoolean,
   rejectUserAccess,
   resolveReturnTo,
-  voteUserApproval,
 } = require("../../services/admin/acessoPageService");
 const { logSanitizedError } = require("../../services/security/logSanitizerService");
 const {
@@ -263,31 +262,6 @@ class AcessoPageController {
     }
   }
 
-  static async votar(req, res) {
-    const returnTo = resolveReturnTo(req.body?.returnTo, DEFAULT_APPROVAL_RETURN_TO);
-
-    try {
-      const result = await voteUserApproval({
-        id: req.params?.id,
-        actorId: req?.session?.user?.id || null,
-        decisao: req.body?.decisao,
-        motivo: String(req.body?.motivo || "").trim(),
-        nivelAcessoVoluntarioInput: req.body?.nivelAcessoVoluntario,
-      });
-
-      await registrarAuditoria(req, result.audit);
-      return redirectWithFlash(req, res, returnTo, "success", result.successMessage);
-    } catch (error) {
-      return handleActionError(
-        req,
-        res,
-        returnTo,
-        "Erro ao votar em cadastro:",
-        "Erro ao registrar voto.",
-        error
-      );
-    }
-  }
 }
 
 module.exports = AcessoPageController;

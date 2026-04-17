@@ -1,6 +1,6 @@
-# Alento (GESA)
+# ORES (GESA)
 
-Sistema web para gestao social da Fundacao Alento, com foco em familias, dependentes, atendimentos e agenda.
+Sistema web para gestao social da Fundacao ORES, com foco em familias, dependentes, atendimentos e agenda.
 
 ## Requisitos
 
@@ -33,21 +33,33 @@ No Windows PowerShell:
 Copy-Item .env.example .env
 ```
 
-3. Garanta que o MongoDB local esta ativo em `127.0.0.1:27017`.
+3. Copie a configuracao de usuarios:
+
+```bash
+cp data/user-config.example.json data/user-config.json
+```
+
+No Windows PowerShell:
+
+```powershell
+Copy-Item data/user-config.example.json data/user-config.json
+```
+
+4. Garanta que o MongoDB local esta ativo em `127.0.0.1:27017`.
 
 O projeto ja vem configurado para:
 
 ```env
-MONGO_URI=mongodb://127.0.0.1:27017/ALENTO?directConnection=true
+MONGO_URI=mongodb://127.0.0.1:27017/ORES?directConnection=true
 ```
 
-4. Inicie em desenvolvimento:
+5. Inicie em desenvolvimento:
 
 ```bash
 npm run dev
 ```
 
-5. Acesse:
+6. Acesse:
 
 `http://localhost:4000/login`
 
@@ -55,11 +67,13 @@ npm run dev
 
 No primeiro start, se nao existir admin ativo, o sistema tenta criar admin usando:
 
-- `ADMIN_NAME`
-- `ADMIN_EMAIL`
-- `ADMIN_PASSWORD`
+- `admin.name`
+- `admin.email`
+- `admin.password`
 
-Defina uma senha forte no `.env` (minimo 10 chars, com maiuscula, minuscula e numero).
+Arquivo: `data/user-config.json`
+
+Defina uma senha forte no JSON (minimo 10 chars, com maiuscula, minuscula e numero).
 
 ## Scripts
 
@@ -70,7 +84,7 @@ Defina uma senha forte no `.env` (minimo 10 chars, com maiuscula, minuscula e nu
 
 Se a maquina ja tiver Docker Desktop, da para subir o sistema inteiro e publicar no dominio fixo so com duplo clique em:
 
-- `INICIAR-ALENTO.bat`
+- `INICIAR-ORES.bat`
 
 Na primeira execucao:
 
@@ -82,7 +96,7 @@ Depois disso, basta clicar no mesmo arquivo sempre que quiser subir o sistema.
 
 URL publica fixa:
 
-`https://sistema.institutoalento.ong.br/login`
+`https://sistema.institutoORES.ong.br/login`
 
 ## Docker
 
@@ -103,7 +117,7 @@ Observacoes importantes:
 
 - O `docker-compose.yml` agora sobe Mongo, app, nginx e o tunel publico.
 - Dentro do container, a conexao padrao usa:
-  - `MONGO_URI_DOCKER=mongodb://mongo:27017/ALENTO?directConnection=true`
+  - `MONGO_URI_DOCKER=mongodb://mongo:27017/ORES?directConnection=true`
 - Se quiser continuar usando um Mongo externo, basta ajustar `MONGO_URI_DOCKER` no `.env`.
 
 ## Estrutura resumida
@@ -135,7 +149,7 @@ Antes de subir para o Git:
 
 Use exatamente a mesma conexao do projeto:
 
-`mongodb://127.0.0.1:27017/ALENTO?directConnection=true`
+`mongodb://127.0.0.1:27017/ORES?directConnection=true`
 
 ### "Erro de login"
 

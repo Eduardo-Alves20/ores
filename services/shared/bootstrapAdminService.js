@@ -3,18 +3,23 @@ const UsuarioService = require("../domain/UsuarioService");
 const { PERFIS } = require("../../config/roles");
 const { hashSenha } = require("../security/passwordService");
 const crypto = require("crypto");
+const { loadUserConfig } = require("./userConfigService");
 
 async function ensureAdminFromEnv() {
-  const adminEmail = String(process.env.ADMIN_EMAIL || "").toLowerCase().trim();
-  const adminSenha = String(process.env.ADMIN_PASSWORD || "").trim();
-  const adminNome = String(process.env.ADMIN_NAME || "Administrador").trim();
+  const userConfig = loadUserConfig();
+  const adminConfig = userConfig?.admin || {};
+  const adminEmail = String(adminConfig.email || process.env.ADMIN_EMAIL || "")
+    .toLowerCase()
+    .trim();
+  const adminSenha = String(adminConfig.password || process.env.ADMIN_PASSWORD || "").trim();
+  const adminNome = String(adminConfig.name || process.env.ADMIN_NAME || "Administrador").trim();
 
   const hasAdmin = await Usuario.exists({ perfil: PERFIS.ADMIN, ativo: true });
   if (hasAdmin) return;
 
   if (!adminEmail || !adminSenha) {
-    const fallbackEmail = "admin@alento.local";
-    const fallbackPassword = `Alento@${crypto.randomBytes(6).toString("hex")}1A`;
+    const fallbackEmail = "admin@ORES.local";
+    const fallbackPassword = `ORES@${crypto.randomBytes(6).toString("hex")}1A`;
 
     await UsuarioService.criar({
       nome: adminNome,
@@ -27,7 +32,9 @@ async function ensureAdminFromEnv() {
     console.warn("Admin provisario criado para primeiro acesso:");
     console.warn(`EMAIL: ${fallbackEmail}`);
     console.warn(`SENHA: ${fallbackPassword}`);
-    console.warn("Troque essa senha imediatamente e configure ADMIN_EMAIL/ADMIN_PASSWORD no .env.");
+    console.warn(
+      "Troque essa senha imediatamente e configure admin.email/admin.password em data/user-config.json."
+    );
     return;
   }
 
@@ -53,23 +60,37 @@ async function ensureAdminFromEnv() {
     ativo: true,
   });
 
-  console.log("Admin inicial criado via variaveis de ambiente:", adminEmail);
+  console.log("Admin inicial criado via configuracao de usuarios:", adminEmail);
 }
 
 async function ensureSuperAdminFromEnv() {
-  const superEmailEnv = String(process.env.SUPERADMIN_EMAIL || "").toLowerCase().trim();
-  const superSenhaEnv = String(process.env.SUPERADMIN_PASSWORD || "").trim();
-  const superNome = String(process.env.SUPERADMIN_NAME || "Super Administrador").trim();
-  const superFallbackEmail = "superadmin@alento.local";
+  const userConfig = loadUserConfig();
+  const superConfig = userConfig?.superadmin || {};
+  const superEmailEnv = String(superConfig.email || process.env.SUPERADMIN_EMAIL || "")
+    .toLowerCase()
+    .trim();
+  const superSenhaEnv = String(superConfig.password || process.env.SUPERADMIN_PASSWORD || "").trim();
+  const superNome = String(
+    superConfig.name || process.env.SUPERADMIN_NAME || "Super Administrador"
+  ).trim();
+  const superFallbackEmail = "superadmin@ORES.local";
   const superFallbackSenha = String(
-    process.env.SUPERADMIN_BOOTSTRAP_PASSWORD || "SuperAdmin123!"
+    superConfig.bootstrapPassword ||
+      process.env.SUPERADMIN_BOOTSTRAP_PASSWORD ||
+      "SuperAdmin123!"
   ).trim();
 
   const useEnvCredentials = !!(superEmailEnv && superSenhaEnv);
   const superEmail = useEnvCredentials ? superEmailEnv : superFallbackEmail;
   const superSenha = useEnvCredentials ? superSenhaEnv : superFallbackSenha;
   const shouldSyncPassword =
-    String(process.env.SUPERADMIN_SYNC_PASSWORD || "true").toLowerCase().trim() === "true";
+    String(
+      typeof superConfig.syncPassword === "boolean"
+        ? superConfig.syncPassword
+        : process.env.SUPERADMIN_SYNC_PASSWORD || "true"
+    )
+      .toLowerCase()
+      .trim() === "true";
 
   const existingByEmail = await Usuario.findOne({ email: superEmail }).select("_id");
   if (existingByEmail) {
@@ -108,7 +129,9 @@ async function ensureSuperAdminFromEnv() {
     console.warn("SuperAdmin bootstrap padrao ativo:");
     console.warn(`EMAIL: ${superEmail}`);
     console.warn(`SENHA: ${superSenha}`);
-    console.warn("Defina SUPERADMIN_EMAIL/SUPERADMIN_PASSWORD no .env para sobrescrever.");
+    console.warn(
+      "Defina superadmin.email/superadmin.password em data/user-config.json para sobrescrever."
+    );
   }
 }
 

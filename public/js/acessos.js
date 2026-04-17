@@ -2,7 +2,7 @@
   const root = document.querySelector(".page-acessos");
   if (!root) return;
 
-  const shared = window.AlentoAcessosShared;
+  const shared = window.ORESAcessosShared;
   if (
     !shared ||
     typeof shared.createPageHelpers !== "function" ||
@@ -36,8 +36,8 @@
     const actionLabel = normalizedDecision === "rejeitar" ? "rejeitar" : "aprovar";
     const title =
       actionLabel === "rejeitar"
-        ? "Confirmar voto de rejeição?"
-        : "Confirmar voto de aprovação?";
+        ? "Confirmar rejeição?"
+        : "Confirmar aprovação?";
     const text = userName
       ? `Você está prestes a ${actionLabel} o cadastro de ${userName}.`
       : `Você está prestes a ${actionLabel} este cadastro.`;
@@ -125,7 +125,9 @@
     if (!voteForm) return;
     event.preventDefault();
 
-    const decision = voteForm.querySelector("[name='decisao']")?.value || "";
+    const explicitDecision = voteForm.querySelector("[name='decisao']")?.value || "";
+    const action = String(voteForm.getAttribute("action") || "").toLowerCase();
+    const decision = explicitDecision || (action.includes("/rejeitar") ? "rejeitar" : "aprovar");
     const row = voteForm.closest("tr");
     const userName = row
       ? String(row.querySelector("td[data-label='Nome'] strong")?.textContent || "").trim()

@@ -70,7 +70,7 @@ test("attachCurrentUser invalida sessao HTML quando authVersion diverge", async 
 
   assert.equal(destroyed, true);
   assert.equal(res.redirectUrl, "/login?reason=sessao_revogada");
-  assert.deepEqual(res.clearedCookies.sort(), ["alento.sid", "connect.sid"]);
+  assert.deepEqual(res.clearedCookies.sort(), ["ORES.sid", "connect.sid"]);
   assert.equal(nextArg, "not-called");
 });
 

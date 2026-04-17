@@ -26,7 +26,7 @@ test("applySecurityHeaders define os headers basicos de hardening", () => {
     protocol: "https",
     get(name) {
       if (String(name || "").toLowerCase() === "host") {
-        return "alento.local";
+        return "ORES.local";
       }
       return "";
     },
@@ -61,7 +61,7 @@ test("applySecurityHeaders define os headers basicos de hardening", () => {
     true
   );
   assert.match(reportOnlyCsp, /strict-dynamic/);
-  assert.match(enforcedCsp, /report-uri https:\/\/alento\.local\/api\/security\/csp-report/);
+  assert.match(enforcedCsp, /report-uri https:\/\/ORES\.local\/api\/security\/csp-report/);
   assert.match(reportOnlyCsp, /report-to csp-endpoint/);
   assert.match(reportTo, new RegExp(CSP_REPORT_PATH.replace("/", "\\/")));
 });

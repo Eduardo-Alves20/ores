@@ -135,7 +135,7 @@
     observeForms();
   }
 
-  window.AlentoCsrf = {
+  window.ORESCsrf = {
     getFieldName,
     getHeaderName,
     getToken,

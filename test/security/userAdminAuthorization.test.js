@@ -118,7 +118,7 @@ test("createManagedUser encaminha dados extras do voluntario para o UsuarioServi
     await createManagedUser({
       body: {
         nome: "Voluntario Teste",
-        email: "voluntario@alento.test",
+        email: "voluntario@ORES.test",
         login: "voluntario.teste",
         senha: "SenhaSegura123!",
         perfil: PERFIS.USUARIO,

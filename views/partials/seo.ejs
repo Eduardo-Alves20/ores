@@ -3,9 +3,9 @@
     typeof buildSeo === "function"
       ? buildSeo
       : (overrides = {}) => {
-          const defaultTitle = "GESA | Fundacao Alento";
+          const defaultTitle = "GESA | Fundacao ORES";
           const defaultDescription =
-            "Sistema web de gestao social da Fundacao Alento para familias, voluntarios, atendimentos e agenda.";
+            "Sistema web de gestao social da Fundacao ORES para familias, voluntarios, atendimentos e agenda.";
           const normalizePath = (value, fallback = "/") => {
             const normalized = String(value || "").trim();
             if (!normalized) return fallback;
@@ -24,13 +24,13 @@
             imageUrl: normalizePath(overrides.imagePath, "/assets/og-default.svg"),
             imageAlt:
               String(overrides.imageAlt || "").trim() ||
-              "Identidade visual do GESA, sistema de gestao social da Fundacao Alento.",
+              "Identidade visual do GESA, sistema de gestao social da Fundacao ORES.",
             robots: noindexValue
               ? "noindex, nofollow, noarchive"
               : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
             locale: "pt_BR",
             type: String(overrides.type || "").trim() || "website",
-            siteName: "GESA | Fundacao Alento",
+            siteName: "GESA | Fundacao ORES",
             themeColor: String(overrides.themeColor || "").trim() || "#b24a32",
             noindex: noindexValue,
             schemas: normalizeSchemas(overrides.schemas),
@@ -54,6 +54,9 @@
 <meta name="robots" content="<%= seoMeta.robots %>" />
 <meta name="application-name" content="GESA" />
 <meta name="theme-color" content="<%= seoMeta.themeColor %>" />
+<link rel="icon" type="image/svg+xml" href="/static/images/logo-ores.svg" />
+<link rel="shortcut icon" href="/static/images/logo-ores.svg" />
+<link rel="apple-touch-icon" href="/static/images/logo-ores.svg" />
 <link rel="canonical" href="<%= seoMeta.canonicalUrl %>" />
 <meta property="og:locale" content="<%= seoMeta.locale %>" />
 <meta property="og:type" content="<%= seoMeta.type %>" />

@@ -52,7 +52,7 @@ router.get("/", (req, res) => {
 
 router.get("/health", (req, res) => {
   return res.status(200).json({
-    service: "Alento API",
+    service: "ores API",
     status: "ok",
     now: new Date().toISOString(),
   });

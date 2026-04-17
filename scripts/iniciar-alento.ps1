@@ -11,7 +11,7 @@ if ($PSVersionTable.PSVersion.Major -ge 7) {
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $EnvPath = Join-Path $ProjectRoot ".env"
 $EnvExamplePath = Join-Path $ProjectRoot ".env.example"
-$PublicUrl = "https://sistema.institutoalento.ong.br/login"
+$PublicUrl = "https://sistema.institutoORES.ong.br/login"
 $LocalUrl = "http://localhost:8080/login"
 
 function Write-Step {
@@ -191,7 +191,7 @@ function Start-ComposeStack {
     $composeArgs += "--build"
   }
 
-  Write-Step "Subindo os containers do Alento..."
+  Write-Step "Subindo os containers do ORES..."
   & docker @composeArgs
   if ($LASTEXITCODE -ne 0) {
     throw "Falha ao subir os containers com docker compose."
@@ -236,7 +236,7 @@ try {
 
   Start-ComposeStack
 
-  Write-Step "Aguardando o Alento responder em localhost..."
+  Write-Step "Aguardando o ORES responder em localhost..."
   $localReady = Wait-HttpReady -Url $LocalUrl
 
   if ($localReady) {
@@ -249,7 +249,7 @@ try {
   & docker compose ps
 
   Write-Host ""
-  Write-SuccessLine "Alento pronto para uso."
+  Write-SuccessLine "ORES pronto para uso."
   Write-Host "Local:   $LocalUrl"
   Write-Host "Publico: $PublicUrl"
   Write-Host ""

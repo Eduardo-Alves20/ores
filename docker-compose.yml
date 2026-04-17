@@ -1,102 +1,20 @@
+version: "3.0"
+
 services:
-  mongo:
-    image: mongo:7.0
-    container_name: ores-mongo
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    command:
-      - mongod
-      - --replSet
-      - rs0
-      - --wiredTigerCacheSizeGB
-      - "0.50"
-      - --bind_ip_all
-      - --port
-      - "27017"
-    volumes:
-      - ores-mongo-data:/data/db
-      - ores-mongo-config:/data/configdb
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - 'mongosh --quiet --eval "quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)"'
-      interval: 5s
-      timeout: 5s
-      retries: 40
-    restart: unless-stopped
-    networks:
-      ores_network:
-        aliases:
-          - mongo
-
-  mongo-init:
-    image: mongo:7.0
-    container_name: ores-mongo-init
-    depends_on:
-      mongo:
-        condition: service_healthy
-    command:
-      - mongosh
-      - "mongodb://mongo:27017/admin"
-      - /docker/mongo-init-ores.js
-    volumes:
-      - ./docker/mongo-init-ores.js:/docker/mongo-init-ores.js:ro
-    restart: "no"
-    networks:
-      - ores_network
-
-  ores-app:
+  ores:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ores-app
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    depends_on:
-      mongo:
-        condition: service_healthy
-      mongo-init:
-        condition: service_completed_successfully
-    env_file:
-      - .env
-    environment:
-      PORT: 4000
-      HOST: 0.0.0.0
-      MONGO_URI: mongodb://mongo:27017/ORES?replicaSet=rs0
-    volumes:
-      - ./uploads:/app/uploads
-    restart: unless-stopped
-    networks:
-      - ores_network
-
-  ores-nginx:
-    image: nginx:1.27-alpine
-    container_name: ores-nginx
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    depends_on:
-      - ores-app
     ports:
-      - "80:80"
+      - "${PORT}:${PORT}"
     volumes:
-      - ./nginx/ores.conf:/etc/nginx/conf.d/default.conf:ro
-    restart: unless-stopped
-    networks:
-      - ores_network
-
-volumes:
-  ores-mongo-data:
-  ores-mongo-config:
-
-networks:
-  ores_network:
-    name: ores_network
+      - ./uploads:/app/uploads/
+    environment:
+      - TZ=America/Sao_Paulo
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${PORT}/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

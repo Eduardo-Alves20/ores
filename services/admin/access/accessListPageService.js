@@ -27,8 +27,6 @@ const {
 } = require("./accessPermissionService");
 const {
   buildApprovalWorkflowSummary,
-  resolveApprovalElectorate,
-  summarizeApprovalVotes,
 } = require("./accessApprovalWorkflowService");
 const {
   buildPageBase,
@@ -204,8 +202,6 @@ function buildApprovalQueueFilter({ busca, tipo }) {
 }
 
 async function buildApprovalQueuePageView(req) {
-  const actorId = req?.session?.user?.id || null;
-  const electorate = await resolveApprovalElectorate();
   const page = parsePage(req.query.page, 1);
   const limit = parseLimit(req.query.limit, 10);
   const busca = String(req.query.busca || "").trim().slice(0, 100);
@@ -227,14 +223,8 @@ async function buildApprovalQueuePageView(req) {
     ...doc,
     tipoCadastroLabel: tipoLabel(doc.tipoCadastro),
     nivelAcessoVoluntarioLabel: getVolunteerAccessLabel(doc.nivelAcessoVoluntario),
-    votosResumo: summarizeApprovalVotes(doc.votosAprovacao, actorId, electorate.presidentId),
-    workflowResumo: buildApprovalWorkflowSummary(doc, electorate),
+    workflowResumo: buildApprovalWorkflowSummary(doc),
   }));
-
-  const totalVotos = usuarios.reduce(
-    (acc, item) => acc + Number(item?.votosResumo?.total || 0),
-    0
-  );
 
   return {
     ...buildPageBase({
@@ -245,7 +235,6 @@ async function buildApprovalQueuePageView(req) {
     subtitle: "Fila de cadastro pendente com conferencia restrita para administracao e assistencia social autorizada.",
     usuarios,
     totalPendente,
-    totalVotos,
     paginacao: buildPagination(resultado),
     filtros: {
       busca,
@@ -257,7 +246,6 @@ async function buildApprovalQueuePageView(req) {
     canReviewSensitiveApprovalData: canReviewSensitiveApprovalData(req),
     volunteerAccessOptions: VOLUNTARIO_ACCESS_OPTIONS,
     approvalRoleOptions: buildApprovalRoleOptions(),
-    approvalElectorate: electorate,
   };
 }
 

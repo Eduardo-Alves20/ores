@@ -10,7 +10,7 @@ const {
 } = require("../../services/security/securityEventService");
 
 test("logSecurityEvent encadeia hash e sanitiza payload sensivel", () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "alento-security-event-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ORES-security-event-"));
   const logPath = path.join(tempDir, "events.log");
 
   const first = logSecurityEvent(
@@ -18,7 +18,7 @@ test("logSecurityEvent encadeia hash e sanitiza payload sensivel", () => {
       type: "auth.login_failed",
       severity: "warning",
       ip: "127.0.0.1",
-      payload: { email: "teste@alento.local", token: "segredo" },
+      payload: { email: "teste@ORES.local", token: "segredo" },
     },
     { filePath: logPath }
   );
@@ -28,7 +28,7 @@ test("logSecurityEvent encadeia hash e sanitiza payload sensivel", () => {
       type: "auth.login_failed",
       severity: "warning",
       ip: "127.0.0.1",
-      payload: { email: "teste@alento.local", token: "segredo-2" },
+      payload: { email: "teste@ORES.local", token: "segredo-2" },
     },
     { filePath: logPath }
   );

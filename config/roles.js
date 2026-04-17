@@ -10,7 +10,7 @@ const PERFIS_LIST = Object.freeze(Object.values(PERFIS));
 
 function normalizeProfileValue(value, fallback = "") {
   const raw = String(value || "").trim().toLowerCase();
-  if (raw === "admin_alento") return PERFIS.ADMIN;
+  if (raw === "admin_ORES") return PERFIS.ADMIN;
   if (raw === PERFIS.ADMIN) return PERFIS.ADMIN;
   if (raw === PERFIS.SUPERADMIN) return PERFIS.SUPERADMIN;
   if (raw === PERFIS.ATENDENTE) return PERFIS.ATENDENTE;
@@ -27,7 +27,7 @@ function isAdminProfile(value) {
 function getProfileLabel(value) {
   const normalized = normalizeProfileValue(value);
   if (normalized === PERFIS.SUPERADMIN) return "SuperAdmin";
-  if (normalized === PERFIS.ADMIN) return "admin_alento";
+  if (normalized === PERFIS.ADMIN) return "admin_ORES";
   if (normalized === PERFIS.ATENDENTE) return "Atendente";
   if (normalized === PERFIS.TECNICO) return "Tecnico";
   if (normalized === PERFIS.USUARIO) return "Usuario";

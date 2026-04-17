@@ -14,11 +14,11 @@ const AMBIENTE = (loadOrCreateEnvironment() || 'PROD').toUpperCase();
 const PORT = process.env.PORT;
 const DB_HOST = process.env.DB_HOST || '127.0.0.1';
 const DB_PORT = process.env.DB_PORT || '27017';
-const MONGO_FALLBACK = `mongodb://${DB_HOST}:${DB_PORT}/ALENTO`;
+const MONGO_FALLBACK = `mongodb://${DB_HOST}:${DB_PORT}/ORES`;
 const RAW_MONGODB_URI = process.env.MONGO_URI || process.env.MONGODB_URI || MONGO_FALLBACK;
 const MAXAGE = 60 * 60 * 1000 * 8; // 8 horas
 const HOST = process.env.HOST || '0.0.0.0';
-const SESSION_NAME = process.env.SESSION_NAME || 'alento.sid';
+const SESSION_NAME = process.env.SESSION_NAME || 'ORES.sid';
 
 function normalizeMongoUri(uri) {
   try {
@@ -60,33 +60,18 @@ store.on('error', (err) => {
   console.warn('⚠️  Session store error:', err?.message || err);
 });
 
-/**
- * Cookies:
- * - PROD/HOMOLOG: geralmente precisa SameSite=None + Secure=true (p/ SSO/iframes/redirects cross-site)
- * - DEV/LOCAL: SameSite=Lax + Secure=false, e NÃO setar domain (senão quebra localhost)
- */
 const sessionParser = session({
-  name: SESSION_NAME,
   secret: secretKey,
-  resave: false,
-  saveUninitialized: false,
-  rolling: true,
-  unset: 'destroy',
-  store,
-
-  // importante quando roda atrás de proxy (e quando você usa app.set('trust proxy', 1))
-  proxy: true,
-
   cookie: {
     maxAge: MAXAGE,
-    httpOnly: true,
-
-    sameSite: isProdLike ? 'none' : 'lax',
-    secure: isProdLike, // DEV/LOCAL precisa false (senão não salva cookie no http)
-    domain: isProdLike ? '.alento.org' : undefined,
-    priority: 'high',
   },
+  resave: true,
+  saveUninitialized: false,
+  rolling: true,
+  store,
 });
+
+
 
 module.exports = {
   PORT,

@@ -36,7 +36,7 @@
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(310px, 0.95fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
   padding: clamp(20px, 3vw, 30px);
   border-radius: 28px;
@@ -57,8 +57,7 @@
   pointer-events: none;
 }
 
-.dashboard-hero-main,
-.dashboard-priority-panel {
+.dashboard-hero-main {
   position: relative;
   z-index: 1;
 }

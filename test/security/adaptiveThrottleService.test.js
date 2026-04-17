@@ -15,7 +15,7 @@ const {
 
 function createRequest(overrides = {}) {
   return {
-    body: { identificador: "usuario@alento.local" },
+    body: { identificador: "usuario@ORES.local" },
     headers: {},
     ip: "127.0.0.1",
     method: "POST",
@@ -42,7 +42,7 @@ function createResponse() {
 
 test("adaptive throttle bloqueia chave apos exceder limiar de falhas", () => {
   THROTTLE_STATE.clear();
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "alento-adaptive-throttle-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ORES-adaptive-throttle-"));
   const previousLogPath = process.env.SECURITY_EVENT_LOG_PATH;
   process.env.SECURITY_EVENT_LOG_PATH = path.join(tempDir, "security-events.log");
 

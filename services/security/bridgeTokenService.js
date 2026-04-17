@@ -2,8 +2,9 @@ const crypto = require("crypto");
 
 const { normalizePermissionList } = require("../../config/permissions");
 const { isAdminProfile } = require("../../config/roles");
+const { loadUserConfig } = require("../shared/userConfigService");
 
-const BRIDGE_TOKEN_ISSUER = "alento";
+const BRIDGE_TOKEN_ISSUER = "ORES";
 const BRIDGE_TOKEN_TTL_SECONDS = 60;
 const BRIDGE_TOKEN_VERSION = 1;
 const BRIDGE_MAX_PERMISSION_CLAIMS = 64;
@@ -73,7 +74,13 @@ function resolveBridgeConfig(moduleView, user = null) {
 
   const bridgeRole = resolveBridgeRole(user);
   const rolePrefix = bridgeRole === "admin" ? "ADMIN" : "USER";
-  const bridgeUser = String(process.env[`${modulePrefix}_${rolePrefix}_LOGIN`] || "").trim();
+  const userConfig = loadUserConfig();
+  const bridgeUsers = userConfig?.moduleBridgeUsers || {};
+  const moduleKey = modulePrefix.toLowerCase();
+  const moduleBridgeUsers = bridgeUsers[moduleKey] || {};
+  const bridgeUser = String(
+    moduleBridgeUsers[`${bridgeRole}Login`] || process.env[`${modulePrefix}_${rolePrefix}_LOGIN`] || ""
+  ).trim();
   const bridgeSecret = String(process.env[`${modulePrefix}_BRIDGE_SECRET`] || "").trim();
 
   if (!bridgeUser || !bridgeSecret) {

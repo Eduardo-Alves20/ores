@@ -550,13 +550,8 @@ function buildDashboardLayoutPreferences({
   const isAtendente = profile === PERFIS.ATENDENTE;
 
   return {
-    storageKey: `alento.dashboard.layout.${String(userId || profile || "anon")}`,
+    storageKey: `ORES.dashboard.layout.${String(userId || profile || "anon")}`,
     blocks: [
-      {
-        id: "priorities",
-        label: "Prioridades",
-        defaultVisible: true,
-      },
       {
         id: "summary",
         label: "Resumo",

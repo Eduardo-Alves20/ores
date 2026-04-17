@@ -94,9 +94,9 @@
 
     function formatVoteLabel(value) {
       const normalized = String(value || "").trim().toLowerCase();
-      if (normalized === "aprovar") return "Aprovar";
-      if (normalized === "rejeitar") return "Rejeitar";
-      return "Ainda nao votou";
+      if (normalized === "aprovado" || normalized === "aprovar") return "Aprovado";
+      if (normalized === "rejeitado" || normalized === "rejeitar") return "Rejeitado";
+      return "Pendente";
     }
 
     function formatPendingVotesLabel(count, names = []) {
@@ -167,8 +167,8 @@
       const actionLabel = normalizedDecision === "rejeitar" ? "rejeitar" : "aprovar";
       const title =
         actionLabel === "rejeitar"
-          ? "Confirmar voto de rejeição?"
-          : "Confirmar voto de aprovação?";
+          ? "Confirmar rejeição?"
+          : "Confirmar aprovação?";
       const text = currentApprovalUserName
         ? `Você está prestes a ${actionLabel} o cadastro de ${currentApprovalUserName}.`
         : `Você está prestes a ${actionLabel} este cadastro.`;
@@ -252,7 +252,7 @@
         approvalDescription.textContent = "Carregando ficha do cadastro...";
       }
       if (actorVotePill) {
-        actorVotePill.textContent = "Ainda nao votou";
+        actorVotePill.textContent = "Aguardando decisao";
       }
       if (reasonsWrap) {
         reasonsWrap.hidden = true;
@@ -408,7 +408,7 @@
           return `
           <article class="aprovacao-level-card ${leaderClass}">
             <strong>${escapeHtml(item?.label || "-")}</strong>
-            <span>${escapeHtml(String(item?.count || 0))} voto(s)</span>
+            <span>${escapeHtml(String(item?.count || 0))} registro(s)</span>
           </article>
         `;
         })
@@ -482,8 +482,7 @@
       const isVolunteer = String(data?.tipoCadastro || "").trim().toLowerCase() === "voluntario";
       const approveVotes = Number(data?.votosResumo?.aprovar || 0);
       const rejectVotes = Number(data?.votosResumo?.rejeitar || 0);
-      const actorVote = String(data?.votosResumo?.actorVote || "").trim().toLowerCase();
-      const actorLevelVote = String(data?.votosResumo?.actorLevelVote || "").trim();
+      const approvalStatus = String(data?.statusAprovacao || "").trim().toLowerCase();
       const workflowResumo = data?.workflowResumo || {};
 
       currentApprovalUserId = String(data?._id || "").trim();
@@ -500,9 +499,12 @@
       setApprovalField("statusAprovacaoLabel", data?.statusAprovacaoLabel);
       setApprovalField("approveVotesLabel", String(approveVotes));
       setApprovalField("rejectVotesLabel", String(rejectVotes));
-      setApprovalField("actorVoteLabel", formatVoteLabel(data?.votosResumo?.actorVote));
-      setApprovalField("workflowStateLabel", workflowResumo?.stateLabel || "Coletando votos");
-      setApprovalField("presidentNameLabel", workflowResumo?.president?.nome || "-");
+      setApprovalField("actorVoteLabel", formatVoteLabel(approvalStatus));
+      setApprovalField(
+        "workflowStateLabel",
+        workflowResumo?.stateLabel || "Aguardando decisao do administrador"
+      );
+      setApprovalField("presidentNameLabel", workflowResumo?.president?.nome || "Administrador");
       setApprovalField(
         "pendingRegularVotesLabel",
         formatPendingVotesLabel(
@@ -520,11 +522,11 @@
       }
 
       if (approveVoteButton) {
-        approveVoteButton.classList.toggle("is-active", actorVote === "aprovar");
+        approveVoteButton.classList.toggle("is-active", approvalStatus === "aprovado");
       }
 
       if (rejectVoteButton) {
-        rejectVoteButton.classList.toggle("is-active", actorVote === "rejeitar");
+        rejectVoteButton.classList.toggle("is-active", approvalStatus === "rejeitado");
       }
 
       if (approvalDescription) {
@@ -534,18 +536,15 @@
       }
 
       if (actorVotePill) {
-        actorVotePill.textContent =
-          actorVote === "aprovar" && actorLevelVote
-            ? `${formatVoteLabel(actorVote)} - ${formatLevelValueLabel(actorLevelVote)}`
-            : formatVoteLabel(actorVote);
+        actorVotePill.textContent = formatVoteLabel(approvalStatus);
       }
 
       if (approveVoteForm) {
-        approveVoteForm.action = `/acessos/${data?._id}/votar`;
+        approveVoteForm.action = `/acessos/${data?._id}/aprovar`;
       }
 
       if (rejectVoteForm) {
-        rejectVoteForm.action = `/acessos/${data?._id}/votar`;
+        rejectVoteForm.action = `/acessos/${data?._id}/rejeitar`;
       }
 
       if (accessWrap) {

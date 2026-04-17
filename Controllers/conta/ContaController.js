@@ -166,7 +166,7 @@ class ContaController {
       });
 
       req.session.destroy(() => {
-        res.clearCookie(process.env.SESSION_NAME || "alento.sid");
+        res.clearCookie(process.env.SESSION_NAME || "ORES.sid");
         res.clearCookie("connect.sid");
         return res.redirect("/login?reason=senha_alterada");
       });

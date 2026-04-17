@@ -32,7 +32,7 @@ function isHtmlRequest(req) {
 }
 
 function clearSessionCookies(res) {
-  res.clearCookie(process.env.SESSION_NAME || "alento.sid");
+  res.clearCookie(process.env.SESSION_NAME || "ORES.sid");
   res.clearCookie("connect.sid");
 }
 

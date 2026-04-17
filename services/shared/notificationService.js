@@ -76,7 +76,7 @@ function buildEmailHtml({ titulo, mensagem, destinatarioNome = "", meta = {} }) 
       <p>${mensagem}</p>
       ${items ? `<ul>${items}</ul>` : ""}
       <p style="margin-top: 24px; font-size: 12px; color: #6b7280;">
-        Esta mensagem foi gerada automaticamente pelo sistema Alento.
+        Esta mensagem foi gerada automaticamente pelo sistema ORES.
       </p>
     </div>
   `;

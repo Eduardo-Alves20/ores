@@ -46,7 +46,7 @@
     };
   }
 
-  window.AlentoAcessosShared = {
+  window.ORESAcessosShared = {
     requestJson,
     createPageHelpers,
   };

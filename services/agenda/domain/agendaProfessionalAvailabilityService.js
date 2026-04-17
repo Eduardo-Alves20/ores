@@ -28,7 +28,7 @@ const FAMILY_BOOKING_DEFAULT_TYPE = TIPOS_AGENDA.includes("atendimento_sede")
   ? "atendimento_sede"
   : "outro";
 
-const FAMILY_BOOKING_DEFAULT_LOCAL = "Instituto Alento";
+const FAMILY_BOOKING_DEFAULT_LOCAL = "Instituto ORES";
 
 function parseTimeToMinutes(value) {
   const raw = String(value || "").trim();

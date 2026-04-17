@@ -280,7 +280,7 @@
   const blockNodeMap = new Map(
     dashboardBlocks.map((node) => [String(node.getAttribute("data-dashboard-block") || ""), node]),
   );
-  const storageKey = String(layoutConfig?.storageKey || "alento.dashboard.layout.default");
+  const storageKey = String(layoutConfig?.storageKey || "ORES.dashboard.layout.default");
   const blockDefaults = Array.isArray(layoutConfig?.blocks)
     ? layoutConfig.blocks.reduce((acc, item) => {
         const id = String(item?.id || "").trim();

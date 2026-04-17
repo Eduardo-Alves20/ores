@@ -102,7 +102,7 @@ function renderCadastroPage(req, res, options = {}) {
     layout: "partials/login.ejs",
     pageClass: "page-auth page-auth-cadastro",
     metaDescription:
-      "Solicite seu acesso ao GESA para acompanhar dados, atendimentos e processos da Fundação Alento como família, voluntário ou órgão público.",
+      "Solicite seu acesso ao GESA para acompanhar dados, atendimentos e processos da Fundação ORES como família, voluntário ou órgão público.",
     errorMessage: Array.isArray(options.errorMessage) ? options.errorMessage : req.flash("error"),
     successMessage: Array.isArray(options.successMessage) ? options.successMessage : req.flash("success"),
     formData: buildCadastroFormData(options.formData || req.query || {}),
@@ -147,7 +147,7 @@ class AuthController {
       layout: "partials/login.ejs",
       pageClass: "page-auth",
       metaDescription:
-        "Acesse o GESA, sistema de gestão social da Fundação Alento para famílias, voluntários, atendimentos e agenda institucional.",
+        "Acesse o GESA, sistema de gestão social da Fundação ORES para famílias, voluntários, atendimentos e agenda institucional.",
       errorMessage,
       successMessage,
     });
@@ -265,7 +265,7 @@ class AuthController {
       if (isHtmlRequest(req)) {
         req.flash(
           "success",
-          "Cadastro enviado com sucesso. A equipe da Alento já recebeu suas informações."
+          "Cadastro enviado com sucesso. A equipe da ORES já recebeu suas informações."
         );
         return res.redirect("/login");
       }
@@ -395,7 +395,7 @@ class AuthController {
 
     req.session.destroy(async () => {
       try {
-        res.clearCookie(process.env.SESSION_NAME || "alento.sid");
+        res.clearCookie(process.env.SESSION_NAME || "ORES.sid");
         res.clearCookie("connect.sid");
 
         await registrarAuditoria(req, {

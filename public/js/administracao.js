@@ -2,7 +2,7 @@
   const root = document.querySelector("[data-page='administracao']");
   if (!root) return;
 
-  const shared = window.AlentoAdministracaoShared;
+  const shared = window.ORESAdministracaoShared;
   if (
     !shared ||
     typeof shared.parseJsonScript !== "function" ||

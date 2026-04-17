@@ -29,7 +29,7 @@ function canReviewSensitiveApprovalData(req) {
 function canManageUsers(req) {
   const user = req?.session?.user || {};
   const perfil = String(user.perfil || "").toLowerCase();
-  if (perfil === PERFIS.SUPERADMIN) return true;
+  if (isAdminProfile(perfil)) return true;
   return hasAnyPermission(user.permissions || [], [PERMISSIONS.USUARIOS_MANAGE]);
 }
 
@@ -50,7 +50,7 @@ function buildCreateProfileOptions(req) {
     { value: PERFIS.USUARIO, label: "Usuario do Portal" },
     { value: PERFIS.ATENDENTE, label: "Atendente" },
     { value: PERFIS.TECNICO, label: "Tecnico" },
-    { value: PERFIS.ADMIN, label: "admin_alento" },
+    { value: PERFIS.ADMIN, label: "admin_ORES" },
   ];
 
   if (perfilAtual === PERFIS.SUPERADMIN) {

@@ -89,7 +89,7 @@ const FILTER_AREA_DEFINITIONS = Object.freeze({
         type: "select",
         options: [
           { value: "usuario", label: "Usuario" },
-          { value: "admin", label: "admin_alento" },
+          { value: "admin", label: "admin_ORES" },
           { value: "atendente", label: "Atendente" },
           { value: "tecnico", label: "Tecnico" },
         ],
@@ -451,7 +451,7 @@ function buildDefaultBirthdayCampaignSeed() {
           "Desejamos um novo ciclo cheio de saude, paz e coisas boas.",
         ],
         fechamentos: [
-          "Um abraco da equipe Alento.",
+          "Um abraco da equipe ORES.",
           "Feliz aniversario.",
         ],
       },
@@ -465,7 +465,7 @@ function buildDefaultBirthdayCampaignSeed() {
           "Desejamos que este novo ciclo traga bons encontros, apoio e motivos sinceros para celebrar.",
         ],
         fechamentos: [
-          "Com carinho, equipe Instituto Alento.",
+          "Com carinho, equipe Instituto ORES.",
         ],
       },
     },

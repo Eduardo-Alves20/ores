@@ -120,7 +120,7 @@ function mapAppointmentCard(item = {}) {
     dataHoraLabel: toDateTimeLabel(item?.inicio),
     dataLabel: formatDateOnly(item?.inicio),
     dependenteNome: sanitizeExternalText(item?.pacienteId?.nome, "Familia"),
-    profissionalNome: sanitizeExternalText(item?.responsavelId?.nome, "Equipe Alento"),
+    profissionalNome: sanitizeExternalText(item?.responsavelId?.nome, "Equipe ORES"),
     salaNome: sanitizeExternalText(item?.salaId?.nome, "-"),
     local: sanitizeExternalText(item?.local, "-"),
     statusAgendamento: String(item?.statusAgendamento || "agendado"),
@@ -145,7 +145,7 @@ function mapPortalFamilyAgendaEvent(item = {}) {
     dependenteNome: sanitizeExternalText(item?.pacienteId?.nome, "Familia"),
     profissionalNome: sanitizeExternalText(
       item?.responsavelId?.nome,
-      "Equipe Alento"
+      "Equipe ORES"
     ),
     salaNome: sanitizeExternalText(item?.salaId?.nome, "-"),
     local: sanitizeExternalText(item?.local, "-"),

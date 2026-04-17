@@ -39,7 +39,7 @@
       <% }) %>
     <% } %>
   </head>
-  <body class="app app-light <%= pageClass || '' %>">
+  <body class="app app-light <%= typeof pageClass !== 'undefined' ? pageClass : '' %>">
     <%- body %>
     <%
       const __normalizeFlash = (value) => {
@@ -75,4 +75,3 @@
     <% } %>
   </body>
 </html>
-

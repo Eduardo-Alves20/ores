@@ -552,7 +552,7 @@ async function buildProfessionalConsultationDetailViewModel(req) {
       agendaHref: `/agenda?responsavelId=${encodeURIComponent(professionalId)}`,
       familyId: family?._id || familyId || "",
       patientId,
-      local: String(evento.local || "").trim() || "Instituto Alento",
+      local: String(evento.local || "").trim() || "Instituto ORES",
     };
   });
 

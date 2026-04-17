@@ -1,16 +1,16 @@
 const { isProdLike } = require("../../config/env");
 
 const SITE_NAME = "GESA";
-const SITE_DISPLAY_NAME = "GESA | Fundacao Alento";
-const ORGANIZATION_NAME = "Fundacao Alento";
+const SITE_DISPLAY_NAME = "GESA | Fundacao ORES";
+const ORGANIZATION_NAME = "Fundacao ORES";
 const DEFAULT_LOCALE = "pt_BR";
 const DEFAULT_TYPE = "website";
 const DEFAULT_THEME_COLOR = "#b24a32";
 const DEFAULT_IMAGE_PATH = "/assets/og-default.svg";
 const DEFAULT_IMAGE_ALT =
-  "Identidade visual do GESA, sistema de gestao social da Fundacao Alento.";
+  "Identidade visual do GESA, sistema de gestao social da Fundacao ORES.";
 const DEFAULT_DESCRIPTION =
-  "Sistema web de gestao social da Fundacao Alento para familias, voluntarios, atendimentos e agenda.";
+  "Sistema web de gestao social da Fundacao ORES para familias, voluntarios, atendimentos e agenda.";
 
 const INDEXABLE_PUBLIC_PATHS = new Set(["/login", "/cadastro"]);
 const PRIVATE_DISALLOW_PATHS = [
@@ -120,7 +120,7 @@ function normalizeTitle(title) {
   if (!cleanTitle) return SITE_DISPLAY_NAME;
 
   const lowerTitle = cleanTitle.toLowerCase();
-  if (lowerTitle.includes("gesa") || lowerTitle.includes("alento")) {
+  if (lowerTitle.includes("gesa") || lowerTitle.includes("ORES")) {
     return cleanTitle;
   }
 
@@ -129,17 +129,17 @@ function normalizeTitle(title) {
 
 function resolveDefaultDescription(pathname, title, noindex) {
   if (pathname === "/login") {
-    return "Acesse o GESA, sistema de gestao social da Fundacao Alento para familias, voluntarios, atendimentos e agenda institucional.";
+    return "Acesse o GESA, sistema de gestao social da Fundacao ORES para familias, voluntarios, atendimentos e agenda institucional.";
   }
 
   if (pathname === "/cadastro") {
-    return "Crie seu acesso ao GESA para acompanhar dados, atendimentos e fluxos da Fundacao Alento como familia ou voluntario.";
+    return "Crie seu acesso ao GESA para acompanhar dados, atendimentos e fluxos da Fundacao ORES como familia ou voluntario.";
   }
 
   if (noindex) {
     const shortTitle = sanitizeText(title).replace(/\s+\|\s+GESA$/i, "");
     if (shortTitle) {
-      return `${shortTitle} na area interna do GESA, sistema de gestao social da Fundacao Alento.`;
+      return `${shortTitle} na area interna do GESA, sistema de gestao social da Fundacao ORES.`;
     }
   }
 
@@ -165,7 +165,7 @@ function buildPublicSchemas(req) {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: SITE_NAME,
-      alternateName: "Sistema de Gestao da Fundacao Alento",
+      alternateName: "Sistema de Gestao da Fundacao ORES",
       url: siteUrl,
       inLanguage: "pt-BR",
       publisher: {

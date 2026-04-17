@@ -80,7 +80,7 @@ test("createBridgeToken assina token curto com claims minimas", () => {
         user: {
           id: "507f1f77bcf86cd799439011",
           authVersion: 2,
-          email: "ADMIN@ALENTO.LOCAL",
+          email: "ADMIN@ORES.LOCAL",
           perfil: "admin",
           permissions: ["dashboard.view", "agenda.view", "agenda.view"],
           tipoCadastro: "Voluntario",
@@ -99,7 +99,7 @@ test("createBridgeToken assina token curto com claims minimas", () => {
       assert.equal(payload.sub, "507f1f77bcf86cd799439011");
       assert.deepEqual(payload.src, {
         authVersion: 2,
-        email: "admin@alento.local",
+        email: "admin@ORES.local",
         nivelAcessoVoluntario: "",
         perfil: "admin",
         permissions: ["dashboard.view", "agenda.view"],
