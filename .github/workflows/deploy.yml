@@ -1,4 +1,4 @@
-name: Deploy Windows Docker
+name: Deploy Ubuntu Docker
 
 on:
   push:
@@ -6,26 +6,30 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux]
+
+    env:
+      DEPLOY_DIR: /opt/deploy/ores
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Sync project files to deploy folder
-        shell: powershell
+        shell: bash
         run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-          $dest = "C:\deploy\ores"
-          if (!(Test-Path $dest)) {
-            New-Item -ItemType Directory -Path $dest -Force | Out-Null
-          }
-          robocopy $env:GITHUB_WORKSPACE $dest /MIR /XD .git .github node_modules
-          if ($LASTEXITCODE -le 7) { exit 0 } else { exit $LASTEXITCODE }
+          set -euo pipefail
+          mkdir -p "$DEPLOY_DIR"
+
+          rsync -a --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "node_modules" \
+            "$GITHUB_WORKSPACE/" "$DEPLOY_DIR/"
 
       - name: Rebuild and restart containers
-        shell: powershell
+        shell: bash
         run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-          Set-Location "C:\deploy\ores"
+          set -euo pipefail
+          cd "$DEPLOY_DIR"
           docker compose up -d --build --remove-orphans
