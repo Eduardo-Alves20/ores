@@ -38,6 +38,28 @@ function resolveAbsolutePathUrl(req, pathname) {
   return `${protocol}://${host}${safePath}`;
 }
 
+function extractHostname(host) {
+  const raw = String(host || "").trim();
+  if (!raw) return "";
+  return raw.replace(/^\[|\]$/g, "").split(":")[0].toLowerCase();
+}
+
+function isLoopbackHost(hostname) {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+}
+
+function isPotentiallyTrustworthyRequest(req) {
+  const protocol = String(req?.protocol || "").trim().toLowerCase();
+  if (protocol === "https") return true;
+
+  const host =
+    req?.hostname ||
+    req?.get?.("x-forwarded-host") ||
+    req?.get?.("host") ||
+    "";
+  return protocol === "http" && isLoopbackHost(extractHostname(host));
+}
+
 function joinDirective(name, values) {
   return `${name} ${values.join(" ")}`;
 }
@@ -131,9 +153,11 @@ function applySecurityHeaders(req, res, next) {
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
   res.setHeader("Cross-Origin-Resource-Policy", "same-site");
-  res.setHeader("Origin-Agent-Cluster", "?1");
+  if (isPotentiallyTrustworthyRequest(req)) {
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    res.setHeader("Origin-Agent-Cluster", "?1");
+  }
   res.setHeader(
     "Permissions-Policy",
     "accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()"
@@ -163,6 +187,7 @@ module.exports = {
   buildCspDirectives,
   buildReportToHeader,
   generateCspNonce,
+  isPotentiallyTrustworthyRequest,
   renderCspNonceAttr,
   resolveCspConfiguration,
 };
