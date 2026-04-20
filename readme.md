@@ -106,7 +106,7 @@ O compose agora consegue subir o stack completo mesmo em maquina nova, usando Mo
 2. Suba:
 
 ```bash
-docker compose --profile public up -d --build
+docker compose up -d --build
 ```
 
 4. Acesse:
@@ -115,9 +115,10 @@ docker compose --profile public up -d --build
 
 Observacoes importantes:
 
-- O `docker-compose.yml` agora sobe Mongo, app, nginx e o tunel publico.
+- O `docker-compose.yml` sobe `mongo` e `ores`.
+- O Mongo roda apenas na rede interna do Docker (sem exposicao publica da porta 27017).
 - Dentro do container, a conexao padrao usa:
-  - `MONGO_URI_DOCKER=mongodb://mongo:27017/ORES?directConnection=true`
+  - `MONGO_URI_DOCKER=mongodb://<usuario>:<senha>@mongo:27017/ORES?authSource=admin&directConnection=true`
 - Se quiser continuar usando um Mongo externo, basta ajustar `MONGO_URI_DOCKER` no `.env`.
 
 ## Estrutura resumida

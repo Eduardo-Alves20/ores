@@ -12,84 +12,10 @@
     "syncPassword": true
   },
   "approval": {
-    "presidentLogin": "admin1",
-    "presidentEmail": "admin1@ORES.local"
+    "presidentLogin": "",
+    "presidentEmail": ""
   },
-  "demoUsers": [
-    {
-      "email": "admindemo@ORES.local",
-      "login": "admindemo",
-      "fallbackLogin": "admindemo",
-      "name": "Administrador Demo",
-      "password": "admin123",
-      "profile": "admin"
-    },
-    {
-      "email": "usuariodemo@ORES.local",
-      "login": "usuariodemo",
-      "fallbackLogin": "usuariodemo",
-      "name": "Usuario Demo",
-      "password": "usuario123",
-      "profile": "usuario",
-      "volunteerAccessLevel": "servico_social",
-      "birthDate": "1992-03-25"
-    },
-    {
-      "email": "admin1@ORES.local",
-      "login": "admin1",
-      "fallbackLogin": "admin1",
-      "name": "Admin 1",
-      "password": "123",
-      "profile": "admin",
-      "approvalRole": "presidente"
-    },
-    {
-      "email": "admin2@ORES.local",
-      "login": "admin2",
-      "fallbackLogin": "admin2",
-      "name": "Admin 2",
-      "password": "123",
-      "profile": "admin"
-    },
-    {
-      "email": "admin3@ORES.local",
-      "login": "admin3",
-      "fallbackLogin": "admin3",
-      "name": "Admin 3",
-      "password": "123",
-      "profile": "admin"
-    },
-    {
-      "email": "helena.demo@ORES.local",
-      "login": "familia1",
-      "fallbackLogin": "familia1",
-      "name": "Helena Demo Souza",
-      "password": "123",
-      "profile": "usuario",
-      "registrationType": "familia",
-      "birthDate": "1987-03-23"
-    },
-    {
-      "email": "joana.demo@ORES.local",
-      "login": "familia2",
-      "fallbackLogin": "familia2",
-      "name": "Joana Demo Almeida",
-      "password": "123",
-      "profile": "usuario",
-      "registrationType": "familia",
-      "birthDate": "1990-03-27"
-    },
-    {
-      "email": "carlos.demo@ORES.local",
-      "login": "familia3",
-      "fallbackLogin": "familia3",
-      "name": "Carlos Demo Costa",
-      "password": "123",
-      "profile": "usuario",
-      "registrationType": "familia",
-      "birthDate": "1985-03-28"
-    }
-  ],
+  "demoUsers": [],
   "moduleBridgeUsers": {
     "helpdesk": {
       "adminLogin": "admin",

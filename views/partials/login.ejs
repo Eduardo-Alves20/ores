@@ -28,7 +28,8 @@
       const appendAssetVersion = (href) => {
         const rawHref = String(href || "");
         if (!rawHref.startsWith("/")) return rawHref;
-        return `${rawHref}${rawHref.includes("?") ? "&" : "?"}v=${assetVersion || "1"}`;
+        const safeAssetVersion = typeof assetVersion !== "undefined" ? assetVersion : "1";
+        return `${rawHref}${rawHref.includes("?") ? "&" : "?"}v=${safeAssetVersion || "1"}`;
       };
     %>
     <link rel="stylesheet" href="<%= appendAssetVersion('/css/index.css') %>" />

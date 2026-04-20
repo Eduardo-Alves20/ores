@@ -20,8 +20,6 @@ const { PERFIS } = require("./config/roles");
 const { PERMISSIONS } = require("./config/permissions");
 const { hasAnyPermission } = require("./services/shared/accessControlService");
 const { ensureAdminFromEnv, ensureSuperAdminFromEnv } = require("./services/shared/bootstrapAdminService");
-const { ensureDemoUsers } = require("./services/shared/bootstrapDemoUsersService");
-const { ensureDemoClinicData } = require("./services/shared/bootstrapDemoClinicDataService");
 
 const app = express();
 const ASSET_VERSION = process.env.ASSET_VERSION || new Date().getTime().toString();
@@ -80,6 +78,7 @@ app.use(expressLayouts);
 app.set("trust proxy", 1);
 app.set("layout", "partials/login.ejs");
 app.locals.serializeForInlineScript = serializeForInlineScript;
+app.locals.assetVersion = ASSET_VERSION;
 app.locals.cspNonce = "";
 app.locals.renderCspNonceAttr = () => "";
 
@@ -221,8 +220,6 @@ function startServer() {
     await connectDb();
     await ensureSuperAdminFromEnv();
     await ensureAdminFromEnv();
-    await ensureDemoUsers();
-    await ensureDemoClinicData();
 
     mountRoutes();
     startServer();
