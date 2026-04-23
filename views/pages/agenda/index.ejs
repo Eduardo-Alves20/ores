@@ -10,7 +10,8 @@
         <select id="agenda-responsavel-filtro" class="input-control"></select>
       </label>
       <button type="button" class="btn btn-muted" id="agenda-hoje-btn">Hoje</button>
-      <% if (agendaConfig?.permissions?.canManageAvailability) { %>
+      <%# Disponibilidade do medico/profissional desativada temporariamente. Bloco preservado para rollback. %>
+      <% if (false && agendaConfig?.permissions?.canManageAvailability) { %>
         <button type="button" class="btn btn-muted" id="agenda-disponibilidade-btn">Minha Disponibilidade</button>
       <% } %>
       <% if (agendaConfig?.permissions?.canManageRooms) { %>
@@ -124,7 +125,7 @@
 </section>
 
 <div class="agenda-modal-backdrop" id="agenda-modal-backdrop" hidden>
-  <section class="agenda-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-modal-title">
+  <section class="agenda-modal agenda-scheduling-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-modal-title">
     <header class="agenda-modal-head">
       <h3 id="agenda-modal-title">Novo Agendamento</h3>
       <button type="button" class="btn btn-muted agenda-modal-close-btn" id="agenda-modal-close" aria-label="Fechar modal de agendamento">
@@ -133,88 +134,126 @@
       </button>
     </header>
 
-    <form id="agenda-form" class="agenda-form">
+    <div class="agenda-modal-steps" id="agenda-modal-steps" aria-hidden="true">
+      <div class="agenda-step-item is-active" data-step-item="1">
+        <span class="agenda-step-dot" data-step-dot="1">1</span>
+        <span class="agenda-step-label">Tipo</span>
+      </div>
+      <span class="agenda-step-line" data-step-line></span>
+      <div class="agenda-step-item" data-step-item="2">
+        <span class="agenda-step-dot" data-step-dot="2">2</span>
+        <span class="agenda-step-label">Detalhes</span>
+      </div>
+    </div>
+
+    <form id="agenda-form" class="agenda-form agenda-form-wizard">
       <div class="agenda-form-feedback" id="agenda-form-feedback" role="alert" aria-live="polite" hidden></div>
-      <div class="agenda-form-grid">
-        <label class="field-wrap span-2">
-          <span class="input-label">Título *</span>
-          <input class="input-control" type="text" name="titulo" required maxlength="140" />
-          <small class="agenda-field-feedback" id="agenda-feedback-titulo" hidden></small>
-        </label>
+      <section class="agenda-form-step" id="agenda-form-step-1">
+        <p class="agenda-step-question">Qual o tipo de agendamento?</p>
+        <div class="agenda-type-grid" id="agenda-type-grid" role="group" aria-label="Tipos de agendamento"></div>
+      </section>
 
-        <label class="field-wrap">
-          <span class="input-label">Data *</span>
-          <input class="input-control" type="date" name="data" required />
-          <small class="agenda-field-feedback" id="agenda-feedback-data" hidden></small>
-        </label>
-
-        <label class="field-wrap">
-          <span class="input-label">Hora *</span>
-          <input class="input-control" type="time" name="hora" required />
-          <small class="agenda-field-feedback" id="agenda-feedback-hora" hidden></small>
-        </label>
-
-        <label class="field-wrap">
-          <span class="input-label">Tipo de atendimento</span>
-          <select class="input-control" name="tipoAtendimento" id="agenda-tipo-select"></select>
-        </label>
-
-        <label class="field-wrap">
-          <span class="input-label">Responsável</span>
-          <select class="input-control" name="responsavelId" id="agenda-responsavel-select"></select>
-        </label>
-
-        <label class="field-wrap">
-          <span class="input-label" id="agenda-sala-label">Sala de atendimento</span>
-          <select class="input-control" name="salaId" id="agenda-sala-select">
-            <option value="">Carregando salas...</option>
-          </select>
-          <small class="agenda-field-feedback" id="agenda-feedback-sala" hidden></small>
-        </label>
-
-        <div class="agenda-room-hint span-2" id="agenda-sala-hint">
-          As salas livres para este horario aparecem automaticamente aqui.
+      <section class="agenda-form-step" id="agenda-form-step-2" hidden>
+        <div class="agenda-type-summary-chip" id="agenda-type-summary">
+          <span class="agenda-type-summary-icon" id="agenda-type-summary-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+          </span>
+          <span id="agenda-type-summary-label">Tipo</span>
         </div>
 
-        <label class="field-wrap span-2">
-          <span class="input-label">Buscar família</span>
-          <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsável, telefone..." />
-        </label>
+        <div class="agenda-form-grid">
+          <label class="field-wrap span-2" data-agenda-field="titulo">
+            <span class="input-label">Titulo *</span>
+            <input class="input-control" type="text" name="titulo" required maxlength="140" />
+            <small class="agenda-field-feedback" id="agenda-feedback-titulo" hidden></small>
+          </label>
 
-        <label class="field-wrap">
-          <span class="input-label">Família</span>
-          <select class="input-control" name="familiaId" id="agenda-familia-select">
-            <option value="">Sem família vinculada</option>
-          </select>
-        </label>
+          <label class="field-wrap" data-agenda-field="data">
+            <span class="input-label">Data *</span>
+            <input class="input-control" type="date" name="data" required />
+            <small class="agenda-field-feedback" id="agenda-feedback-data" hidden></small>
+          </label>
 
-        <label class="field-wrap">
-          <span class="input-label">Paciente</span>
-          <select class="input-control" name="pacienteId" id="agenda-paciente-select">
-            <option value="">Sem paciente específico</option>
-          </select>
-        </label>
+          <label class="field-wrap" data-agenda-field="hora">
+            <span class="input-label">Hora *</span>
+            <input class="input-control" type="time" name="hora" required />
+            <small class="agenda-field-feedback" id="agenda-feedback-hora" hidden></small>
+          </label>
 
-        <label class="field-wrap span-2">
-          <span class="input-label">Local / Endereço</span>
-          <input class="input-control" type="text" name="local" maxlength="240" />
-        </label>
+          <label class="field-wrap span-2 agenda-type-select-hidden" id="agenda-tipo-select-wrap" hidden>
+            <span class="input-label">Tipo de atendimento</span>
+            <select class="input-control" name="tipoAtendimento" id="agenda-tipo-select"></select>
+          </label>
 
-        <label class="field-wrap span-2">
-          <span class="input-label">Observações</span>
-          <textarea class="input-control textarea-control" name="observacoes" rows="4" maxlength="3000"></textarea>
-        </label>
-      </div>
+          <label class="field-wrap" data-agenda-field="responsavel">
+            <span class="input-label">Responsavel</span>
+            <select class="input-control" name="responsavelId" id="agenda-responsavel-select"></select>
+          </label>
 
-      <p class="agenda-form-hint">
-        Dica: você pode arrastar no painel da direita ou arrastar o dia (quando houver 1 evento) para soltar em outra data no calendário.
-      </p>
-      <p class="agenda-save-hint">As alterações só são aplicadas quando você clicar em "Salvar Agendamento".</p>
+          <label class="field-wrap" data-agenda-field="sala">
+            <span class="input-label" id="agenda-sala-label">Sala de atendimento</span>
+            <select class="input-control" name="salaId" id="agenda-sala-select">
+              <option value="">Carregando salas...</option>
+            </select>
+            <small class="agenda-field-feedback" id="agenda-feedback-sala" hidden></small>
+          </label>
 
-      <div class="agenda-form-actions">
+          <div class="agenda-room-hint span-2" id="agenda-sala-hint" data-agenda-field="sala_hint">
+            As salas livres para este horario aparecem automaticamente aqui.
+          </div>
+
+          <label class="field-wrap span-2" data-agenda-field="familia_busca">
+            <span class="input-label">Buscar familia</span>
+            <input class="input-control" type="search" name="familiaBusca" id="agenda-familia-busca" placeholder="Nome do responsavel, telefone..." />
+          </label>
+
+          <label class="field-wrap" data-agenda-field="familia">
+            <span class="input-label">Familia</span>
+            <select class="input-control" name="familiaId" id="agenda-familia-select">
+              <option value="">Sem familia vinculada</option>
+            </select>
+          </label>
+
+          <label class="field-wrap" data-agenda-field="paciente">
+            <span class="input-label">Paciente</span>
+            <select class="input-control" name="pacienteId" id="agenda-paciente-select">
+              <option value="">Sem paciente especifico</option>
+            </select>
+          </label>
+
+          <label class="field-wrap span-2" data-agenda-field="local">
+            <span class="input-label">Local / Endereco</span>
+            <input class="input-control" type="text" name="local" maxlength="240" />
+          </label>
+
+          <label class="field-wrap span-2" data-agenda-field="observacoes">
+            <span class="input-label">Observacoes</span>
+            <textarea class="input-control textarea-control" name="observacoes" rows="4" maxlength="3000"></textarea>
+          </label>
+        </div>
+
+        <p class="agenda-form-hint">
+          Dica: voce pode arrastar no painel da direita ou arrastar o dia (quando houver 1 evento) para soltar em outra data no calendario.
+        </p>
+        <p class="agenda-save-hint">As alteracoes so sao aplicadas quando voce clicar em "Salvar Agendamento".</p>
+      </section>
+
+      <div class="agenda-form-actions agenda-form-actions-wizard">
         <button type="button" class="btn btn-muted" id="agenda-form-cancel">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="agenda-form-submit">Salvar Agendamento</button>
+        <button type="button" class="btn btn-muted" id="agenda-step-back" hidden>
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Voltar</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="agenda-step-next">Continuar</button>
+        <button type="submit" class="btn btn-primary" id="agenda-form-submit" hidden>Salvar Agendamento</button>
       </div>
+
+      <p class="agenda-form-hint agenda-wizard-hint" id="agenda-step-hint-1">
+        Dica: voce pode arrastar os eventos no calendario para reagendar.
+      </p>
+      <p class="agenda-form-hint agenda-wizard-hint" id="agenda-step-hint-2" hidden>
+        Revise os dados antes de salvar.
+      </p>
     </form>
   </section>
 </div>
@@ -282,67 +321,70 @@
 
 <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="agenda-presenca-justificativas" type="application/json"><%- serializeForInlineScript(agendaConfig?.attendanceJustifications || []) %></script>
 
-<div class="agenda-modal-backdrop" id="agenda-disponibilidade-backdrop" hidden>
-  <section class="agenda-modal agenda-availability-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-disponibilidade-title">
-    <header class="agenda-modal-head">
-      <div>
-        <h3 id="agenda-disponibilidade-title">Minha disponibilidade</h3>
-        <p class="agenda-modal-subtitle">Defina os dias e horarios em que voce atende para o portal da familia mostrar apenas janelas livres.</p>
-      </div>
-      <button type="button" class="btn btn-muted agenda-modal-close-btn" id="agenda-disponibilidade-close" aria-label="Fechar modal de disponibilidade">
-        <i class="fa-solid fa-xmark"></i>
-        <span>Fechar</span>
-      </button>
-    </header>
+<%# Modal de disponibilidade desativada temporariamente para medico/profissional. Bloco preservado para rollback. %>
+<% if (false && agendaConfig?.permissions?.canManageAvailability) { %>
+  <div class="agenda-modal-backdrop" id="agenda-disponibilidade-backdrop" hidden>
+    <section class="agenda-modal agenda-availability-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-disponibilidade-title">
+      <header class="agenda-modal-head">
+        <div>
+          <h3 id="agenda-disponibilidade-title">Minha disponibilidade</h3>
+          <p class="agenda-modal-subtitle">Defina os dias e horarios em que voce atende para o portal da familia mostrar apenas janelas livres.</p>
+        </div>
+        <button type="button" class="btn btn-muted agenda-modal-close-btn" id="agenda-disponibilidade-close" aria-label="Fechar modal de disponibilidade">
+          <i class="fa-solid fa-xmark"></i>
+          <span>Fechar</span>
+        </button>
+      </header>
 
-    <div class="agenda-presenca-shell agenda-availability-shell">
-      <div class="agenda-availability-status">
-        <label class="agenda-availability-toggle">
-          <input type="checkbox" id="agenda-disponibilidade-ativo" />
-          <span>Disponibilizar meus horarios para agendamento da familia</span>
-        </label>
-        <p class="agenda-form-hint">Cada linha ativa libera horarios de 30 em 30 minutos dentro da faixa informada.</p>
-      </div>
+      <div class="agenda-presenca-shell agenda-availability-shell">
+        <div class="agenda-availability-status">
+          <label class="agenda-availability-toggle">
+            <input type="checkbox" id="agenda-disponibilidade-ativo" />
+            <span>Disponibilizar meus horarios para agendamento da familia</span>
+          </label>
+          <p class="agenda-form-hint">Cada linha ativa libera horarios de 30 em 30 minutos dentro da faixa informada.</p>
+        </div>
 
-      <div class="agenda-availability-grid" id="agenda-disponibilidade-grid">
-        <% [
-          { value: 1, label: "Segunda-feira" },
-          { value: 2, label: "Terca-feira" },
-          { value: 3, label: "Quarta-feira" },
-          { value: 4, label: "Quinta-feira" },
-          { value: 5, label: "Sexta-feira" },
-          { value: 6, label: "Sabado" },
-          { value: 0, label: "Domingo" },
-        ].forEach((day) => { %>
-          <article class="agenda-availability-day-card" data-availability-day-card data-dia-semana="<%= day.value %>">
-            <label class="agenda-availability-day-head">
-              <input type="checkbox" data-availability-enabled />
-              <span><%= day.label %></span>
-            </label>
-
-            <div class="agenda-availability-time-row">
-              <label class="field-wrap">
-                <span class="input-label">Inicio</span>
-                <input class="input-control" type="time" data-availability-start value="08:00" />
+        <div class="agenda-availability-grid" id="agenda-disponibilidade-grid">
+          <% [
+            { value: 1, label: "Segunda-feira" },
+            { value: 2, label: "Terca-feira" },
+            { value: 3, label: "Quarta-feira" },
+            { value: 4, label: "Quinta-feira" },
+            { value: 5, label: "Sexta-feira" },
+            { value: 6, label: "Sabado" },
+            { value: 0, label: "Domingo" },
+          ].forEach((day) => { %>
+            <article class="agenda-availability-day-card" data-availability-day-card data-dia-semana="<%= day.value %>">
+              <label class="agenda-availability-day-head">
+                <input type="checkbox" data-availability-enabled />
+                <span><%= day.label %></span>
               </label>
 
-              <label class="field-wrap">
-                <span class="input-label">Fim</span>
-                <input class="input-control" type="time" data-availability-end value="12:00" />
-              </label>
-            </div>
-          </article>
-        <% }) %>
-      </div>
+              <div class="agenda-availability-time-row">
+                <label class="field-wrap">
+                  <span class="input-label">Inicio</span>
+                  <input class="input-control" type="time" data-availability-start value="08:00" />
+                </label>
 
-      <div class="agenda-form-actions">
-        <button type="button" class="btn btn-muted" id="agenda-disponibilidade-cancel">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="agenda-disponibilidade-submit">Salvar disponibilidade</button>
+                <label class="field-wrap">
+                  <span class="input-label">Fim</span>
+                  <input class="input-control" type="time" data-availability-end value="12:00" />
+                </label>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <div class="agenda-form-actions">
+          <button type="button" class="btn btn-muted" id="agenda-disponibilidade-cancel">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="agenda-disponibilidade-submit">Salvar disponibilidade</button>
+        </div>
+        <p class="agenda-save-hint">A disponibilidade só é atualizada ao clicar em "Salvar disponibilidade".</p>
       </div>
-      <p class="agenda-save-hint">A disponibilidade só é atualizada ao clicar em "Salvar disponibilidade".</p>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>
+<% } %>
 
 <div class="agenda-modal-backdrop" id="agenda-salas-backdrop" hidden>
   <section class="agenda-modal agenda-salas-modal card-elevated" role="dialog" aria-modal="true" aria-labelledby="agenda-salas-title">

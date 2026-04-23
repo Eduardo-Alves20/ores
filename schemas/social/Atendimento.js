@@ -51,6 +51,12 @@ const AtendimentoSchema = new mongoose.Schema(
       trim: true,
       maxlength: 4000,
     },
+    notasPrivadas: {
+      type: String,
+      trim: true,
+      maxlength: 8000,
+      default: null,
+    },
     proximosPassos: {
       type: String,
       trim: true,

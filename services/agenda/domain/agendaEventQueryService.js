@@ -1,4 +1,7 @@
 const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
+const Usuario = require("../../../schemas/core/Usuario");
+const { PERFIS } = require("../../../config/roles");
+const { VOLUNTARIO_ACCESS_LEVELS } = require("../../../config/volunteerAccess");
 const { PERMISSIONS } = require("../../../config/permissions");
 const { hasAnyPermission } = require("../../shared/accessControlService");
 const { asObjectId } = require("../../shared/agendaAvailabilityService");
@@ -21,6 +24,40 @@ function ensureAgendaViewAccess(user) {
   if (!user || !hasAnyPermission(user.permissions || [], [PERMISSIONS.AGENDA_VIEW])) {
     throw createAgendaError(403, "Acesso negado para agenda.");
   }
+}
+
+function isSocialAssistantViewer(user) {
+  const perfil = String(user?.perfil || "").trim().toLowerCase();
+  const nivel = String(user?.nivelAcessoVoluntario || "").trim().toLowerCase();
+  return perfil === PERFIS.USUARIO && nivel === VOLUNTARIO_ACCESS_LEVELS.SERVICO_SOCIAL;
+}
+
+function buildAtendimentoProfessionalFilter() {
+  return {
+    ativo: true,
+    perfil: PERFIS.USUARIO,
+    tipoCadastro: "voluntario",
+    statusAprovacao: "aprovado",
+    nivelAcessoVoluntario: VOLUNTARIO_ACCESS_LEVELS.VOLUNTARIO_ATENDIMENTO,
+  };
+}
+
+async function resolveAtendimentoProfessionalIdsForViewer(user) {
+  if (!isSocialAssistantViewer(user)) return null;
+
+  const ids = await Usuario.find(buildAtendimentoProfessionalFilter())
+    .distinct("_id");
+
+  const normalizedIds = Array.isArray(ids)
+    ? ids.map((item) => asObjectId(item)).filter(Boolean)
+    : [];
+
+  const ownId = asObjectId(user?.id);
+  if (ownId && !normalizedIds.some((item) => String(item) === String(ownId))) {
+    normalizedIds.push(ownId);
+  }
+
+  return normalizedIds;
 }
 
 async function listAgendaEvents(user, query = {}) {
@@ -47,11 +84,24 @@ async function listAgendaEvents(user, query = {}) {
   if (!incluirInativos) filtro.ativo = true;
 
   if (canViewAll(user)) {
+    const atendimentoProfessionalIds = await resolveAtendimentoProfessionalIdsForViewer(user);
     const responsavelIdInput = String(query?.responsavelId || "").trim();
+
     if (responsavelIdInput) {
-      filtro.responsavelId = asObjectId(
+      const requestedId = asObjectId(
         ensureAgendaObjectId(responsavelIdInput, "Responsavel informado e invalido.")
       );
+
+      if (Array.isArray(atendimentoProfessionalIds)) {
+        const isAllowed = atendimentoProfessionalIds.some(
+          (item) => String(item || "") === String(requestedId || "")
+        );
+        filtro.responsavelId = isAllowed ? requestedId : { $in: [] };
+      } else {
+        filtro.responsavelId = requestedId;
+      }
+    } else if (Array.isArray(atendimentoProfessionalIds)) {
+      filtro.responsavelId = { $in: atendimentoProfessionalIds };
     }
   } else {
     filtro.responsavelId = asObjectId(user.id);

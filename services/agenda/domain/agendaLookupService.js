@@ -3,6 +3,7 @@ const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
 const { PERFIS } = require("../../../config/roles");
 const { PERMISSIONS } = require("../../../config/permissions");
+const { VOLUNTARIO_ACCESS_LEVELS } = require("../../../config/volunteerAccess");
 const { hasAnyPermission } = require("../../shared/accessControlService");
 const {
   buildAgendaInterval,
@@ -19,8 +20,25 @@ function ensureAgendaViewAccess(user) {
   }
 }
 
+function isSocialAssistantViewer(user) {
+  const perfil = String(user?.perfil || "").trim().toLowerCase();
+  const nivel = String(user?.nivelAcessoVoluntario || "").trim().toLowerCase();
+  return perfil === PERFIS.USUARIO && nivel === VOLUNTARIO_ACCESS_LEVELS.SERVICO_SOCIAL;
+}
+
+function buildAtendimentoProfessionalFilter() {
+  return {
+    ativo: true,
+    perfil: PERFIS.USUARIO,
+    tipoCadastro: "voluntario",
+    statusAprovacao: "aprovado",
+    nivelAcessoVoluntario: VOLUNTARIO_ACCESS_LEVELS.VOLUNTARIO_ATENDIMENTO,
+  };
+}
+
 async function listAgendaProfessionals(user) {
   ensureAgendaViewAccess(user);
+  const socialAssistantViewer = isSocialAssistantViewer(user);
 
   if (!canViewAll(user)) {
     return {
@@ -34,13 +52,31 @@ async function listAgendaProfessionals(user) {
     };
   }
 
-  const profissionais = await Usuario.find({
-    ativo: true,
-    perfil: { $in: [PERFIS.SUPERADMIN, PERFIS.ADMIN, PERFIS.ATENDENTE, PERFIS.TECNICO] },
-  })
+  const filter = socialAssistantViewer
+    ? buildAtendimentoProfessionalFilter()
+    : {
+        ativo: true,
+        perfil: { $in: [PERFIS.SUPERADMIN, PERFIS.ADMIN, PERFIS.ATENDENTE, PERFIS.TECNICO] },
+      };
+
+  const profissionais = await Usuario.find(filter)
     .select("_id nome perfil")
     .sort({ nome: 1 })
     .lean();
+
+  if (socialAssistantViewer) {
+    const ownId = String(user?.id || "").trim();
+    if (ownId && !profissionais.some((item) => String(item?._id || "") === ownId)) {
+      profissionais.push({
+        _id: ownId,
+        nome: String(user?.nome || "Minha agenda").trim() || "Minha agenda",
+        perfil: String(user?.perfil || "").trim().toLowerCase(),
+      });
+      profissionais.sort((left, right) =>
+        String(left?.nome || "").localeCompare(String(right?.nome || ""), "pt-BR")
+      );
+    }
+  }
 
   return { profissionais };
 }

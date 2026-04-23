@@ -33,6 +33,96 @@
     const requiresSala = (tipoAtendimento) =>
       requiresRoomSelection(roomRequiredTypes, tipoAtendimento);
     let hasSubmitValidation = false;
+    let currentWizardStep = 1;
+
+    const TYPE_META = {
+      visita_domiciliar: {
+        icon: "fa-house",
+        iconBg: "#fef6e8",
+        description: "Atendimento realizado na residencia da familia.",
+      },
+      atendimento_sede: {
+        icon: "fa-stethoscope",
+        iconBg: "#e8f4f1",
+        description: "Atendimento individual com possibilidade de sala.",
+      },
+      entrega_beneficio: {
+        icon: "fa-box-open",
+        iconBg: "#eef2ff",
+        description: "Entrega de apoio social com registro simplificado.",
+      },
+      reuniao_equipe: {
+        icon: "fa-users",
+        iconBg: "#e8f8f0",
+        description: "Reuniao interna de equipe e alinhamento.",
+      },
+      outro: {
+        icon: "fa-calendar-check",
+        iconBg: "#fff0f0",
+        description: "Compromisso geral nao coberto pelos tipos padrao.",
+      },
+    };
+
+    const TYPE_FIELDS = {
+      visita_domiciliar: [
+        "titulo",
+        "data",
+        "hora",
+        "responsavel",
+        "familia_busca",
+        "familia",
+        "paciente",
+        "local",
+        "observacoes",
+      ],
+      atendimento_sede: [
+        "titulo",
+        "data",
+        "hora",
+        "responsavel",
+        "familia_busca",
+        "familia",
+        "paciente",
+        "sala",
+        "sala_hint",
+        "observacoes",
+      ],
+      entrega_beneficio: [
+        "titulo",
+        "data",
+        "hora",
+        "responsavel",
+        "familia_busca",
+        "familia",
+        "paciente",
+        "local",
+        "observacoes",
+      ],
+      reuniao_equipe: [
+        "titulo",
+        "data",
+        "hora",
+        "responsavel",
+        "sala",
+        "sala_hint",
+        "observacoes",
+      ],
+      outro: ["titulo", "data", "hora", "responsavel", "local", "observacoes"],
+    };
+
+    const ALL_DYNAMIC_FIELDS = [
+      "titulo",
+      "data",
+      "hora",
+      "responsavel",
+      "sala",
+      "sala_hint",
+      "familia_busca",
+      "familia",
+      "paciente",
+      "local",
+      "observacoes",
+    ];
 
     function getFirstFocusable(container) {
       if (!container || typeof container.querySelector !== "function") return null;
@@ -163,6 +253,218 @@
       setFieldFeedback("hora", "");
       setFieldFeedback("salaId", "");
       hasSubmitValidation = false;
+    }
+
+    function getCurrentTypeValue() {
+      return String(elements.tipoSelect?.value || "").trim();
+    }
+
+    function getTypeMeta(tipoAtendimento) {
+      const key = String(tipoAtendimento || "").trim();
+      return TYPE_META[key] || TYPE_META.outro;
+    }
+
+    function getTypeFields(tipoAtendimento) {
+      const key = String(tipoAtendimento || "").trim();
+      return TYPE_FIELDS[key] || TYPE_FIELDS.outro;
+    }
+
+    function resetHiddenFieldData(fieldName) {
+      if (fieldName === "sala") {
+        if (elements.salaSelect) elements.salaSelect.value = "";
+        setFieldFeedback("salaId", "");
+        return;
+      }
+
+      if (fieldName === "familia_busca") {
+        if (elements.familiaBusca) elements.familiaBusca.value = "";
+        return;
+      }
+
+      if (fieldName === "familia") {
+        if (elements.familiaSelect) elements.familiaSelect.value = "";
+        fillPatientsOptions([]);
+        return;
+      }
+
+      if (fieldName === "paciente") {
+        if (elements.pacienteSelect) elements.pacienteSelect.value = "";
+        return;
+      }
+
+      if (fieldName === "local") {
+        if (elements.form?.elements?.local) {
+          elements.form.elements.local.value = "";
+        }
+      }
+    }
+
+    function setFieldVisibility(fieldName, visible) {
+      if (!elements.form || typeof elements.form.querySelector !== "function") return;
+      const fieldNode = elements.form.querySelector(
+        `[data-agenda-field="${fieldName}"]`,
+      );
+      if (!fieldNode) return;
+      const shouldShow = Boolean(visible);
+      const wasHidden = fieldNode.hidden;
+      fieldNode.hidden = !shouldShow;
+      if (!shouldShow && !wasHidden) {
+        resetHiddenFieldData(fieldName);
+      }
+    }
+
+    function syncTypeSummary() {
+      const tipoAtendimento = getCurrentTypeValue();
+      const meta = getTypeMeta(tipoAtendimento);
+      const label = normalizeTypeLabel(tipoAtendimento);
+
+      if (elements.typeSummaryLabel) {
+        elements.typeSummaryLabel.textContent = label;
+      }
+
+      if (elements.typeSummaryIcon) {
+        elements.typeSummaryIcon.innerHTML = `<i class="fa-solid ${escapeHtml(
+          meta.icon,
+        )}"></i>`;
+      }
+    }
+
+    function syncTypeCardsSelection() {
+      if (!elements.typeGrid) return;
+      const selected = getCurrentTypeValue();
+      elements.typeGrid
+        .querySelectorAll("[data-agenda-type]")
+        .forEach((buttonElement) => {
+          const isSelected =
+            String(buttonElement.getAttribute("data-agenda-type") || "") ===
+            selected;
+          buttonElement.classList.toggle("is-selected", isSelected);
+          buttonElement.setAttribute("aria-pressed", isSelected ? "true" : "false");
+        });
+    }
+
+    function syncStepButtons() {
+      const hasType = Boolean(getCurrentTypeValue());
+      if (elements.stepNext) {
+        elements.stepNext.disabled = !hasType;
+      }
+    }
+
+    function syncTypeFieldVisibility() {
+      const visibleFields = new Set(getTypeFields(getCurrentTypeValue()));
+      ALL_DYNAMIC_FIELDS.forEach((fieldName) => {
+        setFieldVisibility(fieldName, visibleFields.has(fieldName));
+      });
+    }
+
+    function updateWizardStepUi() {
+      if (elements.formStepTipo) {
+        elements.formStepTipo.hidden = currentWizardStep !== 1;
+      }
+      if (elements.formStepDetalhes) {
+        elements.formStepDetalhes.hidden = currentWizardStep !== 2;
+      }
+      if (elements.stepBack) {
+        elements.stepBack.hidden = currentWizardStep !== 2;
+      }
+      if (elements.stepNext) {
+        elements.stepNext.hidden = currentWizardStep !== 1;
+      }
+      if (elements.formSubmit) {
+        elements.formSubmit.hidden = currentWizardStep !== 2;
+      }
+      if (elements.stepHintTipo) {
+        elements.stepHintTipo.hidden = currentWizardStep !== 1;
+      }
+      if (elements.stepHintDetalhes) {
+        elements.stepHintDetalhes.hidden = currentWizardStep !== 2;
+      }
+
+      if (elements.modalSteps) {
+        const step1 = elements.modalSteps.querySelector('[data-step-item="1"]');
+        const step2 = elements.modalSteps.querySelector('[data-step-item="2"]');
+        const line = elements.modalSteps.querySelector("[data-step-line]");
+
+        if (step1) {
+          step1.classList.toggle("is-active", currentWizardStep === 1);
+          step1.classList.toggle("is-done", currentWizardStep > 1);
+          const dot1 = step1.querySelector("[data-step-dot='1']");
+          if (dot1) dot1.textContent = currentWizardStep > 1 ? "v" : "1";
+        }
+        if (step2) {
+          step2.classList.toggle("is-active", currentWizardStep === 2);
+          step2.classList.toggle("is-done", false);
+        }
+        if (line) {
+          line.classList.toggle("is-done", currentWizardStep > 1);
+        }
+      }
+
+      syncStepButtons();
+    }
+
+    function setWizardStep(step) {
+      const normalized = Number(step) === 2 ? 2 : 1;
+      currentWizardStep = normalized;
+      updateWizardStepUi();
+    }
+
+    function goToDetailsStep() {
+      if (!getCurrentTypeValue()) {
+        showToast("Selecione um tipo para continuar.");
+        return;
+      }
+      setWizardStep(2);
+      focusElementLater(elements.form?.elements?.titulo || elements.formSubmit);
+    }
+
+    function goToTypeStep() {
+      setWizardStep(1);
+      focusElementLater(
+        elements.typeGrid?.querySelector("[data-agenda-type].is-selected") ||
+          elements.typeGrid?.querySelector("[data-agenda-type]"),
+      );
+    }
+
+    function renderTypeCards() {
+      if (!elements.typeGrid) return;
+      const options = Array.isArray(tiposAtendimento) ? tiposAtendimento : [];
+      const selected = getCurrentTypeValue();
+
+      elements.typeGrid.innerHTML = options
+        .map((tipo) => {
+          const value = String(tipo || "").trim();
+          const label = normalizeTypeLabel(value);
+          const meta = getTypeMeta(value);
+          const isSelected = value === selected;
+          return `
+            <button
+              type="button"
+              class="agenda-type-card ${isSelected ? "is-selected" : ""}"
+              data-agenda-type="${escapeHtml(value)}"
+              aria-pressed="${isSelected ? "true" : "false"}"
+            >
+              <span class="agenda-type-card-icon" style="background:${escapeHtml(
+                meta.iconBg,
+              )};"><i class="fa-solid ${escapeHtml(meta.icon)}"></i></span>
+              <span class="agenda-type-card-title">${escapeHtml(label)}</span>
+              <span class="agenda-type-card-desc">${escapeHtml(
+                meta.description,
+              )}</span>
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    function chooseDefaultType() {
+      if (
+        Array.isArray(tiposAtendimento) &&
+        tiposAtendimento.includes("visita_domiciliar")
+      ) {
+        return "visita_domiciliar";
+      }
+      return String(tiposAtendimento?.[0] || "outro");
     }
 
     function validateTitulo() {
@@ -340,13 +642,18 @@
     }
 
     function syncSalaRequirement() {
-      const required = requiresSala(elements.tipoSelect.value);
+      const tipoAtendimento = getCurrentTypeValue();
+      const required = requiresSala(tipoAtendimento);
       if (elements.salaLabel) {
         elements.salaLabel.textContent = required
           ? "Sala de atendimento *"
           : "Sala de atendimento";
       }
       elements.salaSelect.required = required;
+      syncTypeFieldVisibility();
+      syncTypeSummary();
+      syncTypeCardsSelection();
+      syncStepButtons();
       setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
     }
 
@@ -513,7 +820,12 @@
     }
 
     function setTipoOptions() {
-      elements.tipoSelect.innerHTML = tiposAtendimento
+      const options = Array.isArray(tiposAtendimento)
+        ? tiposAtendimento
+        : ["outro"];
+      const currentValue = getCurrentTypeValue();
+
+      elements.tipoSelect.innerHTML = options
         .map(
           (tipo) =>
             `<option value="${escapeHtml(String(tipo || ""))}">${escapeHtml(
@@ -521,6 +833,14 @@
             )}</option>`,
         )
         .join("");
+
+      if (options.includes(currentValue)) {
+        elements.tipoSelect.value = currentValue;
+      } else {
+        elements.tipoSelect.value = chooseDefaultType();
+      }
+
+      renderTypeCards();
       syncSalaRequirement();
     }
 
@@ -550,13 +870,24 @@
         return;
       }
 
-      const options = ['<option value="">Todos os profissionais</option>'].concat(
-        state.profissionais.map(
-          (p) =>
-            `<option value="${escapeHtml(String(p?._id || ""))}">${escapeHtml(
-              `${p?.nome || ""} (${p?.perfil || ""})`,
-            )}</option>`,
-        ),
+      const ownId = String(user.id || "").trim();
+      const options = ['<option value="">Todos os profissionais</option>'];
+
+      if (ownId) {
+        options.push(
+          `<option value="${escapeHtml(ownId)}">Minha agenda</option>`,
+        );
+      }
+
+      options.push(
+        ...state.profissionais
+          .filter((p) => String(p?._id || "") !== ownId)
+          .map(
+            (p) =>
+              `<option value="${escapeHtml(String(p?._id || ""))}">${escapeHtml(
+                `${p?.nome || ""} (${p?.perfil || ""})`,
+              )}</option>`,
+          ),
       );
 
       elements.responsavelFiltro.innerHTML = options.join("");
@@ -653,8 +984,9 @@
       elements.form.elements.data.value =
         state.selectedDay || toDateInputValue(new Date());
       elements.form.elements.hora.value = "09:00";
-      elements.form.elements.tipoAtendimento.value = "visita_domiciliar";
+      elements.form.elements.tipoAtendimento.value = chooseDefaultType();
       syncSalaRequirement();
+      renderTypeCards();
 
       if (permissions.canAssignOthers) {
         elements.responsavelSelect.disabled = false;
@@ -670,6 +1002,7 @@
       fillPatientsOptions([]);
       await loadFamilies(elements.familiaBusca.value || "");
       clearValidationFeedback();
+      setWizardStep(1);
       setModalOpen(true);
       await loadAvailableSalas("");
     }
@@ -695,7 +1028,13 @@
       elements.form.elements.tipoAtendimento.value =
         evento.tipoAtendimento || "outro";
       syncSalaRequirement();
-      elements.form.elements.local.value = evento.local || "";
+      renderTypeCards();
+      const visibleFields = new Set(
+        getTypeFields(elements.form.elements.tipoAtendimento.value),
+      );
+      elements.form.elements.local.value = visibleFields.has("local")
+        ? evento.local || ""
+        : "";
       elements.form.elements.observacoes.value = evento.observacoes || "";
 
       if (permissions.canAssignOthers) {
@@ -705,8 +1044,14 @@
         elements.responsavelSelect.value = String(user.id || "");
       }
 
-      await loadFamilies(evento?.familia?.responsavelNome || "");
-      if (evento?.familia?._id) {
+      if (visibleFields.has("familia")) {
+        await loadFamilies(evento?.familia?.responsavelNome || "");
+      } else {
+        elements.familiaSelect.value = "";
+        fillPatientsOptions([]);
+      }
+
+      if (visibleFields.has("familia") && evento?.familia?._id) {
         const familyOption = Array.from(elements.familiaSelect.options).find(
           (opt) => opt.value === String(evento.familia._id),
         );
@@ -717,13 +1062,17 @@
           elements.familiaSelect.appendChild(opt);
         }
         elements.familiaSelect.value = String(evento.familia._id);
-        await loadPacientesByFamilia(evento.familia._id);
+        if (visibleFields.has("paciente")) {
+          await loadPacientesByFamilia(evento.familia._id);
+        } else {
+          fillPatientsOptions([]);
+        }
       } else {
         fillPatientsOptions([]);
         elements.familiaSelect.value = "";
       }
 
-      if (evento?.paciente?._id) {
+      if (visibleFields.has("paciente") && evento?.paciente?._id) {
         const patientOption = Array.from(elements.pacienteSelect.options).find(
           (opt) => opt.value === String(evento.paciente._id),
         );
@@ -739,6 +1088,7 @@
       }
 
       clearValidationFeedback();
+      setWizardStep(2);
       setModalOpen(true);
       await loadAvailableSalas(String(evento?.sala?._id || ""));
     }
@@ -754,11 +1104,16 @@
         "As salas livres para este horario aparecem automaticamente aqui.",
       );
       clearValidationFeedback();
+      setWizardStep(1);
     }
 
     async function handleFormSubmit(event) {
       event.preventDefault();
       if (state.saving) return;
+      if (currentWizardStep !== 2) {
+        goToDetailsStep();
+        return;
+      }
       hasSubmitValidation = true;
       if (!validateForm({ strict: true })) return;
 
@@ -836,6 +1191,32 @@
       }
     }
 
+    function bindTypeGridSelection() {
+      if (!elements.typeGrid) return;
+      const selectTypeFromCard = (cardElement) => {
+        if (!cardElement || !elements.typeGrid.contains(cardElement)) return "";
+        const tipoAtendimento = String(
+          cardElement.getAttribute("data-agenda-type") || "",
+        ).trim();
+        if (!tipoAtendimento || !elements.tipoSelect) return "";
+        elements.tipoSelect.value = tipoAtendimento;
+        elements.tipoSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        return tipoAtendimento;
+      };
+
+      elements.typeGrid.addEventListener("click", (event) => {
+        const card = event.target.closest("[data-agenda-type]");
+        selectTypeFromCard(card);
+      });
+
+      elements.typeGrid.addEventListener("dblclick", (event) => {
+        const card = event.target.closest("[data-agenda-type]");
+        const tipoAtendimento = selectTypeFromCard(card);
+        if (!tipoAtendimento) return;
+        goToDetailsStep();
+      });
+    }
+
     function bindRealtimeValidation() {
       const tituloInput = elements.form?.elements?.titulo;
       const dataInput = elements.form?.elements?.data;
@@ -872,6 +1253,7 @@
       }
     }
 
+    bindTypeGridSelection();
     bindRealtimeValidation();
 
     async function handleDayListActions(event) {
@@ -969,6 +1351,8 @@
       closeModal,
       closeSalasModal,
       fillPatientsOptions,
+      goToDetailsStep,
+      goToTypeStep,
       getCurrentEventId,
       getCurrentFormStartIso,
       handleDayListActions,

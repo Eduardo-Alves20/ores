@@ -223,12 +223,29 @@ async function buildRejectReasonCards(usuario) {
   return cards;
 }
 
+function buildSignupSummary(dadosCadastro) {
+  const source =
+    dadosCadastro && typeof dadosCadastro === "object" && !Array.isArray(dadosCadastro)
+      ? dadosCadastro
+      : {};
+
+  return {
+    data_nascimento: String(
+      source?.data_nascimento || source?.dataNascimento || source?.nascimento || ""
+    ).trim(),
+    funcao_na_ong: String(
+      source?.funcao_na_ong || source?.funcaoNaOng || source?.funcao || ""
+    ).trim(),
+  };
+}
+
 async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
   const doc = usuario?.toObject ? usuario.toObject() : usuario;
   const workflowResumo = buildApprovalWorkflowSummary(doc);
   const presidentId = "";
   const rejeicoesComMotivo = await buildRejectReasonCards(doc);
   const attachments = sanitizeProtectedAttachmentBundleForClient(doc?.anexosProtegidos || {});
+  const dadosCadastroResumo = buildSignupSummary(doc?.dadosCadastro);
   const userId = String(doc?._id || "").trim();
 
   if (attachments.documentoIdentidade) {
@@ -244,10 +261,6 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
     nome: doc?.nome || "",
     email: doc?.email || "",
     login: doc?.login || "",
-    telefone: doc?.telefone || "",
-    cpf: doc?.cpf || "",
-    perfil: doc?.perfil || "",
-    perfilLabel: perfilLabel(doc?.perfil),
     tipoCadastro: doc?.tipoCadastro || "",
     tipoCadastroLabel: tipoLabel(doc?.tipoCadastro),
     statusAprovacao: doc?.statusAprovacao || "",
@@ -256,9 +269,8 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
     nivelAcessoVoluntarioLabel: getVolunteerAccessLabel(doc?.nivelAcessoVoluntario),
     motivoAprovacao: doc?.motivoAprovacao || "",
     ativo: !!doc?.ativo,
-    createdAt: doc?.createdAt || null,
-    updatedAt: doc?.updatedAt || null,
-    dadosCadastro: doc?.dadosCadastro || {},
+    dadosCadastro: dadosCadastroResumo,
+    dadosCadastroResumo,
     anexosProtegidos: attachments,
     votosResumo: summarizeApprovalVotes(doc?.votosAprovacao, actorId, presidentId),
     workflowResumo,

@@ -20,21 +20,24 @@ function createJsonResponseMock() {
   };
 }
 
-test("AuthController.cadastro exige documento e foto no cadastro p?blico de voluntário", async () => {
+test("AuthController.cadastro permite voluntario sem upload e com login opcional", async () => {
   const originalCriar = UsuarioService.criar;
+  const originalAuditCreate = AuditTrail.create;
   let createCalled = false;
+  let capturedPayload = null;
 
-  UsuarioService.criar = async () => {
+  UsuarioService.criar = async (payload) => {
     createCalled = true;
-    return null;
+    capturedPayload = payload;
+    return { _id: "usuario-publico", ...payload };
   };
+  AuditTrail.create = async () => ({ _id: "audit-ok" });
 
   try {
     const req = {
       body: {
         nome: "Voluntario Publico",
         email: "voluntario.publico@ORES.test",
-        login: "voluntario.publico",
         telefone: "(21) 99999-9999",
         tipoCadastro: "voluntario",
         senha: "SenhaSegura123!",
@@ -49,14 +52,13 @@ test("AuthController.cadastro exige documento e foto no cadastro p?blico de volu
 
     await AuthController.cadastro(req, res);
 
-    assert.equal(res.statusCode, 400);
-    assert.equal(
-      res.payload?.erro,
-      "Para cadastro de voluntário, envie o documento de identidade e a foto de perfil."
-    );
-    assert.equal(createCalled, false);
+    assert.equal(res.statusCode, 201);
+    assert.equal(createCalled, true);
+    assert.equal("login" in capturedPayload, false);
+    assert.equal("anexosProtegidos" in capturedPayload, false);
   } finally {
     UsuarioService.criar = originalCriar;
+    AuditTrail.create = originalAuditCreate;
   }
 });
 
@@ -90,7 +92,7 @@ test("AuthController.cadastro traduz falha de upload do multer para resposta 400
   );
 });
 
-test("AuthController.cadastro reconstr?i dadosCadastro enviados pelo multipart p?blico", async () => {
+test("AuthController.cadastro reconstrui dadosCadastro enviados pelo multipart publico", async () => {
   const originalCriar = UsuarioService.criar;
   const originalAuditCreate = AuditTrail.create;
   let capturedPayload = null;

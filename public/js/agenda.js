@@ -47,15 +47,25 @@
     novoBtn: document.getElementById("agenda-novo-btn"),
     modalBackdrop: document.getElementById("agenda-modal-backdrop"),
     modalCloseBtn: document.getElementById("agenda-modal-close"),
+    modalSteps: document.getElementById("agenda-modal-steps"),
     modalTitle: document.getElementById("agenda-modal-title"),
     form: document.getElementById("agenda-form"),
     formFeedback: document.getElementById("agenda-form-feedback"),
+    formStepTipo: document.getElementById("agenda-form-step-1"),
+    formStepDetalhes: document.getElementById("agenda-form-step-2"),
     feedbackTitulo: document.getElementById("agenda-feedback-titulo"),
     feedbackData: document.getElementById("agenda-feedback-data"),
     feedbackHora: document.getElementById("agenda-feedback-hora"),
     feedbackSala: document.getElementById("agenda-feedback-sala"),
     formCancel: document.getElementById("agenda-form-cancel"),
+    stepBack: document.getElementById("agenda-step-back"),
+    stepNext: document.getElementById("agenda-step-next"),
+    stepHintTipo: document.getElementById("agenda-step-hint-1"),
+    stepHintDetalhes: document.getElementById("agenda-step-hint-2"),
     formSubmit: document.getElementById("agenda-form-submit"),
+    typeGrid: document.getElementById("agenda-type-grid"),
+    typeSummaryLabel: document.getElementById("agenda-type-summary-label"),
+    typeSummaryIcon: document.getElementById("agenda-type-summary-icon"),
     tipoSelect: document.getElementById("agenda-tipo-select"),
     responsavelSelect: document.getElementById("agenda-responsavel-select"),
     salaLabel: document.getElementById("agenda-sala-label"),
@@ -229,6 +239,18 @@
       event.preventDefault();
       form.closeModal();
     });
+    if (elements.stepBack) {
+      elements.stepBack.addEventListener("click", (event) => {
+        event.preventDefault();
+        form.goToTypeStep();
+      });
+    }
+    if (elements.stepNext) {
+      elements.stepNext.addEventListener("click", (event) => {
+        event.preventDefault();
+        form.goToDetailsStep();
+      });
+    }
     elements.modalBackdrop.addEventListener("click", (event) => {
       if (event.target === elements.modalBackdrop) form.closeModal();
     });

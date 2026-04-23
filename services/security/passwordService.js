@@ -18,19 +18,14 @@ function validarSenhaForte(senha) {
     return senhaStr.length >= 4;
   }
 
-  if (senhaStr.length < 10) return false;
-  if (!/[a-z]/.test(senhaStr)) return false;
-  if (!/[A-Z]/.test(senhaStr)) return false;
-  if (!/[0-9]/.test(senhaStr)) return false;
-
-  return true;
+  return senhaStr.length >= 6;
 }
 
 function mensagemPoliticaSenha() {
   if (isWeakPolicyDevMode()) {
     return "Senha fraca. Em desenvolvimento, use ao menos 4 caracteres.";
   }
-  return "Senha fraca. Use ao menos 10 caracteres com letras maiusculas, minusculas e numeros.";
+  return "Senha fraca. Use ao menos 6 caracteres.";
 }
 
 async function hashSenha(senha) {

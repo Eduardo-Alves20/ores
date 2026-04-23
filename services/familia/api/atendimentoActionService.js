@@ -56,7 +56,7 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
     notFoundMessage: "Familia nao encontrada ou inativa.",
   });
 
-  const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos } = body;
+  const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos, notasPrivadas } = body;
 
   if (!resumo || !String(resumo).trim()) {
     throw createFamiliaError("Campo resumo e obrigatorio.", 400);
@@ -84,6 +84,7 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
     tipo: normalizeAttendanceType(tipo),
     resumo: String(resumo).trim(),
     proximosPassos,
+    notasPrivadas: notasPrivadas ? String(notasPrivadas).trim() : null,
     ativo: true,
     criadoPor: actorId,
     atualizadoPor: actorId,
@@ -116,7 +117,7 @@ async function updateAttendance({ user, actorId, id, body = {} }) {
     "Voluntarios de atendimento so podem editar registros vinculados a si mesmos."
   );
 
-  const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos } = body;
+  const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos, notasPrivadas } = body;
   const patch = {
     atualizadoPor: actorId,
   };
@@ -178,6 +179,13 @@ async function updateAttendance({ user, actorId, id, body = {} }) {
 
   if (typeof proximosPassos !== "undefined") {
     patch.proximosPassos = proximosPassos;
+  }
+
+  if (typeof notasPrivadas !== "undefined") {
+    const isOwner = String(atual.criadoPor || "") === String(actorId || "");
+    if (isOwner) {
+      patch.notasPrivadas = notasPrivadas ? String(notasPrivadas).trim() : null;
+    }
   }
 
   const atendimento = await Atendimento.findByIdAndUpdate(atual._id, patch, {

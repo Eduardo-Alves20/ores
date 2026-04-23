@@ -1,4 +1,4 @@
-<%
+﻿<%
   const filtrosAtuais = filtros || {};
   const pageAtual = Number(paginacao?.page || 1);
   const totalPages = Number(paginacao?.totalPages || 1);
@@ -31,13 +31,13 @@
   <header class="acessos-hero module-card">
     <div class="acessos-hero-main">
       <span class="acessos-hero-eyebrow">Triagem de acessos</span>
-      <h2>Aprovações Pendentes</h2>
+      <h2>AprovaÃ§Ãµes Pendentes</h2>
       <p><%= subtitle %></p>
 
       <div class="acessos-hero-stats">
-        <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisão</span>
-        <span class="acessos-hero-stat"><strong><%= usuarios?.length || 0 %></strong> exibidos na página</span>
-        <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por página</span>
+        <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisÃ£o</span>
+        <span class="acessos-hero-stat"><strong><%= usuarios?.length || 0 %></strong> exibidos na pÃ¡gina</span>
+        <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por pÃ¡gina</span>
       </div>
     </div>
 
@@ -58,7 +58,7 @@
     <div class="acessos-panel-head">
       <div>
         <h3>Refinar fila</h3>
-        <p>Na tabela ficam só os ícones. A ficha completa abre quando você clicar para avaliar.</p>
+        <p>Na tabela ficam sÃ³ os Ã­cones. A ficha completa abre quando vocÃª clicar para avaliar.</p>
       </div>
     </div>
 
@@ -72,9 +72,9 @@
         <span class="input-label">Tipo</span>
         <select class="input-control" name="tipo">
           <option value="todos" <%= filtrosAtuais.tipo === "todos" ? "selected" : "" %>>Todos</option>
-          <option value="familia" <%= filtrosAtuais.tipo === "familia" ? "selected" : "" %>>Família</option>
-          <option value="voluntario" <%= filtrosAtuais.tipo === "voluntario" ? "selected" : "" %>>Voluntário</option>
-          <option value="orgao_publico" <%= filtrosAtuais.tipo === "orgao_publico" ? "selected" : "" %>>Órgão Público</option>
+          <option value="familia" <%= filtrosAtuais.tipo === "familia" ? "selected" : "" %>>FamÃ­lia</option>
+          <option value="voluntario" <%= filtrosAtuais.tipo === "voluntario" ? "selected" : "" %>>VoluntÃ¡rio</option>
+          <option value="orgao_publico" <%= filtrosAtuais.tipo === "orgao_publico" ? "selected" : "" %>>Ã“rgÃ£o PÃºblico</option>
         </select>
       </label>
 
@@ -97,15 +97,15 @@
   <section class="module-card acessos-panel acessos-table-panel">
     <div class="acessos-panel-head">
       <div>
-        <h3>Fila de aprovação</h3>
-        <p>Aprove, rejeite ou abra a ficha para revisar os dados completos antes da decisão.</p>
+        <h3>Fila de aprovaÃ§Ã£o</h3>
+        <p>Aprove, rejeite ou abra a ficha para revisar os dados completos antes da decisÃ£o.</p>
         <p class="aprovacao-icon-legend">
           <span><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i> Aprovar</span>
           <span><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i> Rejeitar</span>
           <span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Abrir ficha</span>
         </p>
       </div>
-      <span class="badge-soft"><%= totalPendente || 0 %> em análise</span>
+      <span class="badge-soft"><%= totalPendente || 0 %> em anÃ¡lise</span>
     </div>
 
     <div class="table-wrap">
@@ -117,7 +117,7 @@
             <th>Contato</th>
             <th>CPF</th>
             <th>Criado em</th>
-            <th>Aprovação</th>
+            <th>AprovaÃ§Ã£o</th>
           </tr>
         </thead>
         <tbody>
@@ -133,7 +133,7 @@
                 </td>
                 <td data-label="Nome">
                   <strong><%= item.nome || "-" %></strong>
-                  <div class="acesso-row-hint"><%= item.workflowResumo?.stateLabel || "Aguardando decisão administrativa" %></div>
+                  <div class="acesso-row-hint"><%= item.workflowResumo?.stateLabel || "Aguardando decisÃ£o administrativa" %></div>
                 </td>
                 <td data-label="Contato">
                   <div><%= item.email || "-" %></div>
@@ -150,8 +150,8 @@
                           type="button"
                           data-approval-open
                           data-user-id="<%= item._id %>"
-                          title="Abrir ficha para aprovar e definir nível"
-                          aria-label="Abrir ficha para aprovar e definir nível"
+                          title="Abrir ficha para aprovar e definir nÃ­vel"
+                          aria-label="Abrir ficha para aprovar e definir nÃ­vel"
                         >
                           <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i>
                         </button>
@@ -188,8 +188,8 @@
                         class="aprovacao-open-btn"
                         data-approval-open
                         data-user-id="<%= item._id %>"
-                        title="Abrir ficha de aprovação"
-                        aria-label="Abrir ficha de aprovação"
+                        title="Abrir ficha de aprovaÃ§Ã£o"
+                        aria-label="Abrir ficha de aprovaÃ§Ã£o"
                       >
                         <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                       </button>
@@ -225,7 +225,7 @@
       <% for (let p = inicioPag; p <= fimPag; p += 1) { %>
         <a class="btn btn-xxs <%= p === pageAtual ? 'btn-primary' : 'btn-muted' %>" href="<%= pageHref(p) %>"><%= p %></a>
       <% } %>
-      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Próxima</a>
+      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">PrÃ³xima</a>
     </nav>
   <% } %>
 
@@ -240,7 +240,7 @@
     >
       <header class="acessos-modal-head">
         <div>
-          <h3 id="approval-modal-title">Ficha de aprovação</h3>
+          <h3 id="approval-modal-title">Ficha de aprovaÃ§Ã£o</h3>
           <p data-approval-description>Veja os dados do cadastro antes de decidir.</p>
         </div>
 
@@ -257,6 +257,16 @@
       <div class="acessos-modal-error" data-approval-error hidden></div>
 
       <div class="aprovacao-modal-content">
+        <%# Bloco detalhado legado desativado. Mantido para referencia de rollback rapido. %>
+        <% if (false) { %>
+          <div class="aprovacao-detail-grid">
+            <label class="field-wrap">
+              <span class="input-label">Nome</span>
+              <input class="input-control" type="text" readonly data-approval-field="nome" />
+            </label>
+          </div>
+        <% } %>
+
         <div class="aprovacao-detail-grid">
           <label class="field-wrap">
             <span class="input-label">Nome</span>
@@ -264,7 +274,7 @@
           </label>
 
           <label class="field-wrap">
-            <span class="input-label">Email</span>
+            <span class="input-label">E-mail</span>
             <input class="input-control" type="text" readonly data-approval-field="email" />
           </label>
 
@@ -274,256 +284,82 @@
           </label>
 
           <label class="field-wrap">
-            <span class="input-label">Telefone</span>
-            <input class="input-control" type="text" readonly data-approval-field="telefone" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">CPF</span>
-            <input class="input-control" type="text" readonly data-approval-field="cpf" />
-          </label>
-
-          <label class="field-wrap">
             <span class="input-label">Tipo de cadastro</span>
             <input class="input-control" type="text" readonly data-approval-field="tipoCadastroLabel" />
           </label>
 
           <label class="field-wrap">
-            <span class="input-label">Perfil</span>
-            <input class="input-control" type="text" readonly data-approval-field="perfilLabel" />
+            <span class="input-label">Data de nascimento</span>
+            <input class="input-control" type="text" readonly data-approval-field="dataNascimentoLabel" />
           </label>
 
           <label class="field-wrap">
-            <span class="input-label">Criado em</span>
-            <input class="input-control" type="text" readonly data-approval-field="createdAtLabel" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">Status</span>
-            <input class="input-control" type="text" readonly data-approval-field="statusAprovacaoLabel" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">Aprovações registradas</span>
-            <input class="input-control" type="text" readonly data-approval-field="approveVotesLabel" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">Rejeições registradas</span>
-            <input class="input-control" type="text" readonly data-approval-field="rejectVotesLabel" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">Status administrativo</span>
-            <input class="input-control" type="text" readonly data-approval-field="actorVoteLabel" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">Etapa atual</span>
-            <input class="input-control" type="text" readonly data-approval-field="workflowStateLabel" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">Decisor</span>
-            <input class="input-control" type="text" readonly data-approval-field="presidentNameLabel" />
-          </label>
-
-          <label class="field-wrap">
-            <span class="input-label">Pendências</span>
-            <input class="input-control" type="text" readonly data-approval-field="pendingRegularVotesLabel" />
+            <span class="input-label">Funcao na ONG</span>
+            <input class="input-control" type="text" readonly data-approval-field="funcaoNaOngLabel" />
           </label>
         </div>
+        <%# Blocos avancados desativados para fluxo simples de aprovacao. %>
+        <% if (false) { %>
+          <section class="aprovacao-review-form aprovacao-sensitive-panel" data-approval-sensitive-wrap hidden></section>
+          <section class="aprovacao-review-form aprovacao-reasons-panel" data-approval-reasons-wrap hidden>
+            <div class="aprovacao-reasons-list" data-approval-reasons-list></div>
+          </section>
+          <section class="aprovacao-review-form aprovacao-levels-panel" data-approval-level-votes-wrap hidden>
+            <span class="badge-soft" data-approval-level-leader-pill>Nenhum nivel lider</span>
+            <div class="aprovacao-levels-list" data-approval-level-votes-list></div>
+          </section>
+        <% } %>
 
-        <section class="aprovacao-review-form aprovacao-sensitive-panel" data-approval-sensitive-wrap hidden>
+        <section class="aprovacao-review-form aprovacao-voting-panel aprovacao-voting-panel-simple">
           <div class="aprovacao-voting-head">
             <div>
-              <h4>Anexos protegidos</h4>
-              <p>Documento e foto ficam criptografados em repouso e so podem ser abertos neste fluxo restrito.</p>
+              <h4>Decisao administrativa</h4>
+              <p>Selecione o nivel do voluntario e decida de forma direta.</p>
             </div>
-            <span class="badge-soft">Uso LGPD</span>
           </div>
 
-          <div class="aprovacao-sensitive-grid">
-            <article class="aprovacao-sensitive-card">
-              <div class="aprovacao-sensitive-card-head">
-                <strong data-approval-attachment-name="documentoIdentidade">Documento de identidade</strong>
-                <span data-approval-attachment-meta="documentoIdentidade">Nao enviado</span>
-              </div>
-              <p class="acesso-row-hint" data-approval-attachment-note="documentoIdentidade">
-                Aceita RG ou CNH em PDF ou imagem.
-              </p>
-              <div class="aprovacao-sensitive-actions">
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-muted btn-sm"
-                  hidden
-                  data-approval-attachment-link="documentoIdentidade"
-                >
-                  Abrir documento
-                </a>
-              </div>
-            </article>
+          <label class="field-wrap" data-approval-access-wrap hidden>
+            <span class="input-label">Nivel do voluntario</span>
+            <select class="input-control" data-approval-access-select>
+              <option value="">Escolha o nivel</option>
+              <% (volunteerAccessOptions || []).forEach((option) => { %>
+                <option value="<%= option.value %>"><%= option.label %></option>
+              <% }) %>
+            </select>
+          </label>
 
-            <article class="aprovacao-sensitive-card">
-              <div class="aprovacao-sensitive-card-head">
-                <strong data-approval-attachment-name="fotoPerfil">Foto para perfil/cracha</strong>
-                <span data-approval-attachment-meta="fotoPerfil">Nao enviada</span>
-              </div>
-              <p class="acesso-row-hint" data-approval-attachment-note="fotoPerfil">
-                Foto usada para validacao visual e futura identificacao interna.
-              </p>
-              <div class="aprovacao-sensitive-photo-wrap">
-                <img
-                  class="aprovacao-sensitive-photo"
-                  src=""
-                  alt="Foto protegida do voluntario"
-                  hidden
-                  data-approval-attachment-preview="fotoPerfil"
-                />
-              </div>
-              <div class="aprovacao-sensitive-actions">
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-muted btn-sm"
-                  hidden
-                  data-approval-attachment-link="fotoPerfil"
-                >
-                  Abrir foto
-                </a>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section class="aprovacao-review-form aprovacao-voting-panel">
-          <div class="aprovacao-voting-head">
-            <div>
-              <h4>Decisão administrativa</h4>
-              <p>Use a ficha para aprovar ou rejeitar este cadastro.</p>
-            </div>
-            <span class="badge-soft" data-approval-actor-vote-pill>Aguardando decisão</span>
-          </div>
-
-          <form
-            method="post"
-            class="aprovacao-vote-form-inline"
-            data-approval-vote-approve-form
-          >
-            <%- renderCsrfField() %>
-            <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-
-            <label class="field-wrap" data-approval-access-wrap hidden>
-              <span class="input-label">Nível do voluntário</span>
-              <select class="input-control" name="nivelAcessoVoluntario" data-approval-access-select>
-                <option value="">Escolha o nível</option>
-                <% (volunteerAccessOptions || []).forEach((option) => { %>
-                  <option value="<%= option.value %>"><%= option.label %></option>
-                <% }) %>
-              </select>
-            </label>
-
-            <div class="aprovacao-voting-actions">
+          <div class="aprovacao-voting-actions aprovacao-voting-actions-simple">
+            <form method="post" class="aprovacao-vote-form-inline" data-approval-vote-approve-form>
+              <%- renderCsrfField() %>
+              <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+              <input type="hidden" name="nivelAcessoVoluntario" data-approval-access-hidden />
               <button
-                class="aprovacao-vote-btn aprovacao-vote-btn-approve"
+                class="btn btn-accent"
                 type="submit"
                 data-approval-vote-btn="aprovar"
                 title="Aprovar cadastro"
                 aria-label="Aprovar cadastro"
               >
-                <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i>
-                <span class="aprovacao-vote-count" data-approval-vote-count="aprovar">0</span>
+                Aprovar
               </button>
+            </form>
 
+            <form method="post" class="aprovacao-vote-form-inline" data-approval-vote-reject-form>
+              <%- renderCsrfField() %>
+              <input type="hidden" name="returnTo" value="<%= returnTo %>" />
               <button
-                class="aprovacao-vote-btn aprovacao-vote-btn-reject"
-                type="button"
-                data-approval-reject-open
-                title="Rejeitar cadastro"
-                aria-label="Rejeitar cadastro"
+                class="btn btn-muted acesso-action-reject"
+                type="submit"
+                data-approval-vote-btn="rejeitar"
+                title="Nao aprovar cadastro"
+                aria-label="Nao aprovar cadastro"
               >
-                <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i>
-                <span class="aprovacao-vote-count" data-approval-vote-count="rejeitar">0</span>
+                Nao aprovar
               </button>
-            </div>
-          </form>
-        </section>
-
-        <section class="aprovacao-review-form aprovacao-reasons-panel" data-approval-reasons-wrap hidden>
-          <div class="aprovacao-voting-head">
-            <div>
-              <h4>Motivos de rejeição</h4>
-              <p>Quando houver justificativa registrada, ela aparece aqui na ficha.</p>
-            </div>
+            </form>
           </div>
-
-          <div class="aprovacao-reasons-list" data-approval-reasons-list></div>
-        </section>
-
-        <section class="aprovacao-review-form aprovacao-levels-panel" data-approval-level-votes-wrap hidden>
-          <div class="aprovacao-voting-head">
-            <div>
-              <h4>Nível de acesso selecionado</h4>
-              <p>Defina o nível antes de aprovar o voluntário.</p>
-            </div>
-            <span class="badge-soft" data-approval-level-leader-pill>Nenhum nível líder</span>
-          </div>
-
-          <div class="aprovacao-levels-list" data-approval-level-votes-list></div>
         </section>
       </div>
-    </section>
-  </div>
-
-  <div class="acessos-modal" hidden data-reject-vote-modal>
-    <div class="acessos-modal-backdrop" data-reject-vote-close="true"></div>
-
-    <section
-      class="acessos-modal-dialog card-elevated aprovacao-reject-modal-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="reject-vote-modal-title"
-    >
-      <header class="acessos-modal-head">
-        <div>
-          <h3 id="reject-vote-modal-title">Confirmar rejeição</h3>
-          <p data-reject-vote-description>Se quiser, adicione uma justificativa para aparecer na ficha.</p>
-        </div>
-
-        <button
-          type="button"
-          class="btn btn-muted btn-icon-sm"
-          data-reject-vote-close="true"
-          aria-label="Fechar confirmação de rejeição"
-        >
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-      </header>
-
-      <form
-        method="post"
-        class="aprovacao-review-form"
-        data-approval-reject-vote-form
-      >
-        <%- renderCsrfField() %>
-        <input type="hidden" name="returnTo" value="<%= returnTo %>" />
-
-        <label class="field-wrap">
-          <span class="input-label">Motivo da rejeição</span>
-          <textarea class="input-control textarea-control" name="motivo" rows="4" placeholder="Opcional"></textarea>
-        </label>
-
-        <div class="aprovacao-review-actions">
-          <button type="button" class="btn btn-muted" data-reject-vote-close="true">Cancelar</button>
-          <button class="btn btn-muted acesso-action-reject" type="submit">
-            <i class="fa-solid fa-thumbs-down" aria-hidden="true"></i>
-            <span>Rejeitar cadastro</span>
-          </button>
-        </div>
-      </form>
     </section>
   </div>
 </section>

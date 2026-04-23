@@ -1350,6 +1350,21 @@ body.app-nav-open {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.sidebar-link-badge-approval {
+  background: #d90429;
+  border-color: #b10322;
+  color: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 6px 14px rgba(217, 4, 41, 0.42);
+}
+
+.sidebar-link.is-active .sidebar-link-badge-approval {
+  background: #ff1744;
+  border-color: #d50032;
+  color: #ffffff;
+}
+
 .sidebar-link.is-active {
   color: #fff;
   background: linear-gradient(135deg, rgba(28, 93, 133, 0.42), rgba(79, 166, 200, 0.26));

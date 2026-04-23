@@ -240,8 +240,8 @@
 }
 
 .page-auth-cadastro .auth-viewport {
-  place-items: start center;
-  padding: 34px 16px 52px;
+  place-items: center;
+  padding: 34px 16px 40px;
 }
 
 .page-auth-cadastro .auth-bubble {
@@ -296,6 +296,7 @@
   display: grid;
   justify-items: center;
   gap: 24px;
+  margin-inline: auto;
 }
 
 .cadastro-hero {
@@ -359,14 +360,15 @@
 }
 
 .cadastro-flow {
-  width: min(100%, 980px);
-  display: grid;
-  justify-items: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .cadastro-card,
 .cadastro-form-shell {
   width: min(100%, 520px);
+  margin-inline: auto;
 }
 
 .cadastro-choice-card,
@@ -724,6 +726,7 @@
 
 @media (max-width: 760px) {
   .page-auth-cadastro .auth-viewport {
+    place-items: start center;
     padding: 22px 14px 36px;
   }
 

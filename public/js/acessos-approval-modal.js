@@ -23,7 +23,9 @@
     const approvalCloseButtons = approvalModal.querySelectorAll("[data-approval-close]");
     const approveVoteForm = approvalModal.querySelector("[data-approval-vote-approve-form]");
     const approveVoteButton = approvalModal.querySelector("[data-approval-vote-btn='aprovar']");
-    const rejectVoteButton = approvalModal.querySelector("[data-approval-reject-open]");
+    const rejectVoteForm = approvalModal.querySelector("[data-approval-vote-reject-form]");
+    const rejectVoteButton = approvalModal.querySelector("[data-approval-vote-btn='rejeitar']");
+    const accessHiddenFields = approvalModal.querySelectorAll("[data-approval-access-hidden]");
     const actorVotePill = approvalModal.querySelector("[data-approval-actor-vote-pill]");
     const voteCountFields = Array.from(
       approvalModal.querySelectorAll("[data-approval-vote-count]")
@@ -69,16 +71,6 @@
       return acc;
     }, {});
 
-    const rejectVoteModal = root.querySelector("[data-reject-vote-modal]");
-    const rejectVoteCloseButtons =
-      rejectVoteModal?.querySelectorAll("[data-reject-vote-close]") || [];
-    const rejectVoteDescription =
-      rejectVoteModal?.querySelector("[data-reject-vote-description]") || null;
-    const rejectVoteForm =
-      rejectVoteModal?.querySelector("[data-approval-reject-vote-form]") || null;
-    const rejectVoteReasonField = rejectVoteForm?.querySelector("[name='motivo']") || null;
-    const rejectVoteSubmit = rejectVoteForm?.querySelector("button[type='submit']") || null;
-
     let approvalLoadToken = 0;
     let approvalBusy = false;
     let currentApprovalUserId = "";
@@ -90,6 +82,19 @@
       const parsed = new Date(value);
       if (Number.isNaN(parsed.getTime())) return "-";
       return parsed.toLocaleString("pt-BR");
+    }
+
+    function formatDateLabel(value) {
+      const text = String(value || "").trim();
+      if (!text) return "-";
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) return text;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+        const [year, month, day] = text.split("-");
+        return `${day}/${month}/${year}`;
+      }
+      const parsed = new Date(text);
+      if (Number.isNaN(parsed.getTime())) return text;
+      return parsed.toLocaleDateString("pt-BR");
     }
 
     function formatVoteLabel(value) {
@@ -208,6 +213,28 @@
       field.value = text || "-";
     }
 
+    function extractSignupData(data) {
+      const source =
+        data?.dadosCadastroResumo && typeof data.dadosCadastroResumo === "object"
+          ? data.dadosCadastroResumo
+          : data?.dadosCadastro && typeof data.dadosCadastro === "object"
+            ? data.dadosCadastro
+            : {};
+
+      return {
+        dataNascimento:
+          source?.data_nascimento ||
+          source?.dataNascimento ||
+          source?.nascimento ||
+          "",
+        funcaoNaOng:
+          source?.funcao_na_ong ||
+          source?.funcaoNaOng ||
+          source?.funcao ||
+          "",
+      };
+    }
+
     function setApprovalBusyState(isBusy) {
       approvalBusy = isBusy;
       if (approveVoteButton) {
@@ -219,6 +246,14 @@
       if (accessSelect) {
         accessSelect.disabled = isBusy;
       }
+    }
+
+    function syncSelectedAccessToForms() {
+      const levelValue = accessSelect ? String(accessSelect.value || "").trim() : "";
+      accessHiddenFields.forEach((input) => {
+        input.value = levelValue;
+      });
+      return levelValue;
     }
 
     function resetApprovalModal() {
@@ -237,10 +272,6 @@
         approveVoteButton.classList.remove("is-active");
       }
 
-      if (rejectVoteButton) {
-        rejectVoteButton.classList.remove("is-active");
-      }
-
       if (accessWrap) {
         accessWrap.hidden = true;
       }
@@ -248,6 +279,7 @@
         accessSelect.value = "";
         accessSelect.required = false;
       }
+      syncSelectedAccessToForms();
       if (approvalDescription) {
         approvalDescription.textContent = "Carregando ficha do cadastro...";
       }
@@ -304,50 +336,10 @@
       }, 20);
     }
 
-    function openRejectVoteModal() {
-      if (!rejectVoteModal || !currentApprovalUserId) return;
-      rejectVoteModal.hidden = false;
-      syncBodyModalState();
-      if (rejectVoteDescription) {
-        rejectVoteDescription.textContent = currentApprovalUserName
-          ? `Se quiser, adicione uma justificativa para aparecer na ficha de ${currentApprovalUserName}.`
-          : "Se quiser, adicione uma justificativa para aparecer na ficha.";
-      }
-      window.setTimeout(() => {
-        if (rejectVoteReasonField) {
-          rejectVoteReasonField.focus();
-          return;
-        }
-        const dialog = rejectVoteModal.querySelector(".acessos-modal-dialog");
-        focusFirstElement(dialog);
-      }, 30);
-    }
-
-    function closeRejectVoteModal() {
-      if (!rejectVoteModal) return;
-      const wasOpen = !rejectVoteModal.hidden;
-      rejectVoteModal.hidden = true;
-      if (rejectVoteForm) {
-        rejectVoteForm.action = "";
-      }
-      if (rejectVoteReasonField) {
-        rejectVoteReasonField.value = "";
-        rejectVoteReasonField.disabled = false;
-      }
-      if (rejectVoteSubmit) {
-        rejectVoteSubmit.disabled = false;
-      }
-      syncBodyModalState();
-      if (wasOpen && !approvalModal.hidden && rejectVoteButton instanceof HTMLElement) {
-        rejectVoteButton.focus();
-      }
-    }
-
     function closeApprovalModal() {
       approvalLoadToken += 1;
       const shouldRestoreFocus = !approvalModal.hidden;
       approvalModal.hidden = true;
-      closeRejectVoteModal();
       syncBodyModalState();
       setApprovalBusyState(false);
       setApprovalError("");
@@ -480,10 +472,7 @@
 
     function populateApprovalModal(data) {
       const isVolunteer = String(data?.tipoCadastro || "").trim().toLowerCase() === "voluntario";
-      const approveVotes = Number(data?.votosResumo?.aprovar || 0);
-      const rejectVotes = Number(data?.votosResumo?.rejeitar || 0);
-      const approvalStatus = String(data?.statusAprovacao || "").trim().toLowerCase();
-      const workflowResumo = data?.workflowResumo || {};
+      const signupData = extractSignupData(data);
 
       currentApprovalUserId = String(data?._id || "").trim();
       currentApprovalUserName = String(data?.nome || "").trim();
@@ -491,52 +480,14 @@
       setApprovalField("nome", data?.nome);
       setApprovalField("email", data?.email);
       setApprovalField("login", data?.login);
-      setApprovalField("telefone", data?.telefone);
-      setApprovalField("cpf", data?.cpf);
       setApprovalField("tipoCadastroLabel", data?.tipoCadastroLabel);
-      setApprovalField("perfilLabel", data?.perfilLabel);
-      setApprovalField("createdAtLabel", formatDateTime(data?.createdAt));
-      setApprovalField("statusAprovacaoLabel", data?.statusAprovacaoLabel);
-      setApprovalField("approveVotesLabel", String(approveVotes));
-      setApprovalField("rejectVotesLabel", String(rejectVotes));
-      setApprovalField("actorVoteLabel", formatVoteLabel(approvalStatus));
-      setApprovalField(
-        "workflowStateLabel",
-        workflowResumo?.stateLabel || "Aguardando decisao do administrador"
-      );
-      setApprovalField("presidentNameLabel", workflowResumo?.president?.nome || "Administrador");
-      setApprovalField(
-        "pendingRegularVotesLabel",
-        formatPendingVotesLabel(
-          workflowResumo?.pendingRegularVotes || 0,
-          workflowResumo?.pendingRegularApproverNames || []
-        )
-      );
-
-      if (voteCountFields.aprovar) {
-        voteCountFields.aprovar.textContent = String(approveVotes);
-      }
-
-      if (voteCountFields.rejeitar) {
-        voteCountFields.rejeitar.textContent = String(rejectVotes);
-      }
-
-      if (approveVoteButton) {
-        approveVoteButton.classList.toggle("is-active", approvalStatus === "aprovado");
-      }
-
-      if (rejectVoteButton) {
-        rejectVoteButton.classList.toggle("is-active", approvalStatus === "rejeitado");
-      }
+      setApprovalField("dataNascimentoLabel", formatDateLabel(signupData.dataNascimento));
+      setApprovalField("funcaoNaOngLabel", signupData.funcaoNaOng);
 
       if (approvalDescription) {
         approvalDescription.textContent = isVolunteer
-          ? "Revise o cadastro completo e defina o nivel desse voluntario antes da aprovacao."
-          : "Revise o cadastro completo e decida se o acesso deve ser liberado.";
-      }
-
-      if (actorVotePill) {
-        actorVotePill.textContent = formatVoteLabel(approvalStatus);
+          ? "Revise os dados enviados no cadastro, escolha o nivel e aprove ou nao."
+          : "Revise os dados enviados no cadastro e decida se o acesso deve ser liberado.";
       }
 
       if (approveVoteForm) {
@@ -555,21 +506,7 @@
         accessSelect.required = isVolunteer;
         accessSelect.value = isVolunteer ? String(data?.nivelAcessoVoluntario || "") : "";
       }
-
-      renderProtectedAttachments(data?.anexosProtegidos || {});
-      renderRejectReasons(data?.rejeicoesComMotivo || []);
-
-      if (isVolunteer) {
-        renderLevelVotes(workflowResumo?.levelVotes || [], workflowResumo?.leaderLevel || null);
-      } else if (levelVotesWrap) {
-        levelVotesWrap.hidden = true;
-        if (levelVotesList) {
-          levelVotesList.innerHTML = "";
-        }
-        if (levelLeaderPill) {
-          levelLeaderPill.textContent = "Nenhum nivel lider";
-        }
-      }
+      syncSelectedAccessToForms();
     }
 
     async function openApprovalModal(userId) {
@@ -603,30 +540,26 @@
       button.addEventListener("click", () => closeApprovalModal());
     });
 
-    rejectVoteCloseButtons.forEach((button) => {
-      button.addEventListener("click", () => closeRejectVoteModal());
-    });
-
     approvalModal.addEventListener("click", (event) => {
       if (event.target === approvalModal.querySelector(".acessos-modal-backdrop")) {
         closeApprovalModal();
       }
     });
 
-    rejectVoteModal?.addEventListener("click", (event) => {
-      if (event.target === rejectVoteModal.querySelector(".acessos-modal-backdrop")) {
-        closeRejectVoteModal();
-      }
-    });
-
-    rejectVoteButton?.addEventListener("click", () => {
-      openRejectVoteModal();
-    });
-
     approveVoteForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
+      const isVolunteer = !accessWrap?.hidden;
+      const selectedAccessLevel = syncSelectedAccessToForms();
+      if (isVolunteer && !selectedAccessLevel) {
+        setApprovalError("Selecione o nivel do voluntario antes de aprovar.");
+        if (accessSelect) {
+          accessSelect.focus();
+        }
+        return;
+      }
       const confirmed = await confirmVoteAction("aprovar");
       if (!confirmed) return;
+      setApprovalError("");
       if (approveVoteButton) {
         approveVoteButton.disabled = true;
       }
@@ -637,31 +570,26 @@
       event.preventDefault();
       const confirmed = await confirmVoteAction("rejeitar");
       if (!confirmed) return;
-      if (rejectVoteSubmit) {
-        rejectVoteSubmit.disabled = true;
-      }
-      if (rejectVoteReasonField) {
-        rejectVoteReasonField.disabled = true;
+      setApprovalError("");
+      if (rejectVoteButton) {
+        rejectVoteButton.disabled = true;
       }
       rejectVoteForm.submit();
     });
 
+    accessSelect?.addEventListener("change", () => {
+      syncSelectedAccessToForms();
+      setApprovalError("");
+    });
+
     document.addEventListener("keydown", (event) => {
       if (event.key === "Tab") {
-        if (rejectVoteModal && !rejectVoteModal.hidden) {
-          trapTabNavigation(event, rejectVoteModal.querySelector(".acessos-modal-dialog"));
-          return;
-        }
         if (!approvalModal.hidden) {
           trapTabNavigation(event, approvalModal.querySelector(".acessos-modal-dialog"));
         }
       }
 
       if (event.key !== "Escape") return;
-      if (rejectVoteModal && !rejectVoteModal.hidden) {
-        closeRejectVoteModal();
-        return;
-      }
       if (!approvalModal.hidden) {
         closeApprovalModal();
       }

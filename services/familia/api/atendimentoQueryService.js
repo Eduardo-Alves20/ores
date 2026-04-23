@@ -12,7 +12,7 @@ async function listAttendancesByFamily({ user, familiaId, query = {} }) {
   const filtro = { familiaId: familia._id };
   if (typeof ativo !== "undefined") filtro.ativo = ativo;
 
-  return Atendimento.paginate(filtro, {
+  const result = await Atendimento.paginate(filtro, {
     page,
     limit,
     sort: "-dataHora",
@@ -22,6 +22,17 @@ async function listAttendancesByFamily({ user, familiaId, query = {} }) {
     },
     lean: true,
   });
+
+  const userId = String(user?.id || "");
+  result.docs = result.docs.map((doc) => {
+    if (String(doc.criadoPor || "") !== userId) {
+      const { notasPrivadas, ...rest } = doc;
+      return rest;
+    }
+    return doc;
+  });
+
+  return result;
 }
 
 module.exports = {

@@ -87,11 +87,15 @@ async function enrichFamiliesWithPatientCounts(resultado = {}) {
 async function listFamilies({ user, query = {} }) {
   const filters = parseFamilyListQuery(query);
   const filtro = await applyFamilyScopeFilter(buildFamilyListFilter(filters), user);
+  const familiaSelect = hasOwnAssistidosScope(user)
+    ? "_id responsavel.nome responsavel.parentesco responsavel.telefone endereco.bairro ativo createdAt updatedAt"
+    : undefined;
 
   const result = await Familia.paginate(filtro, {
     page: filters.page,
     limit: filters.limit,
     sort: buildFamilySort(filters),
+    select: familiaSelect,
     lean: true,
   });
 
@@ -128,10 +132,14 @@ async function loadFamilyVolunteers(user, actorId) {
 
 async function loadFamilyDetail({ id, user, actorId, query = {} }) {
   const incluirInativos = parseBoolean(query.incluirInativos) === true;
+  const familiaSelect = hasOwnAssistidosScope(user)
+    ? "_id responsavel.nome responsavel.parentesco responsavel.telefone endereco.bairro ativo"
+    : "_id responsavel endereco observacoes camposExtras ativo createdAt updatedAt";
+
   const familia = await ensureAccessibleFamily({
     user,
     familiaId: id,
-    select: "_id responsavel endereco observacoes camposExtras ativo createdAt updatedAt",
+    select: familiaSelect,
     notFoundMessage: "Familia nao encontrada.",
   }).then((doc) => (doc?.toObject ? doc.toObject() : doc));
 
@@ -146,7 +154,17 @@ async function loadFamilyDetail({ id, user, actorId, query = {} }) {
         path: "profissionalId",
         select: "nome login email",
       })
-      .lean(),
+      .lean()
+      .then((docs) => {
+        const userId = String(user?.id || "");
+        return docs.map((doc) => {
+          if (String(doc.criadoPor || "") !== userId) {
+            const { notasPrivadas, ...rest } = doc;
+            return rest;
+          }
+          return doc;
+        });
+      }),
     loadFamilyVolunteers(user, actorId),
     AgendaEvento.find(filtroBase)
       .sort({ inicio: -1 })

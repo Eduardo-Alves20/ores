@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 const UsuarioService = require("../../services/domain/UsuarioService");
 const { registrarAuditoria } = require("../../services/shared/auditService");
 const { PERFIS } = require("../../config/roles");
@@ -11,10 +9,6 @@ const {
   registerAdaptiveThrottleFailure,
   registerAdaptiveThrottleSuccess,
 } = require("../../services/security/adaptiveThrottleService");
-const {
-  storeProtectedAssetForUser,
-} = require("../../services/security/secureVolunteerAssetService");
-const { deleteProtectedAssets } = require("../../services/admin/user/userProtectedAssetService");
 
 function isHtmlRequest(req) {
   return !!req.accepts("html");
@@ -65,12 +59,6 @@ function createCadastroError(message, status = 400) {
   const error = new Error(message);
   error.status = status;
   return error;
-}
-
-function extractUploadedFile(req, fieldName) {
-  const files = req?.files?.[fieldName];
-  if (!Array.isArray(files) || !files.length) return null;
-  return files[0] || null;
 }
 
 function resolveCadastroUploadError(req) {
@@ -162,8 +150,6 @@ class AuthController {
   }
 
   static async cadastro(req, res) {
-    const storedAssets = [];
-
     try {
       const uploadError = resolveCadastroUploadError(req);
       if (uploadError) {
@@ -198,44 +184,7 @@ class AuthController {
         throw createCadastroError("As senhas informadas não conferem.", 400);
       }
 
-      let predefinedUserId;
-      let anexosProtegidos;
-
-      if (tipoCadastro === "voluntario") {
-        const documentoIdentidadeArquivo = extractUploadedFile(req, "documentoIdentidadeArquivo");
-        const fotoPerfilArquivo = extractUploadedFile(req, "fotoPerfilArquivo");
-
-        if (!documentoIdentidadeArquivo || !fotoPerfilArquivo) {
-          throw createCadastroError(
-            "Para cadastro de voluntário, envie o documento de identidade e a foto de perfil.",
-            400
-          );
-        }
-
-        predefinedUserId = new mongoose.Types.ObjectId().toString();
-
-        const documentoIdentidade = await storeProtectedAssetForUser({
-          kind: "documentoIdentidade",
-          file: documentoIdentidadeArquivo,
-          userId: predefinedUserId,
-        });
-        storedAssets.push(documentoIdentidade);
-
-        const fotoPerfil = await storeProtectedAssetForUser({
-          kind: "fotoPerfil",
-          file: fotoPerfilArquivo,
-          userId: predefinedUserId,
-        });
-        storedAssets.push(fotoPerfil);
-
-        anexosProtegidos = {
-          documentoIdentidade,
-          fotoPerfil,
-        };
-      }
-
       const novoUsuario = await UsuarioService.criar({
-        _id: predefinedUserId,
         nome,
         email,
         login,
@@ -244,7 +193,6 @@ class AuthController {
         tipoCadastro,
         senha,
         dadosCadastro: formData.dadosCadastro,
-        anexosProtegidos,
         perfil: PERFIS.USUARIO,
         statusAprovacao: "pendente",
         ativo: false,
@@ -275,10 +223,6 @@ class AuthController {
         usuario: novoUsuario,
       });
     } catch (error) {
-      if (storedAssets.length) {
-        await deleteProtectedAssets(storedAssets);
-      }
-
       registerAdaptiveThrottleFailure(req);
 
       const duplicate =

@@ -1,7 +1,7 @@
 <%
   const ambienteSenha = String(ambiente || "").toUpperCase();
   const senhaModoDev = ["DEV", "DEVELOPMENT", "LOCAL", "TEST", "TESTE"].includes(ambienteSenha);
-  const senhaPlaceholder = senhaModoDev ? "Mínimo de 4 caracteres" : "Mínimo de 10 caracteres";
+  const senhaPlaceholder = senhaModoDev ? "Mínimo de 4 caracteres" : "Mínimo de 6 caracteres";
   const currentFormData = formData && typeof formData === "object" ? formData : {};
   const currentExtraData =
     currentFormData?.dadosCadastro &&
@@ -107,11 +107,9 @@
     : 100;
   const currentPanel = !currentType
     ? "escolha"
-    : currentType === "voluntario"
-      ? currentVolunteerStep
-      : rawCurrentStep === "acesso"
-        ? "acesso"
-        : "dados";
+    : rawCurrentStep === "acesso"
+      ? "acesso"
+      : "dados";
   const currentProgressStep = currentPanel === "escolha" ? 1 : currentPanel === "acesso" ? 3 : 2;
 
   const cadastroVariants = [
@@ -317,7 +315,7 @@
   <div class="auth-bubble bubble-e"></div>
 
   <div
-    class="cadastro-shell <%= currentType === 'voluntario' ? 'is-volunteer-active' : '' %>"
+    class="cadastro-shell"
     data-cadastro-root
     data-active-type="<%= currentType %>"
     data-active-step="<%= currentPanel %>"
@@ -329,7 +327,7 @@
       <h1 class="cadastro-hero-title">Bem-vindo à nossa rede</h1>
       <p class="cadastro-hero-subtitle">Cada pessoa faz a diferença</p>
 
-      <div class="cadastro-progress" aria-label="Progresso do cadastro" data-cadastro-progress <%= currentType === 'voluntario' ? 'hidden' : '' %>>
+      <div class="cadastro-progress" aria-label="Progresso do cadastro" data-cadastro-progress>
         <% for (let step = 1; step <= 3; step += 1) { %>
           <span
             class="cadastro-progress-item <%= currentProgressStep === step ? 'is-active' : '' %>"
@@ -337,11 +335,6 @@
             data-step="<%= step %>"
           ></span>
         <% } %>
-      </div>
-
-      <div class="cadastro-hero-journey" data-cadastro-volunteer-journey <%= currentType === 'voluntario' ? '' : 'hidden' %>>
-        <i class="fa-solid fa-route" aria-hidden="true"></i>
-        <span>Cadastro guiado de voluntário em <%= volunteerWizardSteps.length %> etapas</span>
       </div>
     </header>
 
@@ -390,7 +383,7 @@
 
       <% cadastroVariants.forEach((variant) => { %>
         <% const showVariant = currentType === variant.key; %>
-        <% const activeVariantPanel = showVariant ? currentPanel : variant.key === "voluntario" ? volunteerWizardSteps[0].key : "dados"; %>
+        <% const activeVariantPanel = showVariant ? currentPanel : "dados"; %>
         <form
           method="post"
           action="/cadastro"
@@ -399,7 +392,7 @@
           class="cadastro-form-shell <%= variant.key === 'voluntario' ? 'cadastro-form-shell-volunteer' : '' %>"
           data-cadastro-form
           data-cadastro-variant="<%= variant.key %>"
-          data-cadastro-layout="<%= variant.key === 'voluntario' ? 'volunteer-wizard' : 'standard' %>"
+          data-cadastro-layout="standard"
           <%= showVariant ? "" : "hidden" %>
         >
           <%- renderCsrfField() %>
@@ -407,6 +400,8 @@
           <input type="hidden" name="fluxoEtapa" value="<%= activeVariantPanel %>" data-cadastro-step-input />
 
           <% if (variant.key === "voluntario") { %>
+            <%# Wizard de voluntario desativado temporariamente. Bloco original preservado abaixo em condicao inativa para referencia futura. %>
+            <% if (false) { %>
             <section class="cadastro-volunteer-wizard card-elevated" data-cadastro-wizard-root>
               <header class="cadastro-wizard-hero">
                 <div class="cadastro-wizard-hero-main">
@@ -1450,6 +1445,165 @@
                     data-cadastro-wizard-submit
                     <%= currentVolunteerStepIndex === volunteerWizardSteps.length - 1 ? "" : "hidden" %>
                   >
+                    Enviar cadastro
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <% } %>
+
+            <section class="cadastro-card cadastro-form-card card-elevated" data-cadastro-panel="dados">
+              <header class="cadastro-card-head theme-volunteer">
+                <button
+                  type="button"
+                  class="cadastro-back-btn"
+                  data-cadastro-back="escolha"
+                  aria-label="Voltar para escolher o perfil"
+                >
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <span class="cadastro-card-icon" aria-hidden="true">
+                  <i class="fa-solid fa-users"></i>
+                </span>
+                <div>
+                  <h2>Cadastro de colaborador</h2>
+                </div>
+              </header>
+
+              <div class="cadastro-card-body">
+                <div class="cadastro-field-grid">
+                  <label class="field-wrap cadastro-field span-2" for="cadastro-voluntario-nome">
+                    <span class="input-label">Nome completo<span class="cadastro-required">*</span></span>
+                    <input
+                      class="input-control cadastro-input"
+                      id="cadastro-voluntario-nome"
+                      name="nome"
+                      type="text"
+                      maxlength="140"
+                      placeholder="Digite seu nome completo"
+                      value="<%= getRootValue('voluntario', 'nome') %>"
+                      autocomplete="name"
+                      required
+                    />
+                  </label>
+
+                  <label class="field-wrap cadastro-field" for="cadastro-voluntario-nascimento">
+                    <span class="input-label">Data de nascimento<span class="cadastro-required">*</span></span>
+                    <input
+                      class="input-control cadastro-input"
+                      id="cadastro-voluntario-nascimento"
+                      name="dadosCadastro[data_nascimento]"
+                      type="date"
+                      value="<%= getExtraValue('voluntario', 'data_nascimento') %>"
+                      required
+                    />
+                  </label>
+
+                  <label class="field-wrap cadastro-field" for="cadastro-voluntario-email">
+                    <span class="input-label">E-mail<span class="cadastro-required">*</span></span>
+                    <input
+                      class="input-control cadastro-input"
+                      id="cadastro-voluntario-email"
+                      name="email"
+                      type="email"
+                      maxlength="140"
+                      placeholder="voce@email.com"
+                      value="<%= getRootValue('voluntario', 'email') %>"
+                      autocomplete="email"
+                      required
+                    />
+                  </label>
+
+                  <label class="field-wrap cadastro-field" for="cadastro-voluntario-login">
+                    <span class="input-label">Usuario para login<span class="cadastro-required">*</span></span>
+                    <input
+                      class="input-control cadastro-input"
+                      id="cadastro-voluntario-login"
+                      name="login"
+                      type="text"
+                      maxlength="40"
+                      placeholder="Como voce quer entrar no sistema"
+                      value="<%= getRootValue('voluntario', 'login') %>"
+                      autocomplete="username"
+                      required
+                    />
+                  </label>
+
+                  <label class="field-wrap cadastro-field" for="cadastro-voluntario-funcao">
+                    <span class="input-label">Funcao na ONG<span class="cadastro-required">*</span></span>
+                    <select
+                      class="input-control cadastro-input"
+                      id="cadastro-voluntario-funcao"
+                      name="dadosCadastro[funcao_na_ong]"
+                      required
+                    >
+                      <option value="">Selecione sua funcao</option>
+                      <option value="Psicomotricidade" <%= getExtraValue('voluntario', 'funcao_na_ong') === 'Psicomotricidade' ? 'selected' : '' %>>Psicomotricidade</option>
+                      <option value="Psicologia" <%= getExtraValue('voluntario', 'funcao_na_ong') === 'Psicologia' ? 'selected' : '' %>>Psicologia</option>
+                      <option value="Psicopedagogo" <%= getExtraValue('voluntario', 'funcao_na_ong') === 'Psicopedagogo' ? 'selected' : '' %>>Psicopedagogo</option>
+                      <option value="Fonoaudiologia" <%= getExtraValue('voluntario', 'funcao_na_ong') === 'Fonoaudiologia' ? 'selected' : '' %>>Fonoaudiologia</option>
+                      <option value="Musicoterapeuta" <%= getExtraValue('voluntario', 'funcao_na_ong') === 'Musicoterapeuta' ? 'selected' : '' %>>Musicoterapeuta</option>
+                      <option value="Servico Social" <%= getExtraValue('voluntario', 'funcao_na_ong') === 'Servico Social' ? 'selected' : '' %>>Servico Social</option>
+                    </select>
+                  </label>
+
+                  <label class="field-wrap cadastro-field" for="cadastro-voluntario-senha">
+                    <span class="input-label">Senha<span class="cadastro-required">*</span></span>
+                    <div class="field-icon-wrap">
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-senha"
+                        name="senha"
+                        type="password"
+                        maxlength="120"
+                        placeholder="<%= senhaPlaceholder %>"
+                        autocomplete="new-password"
+                        required
+                      />
+                      <button
+                        class="field-icon-toggle"
+                        type="button"
+                        data-password-toggle="cadastro-voluntario-senha"
+                        aria-label="Mostrar senha"
+                        aria-pressed="false"
+                      >
+                        <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
+                      </button>
+                    </div>
+                  </label>
+
+                  <label class="field-wrap cadastro-field" for="cadastro-voluntario-confirmar-senha">
+                    <span class="input-label">Confirmar senha<span class="cadastro-required">*</span></span>
+                    <div class="field-icon-wrap">
+                      <input
+                        class="input-control cadastro-input"
+                        id="cadastro-voluntario-confirmar-senha"
+                        name="confirmarSenha"
+                        type="password"
+                        maxlength="120"
+                        placeholder="Repita sua senha"
+                        autocomplete="new-password"
+                        required
+                      />
+                      <button
+                        class="field-icon-toggle"
+                        type="button"
+                        data-password-toggle="cadastro-voluntario-confirmar-senha"
+                        aria-label="Mostrar senha"
+                        aria-pressed="false"
+                      >
+                        <i class="fa-solid fa-eye-slash field-icon-right" data-password-icon></i>
+                      </button>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="cadastro-submit-block">
+                  <p class="cadastro-submit-copy">
+                    Seu cadastro segue para analise da equipe e voce sera avisado quando o acesso estiver liberado.
+                  </p>
+                  <button type="submit" class="btn btn-accent btn-block cadastro-submit-btn">
                     Enviar cadastro
                   </button>
                 </div>

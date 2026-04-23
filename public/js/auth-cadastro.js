@@ -121,10 +121,9 @@
   }
 
   function syncHeroState(activeType) {
-    const isVolunteer = String(activeType || "").trim() === "voluntario";
-    root.classList.toggle("is-volunteer-active", isVolunteer);
-    if (progressWrap) progressWrap.hidden = isVolunteer;
-    if (volunteerJourney) volunteerJourney.hidden = !isVolunteer;
+    root.classList.remove("is-volunteer-active");
+    if (progressWrap) progressWrap.hidden = false;
+    if (volunteerJourney) volunteerJourney.hidden = true;
   }
 
   function setAccessFieldsDisabled(form, shouldDisable) {
@@ -361,7 +360,9 @@
         const targetStep = stepKeys.includes(activePanel) ? activePanel : stepKeys[0] || "profissional";
         setVolunteerWizardStep(form, targetStep, options);
       } else {
-        setStandardPanel(form, activePanel === "acesso" ? "acesso" : "dados");
+        const hasAccessPanel = !!getPanel(form, "acesso");
+        const targetPanel = activePanel === "acesso" && hasAccessPanel ? "acesso" : "dados";
+        setStandardPanel(form, targetPanel);
       }
     });
 
@@ -370,9 +371,7 @@
       return;
     }
 
-    if (activeType !== "voluntario") {
-      setProgress(activePanel === "acesso" ? 3 : 2);
-    }
+    setProgress(activePanel === "acesso" ? 3 : 2);
   }
 
   function wireLoginSuggestion(form) {
@@ -636,6 +635,7 @@
         syncConditionalFields(form);
       });
     } else {
+      const hasAccessPanel = !!getPanel(form, "acesso");
       const nextButton = form.querySelector("[data-cadastro-next]");
       if (nextButton) {
         nextButton.addEventListener("click", () => {
@@ -646,6 +646,7 @@
       }
 
       form.addEventListener("submit", (event) => {
+        if (!hasAccessPanel) return;
         const panelName = String(root.dataset.activeStep || "").trim();
         if (panelName === "acesso") return;
         event.preventDefault();
@@ -660,7 +661,7 @@
     button.addEventListener("click", () => {
       const type = String(button.getAttribute("data-cadastro-select") || "").trim();
       if (!type) return;
-      setState(type, type === "voluntario" ? "profissional" : "dados", { focus: false, scroll: false });
+      setState(type, "dados", { focus: false, scroll: false });
     });
   });
 
