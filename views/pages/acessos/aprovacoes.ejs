@@ -31,13 +31,13 @@
   <header class="acessos-hero module-card">
     <div class="acessos-hero-main">
       <span class="acessos-hero-eyebrow">Triagem de acessos</span>
-      <h2>AprovaÃ§Ãµes Pendentes</h2>
+      <h2>Aprovações Pendentes</h2>
       <p><%= subtitle %></p>
 
       <div class="acessos-hero-stats">
-        <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisÃ£o</span>
-        <span class="acessos-hero-stat"><strong><%= usuarios?.length || 0 %></strong> exibidos na pÃ¡gina</span>
-        <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por pÃ¡gina</span>
+        <span class="acessos-hero-stat"><strong><%= totalPendente || 0 %></strong> aguardando decisão</span>
+        <span class="acessos-hero-stat"><strong><%= usuarios?.length || 0 %></strong> exibidos na página</span>
+        <span class="acessos-hero-stat"><strong><%= Number(filtrosAtuais.limit || 10) %></strong> por página</span>
       </div>
     </div>
 
@@ -58,7 +58,7 @@
     <div class="acessos-panel-head">
       <div>
         <h3>Refinar fila</h3>
-        <p>Na tabela ficam sÃ³ os Ã­cones. A ficha completa abre quando vocÃª clicar para avaliar.</p>
+        <p>Na tabela ficam só os ícones. A ficha completa abre quando você clicar para avaliar.</p>
       </div>
     </div>
 
@@ -72,9 +72,9 @@
         <span class="input-label">Tipo</span>
         <select class="input-control" name="tipo">
           <option value="todos" <%= filtrosAtuais.tipo === "todos" ? "selected" : "" %>>Todos</option>
-          <option value="familia" <%= filtrosAtuais.tipo === "familia" ? "selected" : "" %>>FamÃ­lia</option>
-          <option value="voluntario" <%= filtrosAtuais.tipo === "voluntario" ? "selected" : "" %>>VoluntÃ¡rio</option>
-          <option value="orgao_publico" <%= filtrosAtuais.tipo === "orgao_publico" ? "selected" : "" %>>Ã“rgÃ£o PÃºblico</option>
+          <option value="familia" <%= filtrosAtuais.tipo === "familia" ? "selected" : "" %>>Família</option>
+          <option value="voluntario" <%= filtrosAtuais.tipo === "voluntario" ? "selected" : "" %>>Voluntário</option>
+          <option value="orgao_publico" <%= filtrosAtuais.tipo === "orgao_publico" ? "selected" : "" %>>Órgão Público</option>
         </select>
       </label>
 
@@ -97,15 +97,15 @@
   <section class="module-card acessos-panel acessos-table-panel">
     <div class="acessos-panel-head">
       <div>
-        <h3>Fila de aprovaÃ§Ã£o</h3>
-        <p>Aprove, rejeite ou abra a ficha para revisar os dados completos antes da decisÃ£o.</p>
+        <h3>Fila de aprovação</h3>
+        <p>Aprove, rejeite ou abra a ficha para revisar os dados completos antes da decisão.</p>
         <p class="aprovacao-icon-legend">
           <span><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i> Aprovar</span>
           <span><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i> Rejeitar</span>
           <span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Abrir ficha</span>
         </p>
       </div>
-      <span class="badge-soft"><%= totalPendente || 0 %> em anÃ¡lise</span>
+      <span class="badge-soft"><%= totalPendente || 0 %> em análise</span>
     </div>
 
     <div class="table-wrap">
@@ -117,7 +117,7 @@
             <th>Contato</th>
             <th>CPF</th>
             <th>Criado em</th>
-            <th>AprovaÃ§Ã£o</th>
+            <th>Aprovação</th>
           </tr>
         </thead>
         <tbody>
@@ -133,7 +133,7 @@
                 </td>
                 <td data-label="Nome">
                   <strong><%= item.nome || "-" %></strong>
-                  <div class="acesso-row-hint"><%= item.workflowResumo?.stateLabel || "Aguardando decisÃ£o administrativa" %></div>
+                  <div class="acesso-row-hint"><%= item.workflowResumo?.stateLabel || "Aguardando decisão administrativa" %></div>
                 </td>
                 <td data-label="Contato">
                   <div><%= item.email || "-" %></div>
@@ -141,7 +141,7 @@
                 </td>
                 <td data-label="CPF"><%= item.cpf || "-" %></td>
                 <td data-label="Criado em"><%= item.createdAt ? new Date(item.createdAt).toLocaleString("pt-BR") : "-" %></td>
-                <td class="acessos-actions-col" data-label="Aprovacao">
+                <td class="acessos-actions-col" data-label="Aprovação">
                   <% if (isAdmin) { %>
                     <div class="aprovacao-icon-strip">
                       <% if (item.tipoCadastro === "voluntario") { %>
@@ -150,8 +150,8 @@
                           type="button"
                           data-approval-open
                           data-user-id="<%= item._id %>"
-                          title="Abrir ficha para aprovar e definir nÃ­vel"
-                          aria-label="Abrir ficha para aprovar e definir nÃ­vel"
+                          title="Abrir ficha para aprovar e definir nível"
+                          aria-label="Abrir ficha para aprovar e definir nível"
                         >
                           <i class="fa-solid fa-thumbs-up" aria-hidden="true"></i>
                         </button>
@@ -188,8 +188,8 @@
                         class="aprovacao-open-btn"
                         data-approval-open
                         data-user-id="<%= item._id %>"
-                        title="Abrir ficha de aprovaÃ§Ã£o"
-                        aria-label="Abrir ficha de aprovaÃ§Ã£o"
+                        title="Abrir ficha de aprovação"
+                        aria-label="Abrir ficha de aprovação"
                       >
                         <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                       </button>
@@ -201,14 +201,14 @@
                         class="aprovacao-open-btn"
                         data-approval-open
                         data-user-id="<%= item._id %>"
-                        title="Abrir ficha de aprovacao"
-                        aria-label="Abrir ficha de aprovacao"
+                        title="Abrir ficha de aprovação"
+                        aria-label="Abrir ficha de aprovação"
                       >
                         <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                       </button>
                     </div>
                   <% } else { %>
-                    <small>Somente administracao e assistencia social autorizada podem abrir a ficha.</small>
+                    <small>Somente administração e assistência social autorizada podem abrir a ficha.</small>
                   <% } %>
                 </td>
               </tr>
@@ -225,7 +225,7 @@
       <% for (let p = inicioPag; p <= fimPag; p += 1) { %>
         <a class="btn btn-xxs <%= p === pageAtual ? 'btn-primary' : 'btn-muted' %>" href="<%= pageHref(p) %>"><%= p %></a>
       <% } %>
-      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">PrÃ³xima</a>
+      <a class="btn btn-muted btn-xxs <%= !paginacao?.hasNextPage ? 'is-disabled' : '' %>" href="<%= paginacao?.hasNextPage ? pageHref(paginacao.nextPage) : '#' %>">Próxima</a>
     </nav>
   <% } %>
 
@@ -240,7 +240,7 @@
     >
       <header class="acessos-modal-head">
         <div>
-          <h3 id="approval-modal-title">Ficha de aprovaÃ§Ã£o</h3>
+          <h3 id="approval-modal-title">Ficha de aprovação</h3>
           <p data-approval-description>Veja os dados do cadastro antes de decidir.</p>
         </div>
 
@@ -294,7 +294,7 @@
           </label>
 
           <label class="field-wrap">
-            <span class="input-label">Funcao na ONG</span>
+            <span class="input-label">Função na ONG</span>
             <input class="input-control" type="text" readonly data-approval-field="funcaoNaOngLabel" />
           </label>
         </div>
@@ -305,7 +305,7 @@
             <div class="aprovacao-reasons-list" data-approval-reasons-list></div>
           </section>
           <section class="aprovacao-review-form aprovacao-levels-panel" data-approval-level-votes-wrap hidden>
-            <span class="badge-soft" data-approval-level-leader-pill>Nenhum nivel lider</span>
+            <span class="badge-soft" data-approval-level-leader-pill>Nenhum nível líder</span>
             <div class="aprovacao-levels-list" data-approval-level-votes-list></div>
           </section>
         <% } %>
@@ -313,15 +313,15 @@
         <section class="aprovacao-review-form aprovacao-voting-panel aprovacao-voting-panel-simple">
           <div class="aprovacao-voting-head">
             <div>
-              <h4>Decisao administrativa</h4>
-              <p>Selecione o nivel do voluntario e decida de forma direta.</p>
+              <h4>Decisão administrativa</h4>
+              <p>Selecione o nível do voluntário e decida de forma direta.</p>
             </div>
           </div>
 
           <label class="field-wrap" data-approval-access-wrap hidden>
-            <span class="input-label">Nivel do voluntario</span>
+            <span class="input-label">Nível do voluntário</span>
             <select class="input-control" data-approval-access-select>
-              <option value="">Escolha o nivel</option>
+              <option value="">Escolha o nível</option>
               <% (volunteerAccessOptions || []).forEach((option) => { %>
                 <option value="<%= option.value %>"><%= option.label %></option>
               <% }) %>
@@ -351,10 +351,10 @@
                 class="btn btn-muted acesso-action-reject"
                 type="submit"
                 data-approval-vote-btn="rejeitar"
-                title="Nao aprovar cadastro"
-                aria-label="Nao aprovar cadastro"
+                title="Não aprovar cadastro"
+                aria-label="Não aprovar cadastro"
               >
-                Nao aprovar
+                Não aprovar
               </button>
             </form>
           </div>

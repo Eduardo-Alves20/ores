@@ -149,14 +149,14 @@ function buildApprovalWorkflowSummary(usuario, electorate) {
   const level = isVolunteer ? normalizeVolunteerAccessLevel(doc?.nivelAcessoVoluntario, null) : null;
 
   const stateByStatus = {
-    pendente: "Aguardando decisao do administrador",
+    pendente: "Aguardando decisão do administrador",
     aprovado: "Aprovado por administrador",
     rejeitado: "Rejeitado por administrador",
   };
 
   return {
     stateKey: status,
-    stateLabel: stateByStatus[status] || "Status de aprovacao",
+    stateLabel: stateByStatus[status] || "Status de aprovação",
     finalDecision: status === "aprovado" || status === "rejeitado" ? status : "",
     finalLevel: level || "",
     requiresPresidentDecision: false,

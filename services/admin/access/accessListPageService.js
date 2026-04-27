@@ -228,11 +228,11 @@ async function buildApprovalQueuePageView(req) {
 
   return {
     ...buildPageBase({
-      title: "Aprovacoes",
-      sectionTitle: "Aprovacoes",
+      title: "Aprovações",
+      sectionTitle: "Aprovações",
       navKey: "aprovacoes",
     }),
-    subtitle: "Fila de cadastro pendente com conferencia restrita para administracao e assistencia social autorizada.",
+    subtitle: "Fila de cadastro pendente com conferência restrita para administração e assistência social autorizada.",
     usuarios,
     totalPendente,
     paginacao: buildPagination(resultado),
