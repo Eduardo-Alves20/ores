@@ -2,7 +2,6 @@ const Usuario = require("../../schemas/core/Usuario");
 const UsuarioService = require("../domain/UsuarioService");
 const { PERFIS } = require("../../config/roles");
 const { hashSenha } = require("../security/passwordService");
-const crypto = require("crypto");
 const { loadUserConfig } = require("./userConfigService");
 
 async function ensureAdminFromEnv() {
@@ -18,22 +17,8 @@ async function ensureAdminFromEnv() {
   if (hasAdmin) return;
 
   if (!adminEmail || !adminSenha) {
-    const fallbackEmail = "admin@ORES.local";
-    const fallbackPassword = `ORES@${crypto.randomBytes(6).toString("hex")}1A`;
-
-    await UsuarioService.criar({
-      nome: adminNome,
-      email: fallbackEmail,
-      senha: fallbackPassword,
-      perfil: PERFIS.ADMIN,
-      ativo: true,
-    });
-
-    console.warn("Admin provisario criado para primeiro acesso:");
-    console.warn(`EMAIL: ${fallbackEmail}`);
-    console.warn(`SENHA: ${fallbackPassword}`);
     console.warn(
-      "Troque essa senha imediatamente e configure admin.email/admin.password em data/user-config.json."
+      "Bootstrap de admin ignorado: configure admin.email/admin.password em data/user-config.json ou variaveis de ambiente."
     );
     return;
   }
@@ -73,16 +58,15 @@ async function ensureSuperAdminFromEnv() {
   const superNome = String(
     superConfig.name || process.env.SUPERADMIN_NAME || "Super Administrador"
   ).trim();
-  const superFallbackEmail = "superadmin@ORES.local";
-  const superFallbackSenha = String(
-    superConfig.bootstrapPassword ||
-      process.env.SUPERADMIN_BOOTSTRAP_PASSWORD ||
-      "SuperAdmin123!"
-  ).trim();
+  if (!superEmailEnv || !superSenhaEnv) {
+    console.warn(
+      "Bootstrap de superadmin ignorado: configure superadmin.email/superadmin.password em data/user-config.json ou variaveis de ambiente."
+    );
+    return;
+  }
 
-  const useEnvCredentials = !!(superEmailEnv && superSenhaEnv);
-  const superEmail = useEnvCredentials ? superEmailEnv : superFallbackEmail;
-  const superSenha = useEnvCredentials ? superSenhaEnv : superFallbackSenha;
+  const superEmail = superEmailEnv;
+  const superSenha = superSenhaEnv;
   const shouldSyncPassword =
     String(
       typeof superConfig.syncPassword === "boolean"
@@ -125,14 +109,6 @@ async function ensureSuperAdminFromEnv() {
   });
 
   console.log("SuperAdmin bootstrap criado:", superEmail);
-  if (!useEnvCredentials) {
-    console.warn("SuperAdmin bootstrap padrao ativo:");
-    console.warn(`EMAIL: ${superEmail}`);
-    console.warn(`SENHA: ${superSenha}`);
-    console.warn(
-      "Defina superadmin.email/superadmin.password em data/user-config.json para sobrescrever."
-    );
-  }
 }
 
 module.exports = {

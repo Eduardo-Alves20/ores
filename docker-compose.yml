@@ -2,6 +2,7 @@ services:
   mongo:
     image: mongo:7
     restart: always
+    command: ["mongod", "--bind_ip_all", "--wiredTigerCacheSizeGB", "0.25"]
     env_file:
       - .env
     environment:
@@ -10,6 +11,12 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongo_data:/data/db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    mem_limit: 768m
     healthcheck:
       test:
         [
@@ -37,10 +44,27 @@ services:
     environment:
       TZ: America/Sao_Paulo
       PORT: 4000
+      NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=256
       MONGO_URI: ${MONGO_URI_DOCKER}
     restart: always
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=64m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    mem_limit: 512m
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/health >/dev/null 2>&1 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"const http=require('http');const req=http.request({host:'127.0.0.1',port:4000,path:'/health',timeout:5000},(res)=>process.exit(res.statusCode===200?0:1));req.on('error',()=>process.exit(1));req.end();\"",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3

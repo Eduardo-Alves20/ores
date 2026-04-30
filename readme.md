@@ -65,15 +65,15 @@ npm run dev
 
 ## Usuario admin inicial
 
-No primeiro start, se nao existir admin ativo, o sistema tenta criar admin usando:
+No primeiro start, se nao existir admin/superadmin ativo, o sistema pode criar contas somente com credenciais explicitas em:
 
-- `admin.name`
-- `admin.email`
-- `admin.password`
+- `admin.name`, `admin.email`, `admin.password`
+- `superadmin.name`, `superadmin.email`, `superadmin.password`
 
 Arquivo: `data/user-config.json`
 
-Defina uma senha forte no JSON (minimo 10 chars, com maiuscula, minuscula e numero).
+Observacao: nao existe mais fallback automatico com `admin@ores.local` ou `superadmin@ores.local`.
+Defina senhas fortes no JSON (minimo 10 chars, com maiuscula, minuscula e numero).
 
 ## Scripts
 

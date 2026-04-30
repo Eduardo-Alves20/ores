@@ -1,14 +1,13 @@
 {
   "admin": {
     "name": "Administrador",
-    "email": "admin@ORES.local",
+    "email": "",
     "password": ""
   },
   "superadmin": {
     "name": "Super Administrador",
-    "email": "superadmin@ORES.local",
+    "email": "",
     "password": "",
-    "bootstrapPassword": "SuperAdmin123!",
     "syncPassword": true
   },
   "approval": {

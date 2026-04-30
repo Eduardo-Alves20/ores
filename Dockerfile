@@ -1,12 +1,10 @@
-FROM node:20.14.0
+FROM node:20.14.0-bookworm-slim
 
 WORKDIR /app
 
-# Dependências mínimas para healthcheck e timezone.
-RUN apt-get update && apt-get install -y --no-install-recommends wget tzdata && \
-  rm -rf /var/lib/apt/lists/*
-
+ENV NODE_ENV=production
 ENV TZ=America/Sao_Paulo
+ENV NODE_OPTIONS=--max-old-space-size=256
 
 COPY package*.json ./
 RUN npm ci --omit=dev
@@ -17,6 +15,6 @@ RUN mkdir -p /app/uploads && chmod -R 775 /app/uploads
 EXPOSE 4000
 
 HEALTHCHECK --interval=180s --timeout=30s --start-period=30s --retries=3 \
-  CMD wget -qO- "http://localhost:${PORT:-4000}/health" >/dev/null 2>&1 || exit 1
+  CMD node -e "const http=require('http');const req=http.request({host:'127.0.0.1',port:process.env.PORT||4000,path:'/health',timeout:5000},(res)=>process.exit(res.statusCode===200?0:1));req.on('error',()=>process.exit(1));req.end();"
 
-CMD [ "npm", "start" ]
+CMD ["npm", "start"]

@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, linux]
+    runs-on: [self-hosted, linux, x64, vps, ores, prod]
 
     env:
       DEPLOY_DIR: /opt/deploy/ores
@@ -32,4 +32,29 @@ jobs:
         run: |
           set -euo pipefail
           cd "$DEPLOY_DIR"
+          docker compose pull || true
           docker compose up -d --build --remove-orphans
+
+      - name: Wait for app healthcheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_DIR"
+          cid="$(docker compose ps -q ores)"
+          if [ -z "$cid" ]; then
+            echo "Container ores not found"
+            docker compose ps
+            exit 1
+          fi
+          for i in $(seq 1 40); do
+            status="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}starting{{end}}' "$cid")"
+            if [ "$status" = "healthy" ]; then
+              echo "App healthy"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "App did not become healthy in time"
+          docker compose ps
+          docker compose logs --tail=120 ores
+          exit 1
