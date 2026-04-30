@@ -3,6 +3,11 @@ name: Deploy Ubuntu Docker
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -25,7 +30,21 @@ jobs:
             --exclude ".git" \
             --exclude ".github" \
             --exclude "node_modules" \
+            --exclude ".env" \
+            --exclude ".env.*" \
+            --exclude "uploads/" \
+            --exclude "logs/" \
             "$GITHUB_WORKSPACE/" "$DEPLOY_DIR/"
+
+      - name: Validate deploy environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_DIR"
+          if [ ! -f ".env" ]; then
+            echo "Arquivo .env nao encontrado em $DEPLOY_DIR. Configure antes do deploy."
+            exit 1
+          fi
 
       - name: Rebuild and restart containers
         shell: bash
@@ -33,7 +52,7 @@ jobs:
           set -euo pipefail
           cd "$DEPLOY_DIR"
           docker compose pull || true
-          docker compose up -d --build --remove-orphans
+          docker compose up -d --build --force-recreate --remove-orphans
 
       - name: Wait for app healthcheck
         shell: bash
