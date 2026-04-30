@@ -1,28 +1,31 @@
 (function () {
-  const root = document.querySelector(".page-acessos");
+  const root = document.querySelector(".page-acessos, .acessos-page");
   if (!root) return;
 
   const shared = window.ORESAcessosShared;
-  if (
-    !shared ||
-    typeof shared.createPageHelpers !== "function" ||
-    typeof shared.requestJson !== "function" ||
-    typeof window.initAcessosUserModal !== "function" ||
-    typeof window.initAcessosApprovalModal !== "function"
-  ) {
+  if (!shared || typeof shared.createPageHelpers !== "function" || typeof shared.requestJson !== "function") {
     return;
   }
 
   const { requestJson, createPageHelpers } = shared;
   const { closeAllMenus, syncBodyModalState } = createPageHelpers(root);
 
-  const userModal = window.initAcessosUserModal({
+  const initUserModal =
+    typeof window.initAcessosUserModal === "function"
+      ? window.initAcessosUserModal
+      : () => ({ openEditModal: async () => {} });
+  const initApprovalModal =
+    typeof window.initAcessosApprovalModal === "function"
+      ? window.initAcessosApprovalModal
+      : () => ({ openApprovalModal: async () => {} });
+
+  const userModal = initUserModal({
     root,
     requestJson,
     closeAllMenus,
     syncBodyModalState,
   });
-  const approvalModal = window.initAcessosApprovalModal({
+  const approvalModal = initApprovalModal({
     root,
     requestJson,
     syncBodyModalState,
@@ -77,29 +80,32 @@
       return;
     }
 
-    const row = event.target.closest("[data-user-row-open]");
-    if (row) {
-      if (event.target.closest("button, a, form, input, select, textarea, label")) return;
+    const toggleBtn = event.target.closest("[data-action='menu-toggle']");
+    if (toggleBtn) {
       event.preventDefault();
       event.stopPropagation();
-      closeAllMenus();
-      openEditModal(String(row.getAttribute("data-user-row-open") || "").trim());
+
+      const menu = toggleBtn.closest(".acesso-actions-menu");
+      if (!menu) return;
+
+      const willOpen = !menu.classList.contains("is-open");
+      closeAllMenus(menu);
+      menu.classList.toggle("is-open", willOpen);
+      toggleBtn.setAttribute("aria-expanded", String(willOpen));
       return;
     }
 
-    const toggleBtn = event.target.closest("[data-action='menu-toggle']");
-    if (!toggleBtn) return;
+    const row = event.target.closest("[data-user-row-open]");
+    if (!row) return;
+
+    if (event.target.closest("button, a, form, input, select, textarea, label")) {
+      return;
+    }
 
     event.preventDefault();
     event.stopPropagation();
-
-    const menu = toggleBtn.closest(".acesso-actions-menu");
-    if (!menu) return;
-
-    const willOpen = !menu.classList.contains("is-open");
-    closeAllMenus(menu);
-    menu.classList.toggle("is-open", willOpen);
-    toggleBtn.setAttribute("aria-expanded", String(willOpen));
+    closeAllMenus();
+    openEditModal(String(row.getAttribute("data-user-row-open") || "").trim());
   });
 
   document.addEventListener("click", (event) => {
