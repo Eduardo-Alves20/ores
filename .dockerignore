@@ -1,6 +1,7 @@
 node_modules
 npm-debug.log
 yarn-error.log
+pnpm-debug.log
 .git
 .gitignore
 .env
@@ -11,6 +12,10 @@ build
 .cache
 .vscode
 .idea
-uploads/*
-!uploads/.gitkeep
+logs
+*.log
+uploads
+backups
+tmp
+temp_*.html
 

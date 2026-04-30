@@ -103,23 +103,46 @@ URL publica fixa:
 O compose agora consegue subir o stack completo mesmo em maquina nova, usando Mongo dentro do proprio Docker.
 
 1. Configure `.env` (ou deixe o script criar a partir de `.env.example`).
-2. Suba:
+2. Crie os volumes persistentes (uma vez so):
+
+```bash
+docker volume create ores_uploads_data
+docker volume create ores_mongo_data
+```
+
+3. Se voce ja tinha arquivos em `./uploads`, migre uma vez:
+
+```bash
+chmod +x scripts/migrate-uploads-to-volume.sh
+./scripts/migrate-uploads-to-volume.sh
+```
+
+4. Suba:
 
 ```bash
 docker compose up -d --build
 ```
 
-4. Acesse:
+5. Acesse:
 
-`http://localhost:8080/login`
+`http://localhost:4000/login`
 
 Observacoes importantes:
 
 - O `docker-compose.yml` sobe `mongo` e `ores`.
-- O Mongo roda apenas na rede interna do Docker (sem exposicao publica da porta 27017).
+- Rebuild (`docker compose up -d --build`) nao apaga banco nem uploads.
+- Nao use `docker compose down -v` se quiser manter os dados.
 - Dentro do container, a conexao padrao usa:
   - `MONGO_URI_DOCKER=mongodb://<usuario>:<senha>@mongo:27017/ORES?authSource=admin&directConnection=true`
 - Se quiser continuar usando um Mongo externo, basta ajustar `MONGO_URI_DOCKER` no `.env`.
+- O dominio de cookie da sessao e configuravel via `SESSION_COOKIE_DOMAIN` no `.env`.
+
+Deploy seguro (sem apagar dados):
+
+```bash
+chmod +x scripts/deploy-safe.sh
+./scripts/deploy-safe.sh
+```
 
 ## Estrutura resumida
 

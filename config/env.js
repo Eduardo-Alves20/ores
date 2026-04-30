@@ -61,13 +61,20 @@ store.on('error', (err) => {
 });
 
 const sessionParser = session({
+  name: SESSION_NAME,
   secret: secretKey,
+  proxy: true,
   cookie: {
     maxAge: MAXAGE,
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: isProdLike,
+    domain: process.env.SESSION_COOKIE_DOMAIN || undefined,
   },
-  resave: true,
+  resave: false,
   saveUninitialized: false,
   rolling: true,
+  unset: 'destroy',
   store,
 });
 

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   mongo:
     image: mongo:7
@@ -31,9 +29,9 @@ services:
       mongo:
         condition: service_healthy
     ports:
-      - "${PORT}:${PORT}"
+      - "${APP_PORT:-4000}:4000"
     volumes:
-      - ./uploads:/app/uploads
+      - ores_uploads:/app/uploads
     env_file:
       - .env
     environment:
@@ -49,4 +47,9 @@ services:
       start_period: 30s
 
 volumes:
+  ores_uploads:
+    external: true
+    name: ${UPLOADS_VOLUME:-ores_uploads_data}
   mongo_data:
+    external: true
+    name: ${MONGO_DATA_VOLUME:-ores_mongo_data}
