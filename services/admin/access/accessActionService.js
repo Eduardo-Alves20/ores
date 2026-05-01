@@ -6,7 +6,10 @@ const {
 } = require("../../../config/volunteerAccess");
 const { ensureValidObjectId } = require("../../shared/objectIdValidationService");
 const { parseBoolean } = require("../../shared/valueParsingService");
-const { canManageTargetUser } = require("./accessPermissionService");
+const {
+  canManageTargetUser,
+  isSuperAdminRequest,
+} = require("./accessPermissionService");
 const { normalizeAssetKind } = require("../../security/secureVolunteerAssetService");
 const {
   mapApprovalDetail,
@@ -203,10 +206,48 @@ async function changeUserAccessStatus({ req, id, actorId = null, ativo }) {
   };
 }
 
+async function removeUserAccess({ req, id, actorId = null }) {
+  if (!isSuperAdminRequest(req)) {
+    throw createActionError("Somente superadmin pode excluir usuarios.", 403);
+  }
+
+  const normalizedId = ensureAccessUserId(id);
+  const usuarioAtual = await Usuario.findById(normalizedId)
+    .select("_id perfil tipoCadastro")
+    .lean();
+  if (!usuarioAtual) {
+    throw createActionError("Usuario nao encontrado.");
+  }
+
+  if (!["familia", "voluntario"].includes(String(usuarioAtual.tipoCadastro || "").toLowerCase())) {
+    throw createActionError("Exclusao permitida apenas para familia e voluntario.", 403);
+  }
+
+  if (!canManageTargetUser(req, usuarioAtual)) {
+    throw createActionError("Somente superadmin pode excluir outro superadmin.", 403);
+  }
+
+  const usuario = await UsuarioService.remover(normalizedId, { usuarioId: actorId });
+  if (!usuario) {
+    throw createActionError("Usuario nao encontrado.");
+  }
+
+  return {
+    usuario,
+    successMessage: "Usuario excluido com sucesso.",
+    audit: {
+      acao: "USUARIO_INATIVADO",
+      entidade: "usuario",
+      entidadeId: normalizedId,
+    },
+  };
+}
+
 module.exports = {
   loadApprovalDetailPayload,
   loadProtectedApprovalAsset,
   approveUserAccess,
   rejectUserAccess,
   changeUserAccessStatus,
+  removeUserAccess,
 };

@@ -24,6 +24,7 @@ const {
   canManageTargetUser,
   canManageUsers,
   isAdmin,
+  isSuperAdminRequest,
 } = require("./accessPermissionService");
 const {
   buildApprovalWorkflowSummary,
@@ -171,6 +172,7 @@ async function buildUserTypePageView(req, config) {
     isAdmin: isAdmin(req),
     canReviewSensitiveApprovalData: canReviewSensitiveApprovalData(req),
     canManageUsers: canManageUsers(req),
+    isSuperAdmin: isSuperAdminRequest(req),
     createProfileOptions: buildCreateProfileOptions(req),
     volunteerAccessOptions: VOLUNTARIO_ACCESS_OPTIONS,
     customFields,
@@ -243,6 +245,7 @@ async function buildApprovalQueuePageView(req) {
       limitOptions: LIMIT_OPTIONS,
     },
     isAdmin: isAdmin(req),
+    isSuperAdmin: isSuperAdminRequest(req),
     canReviewSensitiveApprovalData: canReviewSensitiveApprovalData(req),
     volunteerAccessOptions: VOLUNTARIO_ACCESS_OPTIONS,
     approvalRoleOptions: buildApprovalRoleOptions(),

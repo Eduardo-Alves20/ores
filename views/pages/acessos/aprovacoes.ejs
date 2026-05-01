@@ -183,6 +183,31 @@
                         </button>
                       </form>
 
+                      <% if (isSuperAdmin) { %>
+                        <form
+                          method="post"
+                          action="/acessos/<%= item._id %>/excluir"
+                          class="aprovacao-vote-form"
+                          data-confirm="true"
+                          data-confirm-title="Excluir usuario?"
+                          data-confirm-text="Deseja excluir <%= item.nome || 'usuario' %>? Essa acao nao pode ser desfeita."
+                          data-confirm-icon="warning"
+                          data-confirm-confirm="Excluir"
+                          data-confirm-cancel="Cancelar"
+                        >
+                          <%- renderCsrfField() %>
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <button
+                            class="aprovacao-vote-btn aprovacao-vote-btn-reject"
+                            type="submit"
+                            title="Excluir usuario"
+                            aria-label="Excluir usuario"
+                          >
+                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                          </button>
+                        </form>
+                      <% } %>
+
                       <button
                         type="button"
                         class="aprovacao-open-btn"

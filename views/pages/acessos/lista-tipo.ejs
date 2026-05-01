@@ -395,6 +395,27 @@
                           </button>
                         </form>
                       <% } %>
+
+                      <% if (isSuperAdmin && item.perfil === "usuario" && (item.tipoCadastro === "familia" || item.tipoCadastro === "voluntario")) { %>
+                        <form
+                          method="post"
+                          action="/acessos/<%= item._id %>/excluir"
+                          class="acessos-action-form acesso-actions-menu-item"
+                          data-confirm="true"
+                          data-confirm-title="Excluir usuario?"
+                          data-confirm-text="Deseja excluir <%= item.nome || 'usuario' %>? Essa acao nao pode ser desfeita."
+                          data-confirm-icon="warning"
+                          data-confirm-confirm="Excluir"
+                          data-confirm-cancel="Cancelar"
+                        >
+                          <%- renderCsrfField() %>
+                          <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+                          <button class="table-action-btn table-action-btn-danger acessos-action-btn acesso-action-reject" type="submit" role="menuitem">
+                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                            <span>Excluir</span>
+                          </button>
+                        </form>
+                      <% } %>
                         </div>
                       </div>
                     </div>

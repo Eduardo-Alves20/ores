@@ -78,4 +78,11 @@ router.post(
   AcessoPageController.alterarStatus
 );
 
+router.post(
+  "/acessos/:id/excluir",
+  requireAuth,
+  requirePermission(PERMISSIONS.ACESSOS_APPROVE),
+  AcessoPageController.excluir
+);
+
 module.exports = router;

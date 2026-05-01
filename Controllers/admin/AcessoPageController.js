@@ -4,6 +4,7 @@ const {
   buildApprovalQueuePageView,
   buildUserTypePageView,
   changeUserAccessStatus,
+  removeUserAccess,
   loadProtectedApprovalAsset,
   loadApprovalDetailPayload,
   parseBoolean,
@@ -257,6 +258,30 @@ class AcessoPageController {
         returnTo,
         "Erro ao alterar status de usuario:",
         "Erro ao alterar status do usuario.",
+        error
+      );
+    }
+  }
+
+  static async excluir(req, res) {
+    const returnTo = resolveReturnTo(req.body?.returnTo, DEFAULT_APPROVAL_RETURN_TO);
+
+    try {
+      const result = await removeUserAccess({
+        req,
+        id: req.params?.id,
+        actorId: req?.session?.user?.id || null,
+      });
+
+      await registrarAuditoria(req, result.audit);
+      return redirectWithFlash(req, res, returnTo, "success", result.successMessage);
+    } catch (error) {
+      return handleActionError(
+        req,
+        res,
+        returnTo,
+        "Erro ao excluir usuario:",
+        "Erro ao excluir usuario.",
         error
       );
     }
