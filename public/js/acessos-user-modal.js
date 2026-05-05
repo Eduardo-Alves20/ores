@@ -58,6 +58,47 @@
     return true;
   }
 
+  const SIGNUP_FIELD_ALIASES = {
+    habilidades: ["nome_atividade"],
+    experiencia: ["descricao_atividade"],
+    disponibilidade: ["objetivo_geral"],
+    dias_disponiveis: ["objetivos_especificos"],
+    turno_preferencial: ["faixa_etaria"],
+    carga_horaria: ["participantes_por_turma"],
+    formato_atuacao: ["metodologia_atividade"],
+    observacoes_disponibilidade: ["observacoes_gerais"],
+  };
+
+  function resolveSignupKeyForSave(key) {
+    const normalized = String(key || "").trim();
+    if (!normalized) return "";
+    const aliases = SIGNUP_FIELD_ALIASES[normalized];
+    if (Array.isArray(aliases) && aliases.length) {
+      return String(aliases[0] || normalized).trim();
+    }
+    return normalized;
+  }
+
+  function resolveSignupValueForField(values, key) {
+    const normalized = String(key || "").trim();
+    if (!normalized || !values || typeof values !== "object") return "";
+
+    const direct = values?.[normalized];
+    if (typeof direct !== "undefined" && direct !== null && String(direct).trim()) {
+      return String(direct);
+    }
+
+    const aliases = SIGNUP_FIELD_ALIASES[normalized] || [];
+    for (const alias of aliases) {
+      const candidate = values?.[alias];
+      if (typeof candidate !== "undefined" && candidate !== null && String(candidate).trim()) {
+        return String(candidate);
+      }
+    }
+
+    return "";
+  }
+
   function validateFields(scope) {
     const fields = Array.from(scope?.querySelectorAll?.("input, textarea, select") || []).filter(
       isVisibleField
@@ -467,9 +508,11 @@
       signupFieldInputs.forEach((field) => {
         const key = String(field.getAttribute("data-user-signup-field") || "").trim();
         if (!key) return;
+        const saveKey = resolveSignupKeyForSave(key);
+        if (!saveKey) return;
         const value = String(field.value || "").trim();
         if (!value) return;
-        dadosCadastro[key] = value;
+        dadosCadastro[saveKey] = value;
       });
       return dadosCadastro;
     }
@@ -478,8 +521,8 @@
       signupFieldInputs.forEach((field) => {
         const key = String(field.getAttribute("data-user-signup-field") || "").trim();
         if (!key) return;
-        const value = values?.[key];
-        field.value = typeof value === "undefined" || value === null ? "" : String(value);
+        const value = resolveSignupValueForField(values, key);
+        field.value = value;
       });
     }
 
@@ -903,7 +946,9 @@
         form.elements.login.value = usuario?.login || "";
         form.elements.cpf.value = usuario?.cpf || "";
         form.elements.telefone.value = usuario?.telefone || "";
-        form.elements.dataNascimento.value = String(usuario?.dataNascimento || "").slice(0, 10);
+        form.elements.dataNascimento.value = String(
+          usuario?.dataNascimento || usuario?.dadosCadastro?.data_nascimento || ""
+        ).slice(0, 10);
         form.elements.perfil.value = usuario?.perfil || "usuario";
         if (form.elements.tipoCadastro) {
           form.elements.tipoCadastro.value = usuario?.tipoCadastro || defaultTipoCadastro;
