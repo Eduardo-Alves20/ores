@@ -44,6 +44,13 @@ router.get(
 );
 
 router.get(
+  "/acessos/:id/ficha",
+  requireAuth,
+  requireApprovalReviewAccess,
+  AcessoPageController.fichaUsuario
+);
+
+router.get(
   "/acessos/:id/detalhe",
   requireAuth,
   requireApprovalReviewAccess,

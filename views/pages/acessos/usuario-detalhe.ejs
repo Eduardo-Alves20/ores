@@ -1,0 +1,362 @@
+<%
+  const u = usuario || {};
+  const initials = (u.nome || "?")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+
+  const statusAprovacaoClass =
+    u.statusAprovacao === "aprovado" ? "status-active"
+    : u.statusAprovacao === "rejeitado" ? "status-inactive"
+    : "status-pending";
+
+  const statusAcessoClass = u.ativo ? "status-active" : "status-inactive";
+
+  const tabs = [
+    { key: "identificacao", label: "Identificacao" },
+    ...(u.isVolunteer && u.canViewDocuments ? [{ key: "documentos", label: "Documentos" }] : []),
+    { key: "atividade", label: "Atividade" },
+  ];
+
+  const csrfField = typeof renderCsrfField === "function" ? renderCsrfField() : "";
+%>
+
+<section class="ficha-page" data-ficha-page data-usuario-id="<%= u._id %>">
+
+  <nav class="ficha-breadcrumb" aria-label="Navegacao">
+    <a class="ficha-breadcrumb-back" href="<%= u.backPath %>">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span><%= u.backLabel %></span>
+    </a>
+  </nav>
+
+  <% if (successMessage && successMessage.length) { %>
+    <div class="conta-success"><%= successMessage[0] %></div>
+  <% } %>
+  <% if (errorMessage && errorMessage.length) { %>
+    <div class="conta-error"><%= errorMessage[0] %></div>
+  <% } %>
+
+  <div class="ficha-header card-elevated">
+    <div class="ficha-header-identity">
+      <div class="ficha-avatar" aria-hidden="true">
+        <span class="ficha-avatar-letters"><%= initials %></span>
+      </div>
+      <div class="ficha-identity-meta">
+        <h1 class="ficha-identity-name"><%= u.nome || "-" %></h1>
+        <div class="ficha-identity-tags">
+          <span class="badge-soft"><%= u.tipoCadastroLabel || "-" %></span>
+          <span class="ficha-identity-login"><%= u.login || "-" %></span>
+          <span class="ficha-identity-date">Criado em <%= u.createdAtFormatted || "-" %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ficha-header-actions">
+      <% if (u.canEdit) { %>
+        <button
+          type="button"
+          class="ficha-edit-btn"
+          data-ficha-edit-toggle
+          aria-label="Editar dados do usuario"
+          title="Editar"
+        >
+          <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        </button>
+      <% } %>
+    </div>
+  </div>
+
+  <nav class="ficha-tabs" role="tablist" aria-label="Secoes da ficha">
+    <% tabs.forEach((tab, idx) => { %>
+      <button
+        type="button"
+        class="ficha-tab <%= idx === 0 ? 'is-active' : '' %>"
+        role="tab"
+        data-ficha-tab="<%= tab.key %>"
+        aria-selected="<%= idx === 0 ? 'true' : 'false' %>"
+        aria-controls="ficha-panel-<%= tab.key %>"
+      >
+        <%= tab.label %>
+      </button>
+    <% }) %>
+  </nav>
+
+  <%# ── IDENTIFICAÇÃO ─────────────────────────────────────────── %>
+  <div
+    id="ficha-panel-identificacao"
+    class="ficha-tab-panel card-elevated"
+    role="tabpanel"
+    data-ficha-panel="identificacao"
+  >
+
+    <%# VIEW MODE %>
+    <div data-ficha-view>
+
+      <section class="ficha-section">
+        <h2 class="ficha-section-title">Dados Pessoais</h2>
+        <div class="ficha-data-grid">
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Nome Completo</span>
+            <span class="ficha-data-value"><%= u.nome || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Email</span>
+            <span class="ficha-data-value"><%= u.email || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Telefone</span>
+            <span class="ficha-data-value"><%= u.telefone || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">CPF</span>
+            <span class="ficha-data-value"><%= u.cpf || "-" %></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="ficha-section">
+        <h2 class="ficha-section-title">Dados do Sistema</h2>
+        <div class="ficha-data-grid">
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Login</span>
+            <span class="ficha-data-value"><%= u.login || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Perfil</span>
+            <span class="ficha-data-value"><%= u.perfilLabel || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Tipo de Cadastro</span>
+            <span class="ficha-data-value"><%= u.tipoCadastroLabel || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Criado em</span>
+            <span class="ficha-data-value"><%= u.createdAtFormatted || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Status</span>
+            <span class="ficha-data-value">
+              <span class="status-badge <%= statusAprovacaoClass %>"><%= u.statusAprovacaoLabel || "-" %></span>
+              &nbsp;
+              <span class="status-badge <%= statusAcessoClass %>"><%= u.ativo ? "Ativo" : "Inativo" %></span>
+            </span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Ultimo acesso</span>
+            <span class="ficha-data-value"><%= u.ultimoLogin || "-" %></span>
+          </div>
+          <% if (u.isVolunteer && u.nivelAcessoVoluntarioLabel) { %>
+            <div class="ficha-data-item">
+              <span class="ficha-data-label">Nivel do voluntario</span>
+              <span class="ficha-data-value"><%= u.nivelAcessoVoluntarioLabel %></span>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="ficha-section">
+        <h2 class="ficha-section-title">Situacao da Votacao</h2>
+        <div class="ficha-data-grid">
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Estado da Votacao</span>
+            <span class="ficha-data-value"><%= u.workflowResumo?.stateLabel || "-" %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Votos para Aprovar</span>
+            <span class="ficha-data-value"><%= u.votosResumo?.aprovar ?? 0 %></span>
+          </div>
+          <div class="ficha-data-item">
+            <span class="ficha-data-label">Votos para Rejeitar</span>
+            <span class="ficha-data-value"><%= u.votosResumo?.rejeitar ?? 0 %></span>
+          </div>
+          <% if (u.motivoAprovacao) { %>
+            <div class="ficha-data-item ficha-data-item-full">
+              <span class="ficha-data-label">Motivo</span>
+              <span class="ficha-data-value"><%= u.motivoAprovacao %></span>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <% if (u.canAdminister && u.statusAprovacao === "pendente") { %>
+        <section class="ficha-section ficha-section-actions">
+          <h2 class="ficha-section-title">Decisao Administrativa</h2>
+          <div class="ficha-admin-actions">
+            <% if (u.isVolunteer) { %>
+              <div class="ficha-admin-level-row">
+                <label class="field-wrap">
+                  <span class="input-label">Nivel do voluntario</span>
+                  <select class="input-control" data-ficha-approve-level>
+                    <option value="">Escolha o nivel</option>
+                    <% (volunteerAccessOptions || []).forEach((opt) => { %>
+                      <option value="<%= opt.value %>"><%= opt.label %></option>
+                    <% }) %>
+                  </select>
+                </label>
+              </div>
+            <% } %>
+            <div class="ficha-admin-btns">
+              <form method="post" action="/acessos/<%= u._id %>/aprovar" data-ficha-approve-form>
+                <%- csrfField %>
+                <input type="hidden" name="returnTo" value="/acessos/<%= u._id %>/ficha" />
+                <input type="hidden" name="nivelAcessoVoluntario" data-ficha-approve-level-hidden />
+                <button class="btn btn-accent" type="submit">Aprovar</button>
+              </form>
+              <form method="post" action="/acessos/<%= u._id %>/rejeitar">
+                <%- csrfField %>
+                <input type="hidden" name="returnTo" value="/acessos/<%= u._id %>/ficha" />
+                <button class="btn btn-muted" type="submit">Nao aprovar</button>
+              </form>
+            </div>
+          </div>
+        </section>
+      <% } %>
+
+      <% if (u.canAdminister && u.statusAprovacao === "aprovado") { %>
+        <section class="ficha-section ficha-section-actions">
+          <h2 class="ficha-section-title">Acesso</h2>
+          <form method="post" action="/acessos/<%= u._id %>/status">
+            <%- csrfField %>
+            <input type="hidden" name="returnTo" value="/acessos/<%= u._id %>/ficha" />
+            <input type="hidden" name="ativo" value="<%= u.ativo ? 'false' : 'true' %>" />
+            <button class="btn btn-muted" type="submit">
+              <%= u.ativo ? "Inativar acesso" : "Ativar acesso" %>
+            </button>
+          </form>
+        </section>
+      <% } %>
+
+    </div>
+
+    <%# EDIT MODE (hidden by default) %>
+    <% if (u.canEdit) { %>
+      <div data-ficha-edit hidden>
+        <form class="ficha-edit-form" data-ficha-edit-form>
+          <section class="ficha-section">
+            <h2 class="ficha-section-title">Dados Pessoais</h2>
+            <div class="ficha-edit-grid">
+              <label class="field-wrap ficha-edit-span2">
+                <span class="input-label">Nome completo</span>
+                <input class="input-control" type="text" name="nome" value="<%= u.nome || '' %>" maxlength="120" />
+              </label>
+              <label class="field-wrap">
+                <span class="input-label">Email</span>
+                <input class="input-control" type="email" name="email" value="<%= u.email || '' %>" maxlength="140" />
+              </label>
+              <label class="field-wrap">
+                <span class="input-label">Telefone</span>
+                <input class="input-control" type="text" name="telefone" value="<%= (u.telefone !== '-' ? u.telefone : '') || '' %>" maxlength="20" />
+              </label>
+              <label class="field-wrap">
+                <span class="input-label">CPF</span>
+                <input class="input-control" type="text" name="cpf" value="<%= (u.cpf !== '-' ? u.cpf : '') || '' %>" maxlength="14" inputmode="numeric" />
+              </label>
+              <label class="field-wrap">
+                <span class="input-label">Login</span>
+                <input class="input-control" type="text" name="login" value="<%= u.login || '' %>" maxlength="40" />
+              </label>
+            </div>
+          </section>
+
+          <div class="ficha-edit-actions">
+            <button type="submit" class="btn btn-primary" data-ficha-save-btn>Salvar alteracoes</button>
+            <button type="button" class="btn btn-muted" data-ficha-cancel-btn>Cancelar</button>
+          </div>
+        </form>
+      </div>
+    <% } %>
+
+  </div>
+
+  <%# ── DOCUMENTOS ─────────────────────────────────────────────── %>
+  <% if (u.isVolunteer && u.canViewDocuments) { %>
+    <div
+      id="ficha-panel-documentos"
+      class="ficha-tab-panel card-elevated"
+      role="tabpanel"
+      data-ficha-panel="documentos"
+      hidden
+    >
+      <section class="ficha-section">
+        <h2 class="ficha-section-title">Foto de Perfil</h2>
+        <% const foto = u.anexosProtegidos?.fotoPerfil; %>
+        <% if (foto && foto.viewUrl) { %>
+          <div class="ficha-doc-card">
+            <img
+              class="ficha-doc-photo"
+              src="<%= foto.viewUrl %>"
+              alt="Foto de perfil de <%= u.nome %>"
+            />
+            <div class="ficha-doc-meta">
+              <span class="ficha-data-label">Arquivo</span>
+              <span class="ficha-data-value"><%= foto.originalName || "foto.jpg" %></span>
+              <a class="btn btn-muted btn-sm ficha-doc-link" href="<%= foto.viewUrl %>" target="_blank" rel="noopener noreferrer">
+                <i class="fa-solid fa-eye" aria-hidden="true"></i> Ver
+              </a>
+            </div>
+          </div>
+        <% } else { %>
+          <p class="ficha-doc-empty">Nenhuma foto anexada.</p>
+        <% } %>
+      </section>
+
+      <section class="ficha-section">
+        <h2 class="ficha-section-title">Documento de Identidade</h2>
+        <% const doc = u.anexosProtegidos?.documentoIdentidade; %>
+        <% if (doc && doc.viewUrl) { %>
+          <div class="ficha-doc-card">
+            <div class="ficha-doc-icon"><i class="fa-solid fa-id-card fa-2x" aria-hidden="true"></i></div>
+            <div class="ficha-doc-meta">
+              <span class="ficha-data-label">Arquivo</span>
+              <span class="ficha-data-value"><%= doc.originalName || "documento.pdf" %></span>
+              <a class="btn btn-muted btn-sm ficha-doc-link" href="<%= doc.viewUrl %>" target="_blank" rel="noopener noreferrer">
+                <i class="fa-solid fa-eye" aria-hidden="true"></i> Ver
+              </a>
+            </div>
+          </div>
+        <% } else { %>
+          <p class="ficha-doc-empty">Nenhum documento anexado.</p>
+        <% } %>
+      </section>
+    </div>
+  <% } %>
+
+  <%# ── ATIVIDADE ──────────────────────────────────────────────── %>
+  <div
+    id="ficha-panel-atividade"
+    class="ficha-tab-panel card-elevated"
+    role="tabpanel"
+    data-ficha-panel="atividade"
+    hidden
+  >
+    <section class="ficha-section">
+      <h2 class="ficha-section-title">Historico de Decisoes</h2>
+      <% if (u.rejeicoesComMotivo && u.rejeicoesComMotivo.length) { %>
+        <div class="ficha-timeline">
+          <% u.rejeicoesComMotivo.forEach((item) => { %>
+            <div class="ficha-timeline-item">
+              <div class="ficha-timeline-dot ficha-timeline-dot-reject"></div>
+              <div class="ficha-timeline-body">
+                <strong><%= item.adminNome %></strong>
+                <span class="ficha-timeline-action">votou rejeitar</span>
+                <% if (item.motivo) { %>
+                  <p class="ficha-timeline-motivo">"<%= item.motivo %>"</p>
+                <% } %>
+                <% if (item.updatedAt) { %>
+                  <small class="ficha-timeline-date"><%= new Date(item.updatedAt).toLocaleString("pt-BR") %></small>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="ficha-empty-state">Nenhum registro de atividade encontrado.</p>
+      <% } %>
+    </section>
+  </div>
+
+</section>

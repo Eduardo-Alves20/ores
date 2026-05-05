@@ -286,6 +286,14 @@
                           <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
                         </button>
                         <div class="acesso-actions-dropdown" role="menu" aria-label="Ações do cadastro">
+                      <a
+                        class="table-action-btn acessos-action-btn acesso-actions-menu-item"
+                        href="/acessos/<%= item._id %>/ficha"
+                        role="menuitem"
+                      >
+                        <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                        <span>Ver ficha</span>
+                      </a>
                       <% if (item.canEdit) { %>
                         <button
                           class="table-action-btn table-action-btn-edit acessos-action-btn acesso-action-edit acesso-actions-menu-item"

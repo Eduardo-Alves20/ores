@@ -1,259 +1,71 @@
-param(
-  [switch]$Build
-)
+./svc.sh statusl githubrunner
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100  214M  100  214M    0     0  91.5M      0  0:00:02  0:00:02 --:--:-- 96.6M
+actions-runner-linux-x64-2.334.0.tar.gz: OK
 
-$ErrorActionPreference = "Stop"
-Set-StrictMode -Version Latest
-if ($PSVersionTable.PSVersion.Major -ge 7) {
-  $global:PSNativeCommandUseErrorActionPreference = $false
-}
+--------------------------------------------------------------------------------
+|        ____ _ _   _   _       _          _        _   _                      |
+|       / ___(_) |_| | | |_   _| |__      / \   ___| |_(_) ___  _ __  ___      |
+|      | |  _| | __| |_| | | | | '_ \    / _ \ / __| __| |/ _ \| '_ \/ __|     |
+|      | |_| | | |_|  _  | |_| | |_) |  / ___ \ (__| |_| | (_) | | | \__ \     |
+|       \____|_|\__|_| |_|\__,_|_.__/  /_/   \_\___|\__|_|\___/|_| |_|___/     |
+|                                                                              |
+|                       Self-hosted runner registration                        |
+|                                                                              |
+--------------------------------------------------------------------------------
 
-$ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$EnvPath = Join-Path $ProjectRoot ".env"
-$EnvExamplePath = Join-Path $ProjectRoot ".env.example"
-$PublicUrl = "https://sistema.institutoORES.ong.br/login"
-$LocalUrl = "http://localhost:8080/login"
+# Authentication
 
-function Write-Step {
-  param([string]$Message)
-  Write-Host "==> $Message" -ForegroundColor Cyan
-}
 
-function Write-WarnLine {
-  param([string]$Message)
-  Write-Host $Message -ForegroundColor Yellow
-}
+√ Connected to GitHub
 
-function Write-SuccessLine {
-  param([string]$Message)
-  Write-Host $Message -ForegroundColor Green
-}
+# Runner Registration
 
-function Get-EnvMap {
-  param([string]$Path)
 
-  $map = @{}
-  if (-not (Test-Path $Path)) {
-    return $map
-  }
 
-  foreach ($line in Get-Content $Path) {
-    if ([string]::IsNullOrWhiteSpace($line)) {
-      continue
-    }
 
-    $trimmed = $line.Trim()
-    if ($trimmed.StartsWith("#")) {
-      continue
-    }
+√ Runner successfully added
 
-    $separatorIndex = $line.IndexOf("=")
-    if ($separatorIndex -lt 1) {
-      continue
-    }
+# Runner settings
 
-    $key = $line.Substring(0, $separatorIndex).Trim()
-    $value = $line.Substring($separatorIndex + 1)
-    $map[$key] = $value
-  }
 
-  return $map
-}
+√ Settings Saved.
 
-function Set-EnvValue {
-  param(
-    [string]$Path,
-    [string]$Key,
-    [string]$Value
-  )
+Creating launch runner in /etc/systemd/system/actions.runner.Eduardo-Alves20-ores.vps-ores.service
+Run as user: githubrunner
+Run as uid: 1000
+gid: 1000
+Created symlink /etc/systemd/system/multi-user.target.wants/actions.runner.Eduardo-Alves20-ores.vps-ores.service → /etc/systemd/system/actions.runner.Eduardo-Alves20-ores.vps-ores.service.
 
-  $lines = @()
-  if (Test-Path $Path) {
-    $lines = Get-Content $Path
-  }
+/etc/systemd/system/actions.runner.Eduardo-Alves20-ores.vps-ores.service
+● actions.runner.Eduardo-Alves20-ores.vps-ores.service - GitHub Actions Runner (Eduardo-Alves20-ores.vps-ores)
+     Loaded: loaded (/etc/systemd/system/actions.runner.Eduardo-Alves20-ores.vps-ores.service; enabled; preset: enabled)
+     Active: active (running) since Thu 2026-04-30 16:32:39 -03; 14ms ago
+   Main PID: 57847 (runsvc.sh)
+      Tasks: 1 (limit: 4598)
+     Memory: 1.1M (peak: 1.3M)
+        CPU: 3ms
+     CGroup: /system.slice/actions.runner.Eduardo-Alves20-ores.vps-ores.service
+             ├─57847 /bin/bash /opt/actions-runner/runsvc.sh
+             └─57855 /bin/bash /opt/actions-runner/runsvc.sh
 
-  $updated = $false
-  for ($i = 0; $i -lt $lines.Count; $i++) {
-    if ($lines[$i].StartsWith("$Key=")) {
-      $lines[$i] = "$Key=$Value"
-      $updated = $true
-      break
-    }
-  }
+Apr 30 16:32:39 sistemaores.vps-kinghost.net systemd[1]: Started actions.runner.Eduardo-Alves20-ores.vps-ores.ser…ores).
+Hint: Some lines were ellipsized, use -l to show in full.
 
-  if (-not $updated) {
-    $lines += "$Key=$Value"
-  }
+/etc/systemd/system/actions.runner.Eduardo-Alves20-ores.vps-ores.service
+● actions.runner.Eduardo-Alves20-ores.vps-ores.service - GitHub Actions Runner (Eduardo-Alves20-ores.vps-ores)
+     Loaded: loaded (/etc/systemd/system/actions.runner.Eduardo-Alves20-ores.vps-ores.service; enabled; preset: enabled)
+     Active: active (running) since Thu 2026-04-30 16:32:39 -03; 32ms ago
+   Main PID: 57847 (runsvc.sh)
+      Tasks: 2 (limit: 4598)
+     Memory: 1.3M (peak: 1.3M)
+        CPU: 10ms
+     CGroup: /system.slice/actions.runner.Eduardo-Alves20-ores.vps-ores.service
+             ├─57847 /bin/bash /opt/actions-runner/runsvc.sh
+             └─57856 ./externals/node20/bin/node ./bin/RunnerService.js
 
-  Set-Content -Path $Path -Value $lines -Encoding ascii
-}
-
-function New-HexSecret {
-  param([int]$Bytes = 24)
-
-  $buffer = New-Object byte[] $Bytes
-  [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($buffer)
-  return ([BitConverter]::ToString($buffer)).Replace("-", "").ToLowerInvariant()
-}
-
-function Ensure-DockerCommand {
-  if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    throw "Docker nao foi encontrado. Instale o Docker Desktop e tente novamente."
-  }
-}
-
-function Test-DockerReady {
-  cmd /c "docker info >nul 2>nul"
-  return ($LASTEXITCODE -eq 0)
-}
-
-function Ensure-DockerReady {
-  Ensure-DockerCommand
-
-  if (Test-DockerReady) {
-    return
-  }
-
-  $dockerDesktopPath = Join-Path ${env:ProgramFiles} "Docker\Docker\Docker Desktop.exe"
-  if (Test-Path $dockerDesktopPath) {
-    Write-Step "Abrindo o Docker Desktop e aguardando o engine ficar disponivel..."
-    Start-Process $dockerDesktopPath | Out-Null
-  } else {
-    throw "Docker instalado, mas o engine nao esta respondendo. Abra o Docker Desktop e tente novamente."
-  }
-
-  for ($attempt = 1; $attempt -le 60; $attempt++) {
-    Start-Sleep -Seconds 2
-    if (Test-DockerReady) {
-      return
-    }
-  }
-
-  throw "O Docker nao ficou pronto a tempo. Abra o Docker Desktop manualmente e rode o script de novo."
-}
-
-function Ensure-ComposeAvailable {
-  cmd /c "docker compose version >nul 2>nul"
-  if ($LASTEXITCODE -ne 0) {
-    throw "O plugin 'docker compose' nao esta disponivel nessa maquina."
-  }
-}
-
-function Ensure-EnvFile {
-  $createdEnv = $false
-  if (-not (Test-Path $EnvPath)) {
-    if (-not (Test-Path $EnvExamplePath)) {
-      throw "Nao encontrei .env nem .env.example para preparar a configuracao inicial."
-    }
-
-    Write-Step "Criando o .env inicial a partir do .env.example..."
-    Copy-Item $EnvExamplePath $EnvPath
-    $createdEnv = $true
-  }
-
-  $envMap = Get-EnvMap $EnvPath
-
-  if (-not $envMap.ContainsKey("AMBIENTE") -or [string]::IsNullOrWhiteSpace($envMap["AMBIENTE"])) {
-    Set-EnvValue -Path $EnvPath -Key "AMBIENTE" -Value "DEV"
-  }
-
-  if (
-    -not $envMap.ContainsKey("PASSWORD_PEPPER") -or
-    [string]::IsNullOrWhiteSpace($envMap["PASSWORD_PEPPER"]) -or
-    $envMap["PASSWORD_PEPPER"] -eq "troque-por-um-segredo-longo"
-  ) {
-    Set-EnvValue -Path $EnvPath -Key "PASSWORD_PEPPER" -Value (New-HexSecret)
-  }
-
-  $envMap = Get-EnvMap $EnvPath
-  if (
-    -not $envMap.ContainsKey("CLOUDFLARE_TUNNEL_TOKEN") -or
-    [string]::IsNullOrWhiteSpace($envMap["CLOUDFLARE_TUNNEL_TOKEN"])
-  ) {
-    Write-WarnLine ""
-    Write-WarnLine "Falta configurar o token do Cloudflare Tunnel para publicar no dominio fixo."
-    $token = Read-Host "Cole o token do tunel e pressione Enter"
-    if ([string]::IsNullOrWhiteSpace($token)) {
-      throw "O token do Cloudflare Tunnel e obrigatorio para subir no dominio publico."
-    }
-
-    Set-EnvValue -Path $EnvPath -Key "CLOUDFLARE_TUNNEL_TOKEN" -Value $token.Trim()
-  }
-
-  if ($createdEnv) {
-    Write-Step "Arquivo .env inicial criado com configuracao pronta para subir em qualquer maquina."
-  }
-}
-
-function Start-ComposeStack {
-  $composeArgs = @("compose", "--profile", "public", "up", "-d", "--remove-orphans")
-  if ($Build) {
-    $composeArgs += "--build"
-  }
-
-  Write-Step "Subindo os containers do ORES..."
-  & docker @composeArgs
-  if ($LASTEXITCODE -ne 0) {
-    throw "Falha ao subir os containers com docker compose."
-  }
-
-  Write-Step "Recarregando o nginx para atualizar o destino interno do app..."
-  & docker compose restart nginx
-}
-
-function Wait-HttpReady {
-  param(
-    [string]$Url,
-    [int]$MaxAttempts = 40,
-    [int]$DelaySeconds = 3
-  )
-
-  for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
-    try {
-      $response = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec 10
-      if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) {
-        return $true
-      }
-    } catch {
-      Start-Sleep -Seconds $DelaySeconds
-      continue
-    }
-
-    Start-Sleep -Seconds $DelaySeconds
-  }
-
-  return $false
-}
-
-Push-Location $ProjectRoot
-try {
-  Write-Step "Validando Docker..."
-  Ensure-DockerReady
-  Ensure-ComposeAvailable
-
-  Write-Step "Conferindo configuracao local..."
-  Ensure-EnvFile
-
-  Start-ComposeStack
-
-  Write-Step "Aguardando o ORES responder em localhost..."
-  $localReady = Wait-HttpReady -Url $LocalUrl
-
-  if ($localReady) {
-    Write-SuccessLine "Sistema local respondeu com sucesso."
-  } else {
-    Write-WarnLine "O sistema demorou mais que o esperado para responder localmente."
-  }
-
-  Write-Step "Status atual dos containers:"
-  & docker compose ps
-
-  Write-Host ""
-  Write-SuccessLine "ORES pronto para uso."
-  Write-Host "Local:   $LocalUrl"
-  Write-Host "Publico: $PublicUrl"
-  Write-Host ""
-  Write-Host "Se for a primeira subida em outra maquina, o script ja salvou o token no .env."
-} finally {
-  Pop-Location
-}
+Apr 30 16:32:39 sistemaores.vps-kinghost.net systemd[1]: Started actions.runner.Eduardo-Alves20-ores.vps-ores.ser…ores).
+Hint: Some lines were ellipsized, use -l to show in full.
+root@sistemaores:/opt/actions-runner#

@@ -26,7 +26,7 @@ function buildViewBase(req, title) {
     sectionTitle: "Assistidos",
     navKey: "assistidos",
     pageClass: "page-assistidos familias-page",
-    extraCss: ["/css/familias.css"],
+    extraCss: ["/css/familias.css", "/css/acessos.css"],
     extraJs: [
       "/js/familias-shared.js",
       "/js/familias-lista.js",

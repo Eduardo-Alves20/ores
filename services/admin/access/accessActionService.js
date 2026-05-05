@@ -4,11 +4,15 @@ const {
   getVolunteerAccessLabel,
   normalizeVolunteerAccessLevel,
 } = require("../../../config/volunteerAccess");
+const { getProfileLabel } = require("../../../config/roles");
 const { ensureValidObjectId } = require("../../shared/objectIdValidationService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const {
   canManageTargetUser,
   isSuperAdminRequest,
+  canManageUsers,
+  isAdmin,
+  canReviewSensitiveApprovalData,
 } = require("./accessPermissionService");
 const { normalizeAssetKind } = require("../../security/secureVolunteerAssetService");
 const {
@@ -243,9 +247,66 @@ async function removeUserAccess({ req, id, actorId = null }) {
   };
 }
 
+function formatDateBR(value) {
+  if (!value) return "-";
+  return new Date(value).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+}
+
+function formatDateOnlyBR(value) {
+  if (!value) return "-";
+  return new Date(value).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+}
+
+function formatCpfDisplay(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length !== 11) return value || "-";
+  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
+async function buildUserFichaPagePayload(id, req = null) {
+  const normalizedId = ensureAccessUserId(id);
+  const usuario = await Usuario.findById(normalizedId).select("-senha").lean();
+
+  if (!usuario) return null;
+
+  const actorId = req?.session?.user?.id || null;
+  const approvalDetail = await mapApprovalDetail(usuario, actorId);
+
+  const tipoCadastro = String(usuario.tipoCadastro || "").toLowerCase();
+  const isVolunteer = tipoCadastro === "voluntario";
+
+  const backPath = tipoCadastro === "familia" ? "/acessos/familias" : "/acessos/voluntarios";
+  const backLabel = tipoCadastro === "familia" ? "Voltar para familias" : "Voltar para voluntarios";
+
+  const canEdit = req
+    ? canManageUsers(req) && canManageTargetUser(req, usuario)
+    : false;
+  const canAdminister = req ? isAdmin(req) : false;
+  const canViewDocuments = req ? canReviewSensitiveApprovalData(req) : false;
+
+  return {
+    ...approvalDetail,
+    telefone: usuario.telefone || "-",
+    cpf: formatCpfDisplay(usuario.cpf),
+    dataNascimento: formatDateOnlyBR(usuario.dataNascimento),
+    perfil: usuario.perfil || "",
+    perfilLabel: getProfileLabel(usuario.perfil),
+    createdAtFormatted: formatDateBR(usuario.createdAt),
+    updatedAtFormatted: formatDateBR(usuario.updatedAt),
+    ultimoLogin: formatDateBR(usuario.ultimoLoginEm),
+    isVolunteer,
+    backPath,
+    backLabel,
+    canEdit,
+    canAdminister,
+    canViewDocuments,
+  };
+}
+
 module.exports = {
   loadApprovalDetailPayload,
   loadProtectedApprovalAsset,
+  buildUserFichaPagePayload,
   approveUserAccess,
   rejectUserAccess,
   changeUserAccessStatus,

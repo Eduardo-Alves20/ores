@@ -1,86 +1,103 @@
-﻿<section class="page-shell familias-layout" data-page="familia-detalhe" data-familia-id="<%= familia._id %>">
-  <nav class="familias-breadcrumb" aria-label="Trilha de navegacao">
-    <a class="familias-breadcrumb-link" href="/painel">Painel</a>
-    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
-    <a class="familias-breadcrumb-link" href="/familias">Assistidos</a>
-    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
-    <span class="familias-breadcrumb-current"><%= familia?.responsavel?.nome || "Familia" %></span>
-    <span class="familias-breadcrumb-sep" aria-hidden="true" id="familia-breadcrumb-dependente-sep" hidden>/</span>
-    <span class="familias-breadcrumb-current" id="familia-breadcrumb-dependente" hidden>Dependente</span>
+﻿<%
+  const _familiaInitials = (familia?.responsavel?.nome || "F")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+%>
+
+<section class="page-shell familias-layout" data-page="familia-detalhe" data-familia-id="<%= familia._id %>">
+
+  <nav class="ficha-breadcrumb" aria-label="Trilha de navegacao">
+    <a class="ficha-breadcrumb-back" href="/familias">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>Voltar para assistidos</span>
+    </a>
+    <span id="familia-breadcrumb-dependente-sep" hidden aria-hidden="true"> / </span>
+    <span id="familia-breadcrumb-dependente" hidden></span>
   </nav>
 
-  <header class="familias-header familias-hero familias-hero-detail card-elevated">
-    <div class="familias-hero-main">
-      <p class="familias-overline">Prontuario familiar</p>
-      <h1 class="familias-title"><%= familia?.responsavel?.nome || "Familia" %></h1>
-      <p class="familias-subtitle">
-        <%= familia?.responsavel?.telefone || "Sem telefone" %>
-        <% if (familia?.responsavel?.parentesco) { %>
-          | <%= familia.responsavel.parentesco %>
-        <% } %>
-      </p>
-
-      <div class="familias-hero-tags">
-        <span class="familias-hero-tag <%= familia?.ativo ? 'is-success' : 'is-neutral' %>" id="familia-status-pill">
-          <%= familia?.ativo ? "Familia ativa" : "Familia inativa" %>
-        </span>
-        <span class="familias-hero-tag" id="familia-pacientes-pill">0 dependentes</span>
-        <span class="familias-hero-tag" id="familia-atendimentos-pill">0 atendimentos</span>
-        <span class="familias-hero-tag" id="familia-presencas-pill">0 consultas agenda</span>
+  <header class="ficha-header card-elevated">
+    <div class="ficha-header-identity">
+      <div class="ficha-avatar" aria-hidden="true">
+        <span class="ficha-avatar-letters"><%= _familiaInitials %></span>
+      </div>
+      <div class="ficha-identity-meta">
+        <h1 class="ficha-identity-name"><%= familia?.responsavel?.nome || "Familia" %></h1>
+        <div class="ficha-identity-tags">
+          <span class="badge-soft <%= familia?.ativo ? '' : 'badge-soft-muted' %>" id="familia-status-pill">
+            <%= familia?.ativo ? "Familia ativa" : "Familia inativa" %>
+          </span>
+          <% if (familia?.responsavel?.parentesco) { %>
+            <span class="ficha-identity-login"><%= familia.responsavel.parentesco %></span>
+          <% } %>
+          <span class="ficha-identity-date"><%= familia?.responsavel?.telefone || "" %></span>
+          <span class="ficha-identity-date" id="familia-pacientes-pill">0 dependentes</span>
+          <span class="ficha-identity-date" id="familia-atendimentos-pill">0 atendimentos</span>
+          <span class="ficha-identity-date" id="familia-presencas-pill">0 consultas agenda</span>
+        </div>
       </div>
     </div>
-    <div class="familias-header-actions">
-      <a href="/familias" class="btn btn-muted">Voltar</a>
+    <div class="ficha-header-actions">
       <% if (viewFlags?.canEditFamily) { %>
-        <a href="/familias/<%= familia._id %>/editar" class="btn btn-primary">Editar Família</a>
+        <a
+          href="/familias/<%= familia._id %>/editar"
+          class="ficha-edit-btn"
+          title="Editar familia"
+          aria-label="Editar familia"
+        >
+          <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        </a>
       <% } %>
     </div>
   </header>
 
-  <nav class="family-record-tabs" aria-label="Secoes da ficha familiar">
+  <nav class="ficha-tabs family-record-tabs" role="tablist" aria-label="Secoes da ficha familiar">
     <button
       type="button"
-      class="family-record-tab is-active"
+      class="ficha-tab family-record-tab is-active"
       data-record-tab="overview"
+      data-ficha-tab="overview"
       role="tab"
       aria-selected="true"
       aria-controls="family-record-overview"
     >
-      <i class="fa-solid fa-id-card-clip" aria-hidden="true"></i>
-      <span>Dados gerais</span>
+      Identificacao
     </button>
     <button
       type="button"
-      class="family-record-tab"
+      class="ficha-tab family-record-tab"
       data-record-tab="dependentes"
+      data-ficha-tab="dependentes"
       role="tab"
       aria-selected="false"
       aria-controls="family-record-workflow"
     >
-      <i class="fa-solid fa-people-group" aria-hidden="true"></i>
-      <span>Dependentes</span>
+      Dependentes
     </button>
     <button
       type="button"
-      class="family-record-tab"
+      class="ficha-tab family-record-tab"
       data-record-tab="historico"
+      data-ficha-tab="historico"
       role="tab"
       aria-selected="false"
       aria-controls="family-record-workflow"
     >
-      <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
-      <span>Historico</span>
+      Historico
     </button>
     <button
       type="button"
-      class="family-record-tab"
+      class="ficha-tab family-record-tab"
       data-record-tab="presencas"
+      data-ficha-tab="presencas"
       role="tab"
       aria-selected="false"
       aria-controls="family-record-workflow"
     >
-      <i class="fa-solid fa-user-check" aria-hidden="true"></i>
-      <span>Presencas</span>
+      Presencas
     </button>
   </nav>
 

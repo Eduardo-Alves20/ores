@@ -3,6 +3,7 @@ const {
   approveUserAccess,
   buildApprovalQueuePageView,
   buildUserTypePageView,
+  buildUserFichaPagePayload,
   changeUserAccessStatus,
   removeUserAccess,
   loadProtectedApprovalAsset,
@@ -10,7 +11,12 @@ const {
   parseBoolean,
   rejectUserAccess,
   resolveReturnTo,
+  buildPageBase,
+  canManageUsers,
+  buildCreateProfileOptions,
+  buildApprovalRoleOptions,
 } = require("../../services/admin/acessoPageService");
+const { VOLUNTARIO_ACCESS_OPTIONS } = require("../../config/volunteerAccess");
 const { logSanitizedError } = require("../../services/security/logSanitizerService");
 const {
   readProtectedAssetBuffer,
@@ -107,6 +113,48 @@ class AcessoPageController {
         res,
         "Erro ao carregar tela de aprovacoes:",
         "Erro ao carregar aprovacoes.",
+        error
+      );
+    }
+  }
+
+  static async fichaUsuario(req, res) {
+    try {
+      const payload = await buildUserFichaPagePayload(req.params?.id, req);
+
+      if (!payload) {
+        return res.status(404).render("pages/errors/404", {
+          status: 404,
+          message: "Usuario nao encontrado.",
+          req,
+          layout: "partials/app.ejs",
+        });
+      }
+
+      const pageBase = buildPageBase({
+        title: payload.nome || "Ficha do usuario",
+        sectionTitle: "Ficha do usuario",
+        navKey: payload.tipoCadastro === "familia" ? "usuarios-familia" : "usuarios-voluntario",
+      });
+
+      return res.status(200).render("pages/acessos/usuario-detalhe", {
+        ...pageBase,
+        extraCss: ["/css/acessos.css"],
+        extraJs: ["/js/usuario-detalhe.js"],
+        usuario: payload,
+        canManageUsers: canManageUsers(req),
+        createProfileOptions: buildCreateProfileOptions(req),
+        approvalRoleOptions: buildApprovalRoleOptions(),
+        volunteerAccessOptions: VOLUNTARIO_ACCESS_OPTIONS,
+        successMessage: req.flash("success"),
+        errorMessage: req.flash("error"),
+      });
+    } catch (error) {
+      return renderAccessPageError(
+        req,
+        res,
+        "Erro ao carregar ficha do usuario:",
+        "Erro ao carregar a ficha do usuario.",
         error
       );
     }
