@@ -70,6 +70,7 @@
       if (key) acc[key] = element;
       return acc;
     }, {});
+    const signupFieldsContainer = approvalModal.querySelector("[data-approval-signup-fields]");
 
     let approvalLoadToken = 0;
     let approvalBusy = false;
@@ -235,6 +236,33 @@
       };
     }
 
+    function renderSignupFields(data) {
+      if (!signupFieldsContainer) return;
+
+      const items = Array.isArray(data?.dadosCadastroCampos)
+        ? data.dadosCadastroCampos
+        : [];
+
+      if (!items.length) {
+        signupFieldsContainer.innerHTML =
+          '<label class="field-wrap"><span class="input-label">Cadastro</span><input class="input-control" type="text" readonly value="Nenhum campo adicional informado." /></label>';
+        return;
+      }
+
+      signupFieldsContainer.innerHTML = items
+        .map((item) => {
+          const label = escapeHtml(item?.label || item?.key || "Campo");
+          const value = escapeHtml(String(item?.value || "-").trim() || "-");
+          return `
+            <label class="field-wrap">
+              <span class="input-label">${label}</span>
+              <input class="input-control" type="text" readonly value="${value}" />
+            </label>
+          `;
+        })
+        .join("");
+    }
+
     function setApprovalBusyState(isBusy) {
       approvalBusy = isBusy;
       if (approveVoteButton) {
@@ -321,6 +349,9 @@
         attachmentPreviewFields[key].hidden = true;
         attachmentPreviewFields[key].setAttribute("src", "");
       });
+      if (signupFieldsContainer) {
+        signupFieldsContainer.innerHTML = "";
+      }
       setApprovalError("");
     }
 
@@ -483,6 +514,7 @@
       setApprovalField("tipoCadastroLabel", data?.tipoCadastroLabel);
       setApprovalField("dataNascimentoLabel", formatDateLabel(signupData.dataNascimento));
       setApprovalField("funcaoNaOngLabel", signupData.funcaoNaOng);
+      renderSignupFields(data);
 
       if (approvalDescription) {
         approvalDescription.textContent = isVolunteer

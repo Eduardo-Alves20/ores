@@ -224,10 +224,7 @@ async function buildRejectReasonCards(usuario) {
 }
 
 function buildSignupSummary(dadosCadastro) {
-  const source =
-    dadosCadastro && typeof dadosCadastro === "object" && !Array.isArray(dadosCadastro)
-      ? dadosCadastro
-      : {};
+  const source = normalizeSignupDataSource(dadosCadastro);
 
   return {
     data_nascimento: String(
@@ -239,6 +236,71 @@ function buildSignupSummary(dadosCadastro) {
   };
 }
 
+function normalizeSignupDataSource(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  if (value instanceof Map) {
+    return Object.fromEntries(value.entries());
+  }
+
+  return value;
+}
+
+function formatSignupFieldLabel(key) {
+  const normalized = String(key || "").trim().toLowerCase();
+  const aliases = {
+    area_atuacao: "Area de atuacao",
+    carga_horaria: "Carga horaria",
+    cpf: "CPF",
+    data_nascimento: "Data de nascimento",
+    descricao_atividade: "Descricao da atividade",
+    faixa_etaria: "Faixa etaria",
+    funcao: "Funcao",
+    funcao_na_ong: "Funcao na ONG",
+    metodologia: "Metodologia",
+    nome_atividade: "Nome da atividade",
+    objetivo_geral: "Objetivo geral",
+    objetivos_especificos: "Objetivos especificos",
+    participantes_por_turma: "Participantes por turma",
+    perfil_participantes: "Perfil dos participantes",
+    publico_alvo: "Publico-alvo",
+    telefone: "Telefone",
+  };
+
+  if (aliases[normalized]) return aliases[normalized];
+
+  return String(key || "")
+    .trim()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/^./, (char) => char.toUpperCase());
+}
+
+function buildSignupFields(dadosCadastro) {
+  const source = normalizeSignupDataSource(dadosCadastro);
+
+  return Object.entries(source)
+    .map(([key, value]) => {
+      const normalizedKey = String(key || "").trim();
+      if (!normalizedKey) return null;
+
+      const text = Array.isArray(value)
+        ? value.map((item) => String(item || "").trim()).filter(Boolean).join(", ")
+        : String(value ?? "").trim();
+
+      if (!text) return null;
+
+      return {
+        key: normalizedKey,
+        label: formatSignupFieldLabel(normalizedKey),
+        value: text,
+      };
+    })
+    .filter(Boolean);
+}
+
 async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
   const doc = usuario?.toObject ? usuario.toObject() : usuario;
   const workflowResumo = buildApprovalWorkflowSummary(doc);
@@ -246,6 +308,7 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
   const rejeicoesComMotivo = await buildRejectReasonCards(doc);
   const attachments = sanitizeProtectedAttachmentBundleForClient(doc?.anexosProtegidos || {});
   const dadosCadastroResumo = buildSignupSummary(doc?.dadosCadastro);
+  const dadosCadastroCampos = buildSignupFields(doc?.dadosCadastro);
   const userId = String(doc?._id || "").trim();
 
   if (attachments.documentoIdentidade) {
@@ -271,6 +334,7 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
     ativo: !!doc?.ativo,
     dadosCadastro: dadosCadastroResumo,
     dadosCadastroResumo,
+    dadosCadastroCampos,
     anexosProtegidos: attachments,
     votosResumo: summarizeApprovalVotes(doc?.votosAprovacao, actorId, presidentId),
     workflowResumo,

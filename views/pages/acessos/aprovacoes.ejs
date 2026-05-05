@@ -323,6 +323,16 @@
             <input class="input-control" type="text" readonly data-approval-field="funcaoNaOngLabel" />
           </label>
         </div>
+
+        <section class="aprovacao-review-form">
+          <div class="aprovacao-voting-head">
+            <div>
+              <h4>Dados enviados no cadastro</h4>
+              <p>Campos preenchidos pela pessoa no formulário.</p>
+            </div>
+          </div>
+          <div class="aprovacao-detail-grid" data-approval-signup-fields></div>
+        </section>
         <%# Blocos avancados desativados para fluxo simples de aprovacao. %>
         <% if (false) { %>
           <section class="aprovacao-review-form aprovacao-sensitive-panel" data-approval-sensitive-wrap hidden></section>
