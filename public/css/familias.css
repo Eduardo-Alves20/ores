@@ -452,6 +452,67 @@
   color: #fff;
 }
 
+/* ── Cadastro header (blue override) ── */
+.cadastro-header {
+  background:
+    radial-gradient(circle at top right, rgba(79, 166, 200, 0.18), transparent 34%),
+    radial-gradient(circle at left center, rgba(28, 93, 133, 0.14), transparent 28%),
+    linear-gradient(135deg, #f0f7fc 0%, #e4f0f8 100%);
+  border-color: #c2ddf0;
+  box-shadow: 0 18px 34px rgba(28, 93, 133, 0.08);
+}
+
+.cadastro-header .familias-overline {
+  color: #1C5D85;
+}
+
+.cadastro-header .familias-title {
+  color: #174C6C;
+}
+
+.cadastro-header .familias-subtitle {
+  color: #4a6980;
+}
+
+/* ── Form section titles ── */
+.form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line);
+  color: var(--brand);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.form-section-title:first-child {
+  margin-top: 0;
+}
+
+.form-section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+/* ── Save button icon spacing ── */
+.btn-primary i,
+.btn-muted i {
+  margin-right: 7px;
+}
+
 .textarea-control {
   min-height: 92px;
   resize: vertical;

@@ -1,4 +1,4 @@
-﻿<section
+<section
   class="page-shell familias-layout"
   data-page="familias-form"
   data-mode="<%= modo %>"
@@ -10,17 +10,17 @@
     <a class="familias-breadcrumb-link" href="/familias">Assistidos</a>
     <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
     <% if (modo === "editar" && familia?._id) { %>
-      <a class="familias-breadcrumb-link" href="/familias/<%= familia._id %>"><%= familia?.responsavel?.nome || "Familia" %></a>
+      <a class="familias-breadcrumb-link" href="/familias/<%= familia._id %>"><%= familia?.responsavel?.nome || "Assistido" %></a>
       <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
     <% } %>
-    <span class="familias-breadcrumb-current"><%= modo === "editar" ? "Editar familia" : "Nova familia" %></span>
+    <span class="familias-breadcrumb-current"><%= modo === "editar" ? "Editar assistido" : "Novo assistido" %></span>
   </nav>
 
-  <header class="familias-header card-elevated">
+  <header class="familias-header cadastro-header card-elevated">
     <div>
-      <p class="familias-overline">Cadastro central</p>
-      <h1 class="familias-title"><%= modo === "editar" ? "Editar Familia" : "Nova Familia" %></h1>
-      <p class="familias-subtitle">Dados do responsavel e informacoes de contexto da família.</p>
+      <p class="familias-overline">Cadastro de Assistido</p>
+      <h1 class="familias-title"><%= modo === "editar" ? "Editar Assistido" : "Novo Assistido" %></h1>
+      <p class="familias-subtitle">Preencha os dados do assistido e informações de contexto familiar.</p>
     </div>
     <div class="familias-header-actions">
       <a href="<%= familia?._id ? `/familias/${familia._id}` : '/familias' %>" class="btn btn-muted">Cancelar</a>
@@ -28,48 +28,132 @@
   </header>
 
   <form id="familia-form" class="familia-form card-elevated">
-    <h2 class="section-title">Responsavel</h2>
+
+    <h2 class="section-title form-section-title">
+      <span class="form-section-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
+      Dados Pessoais
+    </h2>
     <div class="form-grid">
-      <label class="field-wrap">
+      <label class="field-wrap span-2">
         <span class="input-label">Nome completo *</span>
-        <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" required />
+        <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" required placeholder="Nome completo do assistido" />
       </label>
 
       <label class="field-wrap">
+        <span class="input-label">CPF</span>
+        <input class="input-control" type="text" name="campoExtra_cpf" value="<%= familia?.camposExtras?.cpf || '' %>" placeholder="000.000.000-00" data-custom-field-key="cpf" data-custom-field-type="texto" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">RG</span>
+        <input class="input-control" type="text" name="campoExtra_rg" value="<%= familia?.camposExtras?.rg || '' %>" placeholder="00.000.000-0" data-custom-field-key="rg" data-custom-field-type="texto" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Data de Nascimento</span>
+        <input class="input-control" type="date" name="campoExtra_data_nascimento" value="<%= familia?.camposExtras?.data_nascimento || '' %>" data-custom-field-key="data_nascimento" data-custom-field-type="data" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Sexo</span>
+        <select class="input-control" name="campoExtra_sexo" data-custom-field-key="sexo" data-custom-field-type="select">
+          <% const sexoAtual = familia?.camposExtras?.sexo || ''; %>
+          <option value="">Selecione</option>
+          <option value="masculino" <%= sexoAtual === 'masculino' ? 'selected' : '' %>>Masculino</option>
+          <option value="feminino" <%= sexoAtual === 'feminino' ? 'selected' : '' %>>Feminino</option>
+          <option value="outro" <%= sexoAtual === 'outro' ? 'selected' : '' %>>Outro</option>
+          <option value="nao_informado" <%= sexoAtual === 'nao_informado' ? 'selected' : '' %>>Prefiro não informar</option>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Estado Civil</span>
+        <select class="input-control" name="campoExtra_estado_civil" data-custom-field-key="estado_civil" data-custom-field-type="select">
+          <% const estadoCivilAtual = familia?.camposExtras?.estado_civil || ''; %>
+          <option value="">Selecione</option>
+          <option value="solteiro" <%= estadoCivilAtual === 'solteiro' ? 'selected' : '' %>>Solteiro(a)</option>
+          <option value="casado" <%= estadoCivilAtual === 'casado' ? 'selected' : '' %>>Casado(a)</option>
+          <option value="uniao_estavel" <%= estadoCivilAtual === 'uniao_estavel' ? 'selected' : '' %>>União Estável</option>
+          <option value="divorciado" <%= estadoCivilAtual === 'divorciado' ? 'selected' : '' %>>Divorciado(a)</option>
+          <option value="viuvo" <%= estadoCivilAtual === 'viuvo' ? 'selected' : '' %>>Viúvo(a)</option>
+        </select>
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Escolaridade</span>
+        <select class="input-control" name="campoExtra_escolaridade" data-custom-field-key="escolaridade" data-custom-field-type="select">
+          <% const escolaridadeAtual = familia?.camposExtras?.escolaridade || ''; %>
+          <option value="">Selecione</option>
+          <option value="sem_escolaridade" <%= escolaridadeAtual === 'sem_escolaridade' ? 'selected' : '' %>>Sem escolaridade</option>
+          <option value="fundamental_incompleto" <%= escolaridadeAtual === 'fundamental_incompleto' ? 'selected' : '' %>>Fund. incompleto</option>
+          <option value="fundamental_completo" <%= escolaridadeAtual === 'fundamental_completo' ? 'selected' : '' %>>Fund. completo</option>
+          <option value="medio_incompleto" <%= escolaridadeAtual === 'medio_incompleto' ? 'selected' : '' %>>Médio incompleto</option>
+          <option value="medio_completo" <%= escolaridadeAtual === 'medio_completo' ? 'selected' : '' %>>Médio completo</option>
+          <option value="superior_incompleto" <%= escolaridadeAtual === 'superior_incompleto' ? 'selected' : '' %>>Superior incompleto</option>
+          <option value="superior_completo" <%= escolaridadeAtual === 'superior_completo' ? 'selected' : '' %>>Superior completo</option>
+          <option value="pos_graduacao" <%= escolaridadeAtual === 'pos_graduacao' ? 'selected' : '' %>>Pós-graduação</option>
+        </select>
+      </label>
+    </div>
+
+    <h2 class="section-title form-section-title">
+      <span class="form-section-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
+      Contato
+    </h2>
+    <div class="form-grid">
+      <label class="field-wrap">
         <span class="input-label">Telefone *</span>
-        <input class="input-control" type="text" name="responsavel_telefone" value="<%= familia?.responsavel?.telefone || '' %>" required />
+        <input class="input-control" type="text" name="responsavel_telefone" value="<%= familia?.responsavel?.telefone || '' %>" required placeholder="(00) 00000-0000" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Celular / WhatsApp</span>
+        <input class="input-control" type="text" name="campoExtra_celular" value="<%= familia?.camposExtras?.celular || '' %>" placeholder="(00) 00000-0000" data-custom-field-key="celular" data-custom-field-type="texto" />
       </label>
 
       <label class="field-wrap">
         <span class="input-label">Email</span>
-        <input class="input-control" type="email" name="responsavel_email" value="<%= familia?.responsavel?.email || '' %>" />
+        <input class="input-control" type="email" name="responsavel_email" value="<%= familia?.responsavel?.email || '' %>" placeholder="email@exemplo.com" />
       </label>
 
       <label class="field-wrap">
-        <span class="input-label">Parentesco / Vinculo</span>
+        <span class="input-label">Parentesco / Vínculo</span>
         <select class="input-control" name="responsavel_parentesco">
           <% const parentescoAtual = familia?.responsavel?.parentesco || "responsavel"; %>
-          <% ["responsavel","mae","pai","tio","tia","avo","irmao","primo","adotante","outro"].forEach((item) => { %>
-            <option value="<%= item %>" <%= parentescoAtual === item ? "selected" : "" %>><%= item %></option>
+          <% [
+            {value: "responsavel", label: "Responsável"},
+            {value: "mae", label: "Mãe"},
+            {value: "pai", label: "Pai"},
+            {value: "tio", label: "Tio(a)"},
+            {value: "avo", label: "Avô/Avó"},
+            {value: "irmao", label: "Irmão/Irmã"},
+            {value: "primo", label: "Primo(a)"},
+            {value: "adotante", label: "Adotante"},
+            {value: "outro", label: "Outro"}
+          ].forEach((item) => { %>
+            <option value="<%= item.value %>" <%= parentescoAtual === item.value ? "selected" : "" %>><%= item.label %></option>
           <% }) %>
         </select>
       </label>
     </div>
 
-    <h2 class="section-title">Endereço</h2>
+    <h2 class="section-title form-section-title">
+      <span class="form-section-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
+      Endereço
+    </h2>
     <div class="form-grid">
       <label class="field-wrap">
         <span class="input-label">CEP</span>
-        <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" />
+        <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" placeholder="00000-000" />
       </label>
 
       <label class="field-wrap span-2">
-        <span class="input-label">Rua</span>
+        <span class="input-label">Rua / Logradouro</span>
         <input class="input-control" type="text" name="endereco_rua" value="<%= familia?.endereco?.rua || '' %>" />
       </label>
 
       <label class="field-wrap">
-        <span class="input-label">Numero</span>
+        <span class="input-label">Número</span>
         <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" />
       </label>
 
@@ -85,7 +169,7 @@
 
       <label class="field-wrap">
         <span class="input-label">Estado</span>
-        <input class="input-control" type="text" name="endereco_estado" value="<%= familia?.endereco?.estado || '' %>" maxlength="2" />
+        <input class="input-control" type="text" name="endereco_estado" value="<%= familia?.endereco?.estado || '' %>" maxlength="2" placeholder="SP" />
       </label>
 
       <label class="field-wrap span-2">
@@ -94,13 +178,40 @@
       </label>
     </div>
 
-    <h2 class="section-title">Observações</h2>
+    <h2 class="section-title form-section-title">
+      <span class="form-section-icon"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
+      Situação Familiar
+    </h2>
+    <div class="form-grid">
+      <label class="field-wrap">
+        <span class="input-label">Nº de pessoas na residência</span>
+        <input class="input-control" type="number" name="campoExtra_pessoas_residencia" value="<%= familia?.camposExtras?.pessoas_residencia || '' %>" min="1" max="99" placeholder="0" data-custom-field-key="pessoas_residencia" data-custom-field-type="numero" />
+      </label>
+
+      <label class="field-wrap">
+        <span class="input-label">Renda familiar (R$)</span>
+        <input class="input-control" type="text" name="campoExtra_renda_familiar" value="<%= familia?.camposExtras?.renda_familiar || '' %>" placeholder="0,00" data-custom-field-key="renda_familiar" data-custom-field-type="texto" />
+      </label>
+
+      <label class="field-wrap span-2">
+        <span class="input-label">Benefícios recebidos</span>
+        <input class="input-control" type="text" name="campoExtra_beneficios" value="<%= familia?.camposExtras?.beneficios || '' %>" placeholder="Ex: Bolsa Família, BPC, LOAS..." data-custom-field-key="beneficios" data-custom-field-type="texto" />
+      </label>
+    </div>
+
+    <h2 class="section-title form-section-title">
+      <span class="form-section-icon"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i></span>
+      Observações
+    </h2>
     <label class="field-wrap">
       <textarea class="input-control textarea-control" name="observacoes" rows="5" placeholder="Necessidades, contexto da família e observações de apoio..."><%= familia?.observacoes || '' %></textarea>
     </label>
 
     <% if (Array.isArray(customFields) && customFields.length) { %>
-      <h2 class="section-title">Campos extras</h2>
+      <h2 class="section-title form-section-title">
+        <span class="form-section-icon"><i class="fa-solid fa-sliders" aria-hidden="true"></i></span>
+        Informações Adicionais
+      </h2>
       <div class="form-grid">
         <% customFields.forEach((field) => { %>
           <% const fieldValue = familia?.camposExtras?.[field.chave]; %>
@@ -142,9 +253,12 @@
     <% } %>
 
     <% if (modo === "editar") { %>
-      <h2 class="section-title">Status</h2>
+      <h2 class="section-title form-section-title">
+        <span class="form-section-icon"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i></span>
+        Status
+      </h2>
       <label class="field-wrap field-inline">
-        <span class="input-label">Família ativa</span>
+        <span class="input-label">Assistido ativo</span>
         <select class="input-control" name="ativo">
           <option value="true" <%= familia?.ativo ? "selected" : "" %>>Sim</option>
           <option value="false" <%= !familia?.ativo ? "selected" : "" %>>Não</option>
@@ -155,11 +269,13 @@
     <div id="familia-form-feedback" class="form-feedback" hidden></div>
 
     <div class="form-actions">
-      <button class="btn btn-primary" type="submit"><%= modo === "editar" ? "Salvar Alteracoes" : "Criar Familia" %></button>
+      <button class="btn btn-primary" type="submit">
+        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+        <%= modo === "editar" ? "Salvar Alterações" : "Cadastrar Assistido" %>
+      </button>
       <a class="btn btn-muted" href="<%= familia?._id ? `/familias/${familia._id}` : '/familias' %>">Cancelar</a>
     </div>
   </form>
 </section>
 
 <script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="familia-form-initial" type="application/json"><%- serializeForInlineScript(familia || null) %></script>
-
