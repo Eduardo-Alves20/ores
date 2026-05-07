@@ -145,12 +145,8 @@
 
     stepItems.forEach(function (item, i) {
       item.addEventListener("click", function () {
-        var target = i + 1;
-        var done   = getCompletedSteps();
-        if (target < currentStep || done.includes(target) || target === currentStep) {
-          setFeedback("", "");
-          showStep(target);
-        }
+        setFeedback("", "");
+        showStep(i + 1);
       });
       item.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); item.click(); }
