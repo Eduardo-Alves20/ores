@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="wizard-steps-list">
-      <div class="wizard-step-item is-active" data-step="1" role="button" tabindex="0" aria-label="Etapa 1: Dados pessoais">
+      <div class="wizard-step-item is-active" data-step="1" role="button" tabindex="0">
         <div class="wizard-step-circle">1</div>
         <div class="wizard-step-info">
           <span class="wizard-step-name">Dados pessoais</span>
@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="wizard-step-connector" id="connector-1"></div>
-      <div class="wizard-step-item" data-step="2" role="button" tabindex="0" aria-label="Etapa 2: Endereço">
+      <div class="wizard-step-item" data-step="2" role="button" tabindex="0">
         <div class="wizard-step-circle">2</div>
         <div class="wizard-step-info">
           <span class="wizard-step-name">Endereço</span>
@@ -44,7 +44,7 @@
         </div>
       </div>
       <div class="wizard-step-connector" id="connector-2"></div>
-      <div class="wizard-step-item" data-step="3" role="button" tabindex="0" aria-label="Etapa 3: Anamnese">
+      <div class="wizard-step-item" data-step="3" role="button" tabindex="0">
         <div class="wizard-step-circle">3</div>
         <div class="wizard-step-info">
           <span class="wizard-step-name">Anamnese</span>
@@ -52,7 +52,7 @@
         </div>
       </div>
       <div class="wizard-step-connector" id="connector-3"></div>
-      <div class="wizard-step-item" data-step="4" role="button" tabindex="0" aria-label="Etapa 4: Entrevista social">
+      <div class="wizard-step-item" data-step="4" role="button" tabindex="0">
         <div class="wizard-step-circle">4</div>
         <div class="wizard-step-info">
           <span class="wizard-step-name">Entrevista social</span>
@@ -60,7 +60,7 @@
         </div>
       </div>
       <div class="wizard-step-connector" id="connector-4"></div>
-      <div class="wizard-step-item" data-step="5" role="button" tabindex="0" aria-label="Etapa 5: Anexos">
+      <div class="wizard-step-item" data-step="5" role="button" tabindex="0">
         <div class="wizard-step-circle">5</div>
         <div class="wizard-step-info">
           <span class="wizard-step-name">Anexos</span>
@@ -68,7 +68,7 @@
         </div>
       </div>
       <div class="wizard-step-connector" id="connector-5"></div>
-      <div class="wizard-step-item" data-step="6" role="button" tabindex="0" aria-label="Etapa 6: Resumo">
+      <div class="wizard-step-item" data-step="6" role="button" tabindex="0">
         <div class="wizard-step-circle">6</div>
         <div class="wizard-step-info">
           <span class="wizard-step-name">Resumo</span>
@@ -78,7 +78,6 @@
     </div>
   </div>
 
-  <%# ── Form ── %>
   <form id="familia-form" class="familia-form card-elevated" novalidate>
 
     <%# ════════════════════════════════════════════════ %>
@@ -90,12 +89,9 @@
           <h2 class="wizard-panel-title">Dados pessoais do assistido</h2>
           <p class="wizard-panel-subtitle">Identificação completa, contato e vínculo familiar.</p>
         </div>
-        <span class="wizard-panel-badge is-revisada" id="badge-panel-1" hidden>
-          <i class="fa-solid fa-circle-check" aria-hidden="true"></i> REVISADA
-        </span>
+        <span class="wizard-panel-badge" id="badge-panel-1" hidden></span>
       </div>
 
-      <%# Identificação %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
@@ -104,13 +100,12 @@
         <div class="form-grid">
           <label class="field-wrap span-2">
             <span class="input-label">Nome completo *</span>
-            <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" required placeholder="Nome completo do assistido" autocomplete="name" />
+            <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" required placeholder="Nome completo do assistido" />
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Nome social</span>
             <input class="input-control" type="text" name="campoExtra_nome_social" value="<%= familia?.camposExtras?.nome_social || '' %>" placeholder="Como prefere ser chamado(a)" data-custom-field-key="nome_social" data-custom-field-type="texto" />
           </label>
-
           <label class="field-wrap">
             <span class="input-label">CPF *</span>
             <input class="input-control" type="text" name="campoExtra_cpf" value="<%= familia?.camposExtras?.cpf || '' %>" placeholder="123.456.789-00" required data-custom-field-key="cpf" data-custom-field-type="texto" />
@@ -123,14 +118,13 @@
             <span class="input-label">Órgão emissor / UF</span>
             <input class="input-control" type="text" name="campoExtra_orgao_emissor" value="<%= familia?.camposExtras?.orgao_emissor || '' %>" placeholder="SSP/SP" data-custom-field-key="orgao_emissor" data-custom-field-type="texto" />
           </label>
-
           <label class="field-wrap">
             <span class="input-label">Data de nascimento *</span>
             <input class="input-control" type="date" name="campoExtra_data_nascimento" value="<%= familia?.camposExtras?.data_nascimento || '' %>" required data-custom-field-key="data_nascimento" data-custom-field-type="data" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Idade (calculada)</span>
-            <input class="input-control" type="text" name="_idade_calculada" value="<%= familia?.camposExtras?.data_nascimento ? '' : '' %>" placeholder="—" readonly tabindex="-1" />
+            <input class="input-control" type="text" name="_idade_calculada" placeholder="—" readonly tabindex="-1" />
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Faixa para anamnese</span>
@@ -139,7 +133,6 @@
         </div>
       </div>
 
-      <%# Características pessoais %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-person" aria-hidden="true"></i></span>
@@ -151,49 +144,49 @@
             <select class="input-control" name="campoExtra_sexo_biologico" data-custom-field-key="sexo_biologico" data-custom-field-type="select">
               <% const sexoBioAtual = familia?.camposExtras?.sexo_biologico || ''; %>
               <option value="">Selecionar...</option>
-              <option value="masculino" <%= sexoBioAtual === 'masculino' ? 'selected' : '' %>>Masculino</option>
-              <option value="feminino" <%= sexoBioAtual === 'feminino' ? 'selected' : '' %>>Feminino</option>
-              <option value="intersexo" <%= sexoBioAtual === 'intersexo' ? 'selected' : '' %>>Intersexo</option>
-              <option value="nao_informado" <%= sexoBioAtual === 'nao_informado' ? 'selected' : '' %>>Prefiro não informar</option>
+              <option value="masculino" <%= sexoBioAtual==='masculino'?'selected':'' %>>Masculino</option>
+              <option value="feminino"  <%= sexoBioAtual==='feminino'?'selected':'' %>>Feminino</option>
+              <option value="intersexo" <%= sexoBioAtual==='intersexo'?'selected':'' %>>Intersexo</option>
+              <option value="nao_informado" <%= sexoBioAtual==='nao_informado'?'selected':'' %>>Prefiro não informar</option>
             </select>
           </label>
           <label class="field-wrap">
             <span class="input-label">Identidade de gênero</span>
             <select class="input-control" name="campoExtra_identidade_genero" data-custom-field-key="identidade_genero" data-custom-field-type="select">
-              <% const idGeneroAtual = familia?.camposExtras?.identidade_genero || ''; %>
+              <% const idGenAtual = familia?.camposExtras?.identidade_genero || ''; %>
               <option value="">Selecionar...</option>
-              <option value="homem_cis" <%= idGeneroAtual === 'homem_cis' ? 'selected' : '' %>>Homem cisgênero</option>
-              <option value="mulher_cis" <%= idGeneroAtual === 'mulher_cis' ? 'selected' : '' %>>Mulher cisgênero</option>
-              <option value="homem_trans" <%= idGeneroAtual === 'homem_trans' ? 'selected' : '' %>>Homem transgênero</option>
-              <option value="mulher_trans" <%= idGeneroAtual === 'mulher_trans' ? 'selected' : '' %>>Mulher transgênero</option>
-              <option value="nao_binario" <%= idGeneroAtual === 'nao_binario' ? 'selected' : '' %>>Não-binário</option>
-              <option value="nao_informado" <%= idGeneroAtual === 'nao_informado' ? 'selected' : '' %>>Prefiro não informar</option>
+              <option value="homem_cis"    <%= idGenAtual==='homem_cis'?'selected':'' %>>Homem cisgênero</option>
+              <option value="mulher_cis"   <%= idGenAtual==='mulher_cis'?'selected':'' %>>Mulher cisgênero</option>
+              <option value="homem_trans"  <%= idGenAtual==='homem_trans'?'selected':'' %>>Homem transgênero</option>
+              <option value="mulher_trans" <%= idGenAtual==='mulher_trans'?'selected':'' %>>Mulher transgênero</option>
+              <option value="nao_binario"  <%= idGenAtual==='nao_binario'?'selected':'' %>>Não-binário</option>
+              <option value="nao_informado" <%= idGenAtual==='nao_informado'?'selected':'' %>>Prefiro não informar</option>
             </select>
           </label>
           <label class="field-wrap">
             <span class="input-label">Estado civil</span>
             <select class="input-control" name="campoExtra_estado_civil" data-custom-field-key="estado_civil" data-custom-field-type="select">
-              <% const estadoCivilAtual = familia?.camposExtras?.estado_civil || ''; %>
+              <% const ecAtual = familia?.camposExtras?.estado_civil || ''; %>
               <option value="">Selecionar...</option>
-              <option value="solteiro" <%= estadoCivilAtual === 'solteiro' ? 'selected' : '' %>>Solteiro(a)</option>
-              <option value="casado" <%= estadoCivilAtual === 'casado' ? 'selected' : '' %>>Casado(a)</option>
-              <option value="uniao_estavel" <%= estadoCivilAtual === 'uniao_estavel' ? 'selected' : '' %>>União estável</option>
-              <option value="divorciado" <%= estadoCivilAtual === 'divorciado' ? 'selected' : '' %>>Divorciado(a)</option>
-              <option value="viuvo" <%= estadoCivilAtual === 'viuvo' ? 'selected' : '' %>>Viúvo(a)</option>
-              <option value="separado" <%= estadoCivilAtual === 'separado' ? 'selected' : '' %>>Separado(a)</option>
+              <option value="solteiro"      <%= ecAtual==='solteiro'?'selected':'' %>>Solteiro(a)</option>
+              <option value="casado"        <%= ecAtual==='casado'?'selected':'' %>>Casado(a)</option>
+              <option value="uniao_estavel" <%= ecAtual==='uniao_estavel'?'selected':'' %>>União estável</option>
+              <option value="divorciado"    <%= ecAtual==='divorciado'?'selected':'' %>>Divorciado(a)</option>
+              <option value="viuvo"         <%= ecAtual==='viuvo'?'selected':'' %>>Viúvo(a)</option>
+              <option value="separado"      <%= ecAtual==='separado'?'selected':'' %>>Separado(a)</option>
             </select>
           </label>
           <label class="field-wrap">
             <span class="input-label">Cor / raça (autodeclaração)</span>
             <select class="input-control" name="campoExtra_cor_raca" data-custom-field-key="cor_raca" data-custom-field-type="select">
-              <% const corRacaAtual = familia?.camposExtras?.cor_raca || ''; %>
+              <% const crAtual = familia?.camposExtras?.cor_raca || ''; %>
               <option value="">Selecionar...</option>
-              <option value="branca" <%= corRacaAtual === 'branca' ? 'selected' : '' %>>Branca</option>
-              <option value="preta" <%= corRacaAtual === 'preta' ? 'selected' : '' %>>Preta</option>
-              <option value="parda" <%= corRacaAtual === 'parda' ? 'selected' : '' %>>Parda</option>
-              <option value="amarela" <%= corRacaAtual === 'amarela' ? 'selected' : '' %>>Amarela</option>
-              <option value="indigena" <%= corRacaAtual === 'indigena' ? 'selected' : '' %>>Indígena</option>
-              <option value="nao_declarado" <%= corRacaAtual === 'nao_declarado' ? 'selected' : '' %>>Não declarado</option>
+              <option value="branca"     <%= crAtual==='branca'?'selected':'' %>>Branca</option>
+              <option value="preta"      <%= crAtual==='preta'?'selected':'' %>>Preta</option>
+              <option value="parda"      <%= crAtual==='parda'?'selected':'' %>>Parda</option>
+              <option value="amarela"    <%= crAtual==='amarela'?'selected':'' %>>Amarela</option>
+              <option value="indigena"   <%= crAtual==='indigena'?'selected':'' %>>Indígena</option>
+              <option value="nao_declarado" <%= crAtual==='nao_declarado'?'selected':'' %>>Não declarado</option>
             </select>
           </label>
           <label class="field-wrap">
@@ -202,12 +195,11 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">Nacionalidade</span>
-            <input class="input-control" type="text" name="campoExtra_nacionalidade" value="<%= familia?.camposExtras?.nacionalidade || 'Brasileira' %>" placeholder="Brasileira" data-custom-field-key="nacionalidade" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_nacionalidade" value="<%= familia?.camposExtras?.nacionalidade || 'Brasileira' %>" data-custom-field-key="nacionalidade" data-custom-field-type="texto" />
           </label>
         </div>
       </div>
 
-      <%# Contato %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
@@ -225,35 +217,29 @@
           <div class="field-wrap">
             <span class="input-label">É WhatsApp?</span>
             <div class="radio-group">
-              <label class="radio-pill <%= (familia?.camposExtras?.is_whatsapp || 'sim') === 'sim' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_is_whatsapp" value="sim" <%= (familia?.camposExtras?.is_whatsapp || 'sim') === 'sim' ? 'checked' : '' %> data-custom-field-key="is_whatsapp" data-custom-field-type="texto" />
-                Sim
-              </label>
-              <label class="radio-pill <%= familia?.camposExtras?.is_whatsapp === 'nao' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_is_whatsapp" value="nao" <%= familia?.camposExtras?.is_whatsapp === 'nao' ? 'checked' : '' %> data-custom-field-key="is_whatsapp" data-custom-field-type="texto" />
-                Não
-              </label>
+              <% const isWaAtual = familia?.camposExtras?.is_whatsapp || 'sim'; %>
+              <label class="radio-pill <%= isWaAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_is_whatsapp" value="sim" <%= isWaAtual==='sim'?'checked':'' %> data-custom-field-key="is_whatsapp" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= isWaAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_is_whatsapp" value="nao" <%= isWaAtual==='nao'?'checked':'' %> data-custom-field-key="is_whatsapp" data-custom-field-type="texto" />Não</label>
             </div>
           </div>
           <label class="field-wrap">
             <span class="input-label">Email</span>
-            <input class="input-control" type="email" name="responsavel_email" value="<%= familia?.responsavel?.email || '' %>" placeholder="email@exemplo.com" autocomplete="email" />
+            <input class="input-control" type="email" name="responsavel_email" value="<%= familia?.responsavel?.email || '' %>" placeholder="email@exemplo.com" />
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Permissão de contato</span>
             <select class="input-control" name="campoExtra_permissao_contato" data-custom-field-key="permissao_contato" data-custom-field-type="select">
-              <% const permAtual = familia?.camposExtras?.permissao_contato || ''; %>
-              <option value="qualquer" <%= (!permAtual || permAtual === 'qualquer') ? 'selected' : '' %>>Qualquer canal</option>
-              <option value="apenas_telefone" <%= permAtual === 'apenas_telefone' ? 'selected' : '' %>>Apenas telefone</option>
-              <option value="apenas_whatsapp" <%= permAtual === 'apenas_whatsapp' ? 'selected' : '' %>>Apenas WhatsApp</option>
-              <option value="apenas_email" <%= permAtual === 'apenas_email' ? 'selected' : '' %>>Apenas email</option>
-              <option value="nao_contatar" <%= permAtual === 'nao_contatar' ? 'selected' : '' %>>Não contatar</option>
+              <% const permAtual = familia?.camposExtras?.permissao_contato || 'qualquer'; %>
+              <option value="qualquer"       <%= permAtual==='qualquer'?'selected':'' %>>Qualquer canal</option>
+              <option value="apenas_telefone" <%= permAtual==='apenas_telefone'?'selected':'' %>>Apenas telefone</option>
+              <option value="apenas_whatsapp" <%= permAtual==='apenas_whatsapp'?'selected':'' %>>Apenas WhatsApp</option>
+              <option value="apenas_email"   <%= permAtual==='apenas_email'?'selected':'' %>>Apenas email</option>
+              <option value="nao_contatar"   <%= permAtual==='nao_contatar'?'selected':'' %>>Não contatar</option>
             </select>
           </label>
         </div>
       </div>
 
-      <%# Vínculo familiar %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
@@ -267,19 +253,9 @@
           <label class="field-wrap">
             <span class="input-label">Parentesco / vínculo *</span>
             <select class="input-control" name="responsavel_parentesco">
-              <% const parentescoAtual = familia?.responsavel?.parentesco || "responsavel"; %>
-              <% [
-                {value: "responsavel", label: "Responsável familiar"},
-                {value: "mae", label: "Mãe"},
-                {value: "pai", label: "Pai"},
-                {value: "tio", label: "Tio(a)"},
-                {value: "avo", label: "Avô / Avó"},
-                {value: "irmao", label: "Irmão / Irmã"},
-                {value: "primo", label: "Primo(a)"},
-                {value: "adotante", label: "Adotante"},
-                {value: "outro", label: "Outro"}
-              ].forEach((item) => { %>
-                <option value="<%= item.value %>" <%= parentescoAtual === item.value ? "selected" : "" %>><%= item.label %></option>
+              <% const parAtual = familia?.responsavel?.parentesco || "responsavel"; %>
+              <% [["responsavel","Responsável familiar"],["mae","Mãe"],["pai","Pai"],["tio","Tio(a)"],["avo","Avô / Avó"],["irmao","Irmão / Irmã"],["primo","Primo(a)"],["adotante","Adotante"],["outro","Outro"]].forEach(function(item){ %>
+                <option value="<%= item[0] %>" <%= parAtual===item[0]?'selected':'' %>><%= item[1] %></option>
               <% }) %>
             </select>
           </label>
@@ -287,18 +263,9 @@
             <span class="input-label">É o(a) responsável principal?</span>
             <div class="radio-group">
               <% const ehRespAtual = familia?.camposExtras?.eh_responsavel || 'sim'; %>
-              <label class="radio-pill <%= ehRespAtual === 'sim' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_eh_responsavel" value="sim" <%= ehRespAtual === 'sim' ? 'checked' : '' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />
-                Sim
-              </label>
-              <label class="radio-pill <%= ehRespAtual === 'nao' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_eh_responsavel" value="nao" <%= ehRespAtual === 'nao' ? 'checked' : '' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />
-                Não
-              </label>
-              <label class="radio-pill <%= ehRespAtual === 'nao_sabe' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_eh_responsavel" value="nao_sabe" <%= ehRespAtual === 'nao_sabe' ? 'checked' : '' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />
-                Não sabe
-              </label>
+              <label class="radio-pill <%= ehRespAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="sim" <%= ehRespAtual==='sim'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= ehRespAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="nao" <%= ehRespAtual==='nao'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= ehRespAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="nao_sabe" <%= ehRespAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Não sabe</label>
             </div>
           </div>
         </div>
@@ -306,91 +273,121 @@
     </div>
 
     <%# ════════════════════════════════════════════════ %>
-    <%# ETAPA 2 — Endereço                              %>
+    <%# ETAPA 2 — Endereço e moradia                    %>
     <%# ════════════════════════════════════════════════ %>
     <div class="wizard-panel" data-panel="2" hidden>
       <div class="wizard-panel-header">
         <div>
-          <h2 class="wizard-panel-title">Endereço e residência</h2>
-          <p class="wizard-panel-subtitle">Local de moradia e situação habitacional.</p>
+          <h2 class="wizard-panel-title">Endereço e moradia</h2>
+          <p class="wizard-panel-subtitle">Onde o assistido reside e contato de emergência.</p>
         </div>
-        <span class="wizard-panel-badge is-revisada" id="badge-panel-2" hidden>
-          <i class="fa-solid fa-circle-check" aria-hidden="true"></i> REVISADA
-        </span>
+        <span class="wizard-panel-badge" id="badge-panel-2" hidden></span>
       </div>
 
-      <%# Residência %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
-          Residência
+          Endereço residencial
         </h3>
         <div class="form-grid">
           <label class="field-wrap">
-            <span class="input-label">CEP</span>
-            <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" placeholder="00000-000" />
+            <span class="input-label">CEP *</span>
+            <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" required placeholder="00000-000" />
           </label>
-          <label class="field-wrap span-2">
-            <span class="input-label">Logradouro / Rua</span>
-            <input class="input-control" type="text" name="endereco_rua" value="<%= familia?.endereco?.rua || '' %>" />
+          <label class="field-wrap span-3">
+            <span class="input-label">Logradouro *</span>
+            <input class="input-control" type="text" name="endereco_rua" value="<%= familia?.endereco?.rua || '' %>" required placeholder="Rua, avenida, travessa..." />
           </label>
           <label class="field-wrap">
-            <span class="input-label">Número</span>
-            <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" />
+            <span class="input-label">Número *</span>
+            <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" required placeholder="Ex: 142" />
           </label>
-          <label class="field-wrap span-2">
+          <label class="field-wrap">
             <span class="input-label">Complemento</span>
-            <input class="input-control" type="text" name="endereco_complemento" value="<%= familia?.endereco?.complemento || '' %>" />
+            <input class="input-control" type="text" name="endereco_complemento" value="<%= familia?.endereco?.complemento || '' %>" placeholder="Apto, bloco, casa..." />
           </label>
           <label class="field-wrap span-2">
-            <span class="input-label">Bairro</span>
-            <input class="input-control" type="text" name="endereco_bairro" value="<%= familia?.endereco?.bairro || '' %>" />
+            <span class="input-label">Ponto de referência</span>
+            <input class="input-control" type="text" name="campoExtra_ponto_referencia" value="<%= familia?.camposExtras?.ponto_referencia || '' %>" placeholder="Próximo a..." data-custom-field-key="ponto_referencia" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Bairro *</span>
+            <input class="input-control" type="text" name="endereco_bairro" value="<%= familia?.endereco?.bairro || '' %>" required placeholder="Bairro" />
           </label>
           <label class="field-wrap">
-            <span class="input-label">Cidade</span>
-            <input class="input-control" type="text" name="endereco_cidade" value="<%= familia?.endereco?.cidade || '' %>" />
+            <span class="input-label">Cidade *</span>
+            <input class="input-control" type="text" name="endereco_cidade" value="<%= familia?.endereco?.cidade || '' %>" required placeholder="São Paulo" />
           </label>
           <label class="field-wrap">
-            <span class="input-label">Estado</span>
-            <input class="input-control" type="text" name="endereco_estado" value="<%= familia?.endereco?.estado || '' %>" maxlength="2" placeholder="SP" />
+            <span class="input-label">Estado *</span>
+            <select class="input-control" name="endereco_estado">
+              <% const ufAtual = familia?.endereco?.estado || ''; %>
+              <option value="">UF</option>
+              <% ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].forEach(function(uf){ %>
+                <option value="<%= uf %>" <%= ufAtual===uf?'selected':'' %>><%= uf %></option>
+              <% }) %>
+            </select>
           </label>
         </div>
       </div>
 
-      <%# Situação habitacional %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
-          Situação habitacional
+          Sobre a moradia
         </h3>
         <div class="form-grid">
           <label class="field-wrap">
             <span class="input-label">Tipo de moradia</span>
             <select class="input-control" name="campoExtra_tipo_moradia" data-custom-field-key="tipo_moradia" data-custom-field-type="select">
-              <% const tipoMoradiaAtual = familia?.camposExtras?.tipo_moradia || ''; %>
+              <% const tmAtual = familia?.camposExtras?.tipo_moradia || ''; %>
               <option value="">Selecionar...</option>
-              <option value="propria" <%= tipoMoradiaAtual === 'propria' ? 'selected' : '' %>>Própria</option>
-              <option value="alugada" <%= tipoMoradiaAtual === 'alugada' ? 'selected' : '' %>>Alugada</option>
-              <option value="cedida" <%= tipoMoradiaAtual === 'cedida' ? 'selected' : '' %>>Cedida</option>
-              <option value="ocupacao" <%= tipoMoradiaAtual === 'ocupacao' ? 'selected' : '' %>>Ocupação</option>
-              <option value="abrigo" <%= tipoMoradiaAtual === 'abrigo' ? 'selected' : '' %>>Abrigo / Alojamento</option>
-              <option value="sem_moradia" <%= tipoMoradiaAtual === 'sem_moradia' ? 'selected' : '' %>>Sem moradia fixa</option>
+              <option value="propria"     <%= tmAtual==='propria'?'selected':'' %>>Própria</option>
+              <option value="alugada"     <%= tmAtual==='alugada'?'selected':'' %>>Alugada</option>
+              <option value="cedida"      <%= tmAtual==='cedida'?'selected':'' %>>Cedida</option>
+              <option value="ocupacao"    <%= tmAtual==='ocupacao'?'selected':'' %>>Ocupação</option>
+              <option value="abrigo"      <%= tmAtual==='abrigo'?'selected':'' %>>Abrigo / Alojamento</option>
+              <option value="sem_moradia" <%= tmAtual==='sem_moradia'?'selected':'' %>>Sem moradia fixa</option>
             </select>
           </label>
           <label class="field-wrap">
-            <span class="input-label">Situação do imóvel</span>
-            <select class="input-control" name="campoExtra_situacao_imovel" data-custom-field-key="situacao_imovel" data-custom-field-type="select">
-              <% const sitImovelAtual = familia?.camposExtras?.situacao_imovel || ''; %>
-              <option value="">Selecionar...</option>
-              <option value="regular" <%= sitImovelAtual === 'regular' ? 'selected' : '' %>>Regular</option>
-              <option value="irregular" <%= sitImovelAtual === 'irregular' ? 'selected' : '' %>>Irregular</option>
-              <option value="area_risco" <%= sitImovelAtual === 'area_risco' ? 'selected' : '' %>>Área de risco</option>
-            </select>
+            <span class="input-label">Tempo de moradia</span>
+            <input class="input-control" type="text" name="campoExtra_tempo_moradia" value="<%= familia?.camposExtras?.tempo_moradia || '' %>" placeholder="Ex: 3 anos" data-custom-field-key="tempo_moradia" data-custom-field-type="texto" />
           </label>
           <label class="field-wrap span-2">
-            <span class="input-label">Há quanto tempo mora no município?</span>
-            <input class="input-control" type="text" name="campoExtra_tempo_municipio" value="<%= familia?.camposExtras?.tempo_municipio || '' %>" placeholder="Ex: 5 anos, desde nascimento..." data-custom-field-key="tempo_municipio" data-custom-field-type="texto" />
+            <span class="input-label">Microárea / Setor (se aplicável)</span>
+            <input class="input-control" type="text" name="campoExtra_microarea" value="<%= familia?.camposExtras?.microarea || '' %>" placeholder="Ex: Microárea 7" data-custom-field-key="microarea" data-custom-field-type="texto" />
           </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
+          Contato em caso de emergência
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap span-2">
+            <span class="input-label">Nome</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_nome" value="<%= familia?.camposExtras?.emergencia_nome || '' %>" placeholder="Nome completo" data-custom-field-key="emergencia_nome" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Telefone</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_telefone" value="<%= familia?.camposExtras?.emergencia_telefone || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="emergencia_telefone" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Vínculo / parentesco</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_vinculo" value="<%= familia?.camposExtras?.emergencia_vinculo || '' %>" placeholder="Ex: Vizinha, Irmão..." data-custom-field-key="emergencia_vinculo" data-custom-field-type="texto" />
+          </label>
+          <div class="field-wrap span-2">
+            <span class="input-label">Mora na mesma residência?</span>
+            <div class="radio-group">
+              <% const emgResAtual = familia?.camposExtras?.emergencia_mesma_residencia || ''; %>
+              <label class="radio-pill <%= emgResAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="sim" <%= emgResAtual==='sim'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= emgResAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="nao" <%= emgResAtual==='nao'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= emgResAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="nao_sabe" <%= emgResAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -401,110 +398,300 @@
     <div class="wizard-panel" data-panel="3" hidden>
       <div class="wizard-panel-header">
         <div>
-          <h2 class="wizard-panel-title">Anamnese</h2>
-          <p class="wizard-panel-subtitle">Ficha clínica adaptada para o acompanhamento social.</p>
+          <h2 class="wizard-panel-title" id="anamnese-panel-title">Anamnese</h2>
+          <p class="wizard-panel-subtitle">Ficha clínica adaptada à faixa etária do assistido.</p>
         </div>
-        <span class="wizard-panel-badge is-revisada" id="badge-panel-3" hidden>
-          <i class="fa-solid fa-circle-check" aria-hidden="true"></i> REVISADA
-        </span>
+        <span class="wizard-panel-badge" id="badge-panel-3" hidden></span>
       </div>
 
-      <%# Saúde geral %>
+      <%# Faixa seletor %>
+      <div class="anamnese-faixa-bar">
+        <div class="anamnese-faixa-info">
+          <i class="fa-solid fa-file-medical anamnese-faixa-info-icon" aria-hidden="true"></i>
+          <div class="anamnese-faixa-info-text">
+            <strong id="anamnese-faixa-label">Ficha aplicada: Adulto (18-59 anos)</strong>
+            <p id="anamnese-faixa-desc">Sugerida automaticamente pela idade do assistido. Doenças crônicas, hábitos de vida, saúde mental, trabalho e ocupação.</p>
+          </div>
+        </div>
+        <div class="radio-group">
+          <label class="radio-pill" id="faixa-btn-crianca"><input type="radio" name="_faixa_sel" value="crianca" />Criança</label>
+          <label class="radio-pill is-selected" id="faixa-btn-adulto"><input type="radio" name="_faixa_sel" value="adulto" checked />Adulto</label>
+          <label class="radio-pill" id="faixa-btn-idoso"><input type="radio" name="_faixa_sel" value="idoso" />Idoso</label>
+        </div>
+      </div>
+
       <div class="form-subsection">
         <h3 class="form-subsection-title">
-          <span class="form-subsection-icon"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+          <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
           Saúde geral
         </h3>
         <div class="form-grid">
-          <div class="field-wrap span-2">
-            <span class="input-label">Possui condição de saúde diagnosticada?</span>
-            <div class="radio-group">
-              <% const temCondicaoAtual = familia?.camposExtras?.tem_condicao_saude || ''; %>
-              <label class="radio-pill <%= temCondicaoAtual === 'sim' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_tem_condicao_saude" value="sim" <%= temCondicaoAtual === 'sim' ? 'checked' : '' %> data-custom-field-key="tem_condicao_saude" data-custom-field-type="texto" />
-                Sim
-              </label>
-              <label class="radio-pill <%= temCondicaoAtual === 'nao' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_tem_condicao_saude" value="nao" <%= temCondicaoAtual === 'nao' ? 'checked' : '' %> data-custom-field-key="tem_condicao_saude" data-custom-field-type="texto" />
-                Não
-              </label>
-              <label class="radio-pill <%= temCondicaoAtual === 'nao_sabe' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_tem_condicao_saude" value="nao_sabe" <%= temCondicaoAtual === 'nao_sabe' ? 'checked' : '' %> data-custom-field-key="tem_condicao_saude" data-custom-field-type="texto" />
-                Não sabe
-              </label>
-            </div>
-          </div>
           <label class="field-wrap span-4">
-            <span class="input-label">Quais condições / diagnósticos?</span>
-            <textarea class="input-control textarea-control" name="campoExtra_condicoes_saude" rows="3" placeholder="Ex: hipertensão, diabetes, depressão..." data-custom-field-key="condicoes_saude" data-custom-field-type="textarea"><%= familia?.camposExtras?.condicoes_saude || '' %></textarea>
+            <span class="input-label">Queixa principal / motivo da procura *</span>
+            <textarea class="input-control textarea-control" name="campoExtra_queixa_principal" rows="3" required placeholder="Descreva com as palavras do próprio assistido sempre que possível." data-custom-field-key="queixa_principal" data-custom-field-type="textarea"><%= familia?.camposExtras?.queixa_principal || '' %></textarea>
           </label>
-          <div class="field-wrap span-2">
-            <span class="input-label">Usa medicamentos contínuos?</span>
-            <div class="radio-group">
-              <% const temMedAtual = familia?.camposExtras?.usa_medicamentos || ''; %>
-              <label class="radio-pill <%= temMedAtual === 'sim' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_usa_medicamentos" value="sim" <%= temMedAtual === 'sim' ? 'checked' : '' %> data-custom-field-key="usa_medicamentos" data-custom-field-type="texto" />
-                Sim
-              </label>
-              <label class="radio-pill <%= temMedAtual === 'nao' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_usa_medicamentos" value="nao" <%= temMedAtual === 'nao' ? 'checked' : '' %> data-custom-field-key="usa_medicamentos" data-custom-field-type="texto" />
-                Não
-              </label>
-            </div>
-          </div>
           <label class="field-wrap span-2">
-            <span class="input-label">Quais medicamentos?</span>
-            <input class="input-control" type="text" name="campoExtra_medicamentos" value="<%= familia?.camposExtras?.medicamentos || '' %>" placeholder="Nome(s) do(s) medicamento(s)" data-custom-field-key="medicamentos" data-custom-field-type="texto" />
+            <span class="input-label">Estado geral percebido</span>
+            <select class="input-control" name="campoExtra_estado_geral" data-custom-field-key="estado_geral" data-custom-field-type="select">
+              <% const egAtual = familia?.camposExtras?.estado_geral || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="otimo"    <%= egAtual==='otimo'?'selected':'' %>>Ótimo</option>
+              <option value="bom"      <%= egAtual==='bom'?'selected':'' %>>Bom</option>
+              <option value="regular"  <%= egAtual==='regular'?'selected':'' %>>Regular</option>
+              <option value="ruim"     <%= egAtual==='ruim'?'selected':'' %>>Ruim</option>
+              <option value="critico"  <%= egAtual==='critico'?'selected':'' %>>Crítico</option>
+            </select>
           </label>
-          <div class="field-wrap span-2">
-            <span class="input-label">Possui alguma deficiência?</span>
-            <div class="radio-group">
-              <% const temDefAtual = familia?.camposExtras?.tem_deficiencia || ''; %>
-              <label class="radio-pill <%= temDefAtual === 'sim' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_tem_deficiencia" value="sim" <%= temDefAtual === 'sim' ? 'checked' : '' %> data-custom-field-key="tem_deficiencia" data-custom-field-type="texto" />
-                Sim
-              </label>
-              <label class="radio-pill <%= temDefAtual === 'nao' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_tem_deficiencia" value="nao" <%= temDefAtual === 'nao' ? 'checked' : '' %> data-custom-field-key="tem_deficiencia" data-custom-field-type="texto" />
-                Não
-              </label>
-            </div>
-          </div>
-          <label class="field-wrap span-2">
-            <span class="input-label">Tipo de deficiência</span>
-            <input class="input-control" type="text" name="campoExtra_tipo_deficiencia" value="<%= familia?.camposExtras?.tipo_deficiencia || '' %>" placeholder="Ex: física, visual, auditiva, intelectual..." data-custom-field-key="tipo_deficiencia" data-custom-field-type="texto" />
+          <label class="field-wrap">
+            <span class="input-label">Peso (kg)</span>
+            <input class="input-control" type="text" name="campoExtra_peso" value="<%= familia?.camposExtras?.peso || '' %>" placeholder="Ex: 72" data-custom-field-key="peso" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Altura (cm)</span>
+            <input class="input-control" type="text" name="campoExtra_altura" value="<%= familia?.camposExtras?.altura || '' %>" placeholder="Ex: 168" data-custom-field-key="altura" data-custom-field-type="texto" />
           </label>
         </div>
       </div>
 
-      <%# Acompanhamento %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
-          <span class="form-subsection-icon"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i></span>
-          Acompanhamento
+          <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i></span>
+          Antecedentes pessoais
         </h3>
         <div class="form-grid">
-          <div class="field-wrap span-2">
-            <span class="input-label">Realiza acompanhamento regular de saúde?</span>
-            <div class="radio-group">
-              <% const temAcompAtual = familia?.camposExtras?.acompanhamento_saude || ''; %>
-              <label class="radio-pill <%= temAcompAtual === 'sim' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_acompanhamento_saude" value="sim" <%= temAcompAtual === 'sim' ? 'checked' : '' %> data-custom-field-key="acompanhamento_saude" data-custom-field-type="texto" />
-                Sim
-              </label>
-              <label class="radio-pill <%= temAcompAtual === 'nao' ? 'is-selected' : '' %>">
-                <input type="radio" name="campoExtra_acompanhamento_saude" value="nao" <%= temAcompAtual === 'nao' ? 'checked' : '' %> data-custom-field-key="acompanhamento_saude" data-custom-field-type="texto" />
-                Não
-              </label>
+          <div class="field-wrap span-4">
+            <span class="input-label">Doenças crônicas / condições atuais</span>
+            <div class="checkbox-grid" id="doencas-cronicas-grid">
+              <% [["hipertensao","Hipertensão"],["diabetes","Diabetes"],["cardiopatia","Cardiopatia"],["asma_dpoc","Asma / DPOC"],["tireoide","Tireoide"],["obesidade","Obesidade"],["cancer","Câncer"],["hiv","HIV"],["hepatite","Hepatite"],["renais","Renais"],["reumaticas","Reumáticas"],["nenhuma_dc","Nenhuma"]].forEach(function(item){ %>
+                <% const dcChecked = (familia?.camposExtras?.doencas_cronicas || '').includes(item[0]); %>
+                <label class="checkbox-option <%= dcChecked?'is-checked':'' %>">
+                  <input type="checkbox" class="checkbox-input" data-checkbox-group="doencas_cronicas" value="<%= item[0] %>" <%= dcChecked?'checked':'' %> />
+                  <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                  <span><%= item[1] %></span>
+                </label>
+              <% }) %>
             </div>
           </div>
           <label class="field-wrap span-2">
-            <span class="input-label">Unidade de saúde vinculada</span>
-            <input class="input-control" type="text" name="campoExtra_unidade_saude" value="<%= familia?.camposExtras?.unidade_saude || '' %>" placeholder="UBS, hospital, clínica..." data-custom-field-key="unidade_saude" data-custom-field-type="texto" />
+            <span class="input-label">Cirurgias prévias</span>
+            <textarea class="input-control textarea-control" name="campoExtra_cirurgias" rows="3" placeholder="Procedimento e ano..." data-custom-field-key="cirurgias" data-custom-field-type="textarea"><%= familia?.camposExtras?.cirurgias || '' %></textarea>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Internações</span>
+            <textarea class="input-control textarea-control" name="campoExtra_internacoes" rows="3" placeholder="Motivo e ano..." data-custom-field-key="internacoes" data-custom-field-type="textarea"><%= familia?.camposExtras?.internacoes || '' %></textarea>
           </label>
           <label class="field-wrap span-4">
-            <span class="input-label">Observações de saúde</span>
-            <textarea class="input-control textarea-control" name="campoExtra_obs_saude" rows="3" placeholder="Informações relevantes sobre a saúde do assistido..." data-custom-field-key="obs_saude" data-custom-field-type="textarea"><%= familia?.camposExtras?.obs_saude || '' %></textarea>
+            <span class="input-label">Medicamentos em uso contínuo</span>
+            <textarea class="input-control textarea-control" name="campoExtra_medicamentos" rows="3" placeholder="Nome, dosagem, frequência. Ex: Losartana 50mg 1x ao dia." data-custom-field-key="medicamentos" data-custom-field-type="textarea"><%= familia?.camposExtras?.medicamentos || '' %></textarea>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Alergias</span>
+            <input class="input-control" type="text" name="campoExtra_alergias" value="<%= familia?.camposExtras?.alergias || '' %>" placeholder="Medicamentos, alimentos, outros..." data-custom-field-key="alergias" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Última consulta médica</span>
+            <input class="input-control" type="text" name="campoExtra_ultima_consulta" value="<%= familia?.camposExtras?.ultima_consulta || '' %>" placeholder="Ex: Há 6 meses, clínico geral" data-custom-field-key="ultima_consulta" data-custom-field-type="texto" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-people-group" aria-hidden="true"></i></span>
+          Histórico familiar
+        </h3>
+        <div class="form-grid">
+          <div class="field-wrap span-4">
+            <span class="input-label">Doenças relevantes na família (pais, avós, irmãos)</span>
+            <div class="checkbox-grid">
+              <% [["hf_hipertensao","Hipertensão"],["hf_diabetes","Diabetes"],["hf_cancer","Câncer"],["hf_cardiopatia","Cardiopatia"],["hf_avc","AVC"],["hf_doenca_mental","Doença mental"],["hf_alcoolismo","Alcoolismo"],["hf_suicidio","Suicídio"],["hf_doencas_geneticas","Doenças genéticas"],["hf_nenhum","Não há histórico"]].forEach(function(item){ %>
+                <% const hfChecked = (familia?.camposExtras?.historico_familiar || '').includes(item[0]); %>
+                <label class="checkbox-option <%= hfChecked?'is-checked':'' %>">
+                  <input type="checkbox" class="checkbox-input" data-checkbox-group="historico_familiar" value="<%= item[0] %>" <%= hfChecked?'checked':'' %> />
+                  <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                  <span><%= item[1] %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon" style="background:#fff4f7;color:#c2416d"><i class="fa-solid fa-brain" aria-hidden="true"></i></span>
+          Saúde mental e emocional
+        </h3>
+        <div class="form-grid">
+          <div class="field-wrap">
+            <span class="input-label">Já fez ou faz acompanhamento psicológico?</span>
+            <div class="radio-group">
+              <% const smPsiAtual = familia?.camposExtras?.sm_acompanhamento_psico || ''; %>
+              <label class="radio-pill <%= smPsiAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_acompanhamento_psico" value="sim" <%= smPsiAtual==='sim'?'checked':'' %> data-custom-field-key="sm_acompanhamento_psico" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= smPsiAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_acompanhamento_psico" value="nao" <%= smPsiAtual==='nao'?'checked':'' %> data-custom-field-key="sm_acompanhamento_psico" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= smPsiAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_acompanhamento_psico" value="nao_sabe" <%= smPsiAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="sm_acompanhamento_psico" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
+          <div class="field-wrap">
+            <span class="input-label">Já fez ou faz uso de medicação psiquiátrica?</span>
+            <div class="radio-group">
+              <% const smMedAtual = familia?.camposExtras?.sm_medicacao_psiq || ''; %>
+              <label class="radio-pill <%= smMedAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_medicacao_psiq" value="sim" <%= smMedAtual==='sim'?'checked':'' %> data-custom-field-key="sm_medicacao_psiq" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= smMedAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_medicacao_psiq" value="nao" <%= smMedAtual==='nao'?'checked':'' %> data-custom-field-key="sm_medicacao_psiq" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= smMedAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_medicacao_psiq" value="nao_sabe" <%= smMedAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="sm_medicacao_psiq" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
+          <div class="field-wrap span-2">
+            <span class="input-label">Internação psiquiátrica anterior?</span>
+            <div class="radio-group">
+              <% const smIntAtual = familia?.camposExtras?.sm_internacao_psiq || ''; %>
+              <label class="radio-pill <%= smIntAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_internacao_psiq" value="sim" <%= smIntAtual==='sim'?'checked':'' %> data-custom-field-key="sm_internacao_psiq" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= smIntAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_internacao_psiq" value="nao" <%= smIntAtual==='nao'?'checked':'' %> data-custom-field-key="sm_internacao_psiq" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= smIntAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_sm_internacao_psiq" value="nao_sabe" <%= smIntAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="sm_internacao_psiq" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
+          <div class="field-wrap span-4">
+            <span class="input-label">Sintomas presentes nas últimas semanas</span>
+            <div class="checkbox-grid">
+              <% [["sm_tristeza","Tristeza persistente"],["sm_ansiedade","Ansiedade"],["sm_insonia","Insônia"],["sm_crises_panico","Crises de pânico"],["sm_ideacao_suicida","Ideação suicida"],["sm_irritabilidade","Irritabilidade"],["sm_falta_motivacao","Falta de motivação"],["sm_isolamento","Isolamento social"],["sm_nenhum","Nenhum"]].forEach(function(item){ %>
+                <% const smChecked = (familia?.camposExtras?.sm_sintomas || '').includes(item[0]); %>
+                <label class="checkbox-option <%= smChecked?'is-checked':'' %>">
+                  <input type="checkbox" class="checkbox-input" data-checkbox-group="sm_sintomas" value="<%= item[0] %>" <%= smChecked?'checked':'' %> />
+                  <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                  <span><%= item[1] %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+          <label class="field-wrap span-2">
+            <span class="input-label">Como descreve seu sono</span>
+            <input class="input-control" type="text" name="campoExtra_sm_sono" value="<%= familia?.camposExtras?.sm_sono || '' %>" placeholder="Ex: 5h, fragmentado" data-custom-field-key="sm_sono" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Nível de estresse percebido (0-10)</span>
+            <input class="input-control" type="number" name="campoExtra_sm_estresse" value="<%= familia?.camposExtras?.sm_estresse || '' %>" min="0" max="10" placeholder="Ex: 7" data-custom-field-key="sm_estresse" data-custom-field-type="numero" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon" style="background:#f0fdf4;color:#16a34a"><i class="fa-solid fa-leaf" aria-hidden="true"></i></span>
+          Hábitos de vida
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Tabagismo</span>
+            <select class="input-control" name="campoExtra_tabagismo" data-custom-field-key="tabagismo" data-custom-field-type="select">
+              <% const tabAtual = familia?.camposExtras?.tabagismo || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="nao_fuma"     <%= tabAtual==='nao_fuma'?'selected':'' %>>Não fuma</option>
+              <option value="ex_fumante"   <%= tabAtual==='ex_fumante'?'selected':'' %>>Ex-fumante</option>
+              <option value="fumante_leve" <%= tabAtual==='fumante_leve'?'selected':'' %>>Fumante leve (&lt;10/dia)</option>
+              <option value="fumante_mod"  <%= tabAtual==='fumante_mod'?'selected':'' %>>Fumante moderado</option>
+              <option value="fumante_pesado" <%= tabAtual==='fumante_pesado'?'selected':'' %>>Fumante pesado (>20/dia)</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Etilismo</span>
+            <select class="input-control" name="campoExtra_etilismo" data-custom-field-key="etilismo" data-custom-field-type="select">
+              <% const etAtual = familia?.camposExtras?.etilismo || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="nao_usa"       <%= etAtual==='nao_usa'?'selected':'' %>>Não usa</option>
+              <option value="social"        <%= etAtual==='social'?'selected':'' %>>Social / esporádico</option>
+              <option value="moderado"      <%= etAtual==='moderado'?'selected':'' %>>Moderado</option>
+              <option value="frequente"     <%= etAtual==='frequente'?'selected':'' %>>Frequente / diário</option>
+              <option value="dependente"    <%= etAtual==='dependente'?'selected':'' %>>Dependente</option>
+            </select>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Outras substâncias</span>
+            <select class="input-control" name="campoExtra_outras_substancias" data-custom-field-key="outras_substancias" data-custom-field-type="select">
+              <% const osAtual = familia?.camposExtras?.outras_substancias || ''; %>
+              <option value="nao_usa" <%= osAtual==='nao_usa'||!osAtual?'selected':'' %>>Não usa</option>
+              <option value="cannabis"   <%= osAtual==='cannabis'?'selected':'' %>>Cannabis</option>
+              <option value="cocaina"    <%= osAtual==='cocaina'?'selected':'' %>>Cocaína / Crack</option>
+              <option value="multiplas"  <%= osAtual==='multiplas'?'selected':'' %>>Múltiplas substâncias</option>
+              <option value="outra"      <%= osAtual==='outra'?'selected':'' %>>Outra</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Atividade física</span>
+            <select class="input-control" name="campoExtra_atividade_fisica" data-custom-field-key="atividade_fisica" data-custom-field-type="select">
+              <% const afAtual = familia?.camposExtras?.atividade_fisica || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="sedentario"    <%= afAtual==='sedentario'?'selected':'' %>>Sedentário</option>
+              <option value="leve"          <%= afAtual==='leve'?'selected':'' %>>Leve (1-2x/semana)</option>
+              <option value="moderado"      <%= afAtual==='moderado'?'selected':'' %>>Moderado (3-4x/semana)</option>
+              <option value="intenso"       <%= afAtual==='intenso'?'selected':'' %>>Intenso (5+/semana)</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Qualidade da alimentação</span>
+            <select class="input-control" name="campoExtra_qualidade_alimentacao" data-custom-field-key="qualidade_alimentacao" data-custom-field-type="select">
+              <% const qaAtual = familia?.camposExtras?.qualidade_alimentacao || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="boa"       <%= qaAtual==='boa'?'selected':'' %>>Boa</option>
+              <option value="regular"   <%= qaAtual==='regular'?'selected':'' %>>Regular</option>
+              <option value="insuficiente" <%= qaAtual==='insuficiente'?'selected':'' %>>Insuficiente</option>
+              <option value="inseguranca" <%= qaAtual==='inseguranca'?'selected':'' %>>Insegurança alimentar</option>
+            </select>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Restrições alimentares</span>
+            <input class="input-control" type="text" name="campoExtra_restricoes_alimentares" value="<%= familia?.camposExtras?.restricoes_alimentares || '' %>" placeholder="Ex: lactose, glúten, vegetariano..." data-custom-field-key="restricoes_alimentares" data-custom-field-type="texto" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon" style="background:#f0f7fc;color:#1C5D85"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
+          Trabalho e ocupação
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Profissão</span>
+            <input class="input-control" type="text" name="campoExtra_profissao" value="<%= familia?.camposExtras?.profissao || '' %>" placeholder="Ex: Auxiliar de cozinha" data-custom-field-key="profissao" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Ocupação atual</span>
+            <select class="input-control" name="campoExtra_ocupacao_atual" data-custom-field-key="ocupacao_atual" data-custom-field-type="select">
+              <% const ocAtual = familia?.camposExtras?.ocupacao_atual || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="empregado_clt"   <%= ocAtual==='empregado_clt'?'selected':'' %>>Empregado (CLT)</option>
+              <option value="autonomo"        <%= ocAtual==='autonomo'?'selected':'' %>>Autônomo / Informal</option>
+              <option value="servidor_pub"    <%= ocAtual==='servidor_pub'?'selected':'' %>>Servidor público</option>
+              <option value="desempregado"    <%= ocAtual==='desempregado'?'selected':'' %>>Desempregado</option>
+              <option value="aposentado"      <%= ocAtual==='aposentado'?'selected':'' %>>Aposentado / Pensionista</option>
+              <option value="estudante"       <%= ocAtual==='estudante'?'selected':'' %>>Estudante</option>
+              <option value="inativo"         <%= ocAtual==='inativo'?'selected':'' %>>Inativo / Sem renda</option>
+            </select>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Carga horária semanal</span>
+            <input class="input-control" type="text" name="campoExtra_carga_horaria" value="<%= familia?.camposExtras?.carga_horaria || '' %>" placeholder="Ex: 44h" data-custom-field-key="carga_horaria" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-4">
+            <span class="input-label">Doenças ocupacionais ou afastamentos</span>
+            <textarea class="input-control textarea-control" name="campoExtra_doencas_ocupacionais" rows="3" placeholder="Ex: LER em 2023, afastado por 3 meses..." data-custom-field-key="doencas_ocupacionais" data-custom-field-type="textarea"><%= familia?.camposExtras?.doencas_ocupacionais || '' %></textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon" style="background:#fff8f0;color:#d97706"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+          Hipótese diagnóstica e conduta
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap span-4">
+            <span class="input-label">Hipótese inicial</span>
+            <textarea class="input-control textarea-control" name="campoExtra_hipotese_inicial" rows="3" placeholder="Preenchido pelo profissional responsável." data-custom-field-key="hipotese_inicial" data-custom-field-type="textarea"><%= familia?.camposExtras?.hipotese_inicial || '' %></textarea>
+          </label>
+          <label class="field-wrap span-4">
+            <span class="input-label">Plano de cuidado / encaminhamentos</span>
+            <textarea class="input-control textarea-control" name="campoExtra_plano_cuidado_ana" rows="3" placeholder="Acompanhamento, especialidades, retorno..." data-custom-field-key="plano_cuidado_ana" data-custom-field-type="textarea"><%= familia?.camposExtras?.plano_cuidado_ana || '' %></textarea>
           </label>
         </div>
       </div>
@@ -517,129 +704,443 @@
       <div class="wizard-panel-header">
         <div>
           <h2 class="wizard-panel-title">Entrevista social</h2>
-          <p class="wizard-panel-subtitle">Diagnóstico social e situação socioeconômica.</p>
+          <p class="wizard-panel-subtitle">Diagnóstico social conduzido pela assistente social.</p>
         </div>
-        <span class="wizard-panel-badge is-revisada" id="badge-panel-4" hidden>
-          <i class="fa-solid fa-circle-check" aria-hidden="true"></i> REVISADA
-        </span>
+        <span class="wizard-panel-badge" id="badge-panel-4" hidden></span>
       </div>
 
-      <%# Situação socioeconômica %>
+      <div class="wizard-info-notice">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>Modelo padrão de entrevista social. Esta ficha pode ser preenchida em qualquer momento pelo Serviço Social e gera o parecer técnico vinculado ao prontuário do assistido. Os blocos seguem o padrão LOAS/SUAS para diagnóstico social.</span>
+      </div>
+
+      <%# Identificação da entrevista %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
-          <span class="form-subsection-icon"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
-          Situação socioeconômica
+          <span class="form-subsection-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
+          Identificação da entrevista
         </h3>
         <div class="form-grid">
           <label class="field-wrap">
-            <span class="input-label">Situação de trabalho</span>
-            <select class="input-control" name="campoExtra_situacao_trabalho" data-custom-field-key="situacao_trabalho" data-custom-field-type="select">
-              <% const sitTrabAtual = familia?.camposExtras?.situacao_trabalho || ''; %>
+            <span class="input-label">Data da entrevista *</span>
+            <input class="input-control" type="date" name="campoExtra_data_entrevista" value="<%= familia?.camposExtras?.data_entrevista || new Date().toISOString().slice(0,10) %>" required data-custom-field-key="data_entrevista" data-custom-field-type="data" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Local</span>
+            <select class="input-control" name="campoExtra_local_entrevista" data-custom-field-key="local_entrevista" data-custom-field-type="select">
+              <% const leAtual = familia?.camposExtras?.local_entrevista || ''; %>
               <option value="">Selecionar...</option>
-              <option value="empregado_clt" <%= sitTrabAtual === 'empregado_clt' ? 'selected' : '' %>>Empregado (CLT)</option>
-              <option value="autonomo" <%= sitTrabAtual === 'autonomo' ? 'selected' : '' %>>Autônomo / Informal</option>
-              <option value="servidor_publico" <%= sitTrabAtual === 'servidor_publico' ? 'selected' : '' %>>Servidor público</option>
-              <option value="desempregado" <%= sitTrabAtual === 'desempregado' ? 'selected' : '' %>>Desempregado</option>
-              <option value="aposentado" <%= sitTrabAtual === 'aposentado' ? 'selected' : '' %>>Aposentado / Pensionista</option>
-              <option value="estudante" <%= sitTrabAtual === 'estudante' ? 'selected' : '' %>>Estudante</option>
-              <option value="inativo" <%= sitTrabAtual === 'inativo' ? 'selected' : '' %>>Inativo / Sem renda</option>
-              <option value="nunca_trabalhou" <%= sitTrabAtual === 'nunca_trabalhou' ? 'selected' : '' %>>Nunca trabalhou</option>
+              <option value="sede"       <%= leAtual==='sede'?'selected':'' %>>Sede da instituição</option>
+              <option value="domicilio"  <%= leAtual==='domicilio'?'selected':'' %>>Domicílio</option>
+              <option value="cras"       <%= leAtual==='cras'?'selected':'' %>>CRAS / CREAS</option>
+              <option value="ubs"        <%= leAtual==='ubs'?'selected':'' %>>UBS</option>
+              <option value="remoto"     <%= leAtual==='remoto'?'selected':'' %>>Remoto (vídeo/telefone)</option>
+              <option value="outro"      <%= leAtual==='outro'?'selected':'' %>>Outro</option>
             </select>
           </label>
-          <label class="field-wrap">
-            <span class="input-label">Escolaridade</span>
-            <select class="input-control" name="campoExtra_escolaridade" data-custom-field-key="escolaridade" data-custom-field-type="select">
-              <% const escAtual = familia?.camposExtras?.escolaridade || ''; %>
+          <label class="field-wrap span-2">
+            <span class="input-label">Modalidade</span>
+            <select class="input-control" name="campoExtra_modalidade_entrevista" data-custom-field-key="modalidade_entrevista" data-custom-field-type="select">
+              <% const meAtual = familia?.camposExtras?.modalidade_entrevista || ''; %>
               <option value="">Selecionar...</option>
-              <option value="sem_escolaridade" <%= escAtual === 'sem_escolaridade' ? 'selected' : '' %>>Sem escolaridade</option>
-              <option value="fundamental_incompleto" <%= escAtual === 'fundamental_incompleto' ? 'selected' : '' %>>Fundamental incompleto</option>
-              <option value="fundamental_completo" <%= escAtual === 'fundamental_completo' ? 'selected' : '' %>>Fundamental completo</option>
-              <option value="medio_incompleto" <%= escAtual === 'medio_incompleto' ? 'selected' : '' %>>Médio incompleto</option>
-              <option value="medio_completo" <%= escAtual === 'medio_completo' ? 'selected' : '' %>>Médio completo</option>
-              <option value="superior_incompleto" <%= escAtual === 'superior_incompleto' ? 'selected' : '' %>>Superior incompleto</option>
-              <option value="superior_completo" <%= escAtual === 'superior_completo' ? 'selected' : '' %>>Superior completo</option>
-              <option value="pos_graduacao" <%= escAtual === 'pos_graduacao' ? 'selected' : '' %>>Pós-graduação</option>
+              <option value="individual"  <%= meAtual==='individual'?'selected':'' %>>Individual</option>
+              <option value="familiar"    <%= meAtual==='familiar'?'selected':'' %>>Familiar</option>
+              <option value="domiciliar"  <%= meAtual==='domiciliar'?'selected':'' %>>Domiciliar</option>
+              <option value="grupo"       <%= meAtual==='grupo'?'selected':'' %>>Grupo</option>
             </select>
           </label>
-          <label class="field-wrap">
-            <span class="input-label">Renda individual (R$)</span>
-            <input class="input-control" type="text" name="campoExtra_renda_individual" value="<%= familia?.camposExtras?.renda_individual || '' %>" placeholder="0,00" data-custom-field-key="renda_individual" data-custom-field-type="texto" />
+          <label class="field-wrap span-2">
+            <span class="input-label">Profissional responsável *</span>
+            <input class="input-control" type="text" name="campoExtra_profissional_entrevista" value="<%= familia?.camposExtras?.profissional_entrevista || '' %>" required placeholder="Nome do profissional" data-custom-field-key="profissional_entrevista" data-custom-field-type="texto" />
           </label>
-          <label class="field-wrap">
-            <span class="input-label">Renda familiar total (R$)</span>
-            <input class="input-control" type="text" name="campoExtra_renda_familiar" value="<%= familia?.camposExtras?.renda_familiar || '' %>" placeholder="0,00" data-custom-field-key="renda_familiar" data-custom-field-type="texto" />
-          </label>
-          <label class="field-wrap">
-            <span class="input-label">Nº de pessoas na residência</span>
-            <input class="input-control" type="number" name="campoExtra_pessoas_residencia" value="<%= familia?.camposExtras?.pessoas_residencia || '' %>" min="1" max="99" placeholder="0" data-custom-field-key="pessoas_residencia" data-custom-field-type="numero" />
-          </label>
-          <label class="field-wrap span-3">
-            <span class="input-label">Benefícios sociais recebidos</span>
-            <input class="input-control" type="text" name="campoExtra_beneficios" value="<%= familia?.camposExtras?.beneficios || '' %>" placeholder="Ex: Bolsa Família, BPC, LOAS, Auxílio Brasil..." data-custom-field-key="beneficios" data-custom-field-type="texto" />
+          <label class="field-wrap span-2">
+            <span class="input-label">Pessoa(s) presente(s)</span>
+            <input class="input-control" type="text" name="campoExtra_presentes_entrevista" value="<%= familia?.camposExtras?.presentes_entrevista || '' %>" placeholder="Quem participou da entrevista?" data-custom-field-key="presentes_entrevista" data-custom-field-type="texto" />
           </label>
         </div>
       </div>
 
-      <%# Diagnóstico social %>
+      <%# Composição familiar %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
-          <span class="form-subsection-icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span>
-          Diagnóstico social
+          <span class="form-subsection-icon"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
+          Composição familiar
+        </h3>
+        <p style="font-size:0.78rem;color:var(--muted);margin:0 0 12px">Inclua todas as pessoas que residem no mesmo domicílio.</p>
+        <div class="cf-table">
+          <div class="cf-table-header">
+            <span>NOME</span>
+            <span>PARENTESCO</span>
+            <span>IDADE</span>
+            <span>ESCOLARIDADE</span>
+            <span>OCUPAÇÃO</span>
+            <span>RENDA</span>
+            <span></span>
+          </div>
+          <div id="cf-rows"></div>
+        </div>
+        <button type="button" class="cf-add-btn" id="cf-add-btn">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Adicionar membro da família
+        </button>
+        <div class="cf-renda-grid">
+          <label class="field-wrap">
+            <span class="input-label">Renda familiar total (mensal)</span>
+            <input class="input-control" type="text" id="renda_familiar_total_input" name="campoExtra_renda_familiar" value="<%= familia?.camposExtras?.renda_familiar || '' %>" placeholder="R$ 1.320,00" data-custom-field-key="renda_familiar" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap field-wrap-readonly">
+            <span class="input-label">Renda per capita (calculada)</span>
+            <input class="input-control" type="text" id="renda_per_capita_display" placeholder="R$ —" readonly tabindex="-1" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Origem principal da renda</span>
+            <select class="input-control" name="campoExtra_origem_renda" data-custom-field-key="origem_renda" data-custom-field-type="select">
+              <% const orAtual = familia?.camposExtras?.origem_renda || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="trabalho_formal" <%= orAtual==='trabalho_formal'?'selected':'' %>>Trabalho formal</option>
+              <option value="trabalho_informal" <%= orAtual==='trabalho_informal'?'selected':'' %>>Trabalho informal</option>
+              <option value="aposentadoria"  <%= orAtual==='aposentadoria'?'selected':'' %>>Aposentadoria / Pensão</option>
+              <option value="beneficio_social" <%= orAtual==='beneficio_social'?'selected':'' %>>Benefício social</option>
+              <option value="nenhuma"        <%= orAtual==='nenhuma'?'selected':'' %>>Nenhuma</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <%# Habitação e território %>
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-house-flag" aria-hidden="true"></i></span>
+          Habitação e território
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Tipo de moradia</span>
+            <select class="input-control" name="campoExtra_hab_tipo_moradia" data-custom-field-key="hab_tipo_moradia" data-custom-field-type="select">
+              <% const htmAtual = familia?.camposExtras?.hab_tipo_moradia || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="propria"     <%= htmAtual==='propria'?'selected':'' %>>Própria</option>
+              <option value="alugada"     <%= htmAtual==='alugada'?'selected':'' %>>Alugada</option>
+              <option value="cedida"      <%= htmAtual==='cedida'?'selected':'' %>>Cedida</option>
+              <option value="ocupacao"    <%= htmAtual==='ocupacao'?'selected':'' %>>Ocupação</option>
+              <option value="sem_moradia" <%= htmAtual==='sem_moradia'?'selected':'' %>>Sem moradia fixa</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Material da construção</span>
+            <select class="input-control" name="campoExtra_hab_material" data-custom-field-key="hab_material" data-custom-field-type="select">
+              <% const hmAtual = familia?.camposExtras?.hab_material || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="alvenaria"   <%= hmAtual==='alvenaria'?'selected':'' %>>Alvenaria</option>
+              <option value="madeira"     <%= hmAtual==='madeira'?'selected':'' %>>Madeira</option>
+              <option value="misto"       <%= hmAtual==='misto'?'selected':'' %>>Misto</option>
+              <option value="outro"       <%= hmAtual==='outro'?'selected':'' %>>Outro</option>
+            </select>
+          </label>
+          <div class="field-wrap span-2">
+            <span class="input-label">Estado de conservação</span>
+            <div class="radio-group">
+              <% const econsAtual = familia?.camposExtras?.hab_estado_conservacao || ''; %>
+              <label class="radio-pill <%= econsAtual==='bom'?'is-selected':'' %>"><input type="radio" name="campoExtra_hab_estado_conservacao" value="bom" <%= econsAtual==='bom'?'checked':'' %> data-custom-field-key="hab_estado_conservacao" data-custom-field-type="texto" />Bom</label>
+              <label class="radio-pill <%= econsAtual==='regular'?'is-selected':'' %>"><input type="radio" name="campoExtra_hab_estado_conservacao" value="regular" <%= econsAtual==='regular'?'checked':'' %> data-custom-field-key="hab_estado_conservacao" data-custom-field-type="texto" />Regular</label>
+              <label class="radio-pill <%= econsAtual==='precario'?'is-selected':'' %>"><input type="radio" name="campoExtra_hab_estado_conservacao" value="precario" <%= econsAtual==='precario'?'checked':'' %> data-custom-field-key="hab_estado_conservacao" data-custom-field-type="texto" />Precário</label>
+            </div>
+          </div>
+          <label class="field-wrap">
+            <span class="input-label">Nº de cômodos</span>
+            <input class="input-control" type="number" name="campoExtra_hab_comodos" value="<%= familia?.camposExtras?.hab_comodos || '' %>" min="1" placeholder="Ex: 4" data-custom-field-key="hab_comodos" data-custom-field-type="numero" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Nº de dormitórios</span>
+            <input class="input-control" type="number" name="campoExtra_hab_dormitorios" value="<%= familia?.camposExtras?.hab_dormitorios || '' %>" min="0" placeholder="Ex: 2" data-custom-field-key="hab_dormitorios" data-custom-field-type="numero" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Tempo de moradia</span>
+            <input class="input-control" type="text" name="campoExtra_hab_tempo_moradia" value="<%= familia?.camposExtras?.hab_tempo_moradia || '' %>" placeholder="Ex: 3 anos" data-custom-field-key="hab_tempo_moradia" data-custom-field-type="texto" />
+          </label>
+          <div class="field-wrap span-4">
+            <span class="input-label">Saneamento e infraestrutura disponível</span>
+            <div class="checkbox-grid">
+              <% [["san_agua","Água encanada"],["san_energia","Energia elétrica"],["san_esgoto","Esgoto sanitário"],["san_lixo","Coleta de lixo"],["san_iluminacao","Iluminação pública"],["san_asfalto","Asfalto/calçada"],["san_internet","Internet"],["san_gas","Gás encanado"]].forEach(function(item){ %>
+                <% const sanChecked = (familia?.camposExtras?.saneamento || '').includes(item[0]); %>
+                <label class="checkbox-option <%= sanChecked?'is-checked':'' %>">
+                  <input type="checkbox" class="checkbox-input" data-checkbox-group="saneamento" value="<%= item[0] %>" <%= sanChecked?'checked':'' %> />
+                  <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                  <span><%= item[1] %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+          <label class="field-wrap span-2">
+            <span class="input-label">Equipamentos sociais próximos</span>
+            <textarea class="input-control textarea-control" name="campoExtra_equipamentos_sociais" rows="3" placeholder="UBS, CRAS, escola, creche, transporte..." data-custom-field-key="equipamentos_sociais" data-custom-field-type="textarea"><%= familia?.camposExtras?.equipamentos_sociais || '' %></textarea>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Riscos do território</span>
+            <textarea class="input-control textarea-control" name="campoExtra_riscos_territorio" rows="3" placeholder="Enchentes, violência, ausência de iluminação..." data-custom-field-key="riscos_territorio" data-custom-field-type="textarea"><%= familia?.camposExtras?.riscos_territorio || '' %></textarea>
+          </label>
+        </div>
+      </div>
+
+      <%# Programas e benefícios sociais %>
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i></span>
+          Programas e benefícios sociais
+        </h3>
+        <div class="form-grid">
+          <div class="field-wrap span-4">
+            <span class="input-label">Programas que a família já recebe ou recebeu</span>
+            <div class="checkbox-grid">
+              <% [["ben_bolsa_familia","Bolsa Família / Auxílio Brasil"],["ben_bpc_loas","BPC / LOAS"],["ben_auxilio_gas","Auxílio Gás"],["ben_cad_unico","Cadastro Único (CadÚnico)"],["ben_tarifa_energia","Tarifa Social de Energia"],["ben_pe_de_meia","Pé de Meia"],["ben_aluguel_social","Aluguel Social"],["ben_beneficio_eventual","Benefício eventual"],["ben_nenhum","Nenhum"]].forEach(function(item){ %>
+                <% const benChecked = (familia?.camposExtras?.beneficios_sociais || '').includes(item[0]); %>
+                <label class="checkbox-option <%= benChecked?'is-checked':'' %>">
+                  <input type="checkbox" class="checkbox-input" data-checkbox-group="beneficios_sociais" value="<%= item[0] %>" <%= benChecked?'checked':'' %> />
+                  <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                  <span><%= item[1] %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+          <label class="field-wrap">
+            <span class="input-label">Nº NIS do responsável</span>
+            <input class="input-control" type="text" name="campoExtra_nis" value="<%= familia?.camposExtras?.nis || '' %>" placeholder="000.00000.00-0" data-custom-field-key="nis" data-custom-field-type="texto" />
+          </label>
+          <div class="field-wrap">
+            <span class="input-label">Cadastrado no CRAS de referência?</span>
+            <div class="radio-group">
+              <% const casCrasAtual = familia?.camposExtras?.cadastrado_cras || ''; %>
+              <label class="radio-pill <%= casCrasAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_cadastrado_cras" value="sim" <%= casCrasAtual==='sim'?'checked':'' %> data-custom-field-key="cadastrado_cras" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= casCrasAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_cadastrado_cras" value="nao" <%= casCrasAtual==='nao'?'checked':'' %> data-custom-field-key="cadastrado_cras" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= casCrasAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_cadastrado_cras" value="nao_sabe" <%= casCrasAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="cadastrado_cras" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
+          <label class="field-wrap span-2">
+            <span class="input-label">Há quanto tempo recebe</span>
+            <input class="input-control" type="text" name="campoExtra_tempo_recebe_beneficio" value="<%= familia?.camposExtras?.tempo_recebe_beneficio || '' %>" placeholder="Ex: 2 anos" data-custom-field-key="tempo_recebe_beneficio" data-custom-field-type="texto" />
+          </label>
+        </div>
+      </div>
+
+      <%# Acesso a serviços %>
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-link" aria-hidden="true"></i></span>
+          Acesso a serviços
         </h3>
         <div class="form-grid">
           <label class="field-wrap span-2">
-            <span class="input-label">CRAS / CREAS de referência</span>
-            <input class="input-control" type="text" name="campoExtra_cras_referencia" value="<%= familia?.camposExtras?.cras_referencia || '' %>" placeholder="Nome da unidade de referência" data-custom-field-key="cras_referencia" data-custom-field-type="texto" />
+            <span class="input-label">Acompanhamento de saúde da família</span>
+            <textarea class="input-control textarea-control" name="campoExtra_acomp_saude_familia" rows="3" placeholder="UBS de referência, especialidades, regularidade..." data-custom-field-key="acomp_saude_familia" data-custom-field-type="textarea"><%= familia?.camposExtras?.acomp_saude_familia || '' %></textarea>
           </label>
           <label class="field-wrap span-2">
-            <span class="input-label">Principal demanda</span>
-            <input class="input-control" type="text" name="campoExtra_demanda_principal" value="<%= familia?.camposExtras?.demanda_principal || '' %>" placeholder="Ex: alimentação, moradia, saúde..." data-custom-field-key="demanda_principal" data-custom-field-type="texto" />
+            <span class="input-label">Crianças/adolescentes matriculados na rede de ensino?</span>
+            <textarea class="input-control textarea-control" name="campoExtra_matricula_escolar" rows="3" placeholder="Quem, onde, frequência regular?" data-custom-field-key="matricula_escolar" data-custom-field-type="textarea"><%= familia?.camposExtras?.matricula_escolar || '' %></textarea>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Plano de saúde / convênio</span>
+            <input class="input-control" type="text" name="campoExtra_plano_saude" value="<%= familia?.camposExtras?.plano_saude || '' %>" placeholder="Nome ou 'Não possui'" data-custom-field-key="plano_saude" data-custom-field-type="texto" />
+          </label>
+          <div class="field-wrap span-2">
+            <span class="input-label">Trabalho infantil / evasão escolar identificada?</span>
+            <div class="radio-group">
+              <% const tiAtual = familia?.camposExtras?.trabalho_infantil || ''; %>
+              <label class="radio-pill <%= tiAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_trabalho_infantil" value="sim" <%= tiAtual==='sim'?'checked':'' %> data-custom-field-key="trabalho_infantil" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= tiAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_trabalho_infantil" value="nao" <%= tiAtual==='nao'?'checked':'' %> data-custom-field-key="trabalho_infantil" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= tiAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_trabalho_infantil" value="nao_sabe" <%= tiAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="trabalho_infantil" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%# Vulnerabilidades e riscos %>
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon" style="background:#fff4f4;color:#c0392b"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+          Vulnerabilidades e riscos
+        </h3>
+        <div class="form-grid">
+          <div class="field-wrap span-4">
+            <span class="input-label">Situações identificadas no contexto familiar</span>
+            <div class="checkbox-grid">
+              <% [["vul_inseg_alimentar","Insegurança alimentar"],["vul_violencia_dom","Violência doméstica"],["vul_violencia_com","Violência comunitária"],["vul_alcool_drogas","Uso abusivo de álcool/drogas"],["vul_negligencia","Negligência infantil"],["vul_isolamento","Isolamento social"],["vul_saude_mental","Saúde mental fragilizada"],["vul_gravidez_adol","Gravidez na adolescência"],["vul_conflito_fam","Conflito familiar"],["vul_discriminacao","Discriminação"],["vul_nenhuma","Nenhuma"]].forEach(function(item){ %>
+                <% const vulChecked = (familia?.camposExtras?.vulnerabilidades || '').includes(item[0]); %>
+                <label class="checkbox-option <%= vulChecked?'is-checked':'' %>">
+                  <input type="checkbox" class="checkbox-input" data-checkbox-group="vulnerabilidades" value="<%= item[0] %>" <%= vulChecked?'checked':'' %> />
+                  <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                  <span><%= item[1] %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+          <label class="field-wrap span-4">
+            <span class="input-label">Histórico de violação de direitos (descrição)</span>
+            <textarea class="input-control textarea-control" name="campoExtra_historico_violacao" rows="3" placeholder="Descrição contextual sem juízo de valor. Quando ocorreu, situação atual, encaminhamentos já realizados..." data-custom-field-key="historico_violacao" data-custom-field-type="textarea"><%= familia?.camposExtras?.historico_violacao || '' %></textarea>
+          </label>
+        </div>
+      </div>
+
+      <%# Demanda e parecer %>
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon" style="background:#fff8f0;color:#d97706"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
+          Demanda, parecer técnico e encaminhamentos
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap span-4">
+            <span class="input-label">Demanda apresentada pela família *</span>
+            <textarea class="input-control textarea-control" name="campoExtra_demanda_familia" rows="3" required placeholder="O que a família busca / pede ao serviço, em suas próprias palavras." data-custom-field-key="demanda_familia" data-custom-field-type="textarea"><%= familia?.camposExtras?.demanda_familia || '' %></textarea>
           </label>
           <label class="field-wrap span-4">
-            <span class="input-label">Situações de vulnerabilidade identificadas</span>
-            <textarea class="input-control textarea-control" name="campoExtra_vulnerabilidades" rows="3" placeholder="Descreva as vulnerabilidades identificadas..." data-custom-field-key="vulnerabilidades" data-custom-field-type="textarea"><%= familia?.camposExtras?.vulnerabilidades || '' %></textarea>
+            <span class="input-label">Análise técnica / parecer social *</span>
+            <textarea class="input-control textarea-control" name="campoExtra_parecer_social" rows="5" required placeholder="Síntese da entrevista articulando contexto, vulnerabilidades, potencialidades e necessidades. Fundamento técnico para a decisão de inclusão e plano de acompanhamento." data-custom-field-key="parecer_social" data-custom-field-type="textarea"><%= familia?.camposExtras?.parecer_social || '' %></textarea>
           </label>
-          <label class="field-wrap span-4">
-            <span class="input-label">Observações gerais</span>
-            <textarea class="input-control textarea-control" name="observacoes" rows="4" placeholder="Necessidades, contexto da família e observações de apoio..."><%= familia?.observacoes || '' %></textarea>
+          <label class="field-wrap span-2">
+            <span class="input-label">Encaminhamentos realizados</span>
+            <textarea class="input-control textarea-control" name="campoExtra_encaminhamentos" rows="3" placeholder="Ex: CRAS para CadÚnico; UBS para puericultura; CAPS..." data-custom-field-key="encaminhamentos" data-custom-field-type="textarea"><%= familia?.camposExtras?.encaminhamentos || '' %></textarea>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Plano de acompanhamento</span>
+            <textarea class="input-control textarea-control" name="campoExtra_plano_acompanhamento" rows="3" placeholder="Frequência, responsáveis, próximos passos, prazo de reavaliação." data-custom-field-key="plano_acompanhamento" data-custom-field-type="textarea"><%= familia?.camposExtras?.plano_acompanhamento || '' %></textarea>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Decisão sobre inclusão</span>
+            <select class="input-control" name="campoExtra_decisao_inclusao" data-custom-field-key="decisao_inclusao" data-custom-field-type="select">
+              <% const diAtual = familia?.camposExtras?.decisao_inclusao || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="incluido"     <%= diAtual==='incluido'?'selected':'' %>>Incluído</option>
+              <option value="em_analise"   <%= diAtual==='em_analise'?'selected':'' %>>Em análise</option>
+              <option value="aguardando"   <%= diAtual==='aguardando'?'selected':'' %>>Aguardando documentação</option>
+              <option value="encaminhado"  <%= diAtual==='encaminhado'?'selected':'' %>>Encaminhado a outro serviço</option>
+              <option value="nao_incluido" <%= diAtual==='nao_incluido'?'selected':'' %>>Não incluído</option>
+            </select>
+          </label>
+          <div class="field-wrap">
+            <span class="input-label">Prioridade</span>
+            <div class="radio-group">
+              <% const prioAtual = familia?.camposExtras?.prioridade || ''; %>
+              <label class="radio-pill <%= prioAtual==='baixa'?'is-selected':'' %>"><input type="radio" name="campoExtra_prioridade" value="baixa" <%= prioAtual==='baixa'?'checked':'' %> data-custom-field-key="prioridade" data-custom-field-type="texto" />Baixa</label>
+              <label class="radio-pill <%= prioAtual==='media'?'is-selected':'' %>"><input type="radio" name="campoExtra_prioridade" value="media" <%= prioAtual==='media'?'checked':'' %> data-custom-field-key="prioridade" data-custom-field-type="texto" />Média</label>
+              <label class="radio-pill <%= prioAtual==='alta'?'is-selected':'' %>"><input type="radio" name="campoExtra_prioridade" value="alta" <%= prioAtual==='alta'?'checked':'' %> data-custom-field-key="prioridade" data-custom-field-type="texto" />Alta</label>
+            </div>
+          </div>
+          <label class="field-wrap span-2">
+            <span class="input-label">Próxima reavaliação</span>
+            <input class="input-control" type="date" name="campoExtra_proxima_reavaliacao" value="<%= familia?.camposExtras?.proxima_reavaliacao || '' %>" data-custom-field-key="proxima_reavaliacao" data-custom-field-type="data" />
           </label>
         </div>
       </div>
     </div>
 
     <%# ════════════════════════════════════════════════ %>
-    <%# ETAPA 5 — Anexos                                %>
+    <%# ETAPA 5 — Anexos e documentos                   %>
     <%# ════════════════════════════════════════════════ %>
     <div class="wizard-panel" data-panel="5" hidden>
       <div class="wizard-panel-header">
         <div>
-          <h2 class="wizard-panel-title">Anexos</h2>
-          <p class="wizard-panel-subtitle">Documentos comprobatórios do assistido.</p>
+          <h2 class="wizard-panel-title">Anexos e documentos</h2>
+          <p class="wizard-panel-subtitle">Comprovantes, fotos e relatórios anexados ao prontuário.</p>
         </div>
-        <span class="wizard-panel-badge is-revisada" id="badge-panel-5" hidden>
-          <i class="fa-solid fa-circle-check" aria-hidden="true"></i> REVISADA
-        </span>
+        <span class="wizard-panel-badge" id="badge-panel-5" hidden></span>
+      </div>
+
+      <div class="wizard-info-notice">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>Documentos podem ser anexados a qualquer momento. O cadastro pode ser concluído sem todos os anexos — documentos pendentes ficam anotados no prontuário.</span>
       </div>
 
       <div class="form-subsection">
         <h3 class="form-subsection-title">
-          <span class="form-subsection-icon"><i class="fa-solid fa-paperclip" aria-hidden="true"></i></span>
-          Documentos
+          <span class="form-subsection-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
+          Categorias sugeridas
         </h3>
-        <div class="wizard-anexos-notice">
-          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-          <span>Upload de documentos disponível em breve. Por ora, registre abaixo quais documentos o assistido apresentou.</span>
+        <div class="upload-cards-grid">
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Documentação</span>
+              <span class="upload-card-badge is-required">OBRIGATÓRIO</span>
+            </div>
+            <p class="upload-card-desc">RG, CPF, carteirinhas, NIS, CadÚnico</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input type="file" name="anexo_documentacao" multiple accept=".pdf,.jpg,.jpeg,.png" />
+            </label>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Comprovante de residência</span>
+              <span class="upload-card-badge is-required">OBRIGATÓRIO</span>
+            </div>
+            <p class="upload-card-desc">Conta de luz/água dos últimos 3 meses</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input type="file" name="anexo_residencia" accept=".pdf,.jpg,.jpeg,.png" />
+            </label>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Comprovante de renda</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Holerite, declaração, extrato de benefício</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input type="file" name="anexo_renda" accept=".pdf,.jpg,.jpeg,.png" />
+            </label>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Documentos de saúde</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Cartões de vacinação, receitas, relatórios</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input type="file" name="anexo_saude" multiple accept=".pdf,.jpg,.jpeg,.png" />
+            </label>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Foto do assistido</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Para identificação no prontuário</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input type="file" name="anexo_foto" accept=".jpg,.jpeg,.png" />
+            </label>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Outros documentos</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Qualquer documento relevante adicional</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input type="file" name="anexo_outros" multiple accept=".pdf,.jpg,.jpeg,.png" />
+            </label>
+          </div>
         </div>
-        <div class="form-grid">
-          <label class="field-wrap span-2">
-            <span class="input-label">Documentos apresentados</span>
-            <input class="input-control" type="text" name="campoExtra_docs_apresentados" value="<%= familia?.camposExtras?.docs_apresentados || '' %>" placeholder="Ex: RG, CPF, comprovante de residência..." data-custom-field-key="docs_apresentados" data-custom-field-type="texto" />
-          </label>
-          <label class="field-wrap span-2">
-            <span class="input-label">Observações sobre documentação</span>
-            <textarea class="input-control textarea-control" name="campoExtra_obs_docs" rows="3" placeholder="Documentos pendentes, vencidos, extraviados..." data-custom-field-key="obs_docs" data-custom-field-type="textarea"><%= familia?.camposExtras?.obs_docs || '' %></textarea>
-          </label>
-        </div>
+      </div>
+
+      <div class="form-subsection" id="annexo-files-section" hidden>
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-paperclip" aria-hidden="true"></i></span>
+          <span id="annexo-files-title">Arquivos anexados (0)</span>
+        </h3>
+        <div class="annexo-files-list" id="annexo-files-list"></div>
       </div>
 
       <% if (modo === "editar") { %>
@@ -651,8 +1152,8 @@
           <label class="field-wrap">
             <span class="input-label">Assistido ativo</span>
             <select class="input-control" name="ativo" style="max-width:200px">
-              <option value="true" <%= familia?.ativo ? "selected" : "" %>>Sim</option>
-              <option value="false" <%= !familia?.ativo ? "selected" : "" %>>Não</option>
+              <option value="true"  <%= familia?.ativo?'selected':'' %>>Sim</option>
+              <option value="false" <%= !familia?.ativo?'selected':'' %>>Não</option>
             </select>
           </label>
         </div>
@@ -669,55 +1170,23 @@
           <p class="wizard-panel-subtitle">Confira os dados antes de cadastrar o assistido.</p>
         </div>
       </div>
-      <div id="resumo-content" class="resumo-wizard-grid">
-        <%# preenchido dinamicamente pelo JS %>
-      </div>
+      <div id="resumo-content" class="resumo-wizard-grid"></div>
     </div>
 
-    <%# Campos extras configurados por admins %>
+    <%# Campos extras configurados por admins (hidden panel) %>
     <% if (Array.isArray(customFields) && customFields.length) { %>
-      <div class="wizard-panel" data-panel="extra" hidden>
-        <h2 class="wizard-panel-title">Informações adicionais</h2>
-        <div class="form-grid" style="margin-top:16px">
-          <% customFields.forEach((field) => { %>
-            <% const fieldValue = familia?.camposExtras?.[field.chave]; %>
-            <% if (field.tipo === 'textarea') { %>
-              <label class="field-wrap span-2">
-                <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
-                <textarea class="input-control textarea-control" name="campoExtra_<%= field.chave %>" rows="4" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>"><%= fieldValue || '' %></textarea>
-              </label>
-            <% } else if (field.tipo === 'select') { %>
-              <label class="field-wrap">
-                <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
-                <select class="input-control" name="campoExtra_<%= field.chave %>" <%= field.obrigatorio ? 'required' : '' %> data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>">
-                  <option value="">Selecione</option>
-                  <% (field.opcoes || []).forEach((option) => { %>
-                    <option value="<%= option %>" <%= String(fieldValue || '') === String(option) ? 'selected' : '' %>><%= option %></option>
-                  <% }) %>
-                </select>
-              </label>
-            <% } else if (field.tipo === 'booleano') { %>
-              <label class="field-wrap">
-                <span class="input-label"><%= field.label %></span>
-                <select class="input-control" name="campoExtra_<%= field.chave %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>">
-                  <option value="false" <%= fieldValue === true ? '' : 'selected' %>>Não</option>
-                  <option value="true" <%= fieldValue === true ? 'selected' : '' %>>Sim</option>
-                </select>
-              </label>
-            <% } else { %>
-              <label class="field-wrap">
-                <span class="input-label"><%= field.label %><%= field.obrigatorio ? ' *' : '' %></span>
-                <input class="input-control" type="<%= field.tipo === 'numero' ? 'number' : field.tipo === 'data' ? 'date' : 'text' %>" name="campoExtra_<%= field.chave %>" value="<%= fieldValue || '' %>" <%= field.obrigatorio ? 'required' : '' %> placeholder="<%= field.placeholder || '' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" />
-              </label>
-            <% } %>
-          <% }) %>
-        </div>
-      </div>
+      <% customFields.forEach((field) => { %>
+        <% const fieldValue = familia?.camposExtras?.[field.chave]; %>
+        <% if (field.tipo === 'textarea') { %>
+          <textarea class="input-control textarea-control" name="campoExtra_<%= field.chave %>" rows="4" <%= field.obrigatorio?'required':'' %> placeholder="<%= field.placeholder||'' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" hidden><%= fieldValue||'' %></textarea>
+        <% } else if (field.tipo !== 'booleano' && field.tipo !== 'select') { %>
+          <input class="input-control" type="<%= field.tipo==='numero'?'number':field.tipo==='data'?'date':'text' %>" name="campoExtra_<%= field.chave %>" value="<%= fieldValue||'' %>" <%= field.obrigatorio?'required':'' %> data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" hidden />
+        <% } %>
+      <% }) %>
     <% } %>
 
     <div id="familia-form-feedback" class="form-feedback" hidden></div>
 
-    <%# ── Navegação do wizard ── %>
     <div class="wizard-nav">
       <div class="wizard-nav-left">
         <button type="button" class="btn btn-muted" id="wizard-prev" hidden>

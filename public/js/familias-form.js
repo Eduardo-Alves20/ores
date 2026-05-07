@@ -8,38 +8,38 @@
     const form = document.getElementById("familia-form");
     if (!form) return;
 
-    const feedback    = document.getElementById("familia-form-feedback");
-    const mode        = root.getAttribute("data-mode");
-    const familyId    = root.getAttribute("data-familia-id");
-    const initial     = parseJsonScript("familia-form-initial", null);
+    const feedback     = document.getElementById("familia-form-feedback");
+    const mode         = root.getAttribute("data-mode");
+    const familyId     = root.getAttribute("data-familia-id");
+    const initial      = parseJsonScript("familia-form-initial", null);
     const initialAtivo = initial?.ativo ?? true;
 
     // ── Wizard elements ──────────────────────────────────────────────────
-    const panels      = Array.from(form.querySelectorAll(".wizard-panel[data-panel]"));
-    const stepItems   = Array.from(document.querySelectorAll(".wizard-step-item[data-step]"));
-    const connectors  = Array.from(document.querySelectorAll(".wizard-step-connector"));
-    const totalSteps  = stepItems.length;
+    const panels     = Array.from(form.querySelectorAll(".wizard-panel[data-panel]"));
+    const stepItems  = Array.from(document.querySelectorAll(".wizard-step-item[data-step]"));
+    const connectors = Array.from(document.querySelectorAll(".wizard-step-connector"));
+    const totalSteps = stepItems.length;
     let   currentStep = 1;
 
-    const elPrev       = document.getElementById("wizard-prev");
-    const elNext       = document.getElementById("wizard-next");
-    const elSaveDraft  = document.getElementById("wizard-save-draft");
-    const elSubmit     = document.getElementById("wizard-submit");
-    const elStepLabel  = document.getElementById("wizard-step-label");
-    const elProgText   = document.getElementById("wizard-progress-text");
-    const elProgFill   = document.getElementById("wizard-progress-fill");
+    const elPrev      = document.getElementById("wizard-prev");
+    const elNext      = document.getElementById("wizard-next");
+    const elSaveDraft = document.getElementById("wizard-save-draft");
+    const elSubmit    = document.getElementById("wizard-submit");
+    const elStepLabel = document.getElementById("wizard-step-label");
+    const elProgText  = document.getElementById("wizard-progress-text");
+    const elProgFill  = document.getElementById("wizard-progress-fill");
 
     // ── Feedback ──────────────────────────────────────────────────────────
     function setFeedback(msg, type) {
-      feedback.hidden    = !msg;
+      feedback.hidden      = !msg;
       feedback.textContent = msg || "";
-      feedback.className = "form-feedback" + (type ? " is-" + type : "");
+      feedback.className   = "form-feedback" + (type ? " is-" + type : "");
     }
 
-    // ── Progress ──────────────────────────────────────────────────────────
+    // ── Progress / badges ─────────────────────────────────────────────────
     function getCompletedSteps() {
-      return panels.reduce(function (acc, panel, i) {
-        var step = parseInt(panel.getAttribute("data-panel"), 10);
+      return panels.reduce(function (acc, panel) {
+        var step     = parseInt(panel.getAttribute("data-panel"), 10);
         if (isNaN(step) || step > totalSteps) return acc;
         var required = panel.querySelectorAll("[required]");
         if (required.length === 0) return acc;
@@ -47,6 +47,13 @@
         if (allFilled) acc.push(step);
         return acc;
       }, []);
+    }
+
+    function hasAnyData(panel) {
+      var inputs = panel.querySelectorAll(
+        "input:not([type='hidden']):not([type='radio']):not([type='checkbox']):not([readonly]), select, textarea"
+      );
+      return Array.from(inputs).some(function (f) { return f.value && f.value.trim().length > 0; });
     }
 
     function updateProgress() {
@@ -64,7 +71,6 @@
         var isDone = done.includes(step) && step !== currentStep;
         item.classList.toggle("is-active", step === currentStep);
         item.classList.toggle("is-done",   isDone);
-
         var circle = item.querySelector(".wizard-step-circle");
         if (circle) {
           circle.innerHTML = isDone
@@ -73,35 +79,41 @@
         }
       });
 
-      // connector state
       connectors.forEach(function (c, i) {
         c.classList.toggle("is-done", done.includes(i + 1));
       });
 
-      // REVISADA badges
+      // Badges: REVISADA (green) / EM PREENCHIMENTO (orange)
       panels.forEach(function (panel) {
         var step  = parseInt(panel.getAttribute("data-panel"), 10);
         var badge = panel.querySelector(".wizard-panel-badge");
-        if (badge) badge.hidden = !done.includes(step);
+        if (!badge) return;
+        if (done.includes(step)) {
+          badge.hidden    = false;
+          badge.textContent = "REVISADA";
+          badge.className = "wizard-panel-badge is-revisada";
+        } else if (hasAnyData(panel)) {
+          badge.hidden    = false;
+          badge.textContent = "EM PREENCHIMENTO";
+          badge.className = "wizard-panel-badge is-em-preenchimento";
+        } else {
+          badge.hidden = true;
+        }
       });
     }
 
     // ── Navigate to step ─────────────────────────────────────────────────
     function showStep(step) {
       currentStep = step;
-
       panels.forEach(function (panel) {
         var n = parseInt(panel.getAttribute("data-panel"), 10);
         panel.hidden = n !== step;
       });
-
       if (elStepLabel) elStepLabel.textContent = "Etapa " + step + " de " + totalSteps;
       if (elPrev)   elPrev.hidden   = step === 1;
       if (elNext)   elNext.hidden   = step === totalSteps;
       if (elSubmit) elSubmit.hidden = step !== totalSteps;
-
       if (step === totalSteps) buildResumo();
-
       updateProgress();
       form.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -168,7 +180,36 @@
     }
     initRadioPills();
 
-    // ── Age / faixa calculation ───────────────────────────────────────────
+    // ── Checkbox groups ───────────────────────────────────────────────────
+    function initCheckboxGroups() {
+      form.querySelectorAll("input[type='checkbox'][data-checkbox-group]").forEach(function (cb) {
+        var option = cb.closest(".checkbox-option");
+        function refresh() {
+          if (option) option.classList.toggle("is-checked", cb.checked);
+          updateProgress();
+        }
+        cb.addEventListener("change", refresh);
+        if (cb.checked) refresh();
+      });
+    }
+    initCheckboxGroups();
+
+    function collectCheckboxGroups() {
+      var groups = {};
+      form.querySelectorAll("input[type='checkbox'][data-checkbox-group]").forEach(function (cb) {
+        var grp = cb.getAttribute("data-checkbox-group");
+        if (!grp) return;
+        if (!groups[grp]) groups[grp] = [];
+        if (cb.checked) groups[grp].push(cb.value);
+      });
+      var result = {};
+      Object.keys(groups).forEach(function (grp) {
+        result[grp] = groups[grp].join(",");
+      });
+      return result;
+    }
+
+    // ── Age calculation ───────────────────────────────────────────────────
     var dataNascInput = form.querySelector("[name='campoExtra_data_nascimento']");
     var idadeInput    = form.querySelector("[name='_idade_calculada']");
     var faixaInput    = form.querySelector("[name='_faixa_anamnese']");
@@ -183,18 +224,209 @@
       var m     = today.getMonth() - dob.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
       if (idadeInput) idadeInput.value = age + " anos";
-      if (faixaInput) {
-        if      (age < 2)  faixaInput.value = "Bebê";
-        else if (age < 12) faixaInput.value = "Criança";
-        else if (age < 18) faixaInput.value = "Adolescente";
-        else if (age < 60) faixaInput.value = "Adulto";
-        else               faixaInput.value = "Idoso";
+
+      var faixaKey = age < 18 ? "crianca" : age < 60 ? "adulto" : "idoso";
+      var faixaLabels = { crianca: "Criança / Adolescente", adulto: "Adulto", idoso: "Idoso" };
+      if (faixaInput) faixaInput.value = faixaLabels[faixaKey] || faixaKey;
+
+      var faixaRadio = form.querySelector('input[type="radio"][name="_faixa_sel"][value="' + faixaKey + '"]');
+      if (faixaRadio && !faixaRadio.checked) {
+        faixaRadio.checked = true;
+        updateFaixaPanel(faixaKey);
+        initRadioPills(); // refresh pill styles
       }
       updateProgress();
     }
 
     dataNascInput && dataNascInput.addEventListener("change", calcAge);
-    calcAge();
+
+    // ── Faixa selector (anamnese panel header) ────────────────────────────
+    var FAIXA_CONFIG = {
+      crianca: {
+        title: "Anamnese — Criança / Adolescente",
+        label: "Ficha aplicada: Criança / Adolescente (até 17 anos)",
+        desc:  "Adaptada para crianças e adolescentes. Desenvolvimento, vacinas, vida escolar e dinâmica familiar."
+      },
+      adulto: {
+        title: "Anamnese — Adulto",
+        label: "Ficha aplicada: Adulto (18–59 anos)",
+        desc:  "Sugerida automaticamente pela idade do assistido. Doenças crônicas, hábitos de vida, saúde mental, trabalho e ocupação."
+      },
+      idoso: {
+        title: "Anamnese — Idoso",
+        label: "Ficha aplicada: Idoso (60+ anos)",
+        desc:  "Adaptada para idosos. Polifarmácia, mobilidade, quedas, suporte social e condições crônicas."
+      }
+    };
+
+    function updateFaixaPanel(faixaVal) {
+      var cfg      = FAIXA_CONFIG[faixaVal] || FAIXA_CONFIG.adulto;
+      var titleEl  = document.getElementById("anamnese-panel-title");
+      var labelEl  = document.getElementById("anamnese-faixa-label");
+      var descEl   = document.getElementById("anamnese-faixa-desc");
+      if (titleEl) titleEl.textContent = cfg.title;
+      if (labelEl) labelEl.textContent = cfg.label;
+      if (descEl)  descEl.textContent  = cfg.desc;
+    }
+
+    form.querySelectorAll('input[type="radio"][name="_faixa_sel"]').forEach(function (radio) {
+      radio.addEventListener("change", function () {
+        if (radio.checked) updateFaixaPanel(radio.value);
+      });
+    });
+
+    // ── Composição familiar (CF) table ────────────────────────────────────
+    var cfRows   = [];
+    var cfRowsEl = document.getElementById("cf-rows");
+    var cfAddBtn = document.getElementById("cf-add-btn");
+
+    if (initial && initial.camposExtras && initial.camposExtras.composicao_familiar) {
+      try { cfRows = JSON.parse(initial.camposExtras.composicao_familiar); } catch (e) { cfRows = []; }
+    }
+
+    var CF_PARENTESCO = [
+      ["", "Parentesco..."],
+      ["conjuge", "Cônjuge / Companheiro(a)"], ["filho", "Filho(a)"],
+      ["pai", "Pai / Mãe"], ["irmao", "Irmão / Irmã"],
+      ["avo", "Avó / Avô"], ["neto", "Neto(a)"],
+      ["tio", "Tio(a)"], ["sobrinho", "Sobrinho(a)"], ["outro", "Outro"],
+    ];
+    var CF_ESCOLARIDADE = [
+      ["", "Escolaridade..."],
+      ["sem_instrucao", "Sem instrução"], ["fundamental_i", "Fund. I"],
+      ["fundamental_ii", "Fund. II"], ["medio", "Médio"], ["superior", "Superior"],
+    ];
+
+    function cfSelect(opts, val, cls) {
+      return '<select class="input-control input-sm ' + (cls || "") + '">' +
+        opts.map(function (o) {
+          return '<option value="' + o[0] + '"' + (o[0] === val ? " selected" : "") + ">" + o[1] + "</option>";
+        }).join("") +
+      "</select>";
+    }
+
+    function renderCfTable() {
+      if (!cfRowsEl) return;
+      if (!cfRows.length) {
+        cfRowsEl.innerHTML = '<p class="cf-empty-state" style="font-size:0.8rem;color:var(--muted);padding:10px 0;">Nenhum membro adicionado ainda.</p>';
+        calcPerCapita();
+        return;
+      }
+      cfRowsEl.innerHTML = cfRows.map(function (row, i) {
+        return (
+          '<div class="cf-table-row" data-cf-idx="' + i + '">' +
+            '<input class="input-control input-sm cf-nome" type="text" placeholder="Nome completo" value="' + escHtml(row.nome || "") + '" />' +
+            cfSelect(CF_PARENTESCO, row.parentesco || "", "cf-parentesco") +
+            '<input class="input-control input-sm cf-idade" type="text" placeholder="Ex: 8" value="' + escHtml(row.idade || "") + '" maxlength="3" />' +
+            cfSelect(CF_ESCOLARIDADE, row.escolaridade || "", "cf-escolaridade") +
+            '<input class="input-control input-sm cf-ocupacao" type="text" placeholder="Ex: Estudante" value="' + escHtml(row.ocupacao || "") + '" />' +
+            '<input class="input-control input-sm cf-renda" type="text" placeholder="R$" value="' + escHtml(row.renda || "") + '" />' +
+            '<button type="button" class="cf-delete-btn" data-cf-idx="' + i + '" aria-label="Remover membro"><i class="fa-solid fa-times"></i></button>' +
+          "</div>"
+        );
+      }).join("");
+
+      cfRowsEl.querySelectorAll(".cf-nome").forEach(function (el, i) {
+        el.addEventListener("input", function () { cfRows[i].nome = el.value; });
+      });
+      cfRowsEl.querySelectorAll(".cf-parentesco").forEach(function (el, i) {
+        el.addEventListener("change", function () { cfRows[i].parentesco = el.value; });
+      });
+      cfRowsEl.querySelectorAll(".cf-idade").forEach(function (el, i) {
+        el.addEventListener("input", function () { cfRows[i].idade = el.value; calcPerCapita(); });
+      });
+      cfRowsEl.querySelectorAll(".cf-escolaridade").forEach(function (el, i) {
+        el.addEventListener("change", function () { cfRows[i].escolaridade = el.value; });
+      });
+      cfRowsEl.querySelectorAll(".cf-ocupacao").forEach(function (el, i) {
+        el.addEventListener("input", function () { cfRows[i].ocupacao = el.value; });
+      });
+      cfRowsEl.querySelectorAll(".cf-renda").forEach(function (el, i) {
+        el.addEventListener("input", function () { cfRows[i].renda = el.value; });
+      });
+      cfRowsEl.querySelectorAll(".cf-delete-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var idx = parseInt(btn.getAttribute("data-cf-idx"), 10);
+          cfRows.splice(idx, 1);
+          renderCfTable();
+        });
+      });
+
+      calcPerCapita();
+    }
+
+    cfAddBtn && cfAddBtn.addEventListener("click", function () {
+      cfRows.push({ nome: "", parentesco: "", idade: "", escolaridade: "", ocupacao: "", renda: "" });
+      renderCfTable();
+    });
+
+    renderCfTable();
+
+    // ── Per capita calculation ────────────────────────────────────────────
+    var rendaFamiliarInput    = document.getElementById("renda_familiar_total_input");
+    var rendaPerCapitaDisplay = document.getElementById("renda_per_capita_display");
+
+    function parseBRL(str) {
+      if (!str) return 0;
+      return parseFloat(String(str).replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", ".")) || 0;
+    }
+
+    function calcPerCapita() {
+      if (!rendaPerCapitaDisplay) return;
+      var renda       = parseBRL(rendaFamiliarInput && rendaFamiliarInput.value);
+      var totalPessoas = 1 + cfRows.length;
+      if (renda <= 0) { rendaPerCapitaDisplay.value = ""; return; }
+      var perCapita = renda / totalPessoas;
+      rendaPerCapitaDisplay.value = "R$ " + perCapita.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    rendaFamiliarInput && rendaFamiliarInput.addEventListener("input", calcPerCapita);
+
+    // ── Upload cards / file preview ───────────────────────────────────────
+    var uploadedFiles  = [];
+    var annexoSection  = document.getElementById("annexo-files-section");
+    var annexoList     = document.getElementById("annexo-files-list");
+    var annexoTitle    = document.getElementById("annexo-files-title");
+
+    function refreshAnnexoList() {
+      if (!annexoList) return;
+      if (!uploadedFiles.length) {
+        if (annexoSection) annexoSection.hidden = true;
+        return;
+      }
+      if (annexoSection) annexoSection.hidden = false;
+      if (annexoTitle) annexoTitle.textContent = "Arquivos anexados (" + uploadedFiles.length + ")";
+      annexoList.innerHTML = uploadedFiles.map(function (f, i) {
+        var kb  = Math.round(f.size / 1024);
+        var str = kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB";
+        return (
+          '<div class="annexo-file-item" data-file-idx="' + i + '">' +
+            '<i class="fa-solid fa-file-lines annexo-file-icon"></i>' +
+            '<div class="annexo-file-info">' +
+              '<span class="annexo-file-name">' + escHtml(f.name) + '</span>' +
+              '<span class="annexo-file-size">' + str + '</span>' +
+            "</div>" +
+            '<button type="button" class="annexo-file-remove" aria-label="Remover"><i class="fa-solid fa-times"></i></button>' +
+          "</div>"
+        );
+      }).join("");
+
+      annexoList.querySelectorAll(".annexo-file-remove").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var idx = parseInt(btn.closest("[data-file-idx]").getAttribute("data-file-idx"), 10);
+          uploadedFiles.splice(idx, 1);
+          refreshAnnexoList();
+        });
+      });
+    }
+
+    form.querySelectorAll(".upload-card-input").forEach(function (fileInput) {
+      fileInput.addEventListener("change", function () {
+        Array.from(fileInput.files).forEach(function (f) { uploadedFiles.push(f); });
+        fileInput.value = "";
+        refreshAnnexoList();
+      });
+    });
 
     // ── Collect payload ───────────────────────────────────────────────────
     function collectPayload() {
@@ -205,19 +437,23 @@
         var key  = String(field.getAttribute("data-custom-field-key") || "").trim();
         var type = String(field.getAttribute("data-custom-field-type") || "texto").trim();
         if (!key) return;
-
         if (field.type === "radio") {
           if (!field.checked) return;
+          if (seen[key]) return;
         }
-        if (seen[key] && field.type === "radio") return;
         seen[key] = true;
-
-        if (type === "booleano") {
-          camposExtras[key] = String(field.value || "").trim() === "true";
-          return;
-        }
-        camposExtras[key] = String(field.value || "").trim();
+        camposExtras[key] = type === "booleano"
+          ? String(field.value || "").trim() === "true"
+          : String(field.value || "").trim();
       });
+
+      // Merge checkbox groups
+      Object.assign(camposExtras, collectCheckboxGroups());
+
+      // Composição familiar as JSON
+      if (cfRows.length > 0) {
+        camposExtras.composicao_familiar = JSON.stringify(cfRows);
+      }
 
       return {
         responsavel: {
@@ -235,15 +471,14 @@
           estado:      ((form.elements.endereco_estado      || {}).value || "").trim().toUpperCase(),
           complemento: ((form.elements.endereco_complemento || {}).value || "").trim(),
         },
-        observacoes: ((form.elements.observacoes || {}).value || "").trim(),
-        camposExtras: camposExtras,
+        observacoes:  ((form.elements.observacoes || {}).value || "").trim(),
+        camposExtras,
       };
     }
 
     // ── Save ──────────────────────────────────────────────────────────────
     async function save(redirectAfter) {
       var payload = collectPayload();
-
       if (!payload.responsavel.nome || !payload.responsavel.telefone) {
         setFeedback("Preencha nome e telefone do assistido (Etapa 1).", "error");
         if (currentStep !== 1) showStep(1);
@@ -257,7 +492,6 @@
 
       try {
         var targetId = familyId;
-
         if (mode === "editar" && familyId) {
           await requestJson("/api/familias/" + familyId, { method: "PUT", body: payload });
           var nextAtivo = form.elements.ativo ? form.elements.ativo.value === "true" : initialAtivo;
@@ -296,15 +530,21 @@
       await save(true);
     });
 
-    // ── Progress on any change ────────────────────────────────────────────
     form.addEventListener("input",  updateProgress);
     form.addEventListener("change", updateProgress);
 
-    // ── Resumo builder ────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
     function label(val) {
       return val && String(val).trim() ? String(val).trim() : null;
     }
 
+    // ── Resumo builder ────────────────────────────────────────────────────
     var LABELS_SEXO = {
       masculino: "Masculino", feminino: "Feminino",
       intersexo: "Intersexo", nao_informado: "Não informado"
@@ -331,29 +571,39 @@
       var cx = p.camposExtras || {};
       var e  = p.endereco    || {};
 
+      var cfSection = { icon: "fa-people-roof", title: "Composição familiar", fields: [] };
+      if (cfRows.length > 0) {
+        cfRows.forEach(function (row, i) {
+          var details = [row.parentesco, row.idade ? row.idade + " anos" : null, row.ocupacao].filter(Boolean).join(" · ");
+          cfSection.fields.push([row.nome || ("Membro " + (i + 1)), details || null]);
+        });
+      } else {
+        cfSection.fields.push(["Membros", null]);
+      }
+
       var sections = [
         {
           icon: "fa-id-card",
           title: "Identificação",
           fields: [
-            ["Nome completo",    label(p.responsavel.nome)],
-            ["Nome social",      label(cx.nome_social)],
-            ["CPF",              label(cx.cpf)],
-            ["RG",               label(cx.rg ? cx.rg + (cx.orgao_emissor ? " — " + cx.orgao_emissor : "") : null)],
-            ["Data de nasc.",    label(cx.data_nascimento)],
-            ["Idade",            idadeInput ? label(idadeInput.value) : null],
-            ["Faixa",            faixaInput ? label(faixaInput.value) : null],
+            ["Nome completo", label(p.responsavel.nome)],
+            ["Nome social",   label(cx.nome_social)],
+            ["CPF",           label(cx.cpf)],
+            ["RG",            label(cx.rg ? cx.rg + (cx.orgao_emissor ? " — " + cx.orgao_emissor : "") : null)],
+            ["Data de nasc.", label(cx.data_nascimento)],
+            ["Idade",         idadeInput ? label(idadeInput.value) : null],
+            ["Faixa etária",  faixaInput ? label(faixaInput.value) : null],
           ],
         },
         {
           icon: "fa-person",
           title: "Características pessoais",
           fields: [
-            ["Sexo biológico",       humanize(LABELS_SEXO, cx.sexo_biologico)],
-            ["Estado civil",         humanize(LABELS_ESTADO_CIVIL, cx.estado_civil)],
-            ["Cor / raça",           label(cx.cor_raca)],
-            ["Naturalidade",         label(cx.naturalidade)],
-            ["Nacionalidade",        label(cx.nacionalidade)],
+            ["Sexo biológico", humanize(LABELS_SEXO, cx.sexo_biologico)],
+            ["Estado civil",   humanize(LABELS_ESTADO_CIVIL, cx.estado_civil)],
+            ["Cor / raça",     label(cx.cor_raca)],
+            ["Naturalidade",   label(cx.naturalidade)],
+            ["Nacionalidade",  label(cx.nacionalidade)],
           ],
         },
         {
@@ -370,31 +620,32 @@
           icon: "fa-location-dot",
           title: "Endereço",
           fields: [
-            ["Logradouro", [e.rua, e.numero, e.complemento].filter(Boolean).join(", ") || null],
-            ["Bairro",     label(e.bairro)],
-            ["Cidade / UF",[e.cidade, e.estado].filter(Boolean).join(" / ") || null],
-            ["CEP",        label(e.cep)],
+            ["Logradouro",      [e.rua, e.numero, e.complemento].filter(Boolean).join(", ") || null],
+            ["Bairro",          label(e.bairro)],
+            ["Cidade / UF",     [e.cidade, e.estado].filter(Boolean).join(" / ") || null],
+            ["CEP",             label(e.cep)],
             ["Tipo de moradia", humanize(LABELS_MORADIA, cx.tipo_moradia)],
           ],
         },
+        cfSection,
         {
           icon: "fa-coins",
           title: "Situação socioeconômica",
           fields: [
             ["Situação de trabalho", label(cx.situacao_trabalho)],
             ["Escolaridade",         label(cx.escolaridade)],
-            ["Renda individual",     cx.renda_individual ? "R$ " + cx.renda_individual : null],
-            ["Renda familiar",       cx.renda_familiar   ? "R$ " + cx.renda_familiar   : null],
-            ["Nº pessoas na casa",   label(cx.pessoas_residencia)],
-            ["Benefícios",           label(cx.beneficios)],
+            ["Renda familiar",       cx.renda_familiar ? "R$ " + cx.renda_familiar : null],
+            ["Renda per capita",     rendaPerCapitaDisplay ? label(rendaPerCapitaDisplay.value) : null],
+            ["Benefícios sociais",   cx.beneficios_sociais ? cx.beneficios_sociais.split(",").join(", ") : null],
           ],
         },
         {
           icon: "fa-clipboard-list",
           title: "Diagnóstico social",
           fields: [
+            ["Hipótese diagnóstica", label(cx.hipotese_diagnostica)],
             ["Principal demanda",    label(cx.demanda_principal)],
-            ["CRAS / CREAS",         label(cx.cras_referencia)],
+            ["Vulnerabilidades",     cx.vulnerabilidades ? cx.vulnerabilidades.split(",").join(", ") : null],
             ["Observações gerais",   label(p.observacoes)],
           ],
         },
@@ -408,18 +659,18 @@
             '<h3 class="resumo-secao-title">' +
               '<span class="form-subsection-icon"><i class="fa-solid ' + sec.icon + '" aria-hidden="true"></i></span>' +
               sec.title +
-            '</h3>' +
+            "</h3>" +
             '<div class="resumo-secao-grid">' +
               rows.map(function (row) {
                 return (
                   '<div class="resumo-campo">' +
-                    '<span class="resumo-campo-label">' + row[0] + '</span>' +
-                    '<span class="resumo-campo-value">' + row[1] + '</span>' +
-                  '</div>'
+                    '<span class="resumo-campo-label">' + row[0] + "</span>" +
+                    '<span class="resumo-campo-value">' + row[1] + "</span>" +
+                  "</div>"
                 );
               }).join("") +
-            '</div>' +
-          '</div>'
+            "</div>" +
+          "</div>"
         );
       }).join("");
     }

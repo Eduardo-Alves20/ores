@@ -1650,3 +1650,372 @@
     font-size: 0.95rem;
   }
 }
+
+/* ══════════════════════════════════════════════════════
+   WIZARD EXTRAS — Anamnese, Entrevista, Anexos
+   ══════════════════════════════════════════════════════ */
+
+/* ── "EM PREENCHIMENTO" badge ── */
+.wizard-panel-badge.is-em-preenchimento {
+  background: #fff8e7;
+  color: #9a6b00;
+  border: 1px solid #f5d87a;
+}
+
+/* ── Informational notice banner ── */
+.wizard-info-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fffbf0;
+  border: 1px solid #f0dfa0;
+  color: #7a5a00;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.55;
+  margin-bottom: 22px;
+}
+
+.wizard-info-notice i { flex-shrink: 0; margin-top: 2px; color: #b08700; }
+
+/* ── Faixa etária selector bar (Anamnese) ── */
+.anamnese-faixa-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+
+.anamnese-faixa-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.anamnese-faixa-info-icon {
+  font-size: 1.1rem;
+  color: var(--success);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.anamnese-faixa-info-text strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.anamnese-faixa-info-text p {
+  margin: 3px 0 0;
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── Checkbox grid ── */
+.checkbox-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--panel);
+  transition: border-color 0.15s ease, background 0.15s ease;
+  user-select: none;
+}
+
+.checkbox-option:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.checkbox-option input[type="checkbox"] { display: none; }
+
+.checkbox-check {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line-strong);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  color: transparent;
+  transition: all 0.15s ease;
+  background: var(--panel);
+}
+
+.checkbox-option.is-checked .checkbox-check {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.checkbox-option.is-checked {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  color: var(--brand);
+  font-weight: 700;
+}
+
+/* ── Composition familiar table ── */
+.cf-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.cf-table-header,
+.cf-table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 0.55fr 1.3fr 1.2fr 0.7fr 32px;
+  gap: 6px;
+  align-items: center;
+}
+
+.cf-table-header {
+  padding: 6px 2px 10px;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 6px;
+}
+
+.cf-table-header span {
+  font-size: 0.67rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.cf-table-row { margin-bottom: 6px; }
+
+.input-sm {
+  padding: 8px 10px;
+  font-size: 0.8rem;
+}
+
+.cf-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-top: 10px;
+  width: 100%;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--brand);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.cf-add-btn:hover {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+
+.cf-delete-btn {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: color 0.14s ease, background 0.14s ease;
+}
+
+.cf-delete-btn:hover { color: var(--danger); background: #fff0ee; }
+
+.cf-renda-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.field-wrap-readonly .input-control {
+  background: var(--panel-soft);
+  color: var(--brand);
+  font-weight: 700;
+}
+
+/* ── Upload cards ── */
+.upload-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.upload-card {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.upload-card-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.upload-card-badge {
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.upload-card-badge.is-required {
+  background: #fff0ee;
+  color: #9c3927;
+  border: 1px solid #f5c0b4;
+}
+
+.upload-card-badge.is-optional {
+  background: var(--panel-soft);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.upload-card-desc {
+  padding: 8px 14px 0;
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.upload-card-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 22px 16px 18px;
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.16s ease;
+  border: 0;
+  background: transparent;
+  width: 100%;
+}
+
+.upload-card-drop:hover { background: var(--brand-soft); }
+
+.upload-card-drop i { font-size: 1.5rem; color: var(--muted); margin-bottom: 4px; }
+.upload-card-drop span { font-size: 0.82rem; font-weight: 700; color: var(--brand); text-decoration: underline; }
+.upload-card-drop small { font-size: 0.72rem; color: var(--muted); }
+.upload-card-drop input[type="file"] { display: none; }
+
+/* ── Attached files list ── */
+.annexo-section-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+
+.annexo-files-list { display: grid; gap: 8px; }
+
+.annexo-file-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.annexo-file-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  flex-shrink: 0;
+}
+
+.annexo-file-info { flex: 1; min-width: 0; }
+
+.annexo-file-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.annexo-file-meta {
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.annexo-file-actions { display: flex; gap: 4px; }
+
+/* ── Responsive extras ── */
+@media (max-width: 900px) {
+  .checkbox-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .upload-cards-grid { grid-template-columns: 1fr; }
+  .cf-renda-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .anamnese-faixa-bar { flex-direction: column; align-items: stretch; }
+  .checkbox-grid { grid-template-columns: 1fr; }
+  .cf-table-header { display: none; }
+  .cf-table-row { grid-template-columns: 1fr 1fr; }
+  .cf-renda-grid { grid-template-columns: 1fr; }
+}
