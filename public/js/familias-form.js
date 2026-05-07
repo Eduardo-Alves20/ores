@@ -134,10 +134,6 @@
 
     // ── Navigation listeners ─────────────────────────────────────────────
     elNext && elNext.addEventListener("click", function () {
-      if (!validateStep(currentStep)) {
-        setFeedback("Preencha os campos obrigatórios antes de avançar.", "error");
-        return;
-      }
       setFeedback("", "");
       if (currentStep < totalSteps) showStep(currentStep + 1);
     });

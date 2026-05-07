@@ -100,7 +100,7 @@
         <div class="form-grid">
           <label class="field-wrap span-2">
             <span class="input-label">Nome completo *</span>
-            <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" required placeholder="Nome completo do assistido" />
+            <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" placeholder="Nome completo do assistido" />
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Nome social</span>
@@ -108,7 +108,7 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">CPF *</span>
-            <input class="input-control" type="text" name="campoExtra_cpf" value="<%= familia?.camposExtras?.cpf || '' %>" placeholder="123.456.789-00" required data-custom-field-key="cpf" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_cpf" value="<%= familia?.camposExtras?.cpf || '' %>" placeholder="123.456.789-00" data-custom-field-key="cpf" data-custom-field-type="texto" />
           </label>
           <label class="field-wrap">
             <span class="input-label">RG</span>
@@ -120,7 +120,7 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">Data de nascimento *</span>
-            <input class="input-control" type="date" name="campoExtra_data_nascimento" value="<%= familia?.camposExtras?.data_nascimento || '' %>" required data-custom-field-key="data_nascimento" data-custom-field-type="data" />
+            <input class="input-control" type="date" name="campoExtra_data_nascimento" value="<%= familia?.camposExtras?.data_nascimento || '' %>" data-custom-field-key="data_nascimento" data-custom-field-type="data" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Idade (calculada)</span>
@@ -208,7 +208,7 @@
         <div class="form-grid">
           <label class="field-wrap">
             <span class="input-label">Telefone principal *</span>
-            <input class="input-control" type="text" name="responsavel_telefone" value="<%= familia?.responsavel?.telefone || '' %>" required placeholder="(11) 99999-9999" />
+            <input class="input-control" type="text" name="responsavel_telefone" value="<%= familia?.responsavel?.telefone || '' %>" placeholder="(11) 99999-9999" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Telefone secundário</span>
@@ -292,15 +292,15 @@
         <div class="form-grid">
           <label class="field-wrap">
             <span class="input-label">CEP *</span>
-            <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" required placeholder="00000-000" />
+            <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" placeholder="00000-000" />
           </label>
           <label class="field-wrap span-3">
             <span class="input-label">Logradouro *</span>
-            <input class="input-control" type="text" name="endereco_rua" value="<%= familia?.endereco?.rua || '' %>" required placeholder="Rua, avenida, travessa..." />
+            <input class="input-control" type="text" name="endereco_rua" value="<%= familia?.endereco?.rua || '' %>" placeholder="Rua, avenida, travessa..." />
           </label>
           <label class="field-wrap">
             <span class="input-label">Número *</span>
-            <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" required placeholder="Ex: 142" />
+            <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" placeholder="Ex: 142" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Complemento</span>
@@ -312,11 +312,11 @@
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Bairro *</span>
-            <input class="input-control" type="text" name="endereco_bairro" value="<%= familia?.endereco?.bairro || '' %>" required placeholder="Bairro" />
+            <input class="input-control" type="text" name="endereco_bairro" value="<%= familia?.endereco?.bairro || '' %>" placeholder="Bairro" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Cidade *</span>
-            <input class="input-control" type="text" name="endereco_cidade" value="<%= familia?.endereco?.cidade || '' %>" required placeholder="São Paulo" />
+            <input class="input-control" type="text" name="endereco_cidade" value="<%= familia?.endereco?.cidade || '' %>" placeholder="São Paulo" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Estado *</span>
@@ -428,7 +428,7 @@
         <div class="form-grid">
           <label class="field-wrap span-4">
             <span class="input-label">Queixa principal / motivo da procura *</span>
-            <textarea class="input-control textarea-control" name="campoExtra_queixa_principal" rows="3" required placeholder="Descreva com as palavras do próprio assistido sempre que possível." data-custom-field-key="queixa_principal" data-custom-field-type="textarea"><%= familia?.camposExtras?.queixa_principal || '' %></textarea>
+            <textarea class="input-control textarea-control" name="campoExtra_queixa_principal" rows="3" placeholder="Descreva com as palavras do próprio assistido sempre que possível." data-custom-field-key="queixa_principal" data-custom-field-type="textarea"><%= familia?.camposExtras?.queixa_principal || '' %></textarea>
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Estado geral percebido</span>
@@ -723,7 +723,7 @@
         <div class="form-grid">
           <label class="field-wrap">
             <span class="input-label">Data da entrevista *</span>
-            <input class="input-control" type="date" name="campoExtra_data_entrevista" value="<%= familia?.camposExtras?.data_entrevista || new Date().toISOString().slice(0,10) %>" required data-custom-field-key="data_entrevista" data-custom-field-type="data" />
+            <input class="input-control" type="date" name="campoExtra_data_entrevista" value="<%= familia?.camposExtras?.data_entrevista || new Date().toISOString().slice(0,10) %>" data-custom-field-key="data_entrevista" data-custom-field-type="data" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Local</span>
@@ -751,7 +751,7 @@
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Profissional responsável *</span>
-            <input class="input-control" type="text" name="campoExtra_profissional_entrevista" value="<%= familia?.camposExtras?.profissional_entrevista || '' %>" required placeholder="Nome do profissional" data-custom-field-key="profissional_entrevista" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_profissional_entrevista" value="<%= familia?.camposExtras?.profissional_entrevista || '' %>" placeholder="Nome do profissional" data-custom-field-key="profissional_entrevista" data-custom-field-type="texto" />
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Pessoa(s) presente(s)</span>
@@ -988,11 +988,11 @@
         <div class="form-grid">
           <label class="field-wrap span-4">
             <span class="input-label">Demanda apresentada pela família *</span>
-            <textarea class="input-control textarea-control" name="campoExtra_demanda_familia" rows="3" required placeholder="O que a família busca / pede ao serviço, em suas próprias palavras." data-custom-field-key="demanda_familia" data-custom-field-type="textarea"><%= familia?.camposExtras?.demanda_familia || '' %></textarea>
+            <textarea class="input-control textarea-control" name="campoExtra_demanda_familia" rows="3" placeholder="O que a família busca / pede ao serviço, em suas próprias palavras." data-custom-field-key="demanda_familia" data-custom-field-type="textarea"><%= familia?.camposExtras?.demanda_familia || '' %></textarea>
           </label>
           <label class="field-wrap span-4">
             <span class="input-label">Análise técnica / parecer social *</span>
-            <textarea class="input-control textarea-control" name="campoExtra_parecer_social" rows="5" required placeholder="Síntese da entrevista articulando contexto, vulnerabilidades, potencialidades e necessidades. Fundamento técnico para a decisão de inclusão e plano de acompanhamento." data-custom-field-key="parecer_social" data-custom-field-type="textarea"><%= familia?.camposExtras?.parecer_social || '' %></textarea>
+            <textarea class="input-control textarea-control" name="campoExtra_parecer_social" rows="5" placeholder="Síntese da entrevista articulando contexto, vulnerabilidades, potencialidades e necessidades. Fundamento técnico para a decisão de inclusão e plano de acompanhamento." data-custom-field-key="parecer_social" data-custom-field-type="textarea"><%= familia?.camposExtras?.parecer_social || '' %></textarea>
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Encaminhamentos realizados</span>
@@ -1178,9 +1178,9 @@
       <% customFields.forEach((field) => { %>
         <% const fieldValue = familia?.camposExtras?.[field.chave]; %>
         <% if (field.tipo === 'textarea') { %>
-          <textarea class="input-control textarea-control" name="campoExtra_<%= field.chave %>" rows="4" <%= field.obrigatorio?'required':'' %> placeholder="<%= field.placeholder||'' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" hidden><%= fieldValue||'' %></textarea>
+          <textarea class="input-control textarea-control" name="campoExtra_<%= field.chave %>" rows="4" placeholder="<%= field.placeholder||'' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" hidden><%= fieldValue||'' %></textarea>
         <% } else if (field.tipo !== 'booleano' && field.tipo !== 'select') { %>
-          <input class="input-control" type="<%= field.tipo==='numero'?'number':field.tipo==='data'?'date':'text' %>" name="campoExtra_<%= field.chave %>" value="<%= fieldValue||'' %>" <%= field.obrigatorio?'required':'' %> data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" hidden />
+          <input class="input-control" type="<%= field.tipo==='numero'?'number':field.tipo==='data'?'date':'text' %>" name="campoExtra_<%= field.chave %>" value="<%= fieldValue||'' %>" data-custom-field-key="<%= field.chave %>" data-custom-field-type="<%= field.tipo %>" hidden />
         <% } %>
       <% }) %>
     <% } %>
