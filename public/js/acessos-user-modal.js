@@ -374,10 +374,10 @@
 
     function setModalTexts(mode) {
       const isEdit = mode === "edit";
-      const volunteerFlow = defaultTipoCadastro === "voluntario" && isWizardLayout;
+      const isVolunteerContext = defaultTipoCadastro === "voluntario";
 
       if (titleEl) {
-        titleEl.textContent = volunteerFlow
+        titleEl.textContent = isVolunteerContext
           ? isEdit
             ? "Editar voluntario"
             : "Criar voluntario"
@@ -387,10 +387,10 @@
       }
 
       if (descriptionEl) {
-        descriptionEl.textContent = volunteerFlow
+        descriptionEl.textContent = isVolunteerContext
           ? isEdit
-            ? "Atualize o cadastro por etapas. A navegacao acompanha o ponto atual e a senha continua separada no bloco final."
-            : "Monte o cadastro do voluntario em etapas, com progresso visivel e revisao de acesso so no final."
+            ? "Atualize os dados no mesmo formato simples do cadastro externo."
+            : "Use o mesmo formulario simples do cadastro externo para registrar o voluntario internamente."
           : isEdit
             ? "Atualize os dados do acesso selecionado. Se precisar trocar a senha, use o botao de redefinicao com motivo de auditoria."
             : "Preencha os dados abaixo para liberar um novo acesso manualmente.";
@@ -403,10 +403,10 @@
       }
 
       if (submitButton) {
-        submitButton.textContent = volunteerFlow
+        submitButton.textContent = isVolunteerContext
           ? isEdit
             ? "Salvar alteracoes"
-            : "Criar voluntario"
+            : "Enviar cadastro"
           : isEdit
             ? "Salvar alteracoes"
             : "Salvar usuario";
@@ -467,9 +467,14 @@
       }
 
       if (hint) {
-        hint.textContent = isPortalUser
-          ? "Usuarios do portal podem nascer aprovados, pendentes ou rejeitados. Se o perfil for usuario, o nivel do voluntario aparece aqui."
-          : "Perfis internos sao aprovados automaticamente. Se criar ou editar admin_ORES, atendente ou tecnico, ele pode nao aparecer nesta listagem filtrada.";
+        if (defaultTipoCadastro === "voluntario") {
+          hint.textContent =
+            "Cadastro simplificado como no formulario externo. O acesso permanece pendente para aprovacao administrativa.";
+        } else {
+          hint.textContent = isPortalUser
+            ? "Usuarios do portal podem nascer aprovados, pendentes ou rejeitados. Se o perfil for usuario, o nivel do voluntario aparece aqui."
+            : "Perfis internos sao aprovados automaticamente. Se criar ou editar admin_ORES, atendente ou tecnico, ele pode nao aparecer nesta listagem filtrada.";
+        }
       }
 
       Object.keys(secureUploadState).forEach((kind) => {
