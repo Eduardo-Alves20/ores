@@ -488,7 +488,6 @@
             <input type="hidden" name="papelAprovacao" value="membro" />
             <input type="hidden" name="statusAprovacao" value="pendente" />
             <input type="hidden" name="ativo" value="false" />
-            <input type="hidden" name="nivelAcessoVoluntario" value="" />
             <input type="hidden" name="cpf" value="" />
             <input type="hidden" name="telefone" value="" />
 
@@ -529,6 +528,16 @@
                   <option value="Fonoaudiologia">Fonoaudiologia</option>
                   <option value="Musicoterapeuta">Musicoterapeuta</option>
                   <option value="Servico Social">Servico Social</option>
+                </select>
+              </label>
+
+              <label class="field-wrap span-2" data-create-user-access-wrap>
+                <span class="input-label">Perfil de acesso no sistema *</span>
+                <select class="input-control" name="nivelAcessoVoluntario" required>
+                  <option value="">Selecione o perfil de acesso</option>
+                  <% (volunteerAccessOptions || []).forEach((option) => { %>
+                    <option value="<%= option.value %>"><%= option.label %></option>
+                  <% }) %>
                 </select>
               </label>
 
