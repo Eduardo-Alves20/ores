@@ -59,6 +59,7 @@
   }
 
   const SIGNUP_FIELD_ALIASES = {
+    funcao: ["funcao_na_ong", "funcaoNaOng"],
     habilidades: ["nome_atividade"],
     experiencia: ["descricao_atividade"],
     disponibilidade: ["objetivo_geral"],

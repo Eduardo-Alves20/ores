@@ -14,6 +14,7 @@
     : "status-pending";
 
   const statusAcessoClass = u.ativo ? "status-active" : "status-inactive";
+  const suggestedLevel = String(u.nivelAcessoVoluntario || u.nivelAcessoVoluntarioSugerido || "").trim();
 
   const tabs = [
     { key: "identificacao", label: "Identificacao" },
@@ -193,10 +194,13 @@
                   <select class="input-control" data-ficha-approve-level>
                     <option value="">Escolha o nivel</option>
                     <% (volunteerAccessOptions || []).forEach((opt) => { %>
-                      <option value="<%= opt.value %>"><%= opt.label %></option>
+                      <option value="<%= opt.value %>" <%= suggestedLevel === opt.value ? 'selected' : '' %>><%= opt.label %></option>
                     <% }) %>
                   </select>
                 </label>
+                <% if (u.nivelAcessoVoluntarioSugeridoLabel) { %>
+                  <small class="acesso-row-hint">Sugestao com base no cadastro: <strong><%= u.nivelAcessoVoluntarioSugeridoLabel %></strong></small>
+                <% } %>
               </div>
             <% } %>
             <div class="ficha-admin-btns">
@@ -333,6 +337,22 @@
     data-ficha-panel="atividade"
     hidden
   >
+    <section class="ficha-section">
+      <h2 class="ficha-section-title">Dados enviados no cadastro</h2>
+      <% if (Array.isArray(u.dadosCadastroCampos) && u.dadosCadastroCampos.length) { %>
+        <div class="ficha-data-grid">
+          <% u.dadosCadastroCampos.forEach((item) => { %>
+            <div class="ficha-data-item">
+              <span class="ficha-data-label"><%= item.label || item.key || "Campo" %></span>
+              <span class="ficha-data-value"><%= item.value || "-" %></span>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="ficha-empty-state">Nenhum campo adicional foi informado no cadastro.</p>
+      <% } %>
+    </section>
+
     <section class="ficha-section">
       <h2 class="ficha-section-title">Historico de Decisoes</h2>
       <% if (u.rejeicoesComMotivo && u.rejeicoesComMotivo.length) { %>

@@ -241,11 +241,48 @@ function normalizeSignupDataSource(value) {
     return {};
   }
 
-  if (value instanceof Map) {
-    return Object.fromEntries(value.entries());
-  }
+  const source = value instanceof Map ? Object.fromEntries(value.entries()) : value;
+  const normalized = { ...source };
 
-  return value;
+  // Mantem compatibilidade entre chaves antigas e novas do fluxo de voluntarios.
+  const aliases = [
+    ["funcao_na_ong", ["funcaoNaOng", "funcao"]],
+    ["funcao", ["funcao_na_ong", "funcaoNaOng"]],
+    ["data_nascimento", ["dataNascimento", "nascimento"]],
+    ["telefone", ["celular", "whatsapp"]],
+  ];
+
+  aliases.forEach(([targetKey, sourceKeys]) => {
+    const directValue = String(normalized?.[targetKey] ?? "").trim();
+    if (directValue) return;
+
+    const fallback = sourceKeys
+      .map((key) => String(source?.[key] ?? "").trim())
+      .find(Boolean);
+
+    if (fallback) {
+      normalized[targetKey] = fallback;
+    }
+  });
+
+  return normalized;
+}
+
+function suggestVolunteerAccessLevelFromSignup(dadosCadastro) {
+  const source = normalizeSignupDataSource(dadosCadastro);
+  const funcaoRaw = String(
+    source?.funcao_na_ong || source?.funcao || source?.funcaoNaOng || ""
+  )
+    .trim()
+    .toLowerCase();
+
+  if (!funcaoRaw) return "";
+
+  if (funcaoRaw.includes("servico social")) return "servico_social";
+  if (funcaoRaw.includes("captacao")) return "captacao";
+  if (funcaoRaw.includes("diretoria") || funcaoRaw.includes("diretor")) return "diretoria";
+
+  return "voluntario_atendimento";
 }
 
 function formatSignupFieldLabel(key) {
@@ -280,21 +317,37 @@ function formatSignupFieldLabel(key) {
 
 function buildSignupFields(dadosCadastro) {
   const source = normalizeSignupDataSource(dadosCadastro);
+  const seenCanonicalKeys = new Set();
 
   return Object.entries(source)
     .map(([key, value]) => {
       const normalizedKey = String(key || "").trim();
       if (!normalizedKey) return null;
 
+      const canonicalKey = (() => {
+        if (["funcao", "funcao_na_ong", "funcaoNaOng"].includes(normalizedKey)) {
+          return "funcao_na_ong";
+        }
+        if (["dataNascimento", "nascimento", "data_nascimento"].includes(normalizedKey)) {
+          return "data_nascimento";
+        }
+        return normalizedKey;
+      })();
+
+      if (seenCanonicalKeys.has(canonicalKey)) {
+        return null;
+      }
+
       const text = Array.isArray(value)
         ? value.map((item) => String(item || "").trim()).filter(Boolean).join(", ")
         : String(value ?? "").trim();
 
       if (!text) return null;
+      seenCanonicalKeys.add(canonicalKey);
 
       return {
-        key: normalizedKey,
-        label: formatSignupFieldLabel(normalizedKey),
+        key: canonicalKey,
+        label: formatSignupFieldLabel(canonicalKey),
         value: text,
       };
     })
@@ -309,6 +362,7 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
   const attachments = sanitizeProtectedAttachmentBundleForClient(doc?.anexosProtegidos || {});
   const dadosCadastroResumo = buildSignupSummary(doc?.dadosCadastro);
   const dadosCadastroCampos = buildSignupFields(doc?.dadosCadastro);
+  const nivelAcessoVoluntarioSugerido = suggestVolunteerAccessLevelFromSignup(doc?.dadosCadastro);
   const userId = String(doc?._id || "").trim();
 
   if (attachments.documentoIdentidade) {
@@ -330,6 +384,8 @@ async function mapApprovalDetail(usuario, actorId = null, electorate = null) {
     statusAprovacaoLabel: statusLabel(doc?.statusAprovacao),
     nivelAcessoVoluntario: doc?.nivelAcessoVoluntario || "",
     nivelAcessoVoluntarioLabel: getVolunteerAccessLabel(doc?.nivelAcessoVoluntario),
+    nivelAcessoVoluntarioSugerido,
+    nivelAcessoVoluntarioSugeridoLabel: getVolunteerAccessLabel(nivelAcessoVoluntarioSugerido),
     motivoAprovacao: doc?.motivoAprovacao || "",
     ativo: !!doc?.ativo,
     dadosCadastro: dadosCadastroResumo,

@@ -61,6 +61,35 @@ function createCadastroError(message, status = 400) {
   return error;
 }
 
+function resolveSignupBirthDate(dadosCadastro = {}) {
+  if (!dadosCadastro || typeof dadosCadastro !== "object") return "";
+  return String(
+    dadosCadastro.data_nascimento || dadosCadastro.dataNascimento || dadosCadastro.nascimento || ""
+  ).trim();
+}
+
+function normalizeVolunteerSignupData(tipoCadastro, dadosCadastro = {}) {
+  if (String(tipoCadastro || "").trim().toLowerCase() !== "voluntario") {
+    return dadosCadastro || {};
+  }
+
+  const source = dadosCadastro && typeof dadosCadastro === "object" ? dadosCadastro : {};
+  const next = { ...source };
+  const funcao = String(source.funcao_na_ong || source.funcaoNaOng || source.funcao || "").trim();
+  const nascimento = resolveSignupBirthDate(source);
+
+  if (funcao) {
+    if (!String(next.funcao || "").trim()) next.funcao = funcao;
+    if (!String(next.funcao_na_ong || "").trim()) next.funcao_na_ong = funcao;
+  }
+
+  if (nascimento && !String(next.data_nascimento || "").trim()) {
+    next.data_nascimento = nascimento;
+  }
+
+  return next;
+}
+
 function resolveCadastroUploadError(req) {
   const uploadError = req?.uploadError;
   if (!uploadError) return null;
@@ -163,6 +192,8 @@ class AuthController {
       const cpf = String(formData.cpf || "").trim();
       const telefone = String(formData.telefone || "").trim();
       const tipoCadastro = String(formData.tipoCadastro || "voluntario").trim().toLowerCase();
+      const dadosCadastro = normalizeVolunteerSignupData(tipoCadastro, formData.dadosCadastro);
+      const dataNascimento = resolveSignupBirthDate(dadosCadastro);
       const senha = String(req.body?.senha || "");
       const confirmarSenha = String(req.body?.confirmarSenha || "");
 
@@ -192,7 +223,8 @@ class AuthController {
         telefone,
         tipoCadastro,
         senha,
-        dadosCadastro: formData.dadosCadastro,
+        dadosCadastro,
+        dataNascimento,
         perfil: PERFIS.USUARIO,
         statusAprovacao: "pendente",
         ativo: false,

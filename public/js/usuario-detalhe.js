@@ -144,11 +144,17 @@
 
     if (!levelSelect || !approveForm) return;
 
-    levelSelect.addEventListener("change", () => {
+    function syncApproveLevelHidden() {
       levelHiddenInputs.forEach((input) => {
         input.value = levelSelect.value;
       });
+    }
+
+    levelSelect.addEventListener("change", () => {
+      syncApproveLevelHidden();
     });
+
+    syncApproveLevelHidden();
 
     approveForm.addEventListener("submit", (event) => {
       if (!levelSelect.value) {

@@ -230,8 +230,8 @@
           "",
         funcaoNaOng:
           source?.funcao_na_ong ||
-          source?.funcaoNaOng ||
           source?.funcao ||
+          source?.funcaoNaOng ||
           "",
       };
     }
@@ -536,7 +536,9 @@
 
       if (accessSelect) {
         accessSelect.required = isVolunteer;
-        accessSelect.value = isVolunteer ? String(data?.nivelAcessoVoluntario || "") : "";
+        const currentLevel = String(data?.nivelAcessoVoluntario || "").trim();
+        const suggestedLevel = String(data?.nivelAcessoVoluntarioSugerido || "").trim();
+        accessSelect.value = isVolunteer ? currentLevel || suggestedLevel : "";
       }
       syncSelectedAccessToForms();
     }
