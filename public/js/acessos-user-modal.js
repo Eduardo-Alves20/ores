@@ -194,6 +194,7 @@
       ? Array.from(wizardRoot.querySelectorAll("[data-wizard-panel]"))
       : [];
     const wizardProgressFill = wizardRoot?.querySelector("[data-wizard-progress-fill]") || null;
+    const wizardProgressText = wizardRoot?.querySelector("[data-wizard-progress-text]") || null;
     const wizardStepCounter = wizardRoot?.querySelector("[data-wizard-step-counter]") || null;
     const wizardStepLabel = wizardRoot?.querySelector("[data-wizard-step-label]") || null;
     const wizardBackButton = wizardRoot?.querySelector("[data-wizard-back]") || null;
@@ -292,6 +293,9 @@
           ? ((nextIndex + 1) / wizardStepButtons.length) * 100
           : 100;
         wizardProgressFill.style.width = `${percent}%`;
+        if (wizardProgressText) {
+          wizardProgressText.textContent = `${nextIndex + 1} de ${wizardStepButtons.length} preenchidas - ${Math.round(percent)}%`;
+        }
       }
 
       if (wizardStepCounter) {
