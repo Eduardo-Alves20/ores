@@ -24,6 +24,11 @@ function normalizeFamilyResponsible(value = {}) {
     telefone: normalizeLimitedString(input.telefone, 30),
     email: normalizeLimitedString(input.email, 140).toLowerCase(),
     parentesco: normalizeLimitedString(input.parentesco, 60) || "responsavel",
+    nomeResponsavel: normalizeLimitedString(input.nomeResponsavel, 120),
+    cpfResponsavel: normalizeLimitedString(input.cpfResponsavel, 20),
+    dataNascimentoResponsavel: normalizeLimitedString(input.dataNascimentoResponsavel, 10),
+    telefoneResponsavel: normalizeLimitedString(input.telefoneResponsavel, 30),
+    emailResponsavel: normalizeLimitedString(input.emailResponsavel, 140).toLowerCase(),
   };
 }
 

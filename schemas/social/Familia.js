@@ -20,6 +20,11 @@ const ResponsavelSchema = new mongoose.Schema(
     parentesco: { type: String, trim: true, default: "responsavel" },
     telefone: { type: String, required: true, trim: true },
     email: { type: String, trim: true, lowercase: true },
+    nomeResponsavel: { type: String, trim: true },
+    cpfResponsavel: { type: String, trim: true },
+    dataNascimentoResponsavel: { type: String, trim: true },
+    telefoneResponsavel: { type: String, trim: true },
+    emailResponsavel: { type: String, trim: true, lowercase: true },
   },
   { _id: false }
 );

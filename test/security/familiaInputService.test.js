@@ -13,6 +13,11 @@ test("normalizeFamilyResponsible sanitiza e limita campos conhecidos", () => {
     telefone: "  (11) 99999-9999  ",
     email: "  MARIA@EMAIL.COM  ",
     parentesco: "  mae  ",
+    nomeResponsavel: "  Joana Souza  ",
+    cpfResponsavel: "  111.222.333-44  ",
+    dataNascimentoResponsavel: "  1990-05-10  ",
+    telefoneResponsavel: "  (21) 98888-7777  ",
+    emailResponsavel: "  JOANA@EMAIL.COM  ",
     extra: "ignorar",
   });
 
@@ -21,6 +26,11 @@ test("normalizeFamilyResponsible sanitiza e limita campos conhecidos", () => {
     telefone: "(11) 99999-9999",
     email: "maria@email.com",
     parentesco: "mae",
+    nomeResponsavel: "Joana Souza",
+    cpfResponsavel: "111.222.333-44",
+    dataNascimentoResponsavel: "1990-05-10",
+    telefoneResponsavel: "(21) 98888-7777",
+    emailResponsavel: "joana@email.com",
   });
 });
 

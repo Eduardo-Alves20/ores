@@ -29,6 +29,11 @@ async function createFamily({ actorId, body = {} }) {
       telefone,
       email: responsavel.email || undefined,
       parentesco: responsavel.parentesco || "responsavel",
+      nomeResponsavel: responsavel.nomeResponsavel || undefined,
+      cpfResponsavel: responsavel.cpfResponsavel || undefined,
+      dataNascimentoResponsavel: responsavel.dataNascimentoResponsavel || undefined,
+      telefoneResponsavel: responsavel.telefoneResponsavel || undefined,
+      emailResponsavel: responsavel.emailResponsavel || undefined,
     },
     endereco,
     observacoes,
@@ -82,6 +87,21 @@ async function updateFamily({ id, user, actorId, body = {} }) {
     }
     if (Object.prototype.hasOwnProperty.call(responsavel, "parentesco")) {
       patch["responsavel.parentesco"] = normalizedResponsavel.parentesco;
+    }
+    if (Object.prototype.hasOwnProperty.call(responsavel, "nomeResponsavel")) {
+      patch["responsavel.nomeResponsavel"] = normalizedResponsavel.nomeResponsavel;
+    }
+    if (Object.prototype.hasOwnProperty.call(responsavel, "cpfResponsavel")) {
+      patch["responsavel.cpfResponsavel"] = normalizedResponsavel.cpfResponsavel;
+    }
+    if (Object.prototype.hasOwnProperty.call(responsavel, "dataNascimentoResponsavel")) {
+      patch["responsavel.dataNascimentoResponsavel"] = normalizedResponsavel.dataNascimentoResponsavel;
+    }
+    if (Object.prototype.hasOwnProperty.call(responsavel, "telefoneResponsavel")) {
+      patch["responsavel.telefoneResponsavel"] = normalizedResponsavel.telefoneResponsavel;
+    }
+    if (Object.prototype.hasOwnProperty.call(responsavel, "emailResponsavel")) {
+      patch["responsavel.emailResponsavel"] = normalizedResponsavel.emailResponsavel;
     }
   }
 

@@ -449,10 +449,15 @@
 
       return {
         responsavel: {
-          nome:       ((form.elements.responsavel_nome       || {}).value || "").trim(),
-          telefone:   ((form.elements.responsavel_telefone   || {}).value || "").trim(),
-          email:      ((form.elements.responsavel_email      || {}).value || "").trim(),
-          parentesco: ((form.elements.responsavel_parentesco || {}).value || "responsavel"),
+          nome:                      ((form.elements.responsavel_nome                 || {}).value || "").trim(),
+          telefone:                  ((form.elements.responsavel_telefone             || {}).value || "").trim(),
+          email:                     ((form.elements.responsavel_email                || {}).value || "").trim(),
+          parentesco:                ((form.elements.responsavel_parentesco           || {}).value || "responsavel"),
+          nomeResponsavel:           ((form.elements.responsavel_familiar_nome        || {}).value || "").trim(),
+          cpfResponsavel:            ((form.elements.responsavel_familiar_cpf         || {}).value || "").trim(),
+          dataNascimentoResponsavel: ((form.elements.responsavel_familiar_nascimento  || {}).value || "").trim(),
+          telefoneResponsavel:       ((form.elements.responsavel_familiar_telefone    || {}).value || "").trim(),
+          emailResponsavel:          ((form.elements.responsavel_familiar_email       || {}).value || "").trim(),
         },
         endereco: {
           cep:         ((form.elements.endereco_cep         || {}).value || "").trim(),
@@ -473,6 +478,17 @@
       var payload = collectPayload();
       if (!payload.responsavel.nome || !payload.responsavel.telefone) {
         setFeedback("Preencha nome e telefone do assistido (Etapa 1).", "error");
+        if (currentStep !== 1) showStep(1);
+        return null;
+      }
+      if (
+        !payload.responsavel.nomeResponsavel ||
+        !payload.responsavel.cpfResponsavel ||
+        !payload.responsavel.dataNascimentoResponsavel ||
+        !payload.responsavel.telefoneResponsavel ||
+        !payload.responsavel.emailResponsavel
+      ) {
+        setFeedback("Preencha os dados do responsavel familiar (nome, CPF, nascimento, telefone e e-mail).", "error");
         if (currentStep !== 1) showStep(1);
         return null;
       }
@@ -606,6 +622,17 @@
             ["Telefone secundário", label(cx.telefone_secundario)],
             ["WhatsApp",            cx.is_whatsapp === "sim" ? "Sim" : cx.is_whatsapp === "nao" ? "Não" : null],
             ["Email",               label(p.responsavel.email)],
+          ],
+        },
+        {
+          icon: "fa-user-shield",
+          title: "Responsavel familiar",
+          fields: [
+            ["Nome",       label(p.responsavel.nomeResponsavel)],
+            ["CPF",        label(p.responsavel.cpfResponsavel)],
+            ["Nascimento", label(p.responsavel.dataNascimentoResponsavel)],
+            ["Telefone",   label(p.responsavel.telefoneResponsavel)],
+            ["Email",      label(p.responsavel.emailResponsavel)],
           ],
         },
         {

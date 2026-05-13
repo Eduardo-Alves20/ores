@@ -247,8 +247,8 @@
         </h3>
         <div class="form-grid">
           <label class="field-wrap span-2">
-            <span class="input-label">Família vinculada</span>
-            <input class="input-control" type="text" name="campoExtra_familia_vinculada" value="<%= familia?.camposExtras?.familia_vinculada || '' %>" placeholder="Buscar família existente..." data-custom-field-key="familia_vinculada" data-custom-field-type="texto" />
+            <span class="input-label">Assistido vinculado</span>
+            <input class="input-control" type="text" name="campoExtra_familia_vinculada" value="<%= familia?.camposExtras?.familia_vinculada || '' %>" placeholder="Buscar assistido existente..." data-custom-field-key="familia_vinculada" data-custom-field-type="texto" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Parentesco / vínculo *</span>
@@ -258,6 +258,26 @@
                 <option value="<%= item[0] %>" <%= parAtual===item[0]?'selected':'' %>><%= item[1] %></option>
               <% }) %>
             </select>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Nome do responsavel *</span>
+            <input class="input-control" type="text" name="responsavel_familiar_nome" value="<%= familia?.responsavel?.nomeResponsavel || '' %>" placeholder="Nome completo do responsavel" required />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">CPF do responsavel *</span>
+            <input class="input-control" type="text" name="responsavel_familiar_cpf" value="<%= familia?.responsavel?.cpfResponsavel || '' %>" placeholder="000.000.000-00" required />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Nascimento do responsavel *</span>
+            <input class="input-control" type="date" name="responsavel_familiar_nascimento" value="<%= familia?.responsavel?.dataNascimentoResponsavel || '' %>" required />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Telefone do responsavel *</span>
+            <input class="input-control" type="text" name="responsavel_familiar_telefone" value="<%= familia?.responsavel?.telefoneResponsavel || '' %>" placeholder="(11) 99999-9999" required />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">E-mail do responsavel *</span>
+            <input class="input-control" type="email" name="responsavel_familiar_email" value="<%= familia?.responsavel?.emailResponsavel || '' %>" placeholder="email@exemplo.com" required />
           </label>
           <div class="field-wrap">
             <span class="input-label">É o(a) responsável principal?</span>
