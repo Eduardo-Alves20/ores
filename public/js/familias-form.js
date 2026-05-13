@@ -412,7 +412,7 @@
       });
     }
 
-    form.querySelectorAll(".upload-card-input").forEach(function (fileInput) {
+    form.querySelectorAll(".upload-card input[type='file']").forEach(function (fileInput) {
       fileInput.addEventListener("change", function () {
         Array.from(fileInput.files).forEach(function (f) { uploadedFiles.push(f); });
         fileInput.value = "";
