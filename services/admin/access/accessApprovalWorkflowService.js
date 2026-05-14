@@ -278,7 +278,10 @@ function suggestVolunteerAccessLevelFromSignup(dadosCadastro) {
 
   if (!funcaoRaw) return "";
 
-  if (funcaoRaw.includes("servico social")) return "servico_social";
+  if (funcaoRaw.includes("assistente social") || funcaoRaw.includes("servico social")) {
+    return "servico_social";
+  }
+  if (funcaoRaw.includes("agendador")) return "captacao";
   if (funcaoRaw.includes("captacao")) return "captacao";
   if (funcaoRaw.includes("diretoria") || funcaoRaw.includes("diretor")) return "diretoria";
 
