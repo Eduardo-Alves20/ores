@@ -508,7 +508,7 @@
           nome:                      ((form.elements.responsavel_nome                 || {}).value || "").trim(),
           telefone:                  ((form.elements.responsavel_telefone             || {}).value || "").trim(),
           email:                     ((form.elements.responsavel_email                || {}).value || "").trim(),
-          parentesco:                ((form.elements.responsavel_parentesco           || {}).value || "responsavel"),
+          parentesco:                ((form.elements.responsavel_parentesco           || {}).value || "").trim(),
           nomeResponsavel:           ((form.elements.responsavel_familiar_nome        || {}).value || "").trim(),
           cpfResponsavel:            ((form.elements.responsavel_familiar_cpf         || {}).value || "").trim(),
           dataNascimentoResponsavel: ((form.elements.responsavel_familiar_nascimento  || {}).value || "").trim(),
@@ -540,11 +540,9 @@
       if (
         !payload.responsavel.nomeResponsavel ||
         !payload.responsavel.cpfResponsavel ||
-        !payload.responsavel.dataNascimentoResponsavel ||
-        !payload.responsavel.telefoneResponsavel ||
-        !payload.responsavel.emailResponsavel
+        !payload.responsavel.dataNascimentoResponsavel
       ) {
-        setFeedback("Preencha os dados do responsavel familiar (nome, CPF, nascimento, telefone e e-mail).", "error");
+        setFeedback("Preencha os dados obrigatorios do responsavel familiar (nome, CPF e nascimento).", "error");
         if (currentStep !== 1) showStep(1);
         return null;
       }

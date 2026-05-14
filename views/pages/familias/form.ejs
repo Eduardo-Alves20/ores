@@ -221,7 +221,7 @@
         </h3>
         <div class="form-grid">
           <label class="field-wrap">
-            <span class="input-label">Parentesco / vínculo *</span>
+            <span class="input-label">Parentesco / vínculo</span>
             <select class="input-control" name="responsavel_parentesco">
               <% const parAtual = familia?.responsavel?.parentesco || "responsavel"; %>
               <% [["responsavel","Responsável familiar"],["mae","Mãe"],["pai","Pai"],["tio","Tio(a)"],["avo","Avô / Avó"],["irmao","Irmão / Irmã"],["primo","Primo(a)"],["adotante","Adotante"],["outro","Outro"]].forEach(function(item){ %>
@@ -242,12 +242,12 @@
             <input class="input-control" type="date" name="responsavel_familiar_nascimento" value="<%= familia?.responsavel?.dataNascimentoResponsavel || '' %>" required />
           </label>
           <label class="field-wrap">
-            <span class="input-label">Telefone do responsavel *</span>
-            <input class="input-control" type="text" name="responsavel_familiar_telefone" value="<%= familia?.responsavel?.telefoneResponsavel || '' %>" placeholder="(11) 99999-9999" required />
+            <span class="input-label">Telefone do responsavel</span>
+            <input class="input-control" type="text" name="responsavel_familiar_telefone" value="<%= familia?.responsavel?.telefoneResponsavel || '' %>" placeholder="(11) 99999-9999" />
           </label>
           <label class="field-wrap">
-            <span class="input-label">E-mail do responsavel *</span>
-            <input class="input-control" type="email" name="responsavel_familiar_email" value="<%= familia?.responsavel?.emailResponsavel || '' %>" placeholder="email@exemplo.com" required />
+            <span class="input-label">E-mail do responsavel</span>
+            <input class="input-control" type="email" name="responsavel_familiar_email" value="<%= familia?.responsavel?.emailResponsavel || '' %>" placeholder="email@exemplo.com" />
           </label>
           <div class="field-wrap">
             <span class="input-label">É o(a) responsável principal?</span>
