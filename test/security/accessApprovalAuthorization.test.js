@@ -125,12 +125,12 @@ test("AcessoPageController.detalhe retorna 400 para id invalido", async () => {
   });
 });
 
-test("canReviewSensitiveApprovalData libera assistencia social e bloqueia tecnico sem permissao", () => {
+test("canReviewSensitiveApprovalData libera administracao e bloqueia perfil tecnico sem permissao", () => {
   assert.equal(
     canReviewSensitiveApprovalData({
       session: {
         user: {
-          perfil: "atendente",
+          perfil: "admin",
           permissions: [],
         },
       },

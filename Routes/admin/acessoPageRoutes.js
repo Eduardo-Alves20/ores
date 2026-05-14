@@ -18,7 +18,7 @@ function requireApprovalReviewAccess(req, res, next) {
   }
 
   return res.status(403).json({
-    erro: "Acesso restrito a administracao e assistencia social.",
+    erro: "Acesso restrito a administracao.",
   });
 }
 

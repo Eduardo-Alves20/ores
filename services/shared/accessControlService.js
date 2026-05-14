@@ -18,38 +18,8 @@ function normalizeList(list) {
   );
 }
 
-const PROFILE_PERMISSION_MATRIX = Object.freeze({
-  [PERFIS.ADMIN]: Object.freeze({
-    add: [],
-    remove: [
-      PERMISSIONS.ENTREVISTA_SOCIAL_CREATE,
-      PERMISSIONS.RELATORIO_EVOLUCAO_CREATE_UPDATE,
-    ],
-  }),
-  [PERFIS.PROFISSIONAL]: Object.freeze({
-    add: [PERMISSIONS.FAMILIAS_VIEW, PERMISSIONS.PACIENTES_VIEW],
-    remove: [],
-  }),
-});
-
 function applyProfilePermissionMatrix(perfil, permissionList = []) {
-  const normalizedProfile = String(perfil || "").trim().toLowerCase();
-  const matrix = PROFILE_PERMISSION_MATRIX[normalizedProfile];
-  const normalizedPermissions = normalizePermissionList(permissionList);
-
-  if (!matrix || normalizedPermissions.includes("*")) {
-    return normalizedPermissions;
-  }
-
-  const set = new Set(normalizedPermissions);
-  (Array.isArray(matrix.remove) ? matrix.remove : []).forEach((permission) => {
-    set.delete(permission);
-  });
-  (Array.isArray(matrix.add) ? matrix.add : []).forEach((permission) => {
-    set.add(permission);
-  });
-
-  return normalizePermissionList(Array.from(set.values()));
+  return normalizePermissionList(permissionList);
 }
 
 function hasPermission(permissionList, requiredPermission) {

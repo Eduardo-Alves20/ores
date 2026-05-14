@@ -19,7 +19,7 @@ function canReviewSensitiveApprovalData(req) {
   const user = req?.session?.user || {};
   const perfil = String(user.perfil || "").toLowerCase();
 
-  if ([PERFIS.SUPERADMIN, PERFIS.ADMIN, PERFIS.ATENDENTE].includes(perfil)) {
+  if ([PERFIS.SUPERADMIN, PERFIS.ADMIN].includes(perfil)) {
     return true;
   }
 
@@ -48,8 +48,9 @@ function buildCreateProfileOptions(req) {
   const perfilAtual = String(user.perfil || "").toLowerCase();
   const options = [
     { value: PERFIS.USUARIO, label: "Usuario do Portal" },
-    { value: PERFIS.ATENDENTE, label: "Atendente" },
-    { value: PERFIS.TECNICO, label: "Tecnico" },
+    { value: PERFIS.ASSISTENTE_SOCIAL, label: "Assistente Social" },
+    { value: PERFIS.PROFISSIONAL, label: "Profissional / Medico" },
+    { value: PERFIS.AGENDADOR_MEDICO, label: "Agendador Medico" },
     { value: PERFIS.ADMIN, label: "admin_ORES" },
   ];
 
