@@ -103,8 +103,8 @@
             <input class="input-control" type="text" name="responsavel_nome" value="<%= familia?.responsavel?.nome || '' %>" placeholder="Nome completo do assistido" />
           </label>
           <label class="field-wrap span-2">
-            <span class="input-label">Nome social</span>
-            <input class="input-control" type="text" name="campoExtra_nome_social" value="<%= familia?.camposExtras?.nome_social || '' %>" placeholder="Como prefere ser chamado(a)" data-custom-field-key="nome_social" data-custom-field-type="texto" />
+            <span class="input-label">Responsável ou filiação</span>
+            <input class="input-control" type="text" name="campoExtra_responsavel_ou_filiacao" value="<%= familia?.camposExtras?.responsavel_ou_filiacao || familia?.camposExtras?.nome_social || '' %>" placeholder="Nome do responsável ou filiação" data-custom-field-key="responsavel_ou_filiacao" data-custom-field-type="texto" />
           </label>
           <label class="field-wrap">
             <span class="input-label">CPF *</span>
@@ -148,32 +148,6 @@
               <option value="feminino"  <%= sexoBioAtual==='feminino'?'selected':'' %>>Feminino</option>
               <option value="intersexo" <%= sexoBioAtual==='intersexo'?'selected':'' %>>Intersexo</option>
               <option value="nao_informado" <%= sexoBioAtual==='nao_informado'?'selected':'' %>>Prefiro não informar</option>
-            </select>
-          </label>
-          <label class="field-wrap">
-            <span class="input-label">Identidade de gênero</span>
-            <select class="input-control" name="campoExtra_identidade_genero" data-custom-field-key="identidade_genero" data-custom-field-type="select">
-              <% const idGenAtual = familia?.camposExtras?.identidade_genero || ''; %>
-              <option value="">Selecionar...</option>
-              <option value="homem_cis"    <%= idGenAtual==='homem_cis'?'selected':'' %>>Homem cisgênero</option>
-              <option value="mulher_cis"   <%= idGenAtual==='mulher_cis'?'selected':'' %>>Mulher cisgênero</option>
-              <option value="homem_trans"  <%= idGenAtual==='homem_trans'?'selected':'' %>>Homem transgênero</option>
-              <option value="mulher_trans" <%= idGenAtual==='mulher_trans'?'selected':'' %>>Mulher transgênero</option>
-              <option value="nao_binario"  <%= idGenAtual==='nao_binario'?'selected':'' %>>Não-binário</option>
-              <option value="nao_informado" <%= idGenAtual==='nao_informado'?'selected':'' %>>Prefiro não informar</option>
-            </select>
-          </label>
-          <label class="field-wrap">
-            <span class="input-label">Estado civil</span>
-            <select class="input-control" name="campoExtra_estado_civil" data-custom-field-key="estado_civil" data-custom-field-type="select">
-              <% const ecAtual = familia?.camposExtras?.estado_civil || ''; %>
-              <option value="">Selecionar...</option>
-              <option value="solteiro"      <%= ecAtual==='solteiro'?'selected':'' %>>Solteiro(a)</option>
-              <option value="casado"        <%= ecAtual==='casado'?'selected':'' %>>Casado(a)</option>
-              <option value="uniao_estavel" <%= ecAtual==='uniao_estavel'?'selected':'' %>>União estável</option>
-              <option value="divorciado"    <%= ecAtual==='divorciado'?'selected':'' %>>Divorciado(a)</option>
-              <option value="viuvo"         <%= ecAtual==='viuvo'?'selected':'' %>>Viúvo(a)</option>
-              <option value="separado"      <%= ecAtual==='separado'?'selected':'' %>>Separado(a)</option>
             </select>
           </label>
           <label class="field-wrap">

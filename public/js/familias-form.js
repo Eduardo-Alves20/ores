@@ -616,11 +616,6 @@
       masculino: "Masculino", feminino: "Feminino",
       intersexo: "Intersexo", nao_informado: "Não informado"
     };
-    var LABELS_ESTADO_CIVIL = {
-      solteiro: "Solteiro(a)", casado: "Casado(a)",
-      uniao_estavel: "União estável", divorciado: "Divorciado(a)",
-      viuvo: "Viúvo(a)", separado: "Separado(a)"
-    };
     var LABELS_MORADIA = {
       propria: "Própria", alugada: "Alugada", cedida: "Cedida",
       ocupacao: "Ocupação", abrigo: "Abrigo / Alojamento", sem_moradia: "Sem moradia fixa"
@@ -654,7 +649,7 @@
           title: "Identificação",
           fields: [
             ["Nome completo", label(p.responsavel.nome)],
-            ["Nome social",   label(cx.nome_social)],
+            ["Responsável ou filiação", label(cx.responsavel_ou_filiacao || cx.nome_social)],
             ["CPF",           label(cx.cpf)],
             ["RG",            label(cx.rg ? cx.rg + (cx.orgao_emissor ? " — " + cx.orgao_emissor : "") : null)],
             ["Data de nasc.", label(cx.data_nascimento)],
@@ -667,7 +662,6 @@
           title: "Características pessoais",
           fields: [
             ["Sexo biológico", humanize(LABELS_SEXO, cx.sexo_biologico)],
-            ["Estado civil",   humanize(LABELS_ESTADO_CIVIL, cx.estado_civil)],
             ["Cor / raça",     label(cx.cor_raca)],
             ["Naturalidade",   label(cx.naturalidade)],
             ["Nacionalidade",  label(cx.nacionalidade)],
