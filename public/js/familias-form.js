@@ -248,7 +248,7 @@
       adulto: {
         title: "Anamnese - Adulto",
         label: "Ficha aplicada: Adulto (18-59 anos)",
-        desc:  "Sugerida automaticamente pela idade do assistido. Doencas cronicas, habitos de vida, saude mental, trabalho e ocupacao."
+        desc:  "Adaptada para adultos. Historico de vida, vida adulta, comportamento, escolaridade e trabalho."
       },
       idoso: {
         title: "Anamnese - Idoso",
@@ -264,13 +264,15 @@
       var descEl   = document.getElementById("anamnese-faixa-desc");
       var childEl  = document.getElementById("anamnese-form-crianca");
       var adolescenteEl = document.getElementById("anamnese-form-adolescente");
+      var adultoEl = document.getElementById("anamnese-form-adulto");
       var geralEl  = document.getElementById("anamnese-form-geral");
       if (titleEl) titleEl.textContent = cfg.title;
       if (labelEl) labelEl.textContent = cfg.label;
       if (descEl)  descEl.textContent  = cfg.desc;
       if (childEl) childEl.hidden = faixaVal !== "crianca";
       if (adolescenteEl) adolescenteEl.hidden = faixaVal !== "adolescente";
-      if (geralEl) geralEl.hidden = faixaVal === "crianca" || faixaVal === "adolescente";
+      if (adultoEl) adultoEl.hidden = faixaVal !== "adulto";
+      if (geralEl) geralEl.hidden = faixaVal === "crianca" || faixaVal === "adolescente" || faixaVal === "adulto";
     }
 
     form.querySelectorAll('input[type="radio"][name="_faixa_sel"]').forEach(function (radio) {

@@ -1,0 +1,220 @@
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eef6ff;color:#1d4ed8"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
+    Anamnese - Adulto
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-2">
+      <span class="input-label">Nome do(a) paciente</span>
+      <input class="input-control" type="text" name="campoExtra_adulto_nome_paciente" value="<%= familia?.camposExtras?.adulto_nome_paciente || '' %>" data-custom-field-key="adulto_nome_paciente" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Data da entrevista</span>
+      <input class="input-control" type="date" name="campoExtra_adulto_data_entrevista" value="<%= familia?.camposExtras?.adulto_data_entrevista || '' %>" data-custom-field-key="adulto_data_entrevista" data-custom-field-type="data" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Entrevista realizada com</span>
+      <input class="input-control" type="text" name="campoExtra_adulto_entrevista_realizada_com" value="<%= familia?.camposExtras?.adulto_entrevista_realizada_com || '' %>" data-custom-field-key="adulto_entrevista_realizada_com" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+    Queixa
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Qual o motivo do atendimento?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_queixa_motivo" rows="3" data-custom-field-key="adulto_queixa_motivo" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_queixa_motivo || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Quando se iniciou?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_queixa_inicio" rows="2" data-custom-field-key="adulto_queixa_inicio" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_queixa_inicio || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Os sintomas se desenvolveram (vagarosamente/rapidamente/nao sabe)</span>
+      <input class="input-control" type="text" name="campoExtra_adulto_queixa_desenvolvimento_sintomas" value="<%= familia?.camposExtras?.adulto_queixa_desenvolvimento_sintomas || '' %>" data-custom-field-key="adulto_queixa_desenvolvimento_sintomas" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Atendimento com outros profissionais? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_adulto_queixa_outros_profissionais_sim_nao" value="<%= familia?.camposExtras?.adulto_queixa_outros_profissionais_sim_nao || '' %>" data-custom-field-key="adulto_queixa_outros_profissionais_sim_nao" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Qual(s)?</span>
+      <input class="input-control" type="text" name="campoExtra_adulto_queixa_outros_profissionais_quais" value="<%= familia?.camposExtras?.adulto_queixa_outros_profissionais_quais || '' %>" data-custom-field-key="adulto_queixa_outros_profissionais_quais" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f0f7fc;color:#1C5D85"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+    Historico de vida
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">I. Concepcao e gravidez: composicao familiar na concepcao, idade dos pais, gravidez planejada, pre-natal, acidentes/quedas, doencas na gestacao, outros filhos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_hist_gravidez" rows="4" data-custom-field-key="adulto_hist_gravidez" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_hist_gravidez || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">II. Parto: tipo, peso, comprimento, ictericia, problemas no parto, prematuro/esbranquicado/cianotico, incubadora e tempo</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_hist_parto" rows="4" data-custom-field-key="adulto_hist_parto" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_hist_parto || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">III. Alimentacao: seio e idade, mamadeira e idade, inicio pastosa/solida, copo, alimentacao atual, selecao/preferencias, mastigacao</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_hist_alimentacao" rows="4" data-custom-field-key="adulto_hist_alimentacao" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_hist_alimentacao || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">III. Desenvolvimento psicomotor: sustentar cabeca, sentar, engatinhar e forma, andar, cair, onde ficava bebe, hoje deixa cair/esbarra, dominancia manual, dificuldade motora</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_hist_psicomotor" rows="4" data-custom-field-key="adulto_hist_psicomotor" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_hist_psicomotor || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">IV. Desenvolvimento da linguagem: primeira palavra, quando comecou a falar, problema na fala, salivacao, gagueira, historias/livrinhos/leitura, dificuldade de linguagem na familia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_hist_linguagem" rows="4" data-custom-field-key="adulto_hist_linguagem" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_hist_linguagem || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff7ed;color:#ea580c"><i class="fa-solid fa-notes-medical" aria-hidden="true"></i></span>
+    Infancia e adolescencia
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">V.A Doencas na infancia: doencas, febre frequente, convulsoes, internacoes (idade/tempo/motivo), cirurgias, quedas/traumatismos, alergias</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_infancia_doencas" rows="4" data-custom-field-key="adulto_infancia_doencas" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_infancia_doencas || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">V.B Transtornos infantis: sono, alimentacao, psicomotor, gagueira, tiques, sonambulismo, outros, transtorno de aprendizagem</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_infancia_transtornos" rows="4" data-custom-field-key="adulto_infancia_transtornos" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_infancia_transtornos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">V.C Experiencias significativas da infancia segundo o adolescente</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_infancia_experiencias" rows="4" data-custom-field-key="adulto_infancia_experiencias" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_infancia_experiencias || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">V.D Perdas: separacao dos pais, falecimento, outras (especificar)</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_infancia_perdas" rows="3" data-custom-field-key="adulto_infancia_perdas" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_infancia_perdas || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">VI. Adolescencia: como se considerava, amizades, relacao com pessoas, experiencias afetivas, inicio do namoro, vida sexual na adolescencia, preservativos/metodo, gestacao/aborto, experiencias gerais, DST, experiencias sexuais marcantes, independencia/primeiros empregos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_adolescencia_geral" rows="6" data-custom-field-key="adulto_adolescencia_geral" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_adolescencia_geral || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f0fdf4;color:#16a34a"><i class="fa-solid fa-leaf" aria-hidden="true"></i></span>
+    Vida adulta
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Principais lazeres e vida social</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_vida_adulta_lazer_social" rows="3" data-custom-field-key="adulto_vida_adulta_lazer_social" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_vida_adulta_lazer_social || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Acesso a livros/cinema/teatro/artes e frequencia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_vida_adulta_acesso_cultural" rows="3" data-custom-field-key="adulto_vida_adulta_acesso_cultural" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_vida_adulta_acesso_cultural || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Atividade fisica, uso de tecnologias e tempo por dia, leitura e frequencia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_vida_adulta_rotina" rows="3" data-custom-field-key="adulto_vida_adulta_rotina" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_vida_adulta_rotina || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Habitos (roi unhas, tiques, mania repetitiva, chupa dedo, outros), bebida (frequencia/tipo), fuma (tipo), outras drogas ilicitas</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_vida_adulta_habitos_substancias" rows="3" data-custom-field-key="adulto_vida_adulta_habitos_substancias" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_vida_adulta_habitos_substancias || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Relacionamento com parceiro, vida sexual atual, situacao financeira, amizades, pessoa de confianca, experiencias afetivas marcantes</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_vida_adulta_relacional" rows="3" data-custom-field-key="adulto_vida_adulta_relacional" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_vida_adulta_relacional || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eff6ff;color:#1d4ed8"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
+    Historia familiar e aspectos gerais
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Historia familiar: estado civil e tempo, parceiro(a) e idade, filhos e idades, mora com quem, religiao, membro da familia com problema significante (saude/fisico/academico/psicologico), relacao com familia, o que mais gosta, o que mudaria</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_historia_familiar" rows="5" data-custom-field-key="adulto_historia_familiar" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_historia_familiar || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Sono: tranquilo, agitado, insonia, ranger dentes, terror noturno, sonambulismo, enurese, fala, pesadelos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_aspectos_sono" rows="3" data-custom-field-key="adulto_aspectos_sono" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_aspectos_sono || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Aspectos vocais/auditivos/visuais: sem alteracoes, pigarro, tosse, rouquidao, voz nasalada, gagueira, nao responde chamados, pede repetir, problemas auditivos, aumenta volume, avaliacao auditiva, usa oculos, dificuldade visual, enxerga bem</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_aspectos_vocais_auditivos_visuais" rows="4" data-custom-field-key="adulto_aspectos_vocais_auditivos_visuais" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_aspectos_vocais_auditivos_visuais || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f5f3ff;color:#6d28d9"><i class="fa-solid fa-face-smile" aria-hidden="true"></i></span>
+    Comportamento, humor e personalidade
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Qualidades, defeitos, o que mudaria em voce, medo, como se considera (agressivo/agitado/impulsivo/timido/medroso/desorganizado/calmo/irritado/teimosia/apatia/outros)</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_comportamento_perfil" rows="4" data-custom-field-key="adulto_comportamento_perfil" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_comportamento_perfil || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Voce tem constantemente: tristeza, depressao, ansiedade, nervosismo, estresse, insonia, irritabilidade, euforia, agressividade, frustracao, chora facilmente, perda/aumento de apetite, energia, peso, interesse sexual, falta de interesse em atividades prazerosas; problema matrimonial/familiar/financeiro/juridico/trabalho/outros</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_comportamento_sintomas_problemas" rows="5" data-custom-field-key="adulto_comportamento_sintomas_problemas" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_comportamento_sintomas_problemas || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fef9c3;color:#a16207"><i class="fa-solid fa-school" aria-hidden="true"></i></span>
+    Escolaridade e emprego
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-2">
+      <span class="input-label">Escolaridade: estuda atualmente? concilia estudar e trabalhar? instituicao, escolaridade, turno, reprovacao, opiniao sobre instituicao</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_escolaridade_geral" rows="4" data-custom-field-key="adulto_escolaridade_geral" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_escolaridade_geral || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Dificuldades escolares: atencao/concentracao, aprender, ler, escrever, contar/operacoes, memorizar, assimilar/aplicar, resolver problemas, pensar rapido, completar atividades em tempo, sequencia, nomear coisas, troca letras, outras dificuldades, reforco escolar</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_escolaridade_dificuldades" rows="5" data-custom-field-key="adulto_escolaridade_dificuldades" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_escolaridade_dificuldades || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Emprego: trabalha atualmente? em que? carteira assinada? atrapalha nos estudos?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_emprego" rows="3" data-custom-field-key="adulto_emprego" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_emprego || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff8f0;color:#d97706"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+    Fechamento
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Observacoes</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_observacoes" rows="4" data-custom-field-key="adulto_observacoes" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_observacoes || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Analise da entrevista</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_analise_entrevista" rows="3" data-custom-field-key="adulto_analise_entrevista" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_analise_entrevista || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Hipotese de diagnostico</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_hipotese_diagnostico" rows="3" data-custom-field-key="adulto_hipotese_diagnostico" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_hipotese_diagnostico || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Encaminhamentos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adulto_encaminhamentos" rows="3" data-custom-field-key="adulto_encaminhamentos" data-custom-field-type="textarea"><%= familia?.camposExtras?.adulto_encaminhamentos || '' %></textarea>
+    </label>
+  </div>
+</div>
