@@ -394,40 +394,65 @@
 
     // ── Upload cards / file preview ───────────────────────────────────────
     var uploadedFiles  = [];
-    var annexoSection  = document.getElementById("annexo-files-section");
-    var annexoList     = document.getElementById("annexo-files-list");
-    var annexoTitle    = document.getElementById("annexo-files-title");
+    var uploadCardFilesByField = {};
+
+    form.querySelectorAll(".upload-card").forEach(function (card) {
+      var input = card.querySelector("input[type='file']");
+      if (!input) return;
+      var fieldName = String(input.name || "anexo_outros").trim() || "anexo_outros";
+      var container = card.querySelector("[data-upload-files-for]");
+      if (!container) return;
+      uploadCardFilesByField[fieldName] = container;
+    });
+
+    function formatFileSize(sizeInBytes) {
+      var kb = Math.round(Number(sizeInBytes || 0) / 1024);
+      return kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB";
+    }
 
     function refreshAnnexoList() {
-      if (!annexoList) return;
-      if (!uploadedFiles.length) {
-        if (annexoSection) annexoSection.hidden = true;
-        return;
-      }
-      if (annexoSection) annexoSection.hidden = false;
-      if (annexoTitle) annexoTitle.textContent = "Arquivos anexados (" + uploadedFiles.length + ")";
-      annexoList.innerHTML = uploadedFiles.map(function (entry, i) {
-        var file = entry && entry.file ? entry.file : null;
-        if (!file) return "";
-        var kb  = Math.round(file.size / 1024);
-        var str = kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB";
-        return (
-          '<div class="annexo-file-item" data-file-idx="' + i + '">' +
-            '<i class="fa-solid fa-file-lines annexo-file-icon"></i>' +
-            '<div class="annexo-file-info">' +
-              '<span class="annexo-file-name">' + escHtml(file.name) + '</span>' +
-              '<span class="annexo-file-size">' + str + '</span>' +
-            "</div>" +
-            '<button type="button" class="annexo-file-remove" aria-label="Remover"><i class="fa-solid fa-times"></i></button>' +
-          "</div>"
-        );
-      }).join("");
+      Object.keys(uploadCardFilesByField).forEach(function (fieldName) {
+        var container = uploadCardFilesByField[fieldName];
+        if (!container) return;
 
-      annexoList.querySelectorAll(".annexo-file-remove").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          var idx = parseInt(btn.closest("[data-file-idx]").getAttribute("data-file-idx"), 10);
-          uploadedFiles.splice(idx, 1);
-          refreshAnnexoList();
+        var filesInCard = uploadedFiles
+          .map(function (entry, idx) {
+            if (!entry || entry.fieldName !== fieldName || !entry.file) return null;
+            return { index: idx, file: entry.file };
+          })
+          .filter(Boolean);
+
+        if (!filesInCard.length) {
+          container.hidden = true;
+          container.innerHTML = "";
+          return;
+        }
+
+        container.hidden = false;
+        container.innerHTML =
+          '<div class="upload-card-files-title">Arquivos anexados (' + filesInCard.length + ')</div>' +
+          '<div class="annexo-files-list">' +
+          filesInCard.map(function (item) {
+            return (
+              '<div class="annexo-file-item" data-file-idx="' + item.index + '">' +
+                '<i class="fa-solid fa-file-lines annexo-file-icon" aria-hidden="true"></i>' +
+                '<div class="annexo-file-info">' +
+                  '<span class="annexo-file-name">' + escHtml(item.file.name) + '</span>' +
+                  '<span class="annexo-file-meta">' + formatFileSize(item.file.size) + '</span>' +
+                "</div>" +
+                '<button type="button" class="annexo-file-remove" aria-label="Remover arquivo"><i class="fa-solid fa-times"></i></button>' +
+              "</div>"
+            );
+          }).join("") +
+          "</div>";
+
+        container.querySelectorAll(".annexo-file-remove").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var idx = parseInt(btn.closest("[data-file-idx]").getAttribute("data-file-idx"), 10);
+            if (Number.isNaN(idx)) return;
+            uploadedFiles.splice(idx, 1);
+            refreshAnnexoList();
+          });
         });
       });
     }

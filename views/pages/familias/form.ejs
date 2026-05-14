@@ -1080,6 +1080,7 @@
               <small>PDF, JPG, PNG até 10MB</small>
               <input class="upload-card-input" type="file" name="anexo_documentacao" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
             </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_documentacao" hidden></div>
           </div>
           <div class="upload-card">
             <div class="upload-card-head">
@@ -1093,6 +1094,7 @@
               <small>PDF, JPG, PNG até 10MB</small>
               <input class="upload-card-input" type="file" name="anexo_residencia" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
             </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_residencia" hidden></div>
           </div>
           <div class="upload-card">
             <div class="upload-card-head">
@@ -1106,6 +1108,7 @@
               <small>PDF, JPG, PNG até 10MB</small>
               <input class="upload-card-input" type="file" name="anexo_renda" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
             </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_renda" hidden></div>
           </div>
           <div class="upload-card">
             <div class="upload-card-head">
@@ -1119,6 +1122,7 @@
               <small>PDF, JPG, PNG até 10MB</small>
               <input class="upload-card-input" type="file" name="anexo_saude" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
             </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_saude" hidden></div>
           </div>
           <div class="upload-card">
             <div class="upload-card-head">
@@ -1132,6 +1136,7 @@
               <small>PDF, JPG, PNG até 10MB</small>
               <input class="upload-card-input" type="file" name="anexo_foto" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*" capture="environment" />
             </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_foto" hidden></div>
           </div>
           <div class="upload-card">
             <div class="upload-card-head">
@@ -1145,16 +1150,9 @@
               <small>PDF, JPG, PNG até 10MB</small>
               <input class="upload-card-input" type="file" name="anexo_outros" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
             </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_outros" hidden></div>
           </div>
         </div>
-      </div>
-
-      <div class="form-subsection" id="annexo-files-section" hidden>
-        <h3 class="form-subsection-title">
-          <span class="form-subsection-icon"><i class="fa-solid fa-paperclip" aria-hidden="true"></i></span>
-          <span id="annexo-files-title">Arquivos anexados (0)</span>
-        </h3>
-        <div class="annexo-files-list" id="annexo-files-list"></div>
       </div>
 
       <% if (modo === "editar") { %>

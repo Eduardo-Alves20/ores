@@ -1951,6 +1951,18 @@
 .upload-card-drop small { font-size: 0.72rem; color: var(--muted); }
 .upload-card-drop input[type="file"] { display: none; }
 
+.upload-card-files {
+  border-top: 1px dashed var(--line);
+  padding: 10px 12px 12px;
+}
+
+.upload-card-files-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
 /* ── Attached files list ── */
 .annexo-section-title {
   font-size: 0.92rem;
@@ -2004,6 +2016,21 @@
 }
 
 .annexo-file-actions { display: flex; gap: 4px; }
+
+.annexo-file-remove {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.annexo-file-remove:hover {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
 
 /* ── Responsive extras ── */
 @media (max-width: 900px) {
