@@ -29,6 +29,26 @@ const ResponsavelSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const AnexoSchema = new mongoose.Schema(
+  {
+    attachmentId: { type: String, required: true, trim: true },
+    fieldName: { type: String, trim: true },
+    categoria: { type: String, trim: true },
+    originalName: { type: String, trim: true },
+    mimeType: { type: String, trim: true, lowercase: true },
+    extension: { type: String, trim: true, lowercase: true },
+    size: { type: Number, min: 0, default: 0 },
+    storageKey: { type: String, trim: true },
+    uploadedAt: { type: Date, default: Date.now },
+    uploadedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      default: null,
+    },
+  },
+  { _id: false }
+);
+
 const FamiliaSchema = new mongoose.Schema(
   {
     responsavel: {
@@ -48,6 +68,10 @@ const FamiliaSchema = new mongoose.Schema(
       type: Map,
       of: mongoose.Schema.Types.Mixed,
       default: {},
+    },
+    anexos: {
+      type: [AnexoSchema],
+      default: [],
     },
     ativo: {
       type: Boolean,

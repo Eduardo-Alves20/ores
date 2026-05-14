@@ -388,14 +388,16 @@
       }
       if (annexoSection) annexoSection.hidden = false;
       if (annexoTitle) annexoTitle.textContent = "Arquivos anexados (" + uploadedFiles.length + ")";
-      annexoList.innerHTML = uploadedFiles.map(function (f, i) {
-        var kb  = Math.round(f.size / 1024);
+      annexoList.innerHTML = uploadedFiles.map(function (entry, i) {
+        var file = entry && entry.file ? entry.file : null;
+        if (!file) return "";
+        var kb  = Math.round(file.size / 1024);
         var str = kb > 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB";
         return (
           '<div class="annexo-file-item" data-file-idx="' + i + '">' +
             '<i class="fa-solid fa-file-lines annexo-file-icon"></i>' +
             '<div class="annexo-file-info">' +
-              '<span class="annexo-file-name">' + escHtml(f.name) + '</span>' +
+              '<span class="annexo-file-name">' + escHtml(file.name) + '</span>' +
               '<span class="annexo-file-size">' + str + '</span>' +
             "</div>" +
             '<button type="button" class="annexo-file-remove" aria-label="Remover"><i class="fa-solid fa-times"></i></button>' +
@@ -414,11 +416,47 @@
 
     form.querySelectorAll(".upload-card input[type='file']").forEach(function (fileInput) {
       fileInput.addEventListener("change", function () {
-        Array.from(fileInput.files).forEach(function (f) { uploadedFiles.push(f); });
+        Array.from(fileInput.files).forEach(function (f) {
+          uploadedFiles.push({
+            fieldName: fileInput.name || "anexo_outros",
+            file: f,
+          });
+        });
         fileInput.value = "";
         refreshAnnexoList();
       });
     });
+
+    async function uploadAttachments(familyRecordId) {
+      if (!familyRecordId || !uploadedFiles.length) {
+        return { total: 0, anexos: [] };
+      }
+
+      var formData = new FormData();
+      uploadedFiles.forEach(function (entry) {
+        if (!entry || !entry.file) return;
+        formData.append(entry.fieldName || "anexo_outros", entry.file, entry.file.name);
+      });
+
+      var response = await fetch("/api/familias/" + familyRecordId + "/anexos", {
+        method: "POST",
+        body: formData,
+      });
+
+      var contentType = response.headers.get("content-type") || "";
+      var isJson = contentType.includes("application/json");
+      var payload = isJson ? await response.json() : {};
+      if (!response.ok) {
+        throw new Error((payload && (payload.erro || payload.message)) || "Erro ao enviar anexos.");
+      }
+
+      uploadedFiles = [];
+      refreshAnnexoList();
+      return {
+        total: Number(payload && payload.total ? payload.total : 0),
+        anexos: Array.isArray(payload && payload.anexos) ? payload.anexos : [],
+      };
+    }
 
     // ── Collect payload ───────────────────────────────────────────────────
     function collectPayload() {
@@ -511,13 +549,34 @@
           targetId = created && created.familia && created.familia._id;
         }
 
+        var uploadResult = { total: 0, anexos: [] };
+        var uploadErrorMessage = "";
+        if (targetId && uploadedFiles.length) {
+          try {
+            uploadResult = await uploadAttachments(targetId);
+          } catch (uploadErr) {
+            uploadErrorMessage = uploadErr && uploadErr.message
+              ? String(uploadErr.message)
+              : "Falha ao enviar anexos.";
+          }
+        }
+        var uploadText = uploadResult.total > 0 ? " e " + uploadResult.total + " anexo(s) enviado(s)" : "";
+
         if (redirectAfter) {
-          setFeedback("Assistido salvo com sucesso. Redirecionando...", "success");
+          if (uploadErrorMessage) {
+            setFeedback("Assistido salvo, mas os anexos falharam (" + uploadErrorMessage + "). Redirecionando...", "error");
+          } else {
+            setFeedback("Assistido salvo com sucesso" + uploadText + ". Redirecionando...", "success");
+          }
           window.setTimeout(function () {
             window.location.href = targetId ? "/familias/" + targetId : "/familias";
           }, 500);
         } else {
-          setFeedback("Rascunho salvo com sucesso.", "success");
+          if (uploadErrorMessage) {
+            setFeedback("Rascunho salvo, mas os anexos falharam (" + uploadErrorMessage + ").", "error");
+          } else {
+            setFeedback("Rascunho salvo com sucesso" + uploadText + ".", "success");
+          }
           window.setTimeout(function () { setFeedback("", ""); }, 3000);
         }
         return targetId;

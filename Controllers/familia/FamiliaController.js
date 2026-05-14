@@ -6,6 +6,8 @@ const {
   getSessionUser,
   listFamilies,
   loadFamilyDetail,
+  openFamilyAttachment,
+  uploadFamilyAttachments,
   updateFamily,
 } = require("../../services/familia/familiaApiService");
 
@@ -142,6 +144,69 @@ class FamiliaController {
         res,
         "Erro ao alterar status da familia:",
         "Erro interno ao alterar status da familia.",
+        error
+      );
+    }
+  }
+
+  static async uploadAnexos(req, res) {
+    try {
+      const result = await uploadFamilyAttachments({
+        id: req.params?.id,
+        user: getSessionUser(req),
+        actorId: getActorId(req),
+        files: req.files || [],
+      });
+
+      if (!result?.familia) {
+        return respondFamiliaNotFound(res);
+      }
+
+      if (result.audit) {
+        await registrarAuditoria(req, result.audit);
+      }
+
+      return res.status(200).json({
+        mensagem: result.mensagem,
+        total: result.total || 0,
+        anexos: result.anexos || [],
+      });
+    } catch (error) {
+      return respondFamiliaError(
+        res,
+        "Erro ao enviar anexos da familia:",
+        "Erro interno ao enviar anexos da familia.",
+        error
+      );
+    }
+  }
+
+  static async visualizarAnexo(req, res) {
+    try {
+      const payload = await openFamilyAttachment({
+        id: req.params?.id,
+        attachmentId: req.params?.attachmentId,
+        user: getSessionUser(req),
+      });
+
+      const attachment = payload?.attachment || {};
+      const fileName = String(attachment.originalName || "anexo").replace(/["\r\n]/g, "");
+      const mimeType = String(attachment.mimeType || "application/octet-stream");
+      const isPreviewable = mimeType.startsWith("image/") || mimeType === "application/pdf";
+
+      res.setHeader("Content-Type", mimeType);
+      res.setHeader("Content-Length", String(payload?.buffer?.length || 0));
+      res.setHeader(
+        "Content-Disposition",
+        `${isPreviewable ? "inline" : "attachment"}; filename="${fileName}"`
+      );
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      return res.status(200).send(payload.buffer);
+    } catch (error) {
+      return respondFamiliaError(
+        res,
+        "Erro ao exibir anexo da familia:",
+        "Erro interno ao exibir anexo da familia.",
         error
       );
     }
