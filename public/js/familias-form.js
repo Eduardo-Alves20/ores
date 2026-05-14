@@ -253,7 +253,7 @@
       idoso: {
         title: "Anamnese - Idoso",
         label: "Ficha aplicada: Idoso (60+ anos)",
-        desc:  "Adaptada para idosos. Polifarmacia, mobilidade, quedas, suporte social e condicoes cronicas."
+        desc:  "Adaptada para idosos. Aspectos fisicos, cognitivos e psicologicos da terceira idade, historico medico e rede de cuidado."
       }
     };
 
@@ -265,6 +265,7 @@
       var childEl  = document.getElementById("anamnese-form-crianca");
       var adolescenteEl = document.getElementById("anamnese-form-adolescente");
       var adultoEl = document.getElementById("anamnese-form-adulto");
+      var idosoEl = document.getElementById("anamnese-form-idoso");
       var geralEl  = document.getElementById("anamnese-form-geral");
       if (titleEl) titleEl.textContent = cfg.title;
       if (labelEl) labelEl.textContent = cfg.label;
@@ -272,7 +273,8 @@
       if (childEl) childEl.hidden = faixaVal !== "crianca";
       if (adolescenteEl) adolescenteEl.hidden = faixaVal !== "adolescente";
       if (adultoEl) adultoEl.hidden = faixaVal !== "adulto";
-      if (geralEl) geralEl.hidden = faixaVal === "crianca" || faixaVal === "adolescente" || faixaVal === "adulto";
+      if (idosoEl) idosoEl.hidden = faixaVal !== "idoso";
+      if (geralEl) geralEl.hidden = faixaVal === "crianca" || faixaVal === "adolescente" || faixaVal === "adulto" || faixaVal === "idoso";
     }
 
     form.querySelectorAll('input[type="radio"][name="_faixa_sel"]').forEach(function (radio) {

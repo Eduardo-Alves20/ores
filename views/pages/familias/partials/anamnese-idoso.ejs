@@ -1,0 +1,194 @@
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eef6ff;color:#1d4ed8"><i class="fa-solid fa-person-cane" aria-hidden="true"></i></span>
+    Anamnese - Idoso
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-2">
+      <span class="input-label">Nome do(a) paciente</span>
+      <input class="input-control" type="text" name="campoExtra_idoso_nome_paciente" value="<%= familia?.camposExtras?.idoso_nome_paciente || '' %>" data-custom-field-key="idoso_nome_paciente" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Data da entrevista</span>
+      <input class="input-control" type="date" name="campoExtra_idoso_data_entrevista" value="<%= familia?.camposExtras?.idoso_data_entrevista || '' %>" data-custom-field-key="idoso_data_entrevista" data-custom-field-type="data" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Entrevista realizada com</span>
+      <input class="input-control" type="text" name="campoExtra_idoso_entrevista_realizada_com" value="<%= familia?.camposExtras?.idoso_entrevista_realizada_com || '' %>" data-custom-field-key="idoso_entrevista_realizada_com" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+    Queixa
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Qual o motivo do atendimento?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_queixa_motivo" rows="3" data-custom-field-key="idoso_queixa_motivo" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_queixa_motivo || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Quando se iniciou?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_queixa_inicio" rows="2" data-custom-field-key="idoso_queixa_inicio" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_queixa_inicio || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Os sintomas se desenvolveram (vagarosamente/rapidamente/nao sabe)</span>
+      <input class="input-control" type="text" name="campoExtra_idoso_queixa_desenvolvimento_sintomas" value="<%= familia?.camposExtras?.idoso_queixa_desenvolvimento_sintomas || '' %>" data-custom-field-key="idoso_queixa_desenvolvimento_sintomas" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Atendimento com outros profissionais? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_idoso_queixa_outros_profissionais_sim_nao" value="<%= familia?.camposExtras?.idoso_queixa_outros_profissionais_sim_nao || '' %>" data-custom-field-key="idoso_queixa_outros_profissionais_sim_nao" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Qual(s)?</span>
+      <input class="input-control" type="text" name="campoExtra_idoso_queixa_outros_profissionais_quais" value="<%= familia?.camposExtras?.idoso_queixa_outros_profissionais_quais || '' %>" data-custom-field-key="idoso_queixa_outros_profissionais_quais" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f0f7fc;color:#1C5D85"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+    Historico de vida
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">I. Concepcao e gravidez: composicao familiar na concepcao, idade dos pais, gravidez planejada, pre-natal, acidentes/quedas, doencas na gestacao, outros filhos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_hist_gravidez" rows="4" data-custom-field-key="idoso_hist_gravidez" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_hist_gravidez || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">II. Parto: tipo, peso, comprimento, ictericia, problemas no parto, prematuro/esbranquicado/cianotico, incubadora e tempo</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_hist_parto" rows="4" data-custom-field-key="idoso_hist_parto" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_hist_parto || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">III. Alimentacao: seio e idade, mamadeira e idade, inicio pastosa/solida, copo, alimentacao atual, selecao/preferencias, mastigacao</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_hist_alimentacao" rows="4" data-custom-field-key="idoso_hist_alimentacao" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_hist_alimentacao || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">III. Desenvolvimento psicomotor: sustentar cabeca, sentar, engatinhar e forma, andar, cair, dominancia manual, dificuldade motora</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_hist_psicomotor" rows="4" data-custom-field-key="idoso_hist_psicomotor" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_hist_psicomotor || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">IV. Desenvolvimento da linguagem: primeira palavra, quando comecou a falar, problema na fala, historias/livrinhos/leitura, dificuldade de linguagem na familia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_hist_linguagem" rows="4" data-custom-field-key="idoso_hist_linguagem" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_hist_linguagem || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff7ed;color:#ea580c"><i class="fa-solid fa-notes-medical" aria-hidden="true"></i></span>
+    Infancia, adolescencia e vida adulta
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">V.A Doencas na infancia: doencas, febre frequente, convulsoes, internacoes (idade/tempo/motivo), cirurgias, quedas/traumatismos, alergias</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_infancia_doencas" rows="4" data-custom-field-key="idoso_infancia_doencas" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_infancia_doencas || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">V.B Transtornos infantis: sono, alimentacao, psicomotor, gagueira, tiques, sonambulismo, outros, transtorno de aprendizagem</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_infancia_transtornos" rows="4" data-custom-field-key="idoso_infancia_transtornos" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_infancia_transtornos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">V.C Experiencias significativas da infancia e V.D Perdas</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_infancia_experiencias_perdas" rows="4" data-custom-field-key="idoso_infancia_experiencias_perdas" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_infancia_experiencias_perdas || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">VI. Adolescencia: perfil comportamental, amizades, relacao social, experiencias afetivas/sexuais, inicio namoro/vida sexual, preservativos/metodo, gestacao/aborto, DST, independencia/primeiros empregos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_adolescencia_geral" rows="5" data-custom-field-key="idoso_adolescencia_geral" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_adolescencia_geral || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">VI. Vida adulta: lazer, vida social, acesso cultural, atividade fisica, uso de tecnologia e tempo, leitura, habitos, bebida/tabaco/outras drogas, relacionamento com parceiro, vida sexual atual, situacao financeira, amizades, confianca, experiencias afetivas</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_vida_adulta_geral" rows="6" data-custom-field-key="idoso_vida_adulta_geral" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_vida_adulta_geral || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eff6ff;color:#1d4ed8"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
+    Historia familiar, escolaridade e emprego
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Historia familiar: estado civil e tempo, parceiro(a) e idade, filhos/idades, mora com quem, religiao, criancas em casa, membro familiar com problema significante, relacao com familia, o que mais gosta, o que mudaria</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_historia_familiar" rows="5" data-custom-field-key="idoso_historia_familiar" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_historia_familiar || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Escolaridade: estuda atualmente, concilia estudar e trabalhar, instituicao, escolaridade, turno, reprovacao, opiniao sobre instituicao</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_escolaridade_geral" rows="4" data-custom-field-key="idoso_escolaridade_geral" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_escolaridade_geral || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Dificuldades escolares e reforco: ler, escrever, coordenacao, contar/calcular, sinais, atencao, memoria, troca letras, letra ilegivel, concentracao, assimilar/aplicar, outras</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_escolaridade_dificuldades" rows="4" data-custom-field-key="idoso_escolaridade_dificuldades" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_escolaridade_dificuldades || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Emprego: trabalha atualmente? em que? carteira assinada? atrapalha nos estudos?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_emprego" rows="3" data-custom-field-key="idoso_emprego" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_emprego || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f5f3ff;color:#6d28d9"><i class="fa-solid fa-brain" aria-hidden="true"></i></span>
+    Aspectos fisicos, cognitivos e psicologicos - terceira idade
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-2">
+      <span class="input-label">I. Sono: tranquilo, agitado, insonia, ranger dentes, terror noturno, sonambulismo, enurese, fala, pesadelos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_terceira_idade_sono" rows="3" data-custom-field-key="idoso_terceira_idade_sono" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_terceira_idade_sono || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">II/III/IV. Aspectos vocais, auditivos e visuais</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_terceira_idade_vocal_auditivo_visual" rows="3" data-custom-field-key="idoso_terceira_idade_vocal_auditivo_visual" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_terceira_idade_vocal_auditivo_visual || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">V. Aspectos fisicos: dores de cabeca, tonturas, fadiga, coordenacao, tremores, equilibrio, fraqueza unilateral, esfinceres, desmaios</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_terceira_idade_aspectos_fisicos" rows="3" data-custom-field-key="idoso_terceira_idade_aspectos_fisicos" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_terceira_idade_aspectos_fisicos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">VI. Aspectos cognitivos: resolucao de problemas, velocidade de pensamento, tempo de atividades, sequencia, nomeacao, orientacao, reconhecimento, memoria, outras</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_terceira_idade_aspectos_cognitivos" rows="4" data-custom-field-key="idoso_terceira_idade_aspectos_cognitivos" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_terceira_idade_aspectos_cognitivos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">VII. Comportamento / humor / personalidade: qualidades, defeitos, o que mudaria, medo, como se considera, sintomas emocionais constantes, problemas atuais (matrimonial/familiar/financeiro/juridico/trabalho/outros)</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_terceira_idade_comportamento_humor" rows="5" data-custom-field-key="idoso_terceira_idade_comportamento_humor" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_terceira_idade_comportamento_humor || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff8f0;color:#d97706"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i></span>
+    Historico medico e fechamento
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Historico medico: diabetes, pressao alta, doencas cardiacas, respiratorias, alzheimer, parkson, cancer, outras; grandes cirurgias e motivo; consulta/tratamento psiquiatrico e motivo; medicacoes em uso; necessita de cuidador</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_historico_medico" rows="5" data-custom-field-key="idoso_historico_medico" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_historico_medico || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Medico da familia</span>
+      <input class="input-control" type="text" name="campoExtra_idoso_medico_familia_nome" value="<%= familia?.camposExtras?.idoso_medico_familia_nome || '' %>" data-custom-field-key="idoso_medico_familia_nome" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Telefone do medico da familia</span>
+      <input class="input-control" type="text" name="campoExtra_idoso_medico_familia_telefone" value="<%= familia?.camposExtras?.idoso_medico_familia_telefone || '' %>" data-custom-field-key="idoso_medico_familia_telefone" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Observacoes</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_observacoes" rows="4" data-custom-field-key="idoso_observacoes" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_observacoes || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Hipotese de diagnostico</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_hipotese_diagnostico" rows="3" data-custom-field-key="idoso_hipotese_diagnostico" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_hipotese_diagnostico || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Encaminhamentos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_idoso_encaminhamentos" rows="3" data-custom-field-key="idoso_encaminhamentos" data-custom-field-type="textarea"><%= familia?.camposExtras?.idoso_encaminhamentos || '' %></textarea>
+    </label>
+  </div>
+</div>
