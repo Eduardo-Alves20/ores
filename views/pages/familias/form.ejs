@@ -721,10 +721,13 @@
 
       <div class="wizard-info-notice">
         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-        <span>Modelo padrão de entrevista social. Esta ficha pode ser preenchida em qualquer momento pelo Serviço Social e gera o parecer técnico vinculado ao prontuário do assistido. Os blocos seguem o padrão LOAS/SUAS para diagnóstico social.</span>
+        <span>FICHA DE ENTREVISTA SOCIAL ORES - CASA TEA (Criancas, Adolescentes e Familias em Condicao de Neurodivergencia). Este atendimento e analise tecnica fundamentam-se no Principio da Prioridade Absoluta (Art. 227 da CF/88 e Art. 4o do ECA) e na Equiparacao da Neurodivergencia a Deficiencia para todos os efeitos legais (Lei 12.764/12, Lei 13.146/15 e Lei 14.254/21).</span>
       </div>
 
-      <%# Identificação da entrevista %>
+            <%- include("./partials/entrevista-social-casa-tea") %>
+
+      <div id="entrevista-social-legado" hidden>
+<%# Identificação da entrevista %>
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
@@ -1039,10 +1042,11 @@
           </label>
         </div>
       </div>
+      </div>
     </div>
 
     <%# ════════════════════════════════════════════════ %>
-    <%# ETAPA 5 — Anexos e documentos                   %>
+<%# ETAPA 5 — Anexos e documentos                   %>
     <%# ════════════════════════════════════════════════ %>
     <div class="wizard-panel" data-panel="5" hidden>
       <div class="wizard-panel-header">
