@@ -7,6 +7,7 @@ const {
   isValidCpf,
   isValidPhone,
   isValidCep,
+  isNotFutureIsoDate,
 } = require("../../services/familia/api/familiaInputService");
 
 test("normalizeFamilyResponsible aplica mascara e sanitiza campos sensiveis", () => {
@@ -31,12 +32,14 @@ test("normalizeFamilyAddress formata cep e normaliza estado", () => {
   const result = normalizeFamilyAddress({
     cep: "25000-123<script>",
     rua: " Rua Teste <img>",
+    numero: "12A<script>",
     cidade: "Duque de Caxias",
     estado: "rj",
   });
 
   assert.equal(result.cep, "25000-123");
   assert.equal(result.rua, "Rua Teste img");
+  assert.equal(result.numero, "12");
   assert.equal(result.cidade, "Duque de Caxias");
   assert.equal(result.estado, "RJ");
 });
@@ -50,4 +53,9 @@ test("validadores de cpf, telefone e cep aceitam apenas tamanhos esperados", () 
 
   assert.equal(isValidCep("25000-123"), true);
   assert.equal(isValidCep("2500012"), false);
+});
+
+test("isNotFutureIsoDate bloqueia datas futuras", () => {
+  assert.equal(isNotFutureIsoDate("2000-01-01"), true);
+  assert.equal(isNotFutureIsoDate("2100-01-01"), false);
 });

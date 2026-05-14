@@ -10,6 +10,7 @@ const {
   uploadFamilyAttachments,
   updateFamily,
 } = require("../../services/familia/familiaApiService");
+const { lookupAddressByCep } = require("../../services/shared/cepLookupService");
 
 function respondFamiliaError(res, logMessage, fallbackMessage, error) {
   console.error(logMessage, error);
@@ -40,6 +41,20 @@ async function respondWithAuditedFamily(req, res, statusCode, result) {
 }
 
 class FamiliaController {
+  static async buscarCep(req, res) {
+    try {
+      const payload = await lookupAddressByCep(req.params?.cep);
+      return res.status(200).json(payload);
+    } catch (error) {
+      return respondFamiliaError(
+        res,
+        "Erro ao consultar CEP:",
+        "Erro interno ao consultar CEP.",
+        error
+      );
+    }
+  }
+
   static async listar(req, res) {
     try {
       return res.status(200).json(

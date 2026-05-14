@@ -80,6 +80,15 @@ function isIsoDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(normalized);
 }
 
+function isNotFutureIsoDate(value) {
+  if (!isIsoDate(value)) return false;
+  const normalized = normalizeLimitedString(value, 10);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const parsed = new Date(`${normalized}T00:00:00`);
+  return Number.isFinite(parsed.getTime()) && parsed.getTime() <= today.getTime();
+}
+
 function normalizeFamilyResponsible(value = {}) {
   const input = isPlainObject(value) ? value : {};
 
@@ -103,7 +112,9 @@ function normalizeFamilyAddress(value = {}) {
   ADDRESS_FIELDS.forEach(([key, maxLength]) => {
     const normalized = key === "cep"
       ? formatCep(input[key])
-      : normalizeLimitedString(input[key], maxLength);
+      : key === "numero"
+        ? normalizeDigits(input[key], 10)
+        : normalizeLimitedString(input[key], maxLength);
     if (normalized) {
       output[key] = key === "estado" ? normalized.toUpperCase() : normalized;
     }
@@ -124,6 +135,7 @@ module.exports = {
   isValidCpf,
   isValidPhone,
   isIsoDate,
+  isNotFutureIsoDate,
   normalizeFamilyAddress,
   normalizeFamilyObservacoes,
   normalizeFamilyResponsible,

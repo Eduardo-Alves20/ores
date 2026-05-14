@@ -112,7 +112,7 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">RG</span>
-            <input class="input-control" type="text" name="campoExtra_rg" value="<%= familia?.camposExtras?.rg || '' %>" placeholder="00.000.000-0" data-custom-field-key="rg" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_rg" value="<%= familia?.camposExtras?.rg || '' %>" placeholder="00.000.000-0" data-custom-field-key="rg" data-custom-field-type="texto" data-mask="rg" data-only-digits="9" inputmode="numeric" autocomplete="off" />
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Órgão emissor / UF</span>
@@ -320,7 +320,7 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">Número *</span>
-            <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" placeholder="Ex: 142" />
+            <input class="input-control" type="text" name="endereco_numero" value="<%= familia?.endereco?.numero || '' %>" placeholder="Ex: 142" data-only-digits="10" inputmode="numeric" autocomplete="off" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Complemento</span>

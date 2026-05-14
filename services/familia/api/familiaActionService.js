@@ -11,6 +11,7 @@ const {
   isValidCpf,
   isValidPhone,
   isIsoDate,
+  isNotFutureIsoDate,
   isPlainObject,
   normalizeFamilyAddress,
   normalizeFamilyObservacoes,
@@ -216,11 +217,22 @@ async function createFamily({ actorId, body = {} }) {
   if (responsavel.dataNascimentoResponsavel && !isIsoDate(responsavel.dataNascimentoResponsavel)) {
     throw createFamiliaError("Data de nascimento do responsavel invalida.", 400);
   }
+  if (responsavel.dataNascimentoResponsavel && !isNotFutureIsoDate(responsavel.dataNascimentoResponsavel)) {
+    throw createFamiliaError("Data de nascimento do responsavel nao pode ser futura.", 400);
+  }
   if (endereco?.cep && !isValidCep(endereco.cep)) {
     throw createFamiliaError("CEP invalido.", 400);
   }
 
   const normalizedCamposExtras = await normalizeCustomFieldValues("familia", camposExtras);
+  if (normalizedCamposExtras?.data_nascimento) {
+    if (!isIsoDate(normalizedCamposExtras.data_nascimento)) {
+      throw createFamiliaError("Data de nascimento do assistido invalida.", 400);
+    }
+    if (!isNotFutureIsoDate(normalizedCamposExtras.data_nascimento)) {
+      throw createFamiliaError("Data de nascimento do assistido nao pode ser futura.", 400);
+    }
+  }
   const familia = await Familia.create({
     responsavel: {
       nome,
@@ -305,6 +317,12 @@ async function updateFamily({ id, user, actorId, body = {} }) {
       ) {
         throw createFamiliaError("Data de nascimento do responsavel invalida.", 400);
       }
+      if (
+        normalizedResponsavel.dataNascimentoResponsavel &&
+        !isNotFutureIsoDate(normalizedResponsavel.dataNascimentoResponsavel)
+      ) {
+        throw createFamiliaError("Data de nascimento do responsavel nao pode ser futura.", 400);
+      }
       patch["responsavel.dataNascimentoResponsavel"] = normalizedResponsavel.dataNascimentoResponsavel;
     }
     if (Object.prototype.hasOwnProperty.call(responsavel, "telefoneResponsavel")) {
@@ -333,6 +351,14 @@ async function updateFamily({ id, user, actorId, body = {} }) {
   }
   if (typeof camposExtras !== "undefined") {
     patch.camposExtras = await normalizeCustomFieldValues("familia", camposExtras || {});
+    if (patch.camposExtras?.data_nascimento) {
+      if (!isIsoDate(patch.camposExtras.data_nascimento)) {
+        throw createFamiliaError("Data de nascimento do assistido invalida.", 400);
+      }
+      if (!isNotFutureIsoDate(patch.camposExtras.data_nascimento)) {
+        throw createFamiliaError("Data de nascimento do assistido nao pode ser futura.", 400);
+      }
+    }
   }
 
   const familia = await Familia.findByIdAndUpdate(id, patch, {

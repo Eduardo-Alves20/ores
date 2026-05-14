@@ -260,11 +260,20 @@
         .replace(/\.(\d{2})(\d)/, ".$1-$2");
     }
 
+    function maskRg(value) {
+      var digits = onlyDigits(value, 9);
+      return digits
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1-$2");
+    }
+
     function applyMask(mask, value) {
       if (mask === "cpf") return maskCpf(value);
       if (mask === "phone") return maskPhone(value);
       if (mask === "cep") return maskCep(value);
       if (mask === "nis") return maskNis(value);
+      if (mask === "rg") return maskRg(value);
       return value;
     }
 
@@ -309,7 +318,7 @@
 
       cepLookupInFlight = true;
       try {
-        var response = await fetch("https://viacep.com.br/ws/" + cepDigits + "/json/");
+        var response = await fetch("/api/familias/cep/" + cepDigits);
         if (!response.ok) return;
         var data = await response.json();
         if (!data || data.erro) return;
@@ -343,14 +352,38 @@
       }
     }
 
+    function getTodayIsoDate() {
+      var now = new Date();
+      var year = now.getFullYear();
+      var month = String(now.getMonth() + 1).padStart(2, "0");
+      var day = String(now.getDate()).padStart(2, "0");
+      return year + "-" + month + "-" + day;
+    }
+
+    function isFutureIsoDate(value) {
+      var normalized = sanitizeTextValue(value, 10);
+      if (!normalized) return false;
+      return normalized > getTodayIsoDate();
+    }
+
     // ── Age calculation ───────────────────────────────────────────────────
     var dataNascInput = form.querySelector("[name='campoExtra_data_nascimento']");
     var idadeInput    = form.querySelector("[name='_idade_calculada']");
     var faixaInput    = form.querySelector("[name='_faixa_anamnese']");
+    var dataNascResponsavelInput = form.querySelector("[name='responsavel_familiar_nascimento']");
+
+    var todayIsoDate = getTodayIsoDate();
+    if (dataNascInput) dataNascInput.setAttribute("max", todayIsoDate);
+    if (dataNascResponsavelInput) dataNascResponsavelInput.setAttribute("max", todayIsoDate);
 
     function calcAge() {
       var val = dataNascInput && dataNascInput.value;
       if (!val) return;
+      if (isFutureIsoDate(val)) {
+        if (idadeInput) idadeInput.value = "";
+        if (faixaInput) faixaInput.value = "";
+        return;
+      }
       var dob   = new Date(val);
       if (isNaN(dob)) return;
       var today = new Date();
@@ -695,7 +728,7 @@
         endereco: {
           cep:         maskCep((form.elements.endereco_cep         || {}).value || ""),
           rua:         sanitizeTextValue((form.elements.endereco_rua         || {}).value || "", 160),
-          numero:      sanitizeTextValue((form.elements.endereco_numero      || {}).value || "", 20),
+          numero:      onlyDigits((form.elements.endereco_numero      || {}).value || "", 10),
           bairro:      sanitizeTextValue((form.elements.endereco_bairro      || {}).value || "", 80),
           cidade:      sanitizeTextValue((form.elements.endereco_cidade      || {}).value || "", 80),
           estado:      sanitizeTextValue((form.elements.endereco_estado      || {}).value || "", 2).toUpperCase(),
@@ -720,6 +753,18 @@
         !payload.responsavel.dataNascimentoResponsavel
       ) {
         setFeedback("Preencha os dados obrigatorios do responsavel familiar (nome, CPF e nascimento).", "error");
+        if (currentStep !== 1) showStep(1);
+        return null;
+      }
+      if (isFutureIsoDate(payload.camposExtras.data_nascimento)) {
+        setFeedback("Data de nascimento do assistido nao pode ser futura.", "error");
+        if (dataNascInput) dataNascInput.classList.add("is-invalid");
+        if (currentStep !== 1) showStep(1);
+        return null;
+      }
+      if (isFutureIsoDate(payload.responsavel.dataNascimentoResponsavel)) {
+        setFeedback("Data de nascimento do responsavel nao pode ser futura.", "error");
+        if (dataNascResponsavelInput) dataNascResponsavelInput.classList.add("is-invalid");
         if (currentStep !== 1) showStep(1);
         return null;
       }

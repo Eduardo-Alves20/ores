@@ -36,6 +36,7 @@ function handleFamilyAttachmentUpload(req, res, next) {
 }
 
 router.get("/", requirePermission(PERMISSIONS.FAMILIAS_VIEW), FamiliaController.listar);
+router.get("/cep/:cep", requirePermission(PERMISSIONS.FAMILIAS_VIEW), FamiliaController.buscarCep);
 router.get("/:id", requirePermission(PERMISSIONS.FAMILIAS_VIEW), FamiliaController.detalhar);
 
 router.post(
