@@ -18,6 +18,40 @@ function normalizeList(list) {
   );
 }
 
+const PROFILE_PERMISSION_MATRIX = Object.freeze({
+  [PERFIS.ADMIN]: Object.freeze({
+    add: [],
+    remove: [
+      PERMISSIONS.ENTREVISTA_SOCIAL_CREATE,
+      PERMISSIONS.RELATORIO_EVOLUCAO_CREATE_UPDATE,
+    ],
+  }),
+  [PERFIS.PROFISSIONAL]: Object.freeze({
+    add: [PERMISSIONS.FAMILIAS_VIEW, PERMISSIONS.PACIENTES_VIEW],
+    remove: [],
+  }),
+});
+
+function applyProfilePermissionMatrix(perfil, permissionList = []) {
+  const normalizedProfile = String(perfil || "").trim().toLowerCase();
+  const matrix = PROFILE_PERMISSION_MATRIX[normalizedProfile];
+  const normalizedPermissions = normalizePermissionList(permissionList);
+
+  if (!matrix || normalizedPermissions.includes("*")) {
+    return normalizedPermissions;
+  }
+
+  const set = new Set(normalizedPermissions);
+  (Array.isArray(matrix.remove) ? matrix.remove : []).forEach((permission) => {
+    set.delete(permission);
+  });
+  (Array.isArray(matrix.add) ? matrix.add : []).forEach((permission) => {
+    set.add(permission);
+  });
+
+  return normalizePermissionList(Array.from(set.values()));
+}
+
 function hasPermission(permissionList, requiredPermission) {
   const required = String(requiredPermission || "").trim();
   if (!required) return true;
@@ -64,7 +98,10 @@ async function carregarUsuarioComFuncoes(userId) {
 async function resolvePermissionsForUserId(userId, fallbackPerfil = "") {
   const user = await carregarUsuarioComFuncoes(userId);
   if (!user) {
-    return getDefaultPermissionsForProfile(fallbackPerfil);
+    return applyProfilePermissionMatrix(
+      fallbackPerfil,
+      getDefaultPermissionsForProfile(fallbackPerfil)
+    );
   }
 
   const perfil = String(user.perfil || fallbackPerfil || "").toLowerCase();
@@ -106,7 +143,7 @@ async function resolvePermissionsForUserId(userId, fallbackPerfil = "") {
     ]);
   }
 
-  return getDefaultPermissionsForProfile(perfil);
+  return applyProfilePermissionMatrix(perfil, getDefaultPermissionsForProfile(perfil));
 }
 
 async function resolvePermissionsFromSession(req) {
@@ -121,7 +158,12 @@ async function resolvePermissionsFromSession(req) {
     sessionUser.permissions.length &&
     !shouldRefreshUsuarioPermissions
   ) {
-    return normalizePermissionList(sessionUser.permissions);
+    const adjusted = applyProfilePermissionMatrix(
+      sessionUser.perfil,
+      normalizePermissionList(sessionUser.permissions)
+    );
+    req.session.user.permissions = adjusted;
+    return adjusted;
   }
 
   const resolved = await resolvePermissionsForUserId(sessionUser.id, sessionUser.perfil);
