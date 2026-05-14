@@ -201,6 +201,148 @@
       return result;
     }
 
+    function onlyDigits(value, maxLength) {
+      var digits = String(value || "").replace(/\D+/g, "");
+      if (Number.isFinite(maxLength) && maxLength > 0) {
+        return digits.slice(0, maxLength);
+      }
+      return digits;
+    }
+
+    function sanitizeTextValue(value, maxLength) {
+      var normalized = String(value || "")
+        .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
+        .replace(/[<>]/g, "")
+        .trim();
+      if (Number.isFinite(maxLength) && maxLength > 0) {
+        return normalized.slice(0, maxLength);
+      }
+      return normalized;
+    }
+
+    function sanitizeEmailValue(value) {
+      var normalized = sanitizeTextValue(value, 140).toLowerCase();
+      if (!normalized) return "";
+      var emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRx.test(normalized) ? normalized : "";
+    }
+
+    function maskCpf(value) {
+      var digits = onlyDigits(value, 11);
+      return digits
+        .replace(/^(\d{3})(\d)/, "$1.$2")
+        .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1-$2");
+    }
+
+    function maskPhone(value) {
+      var digits = onlyDigits(value, 11);
+      if (digits.length <= 10) {
+        return digits
+          .replace(/^(\d{2})(\d)/, "($1) $2")
+          .replace(/(\d{4})(\d)/, "$1-$2");
+      }
+      return digits
+        .replace(/^(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d)/, "$1-$2");
+    }
+
+    function maskCep(value) {
+      var digits = onlyDigits(value, 8);
+      return digits.replace(/^(\d{5})(\d)/, "$1-$2");
+    }
+
+    function maskNis(value) {
+      var digits = onlyDigits(value, 11);
+      return digits
+        .replace(/^(\d{3})(\d)/, "$1.$2")
+        .replace(/^(\d{3})\.(\d{5})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{2})(\d)/, ".$1-$2");
+    }
+
+    function applyMask(mask, value) {
+      if (mask === "cpf") return maskCpf(value);
+      if (mask === "phone") return maskPhone(value);
+      if (mask === "cep") return maskCep(value);
+      if (mask === "nis") return maskNis(value);
+      return value;
+    }
+
+    function initInputMasksAndNumericGuards() {
+      form.querySelectorAll("[data-mask], [data-only-digits]").forEach(function (field) {
+        var mask = String(field.getAttribute("data-mask") || "").trim();
+        var maxDigits = Number.parseInt(String(field.getAttribute("data-only-digits") || ""), 10);
+
+        function enforce() {
+          var raw = String(field.value || "");
+          var digits = Number.isFinite(maxDigits) && maxDigits > 0
+            ? onlyDigits(raw, maxDigits)
+            : onlyDigits(raw);
+
+          if (mask) {
+            field.value = applyMask(mask, digits);
+            return;
+          }
+          field.value = digits;
+        }
+
+        field.addEventListener("input", enforce);
+        field.addEventListener("blur", enforce);
+        enforce();
+      });
+    }
+    initInputMasksAndNumericGuards();
+
+    var enderecoCepInput = form.elements.endereco_cep || null;
+    var enderecoRuaInput = form.elements.endereco_rua || null;
+    var enderecoBairroInput = form.elements.endereco_bairro || null;
+    var enderecoCidadeInput = form.elements.endereco_cidade || null;
+    var enderecoEstadoInput = form.elements.endereco_estado || null;
+    var cepLookupInFlight = false;
+    var lastResolvedCep = "";
+
+    async function autoFillAddressFromCep() {
+      if (!enderecoCepInput) return;
+      var cepDigits = onlyDigits(enderecoCepInput.value, 8);
+      if (cepDigits.length !== 8) return;
+      if (cepLookupInFlight || lastResolvedCep === cepDigits) return;
+
+      cepLookupInFlight = true;
+      try {
+        var response = await fetch("https://viacep.com.br/ws/" + cepDigits + "/json/");
+        if (!response.ok) return;
+        var data = await response.json();
+        if (!data || data.erro) return;
+
+        if (enderecoRuaInput) enderecoRuaInput.value = sanitizeTextValue(data.logradouro, 160);
+        if (enderecoBairroInput) enderecoBairroInput.value = sanitizeTextValue(data.bairro, 80);
+        if (enderecoCidadeInput) enderecoCidadeInput.value = sanitizeTextValue(data.localidade, 80);
+        if (enderecoEstadoInput) {
+          var uf = sanitizeTextValue(data.uf, 2).toUpperCase();
+          enderecoEstadoInput.value = uf;
+        }
+
+        lastResolvedCep = cepDigits;
+        updateProgress();
+      } catch (_) {
+        // Sem bloquear o fluxo caso a API esteja indisponível.
+      } finally {
+        cepLookupInFlight = false;
+      }
+    }
+
+    if (enderecoCepInput) {
+      enderecoCepInput.addEventListener("blur", autoFillAddressFromCep);
+      enderecoCepInput.addEventListener("change", autoFillAddressFromCep);
+      if (
+        onlyDigits(enderecoCepInput.value, 8).length === 8 &&
+        enderecoRuaInput &&
+        !String(enderecoRuaInput.value || "").trim()
+      ) {
+        autoFillAddressFromCep();
+      }
+    }
+
     // ── Age calculation ───────────────────────────────────────────────────
     var dataNascInput = form.querySelector("[name='campoExtra_data_nascimento']");
     var idadeInput    = form.querySelector("[name='_idade_calculada']");
@@ -515,9 +657,19 @@
           if (seen[key]) return;
         }
         seen[key] = true;
-        camposExtras[key] = type === "booleano"
-          ? String(field.value || "").trim() === "true"
-          : String(field.value || "").trim();
+        if (type === "booleano") {
+          camposExtras[key] = String(field.value || "").trim() === "true";
+          return;
+        }
+        if (type === "numero") {
+          camposExtras[key] = sanitizeTextValue(String(field.value || "").replace(/[^0-9,.\-]/g, ""), 40);
+          return;
+        }
+        if (type === "data") {
+          camposExtras[key] = sanitizeTextValue(field.value, 10);
+          return;
+        }
+        camposExtras[key] = sanitizeTextValue(field.value, type === "textarea" ? 5000 : 320);
       });
 
       // Merge checkbox groups
@@ -530,26 +682,26 @@
 
       return {
         responsavel: {
-          nome:                      ((form.elements.responsavel_nome                 || {}).value || "").trim(),
-          telefone:                  ((form.elements.responsavel_telefone             || {}).value || "").trim(),
-          email:                     ((form.elements.responsavel_email                || {}).value || "").trim(),
-          parentesco:                ((form.elements.responsavel_parentesco           || {}).value || "").trim(),
-          nomeResponsavel:           ((form.elements.responsavel_familiar_nome        || {}).value || "").trim(),
-          cpfResponsavel:            ((form.elements.responsavel_familiar_cpf         || {}).value || "").trim(),
-          dataNascimentoResponsavel: ((form.elements.responsavel_familiar_nascimento  || {}).value || "").trim(),
-          telefoneResponsavel:       ((form.elements.responsavel_familiar_telefone    || {}).value || "").trim(),
-          emailResponsavel:          ((form.elements.responsavel_familiar_email       || {}).value || "").trim(),
+          nome:                      sanitizeTextValue((form.elements.responsavel_nome                 || {}).value || "", 120),
+          telefone:                  maskPhone((form.elements.responsavel_telefone             || {}).value || ""),
+          email:                     sanitizeEmailValue((form.elements.responsavel_email                || {}).value || ""),
+          parentesco:                sanitizeTextValue((form.elements.responsavel_parentesco           || {}).value || "", 60),
+          nomeResponsavel:           sanitizeTextValue((form.elements.responsavel_familiar_nome        || {}).value || "", 120),
+          cpfResponsavel:            maskCpf((form.elements.responsavel_familiar_cpf         || {}).value || ""),
+          dataNascimentoResponsavel: sanitizeTextValue((form.elements.responsavel_familiar_nascimento  || {}).value || "", 10),
+          telefoneResponsavel:       maskPhone((form.elements.responsavel_familiar_telefone    || {}).value || ""),
+          emailResponsavel:          sanitizeEmailValue((form.elements.responsavel_familiar_email       || {}).value || ""),
         },
         endereco: {
-          cep:         ((form.elements.endereco_cep         || {}).value || "").trim(),
-          rua:         ((form.elements.endereco_rua         || {}).value || "").trim(),
-          numero:      ((form.elements.endereco_numero      || {}).value || "").trim(),
-          bairro:      ((form.elements.endereco_bairro      || {}).value || "").trim(),
-          cidade:      ((form.elements.endereco_cidade      || {}).value || "").trim(),
-          estado:      ((form.elements.endereco_estado      || {}).value || "").trim().toUpperCase(),
-          complemento: ((form.elements.endereco_complemento || {}).value || "").trim(),
+          cep:         maskCep((form.elements.endereco_cep         || {}).value || ""),
+          rua:         sanitizeTextValue((form.elements.endereco_rua         || {}).value || "", 160),
+          numero:      sanitizeTextValue((form.elements.endereco_numero      || {}).value || "", 20),
+          bairro:      sanitizeTextValue((form.elements.endereco_bairro      || {}).value || "", 80),
+          cidade:      sanitizeTextValue((form.elements.endereco_cidade      || {}).value || "", 80),
+          estado:      sanitizeTextValue((form.elements.endereco_estado      || {}).value || "", 2).toUpperCase(),
+          complemento: sanitizeTextValue((form.elements.endereco_complemento || {}).value || "", 120),
         },
-        observacoes:  ((form.elements.observacoes || {}).value || "").trim(),
+        observacoes:  sanitizeTextValue((form.elements.observacoes || {}).value || "", 3000),
         camposExtras,
       };
     }

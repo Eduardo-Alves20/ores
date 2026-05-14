@@ -108,7 +108,7 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">CPF *</span>
-            <input class="input-control" type="text" name="campoExtra_cpf" value="<%= familia?.camposExtras?.cpf || '' %>" placeholder="123.456.789-00" data-custom-field-key="cpf" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_cpf" value="<%= familia?.camposExtras?.cpf || '' %>" placeholder="123.456.789-00" data-custom-field-key="cpf" data-custom-field-type="texto" data-mask="cpf" data-only-digits="11" inputmode="numeric" autocomplete="off" />
           </label>
           <label class="field-wrap">
             <span class="input-label">RG</span>
@@ -182,11 +182,11 @@
         <div class="form-grid">
           <label class="field-wrap">
             <span class="input-label">Telefone principal *</span>
-            <input class="input-control" type="text" name="responsavel_telefone" value="<%= familia?.responsavel?.telefone || '' %>" placeholder="(11) 99999-9999" />
+            <input class="input-control" type="text" name="responsavel_telefone" value="<%= familia?.responsavel?.telefone || '' %>" placeholder="(11) 99999-9999" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Telefone secundário</span>
-            <input class="input-control" type="text" name="campoExtra_telefone_secundario" value="<%= familia?.camposExtras?.telefone_secundario || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="telefone_secundario" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_telefone_secundario" value="<%= familia?.camposExtras?.telefone_secundario || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="telefone_secundario" data-custom-field-type="texto" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
           </label>
           <div class="field-wrap">
             <span class="input-label">É WhatsApp?</span>
@@ -235,7 +235,7 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">CPF do responsavel *</span>
-            <input class="input-control" type="text" name="responsavel_familiar_cpf" value="<%= familia?.responsavel?.cpfResponsavel || '' %>" placeholder="000.000.000-00" required />
+            <input class="input-control" type="text" name="responsavel_familiar_cpf" value="<%= familia?.responsavel?.cpfResponsavel || '' %>" placeholder="000.000.000-00" required data-mask="cpf" data-only-digits="11" inputmode="numeric" autocomplete="off" />
           </label>
           <label class="field-wrap">
             <span class="input-label">Nascimento do responsavel *</span>
@@ -243,7 +243,7 @@
           </label>
           <label class="field-wrap">
             <span class="input-label">Telefone do responsavel</span>
-            <input class="input-control" type="text" name="responsavel_familiar_telefone" value="<%= familia?.responsavel?.telefoneResponsavel || '' %>" placeholder="(11) 99999-9999" />
+            <input class="input-control" type="text" name="responsavel_familiar_telefone" value="<%= familia?.responsavel?.telefoneResponsavel || '' %>" placeholder="(11) 99999-9999" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
           </label>
           <label class="field-wrap">
             <span class="input-label">E-mail do responsavel</span>
@@ -273,7 +273,7 @@
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Telefone</span>
-            <input class="input-control" type="text" name="campoExtra_emergencia_telefone" value="<%= familia?.camposExtras?.emergencia_telefone || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="emergencia_telefone" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_emergencia_telefone" value="<%= familia?.camposExtras?.emergencia_telefone || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="emergencia_telefone" data-custom-field-type="texto" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
           </label>
           <label class="field-wrap span-2">
             <span class="input-label">Vínculo / parentesco</span>
@@ -312,7 +312,7 @@
         <div class="form-grid">
           <label class="field-wrap">
             <span class="input-label">CEP *</span>
-            <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" placeholder="00000-000" />
+            <input class="input-control" type="text" name="endereco_cep" value="<%= familia?.endereco?.cep || '' %>" placeholder="00000-000" data-mask="cep" data-only-digits="8" inputmode="numeric" autocomplete="postal-code" />
           </label>
           <label class="field-wrap span-3">
             <span class="input-label">Logradouro *</span>
@@ -916,7 +916,7 @@
           </div>
           <label class="field-wrap">
             <span class="input-label">Nº NIS do responsável</span>
-            <input class="input-control" type="text" name="campoExtra_nis" value="<%= familia?.camposExtras?.nis || '' %>" placeholder="000.00000.00-0" data-custom-field-key="nis" data-custom-field-type="texto" />
+            <input class="input-control" type="text" name="campoExtra_nis" value="<%= familia?.camposExtras?.nis || '' %>" placeholder="000.00000.00-0" data-custom-field-key="nis" data-custom-field-type="texto" data-mask="nis" data-only-digits="11" inputmode="numeric" autocomplete="off" />
           </label>
           <div class="field-wrap">
             <span class="input-label">Cadastrado no CRAS de referência?</span>

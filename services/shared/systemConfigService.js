@@ -182,6 +182,14 @@ function normalizeText(value, max = 120) {
   return String(value || "").trim().slice(0, max);
 }
 
+function sanitizeUserInputText(value, max = 5000) {
+  return String(value || "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
+    .replace(/[<>]/g, "")
+    .trim()
+    .slice(0, max);
+}
+
 function normalizeKey(value, max = 80) {
   return String(value || "")
     .normalize("NFD")
@@ -966,7 +974,9 @@ async function normalizeCustomFieldValues(area, rawValues = {}) {
     }
 
     if (def.tipo === "numero") {
-      const normalized = String(raw ?? "").trim();
+      const normalized = String(raw ?? "")
+        .replace(/[^0-9,.\-]/g, "")
+        .trim();
       if (!normalized) {
         if (def.obrigatorio) throw createConfigError(`Informe o campo "${def.label}".`);
         continue;
@@ -980,7 +990,7 @@ async function normalizeCustomFieldValues(area, rawValues = {}) {
     }
 
     if (def.tipo === "data") {
-      const normalized = String(raw ?? "").trim();
+      const normalized = sanitizeUserInputText(raw, 10);
       if (!normalized) {
         if (def.obrigatorio) throw createConfigError(`Informe o campo "${def.label}".`);
         continue;
@@ -989,7 +999,7 @@ async function normalizeCustomFieldValues(area, rawValues = {}) {
       continue;
     }
 
-    const normalized = String(raw ?? "").trim();
+    const normalized = sanitizeUserInputText(raw, def.tipo === "textarea" ? 5000 : 320);
     if (!normalized) {
       if (def.obrigatorio) throw createConfigError(`Informe o campo "${def.label}".`);
       continue;

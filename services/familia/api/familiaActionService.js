@@ -7,6 +7,10 @@ const { parseBoolean } = require("../../shared/valueParsingService");
 const { createFamiliaError } = require("./familiaContextService");
 const { ensureAccessibleFamily } = require("./familiaGuardService");
 const {
+  isValidCep,
+  isValidCpf,
+  isValidPhone,
+  isIsoDate,
   isPlainObject,
   normalizeFamilyAddress,
   normalizeFamilyObservacoes,
@@ -200,6 +204,21 @@ async function createFamily({ actorId, body = {} }) {
   if (!nome || !telefone) {
     throw createFamiliaError("Campos obrigatorios do responsavel: nome e telefone.", 400);
   }
+  if (!isValidPhone(telefone)) {
+    throw createFamiliaError("Telefone principal invalido. Informe DDD + numero.", 400);
+  }
+  if (responsavel.cpfResponsavel && !isValidCpf(responsavel.cpfResponsavel)) {
+    throw createFamiliaError("CPF do responsavel invalido.", 400);
+  }
+  if (responsavel.telefoneResponsavel && !isValidPhone(responsavel.telefoneResponsavel)) {
+    throw createFamiliaError("Telefone do responsavel invalido.", 400);
+  }
+  if (responsavel.dataNascimentoResponsavel && !isIsoDate(responsavel.dataNascimentoResponsavel)) {
+    throw createFamiliaError("Data de nascimento do responsavel invalida.", 400);
+  }
+  if (endereco?.cep && !isValidCep(endereco.cep)) {
+    throw createFamiliaError("CEP invalido.", 400);
+  }
 
   const normalizedCamposExtras = await normalizeCustomFieldValues("familia", camposExtras);
   const familia = await Familia.create({
@@ -259,6 +278,9 @@ async function updateFamily({ id, user, actorId, body = {} }) {
       if (!normalizedResponsavel.telefone) {
         throw createFamiliaError("Campo telefone do responsavel e obrigatorio.", 400);
       }
+      if (!isValidPhone(normalizedResponsavel.telefone)) {
+        throw createFamiliaError("Telefone principal invalido. Informe DDD + numero.", 400);
+      }
       patch["responsavel.telefone"] = normalizedResponsavel.telefone;
     }
     if (Object.prototype.hasOwnProperty.call(responsavel, "email")) {
@@ -271,12 +293,27 @@ async function updateFamily({ id, user, actorId, body = {} }) {
       patch["responsavel.nomeResponsavel"] = normalizedResponsavel.nomeResponsavel;
     }
     if (Object.prototype.hasOwnProperty.call(responsavel, "cpfResponsavel")) {
+      if (normalizedResponsavel.cpfResponsavel && !isValidCpf(normalizedResponsavel.cpfResponsavel)) {
+        throw createFamiliaError("CPF do responsavel invalido.", 400);
+      }
       patch["responsavel.cpfResponsavel"] = normalizedResponsavel.cpfResponsavel;
     }
     if (Object.prototype.hasOwnProperty.call(responsavel, "dataNascimentoResponsavel")) {
+      if (
+        normalizedResponsavel.dataNascimentoResponsavel &&
+        !isIsoDate(normalizedResponsavel.dataNascimentoResponsavel)
+      ) {
+        throw createFamiliaError("Data de nascimento do responsavel invalida.", 400);
+      }
       patch["responsavel.dataNascimentoResponsavel"] = normalizedResponsavel.dataNascimentoResponsavel;
     }
     if (Object.prototype.hasOwnProperty.call(responsavel, "telefoneResponsavel")) {
+      if (
+        normalizedResponsavel.telefoneResponsavel &&
+        !isValidPhone(normalizedResponsavel.telefoneResponsavel)
+      ) {
+        throw createFamiliaError("Telefone do responsavel invalido.", 400);
+      }
       patch["responsavel.telefoneResponsavel"] = normalizedResponsavel.telefoneResponsavel;
     }
     if (Object.prototype.hasOwnProperty.call(responsavel, "emailResponsavel")) {
@@ -288,7 +325,11 @@ async function updateFamily({ id, user, actorId, body = {} }) {
     patch.observacoes = normalizeFamilyObservacoes(observacoes);
   }
   if (typeof endereco !== "undefined") {
-    patch.endereco = normalizeFamilyAddress(endereco);
+    const normalizedAddress = normalizeFamilyAddress(endereco);
+    if (normalizedAddress?.cep && !isValidCep(normalizedAddress.cep)) {
+      throw createFamiliaError("CEP invalido.", 400);
+    }
+    patch.endereco = normalizedAddress;
   }
   if (typeof camposExtras !== "undefined") {
     patch.camposExtras = await normalizeCustomFieldValues("familia", camposExtras || {});
