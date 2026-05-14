@@ -220,10 +220,6 @@
           Vínculo familiar
         </h3>
         <div class="form-grid">
-          <label class="field-wrap span-2">
-            <span class="input-label">Assistido vinculado</span>
-            <input class="input-control" type="text" name="campoExtra_familia_vinculada" value="<%= familia?.camposExtras?.familia_vinculada || '' %>" placeholder="Buscar assistido existente..." data-custom-field-key="familia_vinculada" data-custom-field-type="texto" />
-          </label>
           <label class="field-wrap">
             <span class="input-label">Parentesco / vínculo *</span>
             <select class="input-control" name="responsavel_parentesco">
@@ -260,6 +256,36 @@
               <label class="radio-pill <%= ehRespAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="sim" <%= ehRespAtual==='sim'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Sim</label>
               <label class="radio-pill <%= ehRespAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="nao" <%= ehRespAtual==='nao'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Não</label>
               <label class="radio-pill <%= ehRespAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="nao_sabe" <%= ehRespAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
+          Contato em caso de emergência
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap span-2">
+            <span class="input-label">Nome</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_nome" value="<%= familia?.camposExtras?.emergencia_nome || '' %>" placeholder="Nome completo" data-custom-field-key="emergencia_nome" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Telefone</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_telefone" value="<%= familia?.camposExtras?.emergencia_telefone || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="emergencia_telefone" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Vínculo / parentesco</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_vinculo" value="<%= familia?.camposExtras?.emergencia_vinculo || '' %>" placeholder="Ex: Vizinha, Irmão..." data-custom-field-key="emergencia_vinculo" data-custom-field-type="texto" />
+          </label>
+          <div class="field-wrap span-2">
+            <span class="input-label">Mora na mesma residência?</span>
+            <div class="radio-group">
+              <% const emgResAtual = familia?.camposExtras?.emergencia_mesma_residencia || ''; %>
+              <label class="radio-pill <%= emgResAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="sim" <%= emgResAtual==='sim'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= emgResAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="nao" <%= emgResAtual==='nao'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= emgResAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="nao_sabe" <%= emgResAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Não sabe</label>
             </div>
           </div>
         </div>
@@ -355,35 +381,6 @@
         </div>
       </div>
 
-      <div class="form-subsection">
-        <h3 class="form-subsection-title">
-          <span class="form-subsection-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
-          Contato em caso de emergência
-        </h3>
-        <div class="form-grid">
-          <label class="field-wrap span-2">
-            <span class="input-label">Nome</span>
-            <input class="input-control" type="text" name="campoExtra_emergencia_nome" value="<%= familia?.camposExtras?.emergencia_nome || '' %>" placeholder="Nome completo" data-custom-field-key="emergencia_nome" data-custom-field-type="texto" />
-          </label>
-          <label class="field-wrap span-2">
-            <span class="input-label">Telefone</span>
-            <input class="input-control" type="text" name="campoExtra_emergencia_telefone" value="<%= familia?.camposExtras?.emergencia_telefone || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="emergencia_telefone" data-custom-field-type="texto" />
-          </label>
-          <label class="field-wrap span-2">
-            <span class="input-label">Vínculo / parentesco</span>
-            <input class="input-control" type="text" name="campoExtra_emergencia_vinculo" value="<%= familia?.camposExtras?.emergencia_vinculo || '' %>" placeholder="Ex: Vizinha, Irmão..." data-custom-field-key="emergencia_vinculo" data-custom-field-type="texto" />
-          </label>
-          <div class="field-wrap span-2">
-            <span class="input-label">Mora na mesma residência?</span>
-            <div class="radio-group">
-              <% const emgResAtual = familia?.camposExtras?.emergencia_mesma_residencia || ''; %>
-              <label class="radio-pill <%= emgResAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="sim" <%= emgResAtual==='sim'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Sim</label>
-              <label class="radio-pill <%= emgResAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="nao" <%= emgResAtual==='nao'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Não</label>
-              <label class="radio-pill <%= emgResAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="nao_sabe" <%= emgResAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Não sabe</label>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <%# ════════════════════════════════════════════════ %>
