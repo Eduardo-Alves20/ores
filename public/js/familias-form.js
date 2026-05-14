@@ -243,7 +243,7 @@
       adolescente: {
         title: "Anamnese - Adolescente",
         label: "Ficha aplicada: Adolescente (13-17 anos)",
-        desc:  "Faixa selecionada automaticamente pela idade. A ficha completa de adolescente sera aplicada na proxima etapa."
+        desc:  "Adaptada para adolescentes. Historico de vida, escolaridade, comportamento, vinculos e desenvolvimento afetivo-sexual."
       },
       adulto: {
         title: "Anamnese - Adulto",
@@ -263,12 +263,14 @@
       var labelEl  = document.getElementById("anamnese-faixa-label");
       var descEl   = document.getElementById("anamnese-faixa-desc");
       var childEl  = document.getElementById("anamnese-form-crianca");
+      var adolescenteEl = document.getElementById("anamnese-form-adolescente");
       var geralEl  = document.getElementById("anamnese-form-geral");
       if (titleEl) titleEl.textContent = cfg.title;
       if (labelEl) labelEl.textContent = cfg.label;
       if (descEl)  descEl.textContent  = cfg.desc;
       if (childEl) childEl.hidden = faixaVal !== "crianca";
-      if (geralEl) geralEl.hidden = faixaVal === "crianca";
+      if (adolescenteEl) adolescenteEl.hidden = faixaVal !== "adolescente";
+      if (geralEl) geralEl.hidden = faixaVal === "crianca" || faixaVal === "adolescente";
     }
 
     form.querySelectorAll('input[type="radio"][name="_faixa_sel"]').forEach(function (radio) {

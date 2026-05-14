@@ -1,0 +1,222 @@
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eef6ff;color:#1d4ed8"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></span>
+    Anamnese - Adolescente
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-2">
+      <span class="input-label">Nome do(a) paciente</span>
+      <input class="input-control" type="text" name="campoExtra_adol_nome_paciente" value="<%= familia?.camposExtras?.adol_nome_paciente || '' %>" data-custom-field-key="adol_nome_paciente" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Data da entrevista</span>
+      <input class="input-control" type="date" name="campoExtra_adol_data_entrevista" value="<%= familia?.camposExtras?.adol_data_entrevista || '' %>" data-custom-field-key="adol_data_entrevista" data-custom-field-type="data" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Entrevista realizada com</span>
+      <input class="input-control" type="text" name="campoExtra_adol_entrevista_realizada_com" value="<%= familia?.camposExtras?.adol_entrevista_realizada_com || '' %>" data-custom-field-key="adol_entrevista_realizada_com" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+    Queixa
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Qual o motivo do atendimento segundo o adolescente? Quando se iniciou?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_queixa_adolescente" rows="3" data-custom-field-key="adol_queixa_adolescente" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_queixa_adolescente || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Qual o motivo do atendimento segundo os pais ou responsaveis? Quando se iniciou?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_queixa_pais" rows="3" data-custom-field-key="adol_queixa_pais" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_queixa_pais || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Esteve ou esta em atendimento com outros profissionais? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_adol_queixa_outros_profissionais_sim_nao" value="<%= familia?.camposExtras?.adol_queixa_outros_profissionais_sim_nao || '' %>" data-custom-field-key="adol_queixa_outros_profissionais_sim_nao" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Qual(s) profissional(is)?</span>
+      <input class="input-control" type="text" name="campoExtra_adol_queixa_outros_profissionais_quais" value="<%= familia?.camposExtras?.adol_queixa_outros_profissionais_quais || '' %>" data-custom-field-key="adol_queixa_outros_profissionais_quais" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f0f7fc;color:#1C5D85"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+    Historico de vida
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">I. Gravidez (somente pais ou responsaveis): composicao familiar na concepcao, idade dos pais, aceitacao das familias, gravidez planejada, pre-natal, acidentes/quedas, doencas na gestacao, outros filhos, doenca hereditaria na familia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_gravidez" rows="4" data-custom-field-key="adol_hist_gravidez" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_gravidez || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">II. Parto (somente pais ou responsaveis): tipo de parto, peso, comprimento, ictericia, problema no parto, prematuro/esbranquicado/cianotico, incubadora e tempo, outras informacoes</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_parto" rows="4" data-custom-field-key="adol_hist_parto" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_parto || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">III. Alimentacao (somente pais ou responsaveis): seio, idade, sentimento da mae ao amamentar, pastosa, solida, copo, alimentacao atual, selecao/preferencias, mastigacao</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_alimentacao" rows="4" data-custom-field-key="adol_hist_alimentacao" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_alimentacao || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">IV. Desenvolvimento psicomotor (somente pais ou responsaveis): sustentar cabeca, sentar, engatinhar e forma, andar, cair, onde ficava bebe, hoje deixa cair/esbarra, dominancia manual, dificuldade motora</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_psicomotor" rows="4" data-custom-field-key="adol_hist_psicomotor" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_psicomotor || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">V. Controle de esfincteres (somente pais ou responsaveis): controle vesical e idade, controle anal e idade, processo dificil/tranquilo, pressao familiar</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_esfincteres" rows="3" data-custom-field-key="adol_hist_esfincteres" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_esfincteres || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">VI. Desenvolvimento da linguagem (somente pais ou responsaveis): balbucios, primeira palavra, quando comecou a falar, atraso e reacao, estimulo, quem conversa, reacao ao erro, problema na fala, compreende ordens, bilinguismo, salivacao, gagueira, historias, livrinhos, leitura, dificuldade de linguagem na familia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_linguagem" rows="5" data-custom-field-key="adol_hist_linguagem" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_linguagem || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">VII. Doencas na infancia (somente pais ou responsaveis): doencas, febre frequente, convulsoes, internacoes (idade/tempo/motivo), cirurgias, quedas/traumatismos, alergias</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_doencas_infancia" rows="4" data-custom-field-key="adol_hist_doencas_infancia" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_doencas_infancia || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">VIII.A Transtornos infantis (sono, alimentacao, psicomotor, gagueira, tiques, sonambulismo, outros) e transtorno de aprendizagem na infancia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_fatos_transtornos" rows="4" data-custom-field-key="adol_hist_fatos_transtornos" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_fatos_transtornos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">VIII.B Brincadeiras: brinquedos/brincadeiras favoritas, companheiros (mais novos/mais velhos), sozinho/grupo, fala sozinha/faz de conta/imita animais/imita pessoas, organizacao dos brinquedos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_fatos_brincadeiras" rows="4" data-custom-field-key="adol_hist_fatos_brincadeiras" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_fatos_brincadeiras || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">VIII.C Independencia (somente pais ou responsaveis): vestir, abotoar, fechar, banho, pentear, amarrar cadarcos, escovar dentes, comer, calcar</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_fatos_independencia" rows="3" data-custom-field-key="adol_hist_fatos_independencia" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_fatos_independencia || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">VIII.D Experiencias significativas da infancia segundo o adolescente</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_fatos_experiencias" rows="3" data-custom-field-key="adol_hist_fatos_experiencias" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_fatos_experiencias || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">VIII.E Perdas (separacao dos pais, falecimento, outras) - especificar</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hist_fatos_perdas" rows="2" data-custom-field-key="adol_hist_fatos_perdas" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hist_fatos_perdas || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eff6ff;color:#1d4ed8"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
+    Historia da familia e aspectos gerais
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Historia da familia: pai (nome/idade/ocupacao), mae (nome/idade/ocupacao), responsavel (nome/idade/ocupacao/grau parentesco), situacao conjugal, irmaos e relacoes, perfil de educacao/punicao, convivio, lazer, acesso cultural, dialogo, limites, sexo/drogas, religiao, respeito, elogios, carinho, preocupacao com futuro</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_historia_familia" rows="6" data-custom-field-key="adol_historia_familia" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_historia_familia || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Sono: tranquilo, agitado, insonia, ranger dentes, terror noturno, sonambulismo, enurese, fala, pesadelos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_sono" rows="3" data-custom-field-key="adol_aspectos_sono" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_sono || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Aspectos vocais: sem alteracoes, pigarro, tosse, rouquidao, voz nasalada, gagueira, outros</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_vocais" rows="3" data-custom-field-key="adol_aspectos_vocais" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_vocais || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Aspectos auditivos: sem alteracoes, nao responde, pede repetir, problemas auditivos, aumenta volume, avaliacao auditiva</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_auditivos" rows="3" data-custom-field-key="adol_aspectos_auditivos" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_auditivos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Aspectos visuais: usa oculos, tem dificuldade, enxerga bem</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_visuais" rows="3" data-custom-field-key="adol_aspectos_visuais" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_visuais || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Comportamento: agressivo, agitado, impulsivo, timido, medroso, desorganizado, calmo, irritado, teimosia, apatia, outros</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_comportamento" rows="3" data-custom-field-key="adol_comportamento" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_comportamento || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fef9c3;color:#a16207"><i class="fa-solid fa-school" aria-hidden="true"></i></span>
+    Escolaridade
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Com que idade entrou na escola, adaptacao, escola atual, serie, turno, reprovacao</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_escolaridade_geral" rows="3" data-custom-field-key="adol_escolaridade_geral" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_escolaridade_geral || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Como e a instituicao de ensino na opiniao dos pais?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_escolaridade_opiniao_pais" rows="3" data-custom-field-key="adol_escolaridade_opiniao_pais" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_escolaridade_opiniao_pais || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Como e a instituicao de ensino na opiniao do adolescente?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_escolaridade_opiniao_adolescente" rows="3" data-custom-field-key="adol_escolaridade_opiniao_adolescente" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_escolaridade_opiniao_adolescente || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Acompanhamento dos pais, importancia da frequencia, tarefas em sala, horario para tarefas em casa, faz sozinho/com quem</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_escolaridade_rotina_tarefas" rows="3" data-custom-field-key="adol_escolaridade_rotina_tarefas" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_escolaridade_rotina_tarefas || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Dificuldades: ler, escrever, coordenacao motora, contar, calcular, atencao, esquece o que aprende, troca letras, letra ilegivel, concentracao. Reforco escolar?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_escolaridade_dificuldades" rows="3" data-custom-field-key="adol_escolaridade_dificuldades" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_escolaridade_dificuldades || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff4f7;color:#c2416d"><i class="fa-solid fa-face-smile-beam" aria-hidden="true"></i></span>
+    Aspectos da adolescencia (somente adolescente)
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">I. Percepcao sobre si: qualidades, defeitos, o que mudaria em voce, medo, como se considera (agressivo/agitado/impulsivo/timido/medroso/desorganizado/calmo/irritado/teimosia/apatia/outros)</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_percepcao_si" rows="4" data-custom-field-key="adol_aspectos_percepcao_si" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_percepcao_si || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">II. Relacao com a familia: com quem e mais facil conversar, mais carinhoso, mais exigente, relacao com pais/responsaveis, relacao com irmaos, o que mais gosta na familia, o que mudaria na familia</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_relacao_familia" rows="4" data-custom-field-key="adol_aspectos_relacao_familia" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_relacao_familia || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">III. Lazer e habitos: lazer, atividade fisica, uso de tecnologias (celular/ipad/tablete/computador/videogame/tv), tempo por dia, leitura e frequencia, habitos (roi unhas/tiques/mania repetitiva/chupa dedo/outros), bebe/frequencia/tipo de alcool, fuma (tabaco/cigarro eletronico/narguiles/maconha/outras), outras drogas ilicitas</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_lazer_habitos" rows="5" data-custom-field-key="adol_aspectos_lazer_habitos" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_lazer_habitos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">IV. Desenvolvimento afetivo, emocional e sexual: amizades, melhor amigo(a), relacao com pessoas, pessoa que mais confia, pessoa que mais gosta de estar, experiencias afetivas marcantes, namoro, inicio da vida sexual, idade, preservativos, metodo anticoncepcional, gestacao nao planejada, aborto, filhos, experiencia geral e ciencia dos pais, doenca sexualmente transmissivel</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_afetivo_sexual" rows="6" data-custom-field-key="adol_aspectos_afetivo_sexual" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_afetivo_sexual || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">V. Crencas e atividades religiosas: tem religiao? qual? se mesma da familia, vai porque quer ou porque obrigam?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_religiao" rows="3" data-custom-field-key="adol_aspectos_religiao" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_religiao || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">VI. Atividades escolares e extraescolares: escola regular/curso tecnico/idiomas/preparatorio/outros, independencia/primeiros empregos (mesada/jovem aprendiz/emprego carteira/outros), concilia? outras atividades</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_aspectos_atividades" rows="3" data-custom-field-key="adol_aspectos_atividades" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_aspectos_atividades || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff8f0;color:#d97706"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+    Fechamento
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Observacoes</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_observacoes" rows="4" data-custom-field-key="adol_observacoes" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_observacoes || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Analise da entrevista</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_analise_entrevista" rows="3" data-custom-field-key="adol_analise_entrevista" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_analise_entrevista || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Hipotese de diagnostico</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_hipotese_diagnostico" rows="3" data-custom-field-key="adol_hipotese_diagnostico" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_hipotese_diagnostico || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Encaminhamentos</span>
+      <textarea class="input-control textarea-control" name="campoExtra_adol_encaminhamentos" rows="3" data-custom-field-key="adol_encaminhamentos" data-custom-field-type="textarea"><%= familia?.camposExtras?.adol_encaminhamentos || '' %></textarea>
+    </label>
+  </div>
+</div>
