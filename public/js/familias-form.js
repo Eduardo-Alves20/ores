@@ -217,8 +217,8 @@
       if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
       if (idadeInput) idadeInput.value = age + " anos";
 
-      var faixaKey = age < 18 ? "crianca" : age < 60 ? "adulto" : "idoso";
-      var faixaLabels = { crianca: "Criança / Adolescente", adulto: "Adulto", idoso: "Idoso" };
+      var faixaKey = age <= 12 ? "crianca" : age < 18 ? "adolescente" : age < 60 ? "adulto" : "idoso";
+      var faixaLabels = { crianca: "Crianca", adolescente: "Adolescente", adulto: "Adulto", idoso: "Idoso" };
       if (faixaInput) faixaInput.value = faixaLabels[faixaKey] || faixaKey;
 
       var faixaRadio = form.querySelector('input[type="radio"][name="_faixa_sel"][value="' + faixaKey + '"]');
@@ -231,23 +231,29 @@
     }
 
     dataNascInput && dataNascInput.addEventListener("change", calcAge);
+    if (dataNascInput && dataNascInput.value) calcAge();
 
     // ── Faixa selector (anamnese panel header) ────────────────────────────
     var FAIXA_CONFIG = {
       crianca: {
-        title: "Anamnese — Criança / Adolescente",
-        label: "Ficha aplicada: Criança / Adolescente (até 17 anos)",
-        desc:  "Adaptada para crianças e adolescentes. Desenvolvimento, vacinas, vida escolar e dinâmica familiar."
+        title: "Anamnese - Crianca",
+        label: "Ficha aplicada: Crianca (0-12 anos)",
+        desc:  "Adaptada para criancas. Desenvolvimento, rotina familiar, linguagem, escolaridade e comportamento."
+      },
+      adolescente: {
+        title: "Anamnese - Adolescente",
+        label: "Ficha aplicada: Adolescente (13-17 anos)",
+        desc:  "Faixa selecionada automaticamente pela idade. A ficha completa de adolescente sera aplicada na proxima etapa."
       },
       adulto: {
-        title: "Anamnese — Adulto",
-        label: "Ficha aplicada: Adulto (18–59 anos)",
-        desc:  "Sugerida automaticamente pela idade do assistido. Doenças crônicas, hábitos de vida, saúde mental, trabalho e ocupação."
+        title: "Anamnese - Adulto",
+        label: "Ficha aplicada: Adulto (18-59 anos)",
+        desc:  "Sugerida automaticamente pela idade do assistido. Doencas cronicas, habitos de vida, saude mental, trabalho e ocupacao."
       },
       idoso: {
-        title: "Anamnese — Idoso",
+        title: "Anamnese - Idoso",
         label: "Ficha aplicada: Idoso (60+ anos)",
-        desc:  "Adaptada para idosos. Polifarmácia, mobilidade, quedas, suporte social e condições crônicas."
+        desc:  "Adaptada para idosos. Polifarmacia, mobilidade, quedas, suporte social e condicoes cronicas."
       }
     };
 
@@ -256,9 +262,13 @@
       var titleEl  = document.getElementById("anamnese-panel-title");
       var labelEl  = document.getElementById("anamnese-faixa-label");
       var descEl   = document.getElementById("anamnese-faixa-desc");
+      var childEl  = document.getElementById("anamnese-form-crianca");
+      var geralEl  = document.getElementById("anamnese-form-geral");
       if (titleEl) titleEl.textContent = cfg.title;
       if (labelEl) labelEl.textContent = cfg.label;
       if (descEl)  descEl.textContent  = cfg.desc;
+      if (childEl) childEl.hidden = faixaVal !== "crianca";
+      if (geralEl) geralEl.hidden = faixaVal === "crianca";
     }
 
     form.querySelectorAll('input[type="radio"][name="_faixa_sel"]').forEach(function (radio) {
@@ -266,6 +276,8 @@
         if (radio.checked) updateFaixaPanel(radio.value);
       });
     });
+    var faixaSelecionada = form.querySelector('input[type="radio"][name="_faixa_sel"]:checked');
+    updateFaixaPanel(faixaSelecionada ? faixaSelecionada.value : "adulto");
 
     // ── Composição familiar (CF) table ────────────────────────────────────
     var cfRows   = [];

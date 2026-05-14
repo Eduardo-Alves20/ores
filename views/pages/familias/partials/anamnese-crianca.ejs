@@ -1,0 +1,293 @@
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eef6ff;color:#1d4ed8"><i class="fa-solid fa-child-reaching" aria-hidden="true"></i></span>
+    Anamnese - Crianca
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-2">
+      <span class="input-label">Nome do(a) paciente</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_nome_paciente" value="<%= familia?.camposExtras?.crianca_nome_paciente || '' %>" data-custom-field-key="crianca_nome_paciente" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Data da entrevista</span>
+      <input class="input-control" type="date" name="campoExtra_crianca_data_entrevista" value="<%= familia?.camposExtras?.crianca_data_entrevista || '' %>" data-custom-field-key="crianca_data_entrevista" data-custom-field-type="data" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Entrevista realizada com</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_entrevista_realizada_com" value="<%= familia?.camposExtras?.crianca_entrevista_realizada_com || '' %>" data-custom-field-key="crianca_entrevista_realizada_com" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+    Queixa
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4">
+      <span class="input-label">Qual o motivo do atendimento?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_queixa_motivo" rows="3" data-custom-field-key="crianca_queixa_motivo" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_queixa_motivo || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Esteve ou esta em atendimento com outros profissionais? Qual(s)?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_queixa_outros_profissionais" rows="3" data-custom-field-key="crianca_queixa_outros_profissionais" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_queixa_outros_profissionais || '' %></textarea>
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Observacoes da queixa</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_queixa_obs" rows="3" data-custom-field-key="crianca_queixa_obs" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_queixa_obs || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f0f7fc;color:#1C5D85"><i class="fa-solid fa-person-pregnant" aria-hidden="true"></i></span>
+    Historico de vida I - Gravidez
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-2">
+      <span class="input-label">Como era composta a familia na epoca da concepcao?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_gravidez_familia_concepcao" rows="2" data-custom-field-key="crianca_gravidez_familia_concepcao" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_gravidez_familia_concepcao || '' %></textarea>
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Idade da mae na epoca</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_gravidez_idade_mae" value="<%= familia?.camposExtras?.crianca_gravidez_idade_mae || '' %>" data-custom-field-key="crianca_gravidez_idade_mae" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Idade do pai na epoca</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_gravidez_idade_pai" value="<%= familia?.camposExtras?.crianca_gravidez_idade_pai || '' %>" data-custom-field-key="crianca_gravidez_idade_pai" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Como foi a aceitacao das familias?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_gravidez_aceitacao_familias" rows="2" data-custom-field-key="crianca_gravidez_aceitacao_familias" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_gravidez_aceitacao_familias || '' %></textarea>
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">A gravidez foi planejada? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_gravidez_planejada" value="<%= familia?.camposExtras?.crianca_gravidez_planejada || '' %>" data-custom-field-key="crianca_gravidez_planejada" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Fez tratamento pre-natal? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_gravidez_prenatal" value="<%= familia?.camposExtras?.crianca_gravidez_prenatal || '' %>" data-custom-field-key="crianca_gravidez_prenatal" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Sofreu acidentes/quedas? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_gravidez_acidentes" value="<%= familia?.camposExtras?.crianca_gravidez_acidentes || '' %>" data-custom-field-key="crianca_gravidez_acidentes" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Teve alguma doenca na gestacao? (rubeola/toxoplasmose/sifilis/outra)</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_gravidez_doenca_gestacao" rows="2" data-custom-field-key="crianca_gravidez_doenca_gestacao" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_gravidez_doenca_gestacao || '' %></textarea>
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Ja tinham outros filhos? (sim/nao). Quais?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_gravidez_outros_filhos" rows="2" data-custom-field-key="crianca_gravidez_outros_filhos" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_gravidez_outros_filhos || '' %></textarea>
+    </label>
+    <label class="field-wrap span-3">
+      <span class="input-label">Doenca hereditaria no casal ou familia?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_gravidez_doenca_hereditaria" rows="2" data-custom-field-key="crianca_gravidez_doenca_hereditaria" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_gravidez_doenca_hereditaria || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff8f0;color:#d97706"><i class="fa-solid fa-baby" aria-hidden="true"></i></span>
+    Historico de vida II - Parto
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap">
+      <span class="input-label">Tipo de parto (cesareo/normal/outros)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_parto_tipo" value="<%= familia?.camposExtras?.crianca_parto_tipo || '' %>" data-custom-field-key="crianca_parto_tipo" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Peso ao nascer</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_parto_peso" value="<%= familia?.camposExtras?.crianca_parto_peso || '' %>" data-custom-field-key="crianca_parto_peso" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Comprimento ao nascer</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_parto_comprimento" value="<%= familia?.camposExtras?.crianca_parto_comprimento || '' %>" data-custom-field-key="crianca_parto_comprimento" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Teve ictericia? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_parto_ictericia" value="<%= familia?.camposExtras?.crianca_parto_ictericia || '' %>" data-custom-field-key="crianca_parto_ictericia" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-2">
+      <span class="input-label">Algum problema no parto? (sim/nao) Qual?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_parto_problema" rows="2" data-custom-field-key="crianca_parto_problema" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_parto_problema || '' %></textarea>
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Nasceu prematuro/esbranquicado/cianotico?</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_parto_nasceu_como" value="<%= familia?.camposExtras?.crianca_parto_nasceu_como || '' %>" data-custom-field-key="crianca_parto_nasceu_como" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Ficou na incubadora? Quanto tempo?</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_parto_incubadora" value="<%= familia?.camposExtras?.crianca_parto_incubadora || '' %>" data-custom-field-key="crianca_parto_incubadora" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Outras informacoes do parto</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_parto_outras_infos" rows="2" data-custom-field-key="crianca_parto_outras_infos" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_parto_outras_infos || '' %></textarea>
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f0fdf4;color:#16a34a"><i class="fa-solid fa-utensils" aria-hidden="true"></i></span>
+    Historico de vida III - Alimentacao
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap">
+      <span class="input-label">Mamou no seio? Ate que idade?</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_alimentacao_seio" value="<%= familia?.camposExtras?.crianca_alimentacao_seio || '' %>" data-custom-field-key="crianca_alimentacao_seio" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-3">
+      <span class="input-label">Como a mae se sentia ao amamentar?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_alimentacao_amamentar_sentimento" rows="2" data-custom-field-key="crianca_alimentacao_amamentar_sentimento" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_alimentacao_amamentar_sentimento || '' %></textarea>
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Aceitou alimentacao pastosa? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_alimentacao_pastosa" value="<%= familia?.camposExtras?.crianca_alimentacao_pastosa || '' %>" data-custom-field-key="crianca_alimentacao_pastosa" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Aceitou alimentacao solida? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_alimentacao_solida" value="<%= familia?.camposExtras?.crianca_alimentacao_solida || '' %>" data-custom-field-key="crianca_alimentacao_solida" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap">
+      <span class="input-label">Usou copo? (sim/nao)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_alimentacao_copo" value="<%= familia?.camposExtras?.crianca_alimentacao_copo || '' %>" data-custom-field-key="crianca_alimentacao_copo" data-custom-field-type="texto" />
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Como e a alimentacao atual? Faz selecao? Tem preferencias?</span>
+      <textarea class="input-control textarea-control" name="campoExtra_crianca_alimentacao_atual" rows="2" data-custom-field-key="crianca_alimentacao_atual" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_alimentacao_atual || '' %></textarea>
+    </label>
+    <label class="field-wrap span-4">
+      <span class="input-label">Mastigacao (lenta/rapida/engole sem mastigar/engasga com facilidade)</span>
+      <input class="input-control" type="text" name="campoExtra_crianca_alimentacao_mastigacao" value="<%= familia?.camposExtras?.crianca_alimentacao_mastigacao || '' %>" data-custom-field-key="crianca_alimentacao_mastigacao" data-custom-field-type="texto" />
+    </label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff4f7;color:#c2416d"><i class="fa-solid fa-person-walking" aria-hidden="true"></i></span>
+    Desenvolvimento psicomotor e controle de esfincteres
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap"><span class="input-label">Com que idade sustentou a cabeca?</span><input class="input-control" type="text" name="campoExtra_crianca_psico_cabeca" value="<%= familia?.camposExtras?.crianca_psico_cabeca || '' %>" data-custom-field-key="crianca_psico_cabeca" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Com que idade sentou?</span><input class="input-control" type="text" name="campoExtra_crianca_psico_sentou" value="<%= familia?.camposExtras?.crianca_psico_sentou || '' %>" data-custom-field-key="crianca_psico_sentou" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Com que idade engatinhou?</span><input class="input-control" type="text" name="campoExtra_crianca_psico_engatinhou" value="<%= familia?.camposExtras?.crianca_psico_engatinhou || '' %>" data-custom-field-key="crianca_psico_engatinhou" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Forma de engatinhar</span><input class="input-control" type="text" name="campoExtra_crianca_psico_forma_engatinhar" value="<%= familia?.camposExtras?.crianca_psico_forma_engatinhar || '' %>" data-custom-field-key="crianca_psico_forma_engatinhar" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Com que idade comecou a andar?</span><input class="input-control" type="text" name="campoExtra_crianca_psico_andar" value="<%= familia?.camposExtras?.crianca_psico_andar || '' %>" data-custom-field-key="crianca_psico_andar" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Caia muito? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_psico_caia_muito" value="<%= familia?.camposExtras?.crianca_psico_caia_muito || '' %>" data-custom-field-key="crianca_psico_caia_muito" data-custom-field-type="texto" /></label>
+    <label class="field-wrap span-2"><span class="input-label">Onde ficava quando bebe? E hoje?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_psico_onde_ficava" rows="2" data-custom-field-key="crianca_psico_onde_ficava" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_psico_onde_ficava || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Deixa as coisas cairem com facilidade? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_psico_deixa_cair" value="<%= familia?.camposExtras?.crianca_psico_deixa_cair || '' %>" data-custom-field-key="crianca_psico_deixa_cair" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Esbarra muito em pessoas/coisas? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_psico_esbarra" value="<%= familia?.camposExtras?.crianca_psico_esbarra || '' %>" data-custom-field-key="crianca_psico_esbarra" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Dominancia manual (direita/esquerda/ambas)</span><input class="input-control" type="text" name="campoExtra_crianca_psico_dominancia_manual" value="<%= familia?.camposExtras?.crianca_psico_dominancia_manual || '' %>" data-custom-field-key="crianca_psico_dominancia_manual" data-custom-field-type="texto" /></label>
+    <label class="field-wrap span-3"><span class="input-label">Apresenta dificuldade motora? Qual?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_psico_dificuldade_motora" rows="2" data-custom-field-key="crianca_psico_dificuldade_motora" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_psico_dificuldade_motora || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Controle vesical (sim/nao) e idade</span><input class="input-control" type="text" name="campoExtra_crianca_esfincteres_vesical" value="<%= familia?.camposExtras?.crianca_esfincteres_vesical || '' %>" data-custom-field-key="crianca_esfincteres_vesical" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Controle anal (sim/nao) e idade</span><input class="input-control" type="text" name="campoExtra_crianca_esfincteres_anal" value="<%= familia?.camposExtras?.crianca_esfincteres_anal || '' %>" data-custom-field-key="crianca_esfincteres_anal" data-custom-field-type="texto" /></label>
+    <label class="field-wrap span-2"><span class="input-label">Foi dificil ou tranquilo? Houve pressao da familia?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_esfincteres_processo" rows="2" data-custom-field-key="crianca_esfincteres_processo" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_esfincteres_processo || '' %></textarea></label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eff6ff;color:#1d4ed8"><i class="fa-solid fa-comments" aria-hidden="true"></i></span>
+    Desenvolvimento da linguagem
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap"><span class="input-label">Idade dos primeiros balbucios</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_balbucios" value="<%= familia?.camposExtras?.crianca_linguagem_balbucios || '' %>" data-custom-field-key="crianca_linguagem_balbucios" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Primeira palavra</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_primeira_palavra" value="<%= familia?.camposExtras?.crianca_linguagem_primeira_palavra || '' %>" data-custom-field-key="crianca_linguagem_primeira_palavra" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Quando comecou a falar</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_quando_falou" value="<%= familia?.camposExtras?.crianca_linguagem_quando_falou || '' %>" data-custom-field-key="crianca_linguagem_quando_falou" data-custom-field-type="texto" /></label>
+    <label class="field-wrap span-4"><span class="input-label">Se houve atraso, como os pais/responsaveis reagiram?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_linguagem_reacao_atraso" rows="2" data-custom-field-key="crianca_linguagem_reacao_atraso" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_linguagem_reacao_atraso || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Foi estimulado(a) a falar? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_estimulo" value="<%= familia?.camposExtras?.crianca_linguagem_estimulo || '' %>" data-custom-field-key="crianca_linguagem_estimulo" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Quem conversa mais com a crianca?</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_quem_conversa" value="<%= familia?.camposExtras?.crianca_linguagem_quem_conversa || '' %>" data-custom-field-key="crianca_linguagem_quem_conversa" data-custom-field-type="texto" /></label>
+    <label class="field-wrap span-2"><span class="input-label">Quando falava errado, qual a reacao dos pais?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_linguagem_reacao_erro" rows="2" data-custom-field-key="crianca_linguagem_reacao_erro" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_linguagem_reacao_erro || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Problema na fala? Quais?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_linguagem_problema_fala" rows="2" data-custom-field-key="crianca_linguagem_problema_fala" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_linguagem_problema_fala || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Compreende ordens? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_compreende_ordens" value="<%= familia?.camposExtras?.crianca_linguagem_compreende_ordens || '' %>" data-custom-field-key="crianca_linguagem_compreende_ordens" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Bilinguismo em casa? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_bilinguismo" value="<%= familia?.camposExtras?.crianca_linguagem_bilinguismo || '' %>" data-custom-field-key="crianca_linguagem_bilinguismo" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Salivacao no canto da boca? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_salivacao" value="<%= familia?.camposExtras?.crianca_linguagem_salivacao || '' %>" data-custom-field-key="crianca_linguagem_salivacao" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Apresenta gagueira? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_gagueira" value="<%= familia?.camposExtras?.crianca_linguagem_gagueira || '' %>" data-custom-field-key="crianca_linguagem_gagueira" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Alguem contava historias? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_historias" value="<%= familia?.camposExtras?.crianca_linguagem_historias || '' %>" data-custom-field-key="crianca_linguagem_historias" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Teve acesso a livrinhos? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_livrinhos" value="<%= familia?.camposExtras?.crianca_linguagem_livrinhos || '' %>" data-custom-field-key="crianca_linguagem_livrinhos" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Hoje gosta de ler? (sim/nao)</span><input class="input-control" type="text" name="campoExtra_crianca_linguagem_gosta_ler" value="<%= familia?.camposExtras?.crianca_linguagem_gosta_ler || '' %>" data-custom-field-key="crianca_linguagem_gosta_ler" data-custom-field-type="texto" /></label>
+    <label class="field-wrap span-2"><span class="input-label">Alguem da familia apresenta dificuldade de linguagem?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_linguagem_familia_dificuldade" rows="2" data-custom-field-key="crianca_linguagem_familia_dificuldade" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_linguagem_familia_dificuldade || '' %></textarea></label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fff7ed;color:#ea580c"><i class="fa-solid fa-notes-medical" aria-hidden="true"></i></span>
+    Doencas na infancia, sono e aspectos gerais
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4"><span class="input-label">Doencas na infancia (sarampo, catapora, caxumba, rubeola, coqueluche, meningite, otite, amigdalite, desidratacao grave, outras)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_doencas_infancia" rows="2" data-custom-field-key="crianca_doencas_infancia" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_doencas_infancia || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Febre frequente? Frequencia</span><input class="input-control" type="text" name="campoExtra_crianca_doencas_febre" value="<%= familia?.camposExtras?.crianca_doencas_febre || '' %>" data-custom-field-key="crianca_doencas_febre" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Convulsoes? Idade e frequencia</span><input class="input-control" type="text" name="campoExtra_crianca_doencas_convulsoes" value="<%= familia?.camposExtras?.crianca_doencas_convulsoes || '' %>" data-custom-field-key="crianca_doencas_convulsoes" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Internacoes (idade, tempo e motivo)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_doencas_internacoes" rows="2" data-custom-field-key="crianca_doencas_internacoes" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_doencas_internacoes || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Cirurgias (idade e tipo)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_doencas_cirurgias" rows="2" data-custom-field-key="crianca_doencas_cirurgias" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_doencas_cirurgias || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Quedas, traumatismos e alergias</span><textarea class="input-control textarea-control" name="campoExtra_crianca_doencas_quedas_alergias" rows="2" data-custom-field-key="crianca_doencas_quedas_alergias" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_doencas_quedas_alergias || '' %></textarea></label>
+    <label class="field-wrap span-4"><span class="input-label">Sono (tranquilo/agitado/insonia/ranger dentes/terror noturno/sonambulismo/enurese/fala/pesadelos), dorme com quem, separacao, habitos especiais</span><textarea class="input-control textarea-control" name="campoExtra_crianca_sono" rows="3" data-custom-field-key="crianca_sono" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_sono || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Aspectos vocais (pigarro/tosse/rouquidao/voz nasalada)</span><input class="input-control" type="text" name="campoExtra_crianca_aspectos_vocais" value="<%= familia?.camposExtras?.crianca_aspectos_vocais || '' %>" data-custom-field-key="crianca_aspectos_vocais" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Aspectos auditivos (responde/pede repetir/problemas/aumenta volume/avaliacao)</span><input class="input-control" type="text" name="campoExtra_crianca_aspectos_auditivos" value="<%= familia?.camposExtras?.crianca_aspectos_auditivos || '' %>" data-custom-field-key="crianca_aspectos_auditivos" data-custom-field-type="texto" /></label>
+    <label class="field-wrap"><span class="input-label">Aspectos visuais (usa oculos/tem dificuldade/enxerga bem)</span><input class="input-control" type="text" name="campoExtra_crianca_aspectos_visuais" value="<%= familia?.camposExtras?.crianca_aspectos_visuais || '' %>" data-custom-field-key="crianca_aspectos_visuais" data-custom-field-type="texto" /></label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#f5f3ff;color:#6d28d9"><i class="fa-solid fa-face-smile" aria-hidden="true"></i></span>
+    Comportamento, habitos e independencia
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap span-4"><span class="input-label">Comportamento / humor / personalidade (agressivo, agitado, impulsivo, timido, medroso, desorganizado, calmo, irritado, teimosia, apatia, outros)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_comportamento_humor" rows="3" data-custom-field-key="crianca_comportamento_humor" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_comportamento_humor || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Faz amizades? Prefere companheiros mais novos/velhos? Sozinho ou em grupo?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_comportamento_amizades" rows="2" data-custom-field-key="crianca_comportamento_amizades" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_comportamento_amizades || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Tem horarios? Brincadeiras e brinquedos favoritos?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_comportamento_horarios_brincadeiras" rows="2" data-custom-field-key="crianca_comportamento_horarios_brincadeiras" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_comportamento_horarios_brincadeiras || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Quando brinca fala sozinha, faz de conta, imita animais ou pessoas?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_comportamento_brinca_como" rows="2" data-custom-field-key="crianca_comportamento_brinca_como" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_comportamento_brinca_como || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Como organiza os brinquedos? Estranha mudanca de ambiente? Adapta-se?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_comportamento_organizacao_adaptacao" rows="2" data-custom-field-key="crianca_comportamento_organizacao_adaptacao" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_comportamento_organizacao_adaptacao || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Com quem mais gosta de ficar e por que?</span><textarea class="input-control textarea-control" name="campoExtra_crianca_comportamento_prefere_ficar" rows="2" data-custom-field-key="crianca_comportamento_prefere_ficar" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_comportamento_prefere_ficar || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Sofreu alguma perda? (separacao dos pais/falecimento/outras)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_comportamento_perdas" rows="2" data-custom-field-key="crianca_comportamento_perdas" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_comportamento_perdas || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Habitos (roi unhas, tiques, mania repetitiva, chupa dedo, objeto para dormir/levar escola)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_habitos" rows="2" data-custom-field-key="crianca_habitos" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_habitos || '' %></textarea></label>
+    <label class="field-wrap span-4"><span class="input-label">Independencia (vestir, abotoar, fechar, banho, pentear, amarrar cadarcos, escovar dentes, comer, calcar)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_independencia" rows="2" data-custom-field-key="crianca_independencia" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_independencia || '' %></textarea></label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#eff6ff;color:#1d4ed8"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
+    Historia da familia
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap"><span class="input-label">Pai (nome, idade, ocupacao)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_pai" rows="2" data-custom-field-key="crianca_familia_pai" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_pai || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Mae (nome, idade, ocupacao)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_mae" rows="2" data-custom-field-key="crianca_familia_mae" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_mae || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Responsavel (nome, idade, ocupacao, grau de parentesco)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_responsavel" rows="2" data-custom-field-key="crianca_familia_responsavel" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_responsavel || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Situacao conjugal dos pais, irmaos e relacao com irmaos</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_situacao_irmaos" rows="2" data-custom-field-key="crianca_familia_situacao_irmaos" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_situacao_irmaos || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Relacao com pais/responsaveis e perfil (permissivos/autoritarios/equilibrados)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_relacao_perfil" rows="2" data-custom-field-key="crianca_familia_relacao_perfil" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_relacao_perfil || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Tipo de punicao dos pais</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_punicao" rows="2" data-custom-field-key="crianca_familia_punicao" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_punicao || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Momento que familia fica junta e lazer em familia</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_convivencia_lazer" rows="2" data-custom-field-key="crianca_familia_convivencia_lazer" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_convivencia_lazer || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Acesso a livros/cinema/teatro/artes e frequencia</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_acesso_cultura" rows="2" data-custom-field-key="crianca_familia_acesso_cultura" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_acesso_cultura || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Dialogo com a crianca, liberdade, conversa sobre sexo/drogas</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_dialogo_limites" rows="2" data-custom-field-key="crianca_familia_dialogo_limites" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_dialogo_limites || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Religiao da familia, respeito aos pais, elogios e carinho</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_religiao_carinho" rows="2" data-custom-field-key="crianca_familia_religiao_carinho" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_religiao_carinho || '' %></textarea></label>
+    <label class="field-wrap span-4"><span class="input-label">Grau de preocupacao dos pais/responsaveis quanto ao futuro da crianca</span><textarea class="input-control textarea-control" name="campoExtra_crianca_familia_preocupacao_futuro" rows="2" data-custom-field-key="crianca_familia_preocupacao_futuro" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_familia_preocupacao_futuro || '' %></textarea></label>
+  </div>
+</div>
+
+<div class="form-subsection">
+  <h3 class="form-subsection-title">
+    <span class="form-subsection-icon" style="background:#fef9c3;color:#a16207"><i class="fa-solid fa-school" aria-hidden="true"></i></span>
+    Escolaridade, atividades e fechamento
+  </h3>
+  <div class="form-grid">
+    <label class="field-wrap"><span class="input-label">Idade que entrou na escola e adaptacao</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_entrada_adaptacao" rows="2" data-custom-field-key="crianca_escolaridade_entrada_adaptacao" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_entrada_adaptacao || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Escola atual, serie/turno e professora</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_escola_serie_prof" rows="2" data-custom-field-key="crianca_escolaridade_escola_serie_prof" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_escola_serie_prof || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Reprovacao, professor de apoio/mediador, reclama de ir para escola, opiniao dos pais</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_reprovacao_apoio_opiniao" rows="2" data-custom-field-key="crianca_escolaridade_reprovacao_apoio_opiniao" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_reprovacao_apoio_opiniao || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Consegue tarefas em sala, tarefas de casa, faz sozinho, com quem e rotina</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_tarefas_rotina" rows="2" data-custom-field-key="crianca_escolaridade_tarefas_rotina" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_tarefas_rotina || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Dificuldades (ler, escrever, coordenacao, contar, calcular, atencao, esquece, troca letras, letra ilegivel, concentracao)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_dificuldades" rows="2" data-custom-field-key="crianca_escolaridade_dificuldades" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_dificuldades || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Conhece cores/numeros/dinheiro/letras. Sabe recortar, dias da semana, meses do ano</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_conhecimentos" rows="2" data-custom-field-key="crianca_escolaridade_conhecimentos" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_conhecimentos || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Como pega o lapis e intensidade da escrita</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_lapis_escrita" rows="2" data-custom-field-key="crianca_escolaridade_lapis_escrita" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_lapis_escrita || '' %></textarea></label>
+    <label class="field-wrap"><span class="input-label">Vinculo com aprendizagem (autonomia/dependencia/interesse/desinteresse/medo/organizacao/desorganizacao/responsabilidade/inseguranca/ansiedade)</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_vinculo_aprendizagem" rows="2" data-custom-field-key="crianca_escolaridade_vinculo_aprendizagem" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_vinculo_aprendizagem || '' %></textarea></label>
+    <label class="field-wrap span-2"><span class="input-label">Reforco escolar e atividades extras</span><textarea class="input-control textarea-control" name="campoExtra_crianca_escolaridade_reforco_atividades" rows="2" data-custom-field-key="crianca_escolaridade_reforco_atividades" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_escolaridade_reforco_atividades || '' %></textarea></label>
+    <label class="field-wrap span-4"><span class="input-label">Observacoes</span><textarea class="input-control textarea-control" name="campoExtra_crianca_observacoes" rows="3" data-custom-field-key="crianca_observacoes" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_observacoes || '' %></textarea></label>
+    <label class="field-wrap span-4"><span class="input-label">Analise da entrevista, hipotese de diagnostico e encaminhamentos</span><textarea class="input-control textarea-control" name="campoExtra_crianca_analise_hipotese_encaminhamentos" rows="3" data-custom-field-key="crianca_analise_hipotese_encaminhamentos" data-custom-field-type="textarea"><%= familia?.camposExtras?.crianca_analise_hipotese_encaminhamentos || '' %></textarea></label>
+  </div>
+</div>

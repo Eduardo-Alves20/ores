@@ -406,11 +406,17 @@
         </div>
         <div class="radio-group">
           <label class="radio-pill" id="faixa-btn-crianca"><input type="radio" name="_faixa_sel" value="crianca" />Criança</label>
+          <label class="radio-pill" id="faixa-btn-adolescente"><input type="radio" name="_faixa_sel" value="adolescente" />Adolescente</label>
           <label class="radio-pill is-selected" id="faixa-btn-adulto"><input type="radio" name="_faixa_sel" value="adulto" checked />Adulto</label>
           <label class="radio-pill" id="faixa-btn-idoso"><input type="radio" name="_faixa_sel" value="idoso" />Idoso</label>
         </div>
       </div>
 
+      <div id="anamnese-form-crianca" hidden>
+        <%- include("./partials/anamnese-crianca") %>
+      </div>
+
+      <div id="anamnese-form-geral">
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
@@ -685,6 +691,7 @@
             <textarea class="input-control textarea-control" name="campoExtra_plano_cuidado_ana" rows="3" placeholder="Acompanhamento, especialidades, retorno..." data-custom-field-key="plano_cuidado_ana" data-custom-field-type="textarea"><%= familia?.camposExtras?.plano_cuidado_ana || '' %></textarea>
           </label>
         </div>
+      </div>
       </div>
     </div>
 
