@@ -219,7 +219,7 @@
 
     function getPresencaFilterLabel(filter, totalFiltrado, totalGeral) {
       const labels = {
-        all: "Mostrando todas as consultas da agenda desta familia.",
+        all: "Mostrando todas as consultas da agenda deste assistido.",
         presente: "Mostrando somente as consultas com presenca confirmada.",
         falta: "Mostrando somente as consultas com falta registrada.",
         falta_justificada:
@@ -286,7 +286,7 @@
 
       if (!state.currentPresencasAgenda.length) {
         refs.presencasLista.innerHTML =
-          '<p class="empty-hint">Nenhuma consulta de agenda vinculada a esta familia.</p>';
+          '<p class="empty-hint">Nenhuma consulta de agenda vinculada a este assistido.</p>';
         return;
       }
 
@@ -299,7 +299,7 @@
       refs.presencasLista.innerHTML = filteredPresencas
         .map((item) => {
           const pacienteNome = escapeHtml(
-            item?.pacienteNome || "Sem dependente especifico",
+            item?.pacienteNome || "Sem vinculo especifico",
           );
           const responsavelNome = escapeHtml(
             item?.responsavelNome || "Sem profissional",
@@ -334,7 +334,7 @@
               </header>
               <div class="presenca-card-grid">
                 <p><strong>Data:</strong> ${escapeHtml(item?.inicioLabel || "-")}</p>
-                <p><strong>Dependente:</strong> ${pacienteNome}</p>
+                <p><strong>Vinculo:</strong> ${pacienteNome}</p>
                 <p><strong>Profissional:</strong> ${responsavelNome}</p>
                 <p><strong>Sala / local:</strong> ${escapeHtml(item?.salaNome || item?.local || "-")}</p>
               </div>
@@ -504,10 +504,10 @@
         if (!state.currentFamilia || !state.viewFlags.canToggleFamilyStatus) return;
         const next = !state.currentFamilia.ativo;
         const ok = await confirmAction({
-          title: next ? "Reativar familia?" : "Inativar familia?",
+          title: next ? "Reativar assistido?" : "Inativar assistido?",
           text: next
-            ? "Deseja reativar esta familia?"
-            : "Deseja inativar esta familia? Essa acao pode impactar atendimentos.",
+            ? "Deseja reativar este assistido?"
+            : "Deseja inativar este assistido? Essa acao pode impactar atendimentos.",
           icon: "warning",
           confirmButtonText: next ? "Reativar" : "Inativar",
         });
@@ -519,7 +519,7 @@
             body: { ativo: next },
           });
           await loadDetail();
-          showSuccess("Status da familia atualizado com sucesso.");
+          showSuccess("Status do assistido atualizado com sucesso.");
         } catch (error) {
           showToast(error.message);
         }
@@ -532,10 +532,10 @@
         if (!state.viewFlags.canTogglePatientStatus) return;
         const nextAtivo = button.getAttribute("data-next") === "true";
         const ok = await confirmAction({
-          title: nextAtivo ? "Reativar dependente?" : "Inativar dependente?",
+          title: nextAtivo ? "Reativar vinculo?" : "Inativar vinculo?",
           text: nextAtivo
-            ? "Deseja reativar este dependente?"
-            : "Deseja inativar este dependente?",
+            ? "Deseja reativar este vinculo?"
+            : "Deseja inativar este vinculo?",
           icon: "warning",
           confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
         });
@@ -547,7 +547,7 @@
             body: { ativo: nextAtivo },
           });
           await loadDetail();
-          showSuccess("Status do dependente atualizado com sucesso.");
+          showSuccess("Status do vinculo atualizado com sucesso.");
         } catch (error) {
           showToast(error.message);
         }
@@ -574,10 +574,10 @@
       if (!button || !state.viewFlags.canTogglePatientStatus) return;
       const nextAtivo = button.getAttribute("data-next") === "true";
       const ok = await confirmAction({
-        title: nextAtivo ? "Reativar dependente?" : "Inativar dependente?",
+        title: nextAtivo ? "Reativar vinculo?" : "Inativar vinculo?",
         text: nextAtivo
-          ? "Deseja reativar este dependente?"
-          : "Deseja inativar este dependente?",
+          ? "Deseja reativar este vinculo?"
+          : "Deseja inativar este vinculo?",
         icon: "warning",
         confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
       });
@@ -589,7 +589,7 @@
           body: { ativo: nextAtivo },
         });
         await loadDetail();
-        showSuccess("Status do dependente atualizado com sucesso.");
+        showSuccess("Status do vinculo atualizado com sucesso.");
       } catch (error) {
         showToast(error.message);
       }
@@ -670,7 +670,7 @@
     refs.pacienteForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (!state.viewFlags.canCreatePatient) {
-        showToast("Somente administracao pode registrar dependentes.");
+        showToast("Somente administracao pode registrar vinculos.");
         return;
       }
 
@@ -682,7 +682,7 @@
       };
 
       if (!payload.nome) {
-        showToast("Informe o nome do dependente.");
+        showToast("Informe o nome do vinculo.");
         return;
       }
 
@@ -705,7 +705,7 @@
     refs.dependenteForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (!state.viewFlags.canEditPatient) {
-        showToast("Somente administracao pode editar dependentes.");
+        showToast("Somente administracao pode editar vinculos.");
         return;
       }
 
@@ -722,7 +722,7 @@
       };
 
       if (!payload.nome) {
-        showToast("Informe o nome do dependente.");
+        showToast("Informe o nome do vinculo.");
         return;
       }
 

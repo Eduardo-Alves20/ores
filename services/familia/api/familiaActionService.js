@@ -14,6 +14,7 @@ const {
   isNotFutureIsoDate,
   isPlainObject,
   normalizeFamilyAddress,
+  normalizeFamilyExtraFields,
   normalizeFamilyObservacoes,
   normalizeFamilyResponsible,
 } = require("./familiaInputService");
@@ -40,6 +41,15 @@ const ATTACHMENT_ALLOWED_EXTENSIONS = new Set(["pdf", "jpg", "jpeg", "png", "web
 const DEFAULT_FAMILY_UPLOAD_ROOT = path.join(process.cwd(), "storage", "familia-anexos");
 const MAX_FAMILY_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 const MAX_FAMILY_ATTACHMENT_FILES = 30;
+
+async function normalizeMergedFamilyExtraFields(rawValue = {}) {
+  const looseValues = normalizeFamilyExtraFields(rawValue);
+  const configuredValues = await normalizeCustomFieldValues("familia", rawValue);
+  return {
+    ...looseValues,
+    ...configuredValues,
+  };
+}
 
 function sanitizeFileName(value) {
   const normalized = String(value || "")
@@ -224,7 +234,7 @@ async function createFamily({ actorId, body = {} }) {
     throw createFamiliaError("CEP invalido.", 400);
   }
 
-  const normalizedCamposExtras = await normalizeCustomFieldValues("familia", camposExtras);
+  const normalizedCamposExtras = await normalizeMergedFamilyExtraFields(camposExtras);
   if (normalizedCamposExtras?.data_nascimento) {
     if (!isIsoDate(normalizedCamposExtras.data_nascimento)) {
       throw createFamiliaError("Data de nascimento do assistido invalida.", 400);
@@ -254,7 +264,7 @@ async function createFamily({ actorId, body = {} }) {
   });
 
   return {
-    mensagem: "Familia cadastrada com sucesso.",
+    mensagem: "Assistido cadastrado com sucesso.",
     familia,
     audit: {
       acao: "FAMILIA_CRIADA",
@@ -269,7 +279,7 @@ async function updateFamily({ id, user, actorId, body = {} }) {
     user,
     familiaId: id,
     select: "_id",
-    notFoundMessage: "Familia nao encontrada.",
+    notFoundMessage: "Assistido nao encontrado.",
   });
 
   const { responsavel, endereco, observacoes, camposExtras } = body;
@@ -350,7 +360,7 @@ async function updateFamily({ id, user, actorId, body = {} }) {
     patch.endereco = normalizedAddress;
   }
   if (typeof camposExtras !== "undefined") {
-    patch.camposExtras = await normalizeCustomFieldValues("familia", camposExtras || {});
+    patch.camposExtras = await normalizeMergedFamilyExtraFields(camposExtras || {});
     if (patch.camposExtras?.data_nascimento) {
       if (!isIsoDate(patch.camposExtras.data_nascimento)) {
         throw createFamiliaError("Data de nascimento do assistido invalida.", 400);
@@ -371,7 +381,7 @@ async function updateFamily({ id, user, actorId, body = {} }) {
   }
 
   return {
-    mensagem: "Familia atualizada com sucesso.",
+    mensagem: "Assistido atualizado com sucesso.",
     familia,
     audit: {
       acao: "FAMILIA_ATUALIZADA",
@@ -386,7 +396,7 @@ async function uploadFamilyAttachments({ id, user, actorId, files = [] }) {
     user,
     familiaId: id,
     select: "_id",
-    notFoundMessage: "Familia nao encontrada.",
+    notFoundMessage: "Assistido nao encontrado.",
   });
 
   const normalizedFiles = Array.isArray(files) ? files.filter(Boolean) : [];
@@ -445,7 +455,7 @@ async function openFamilyAttachment({ id, attachmentId, user }) {
     user,
     familiaId: id,
     select: "_id anexos",
-    notFoundMessage: "Familia nao encontrada.",
+    notFoundMessage: "Assistido nao encontrado.",
   });
 
   const normalizedAttachmentId = String(attachmentId || "").trim();
@@ -484,7 +494,7 @@ async function changeFamilyStatus({ id, user, actorId, ativoInput }) {
     user,
     familiaId: id,
     select: "_id",
-    notFoundMessage: "Familia nao encontrada.",
+    notFoundMessage: "Assistido nao encontrado.",
   });
 
   const patch = {
@@ -504,7 +514,7 @@ async function changeFamilyStatus({ id, user, actorId, ativoInput }) {
   }
 
   return {
-    mensagem: "Status da familia atualizado com sucesso.",
+    mensagem: "Status do assistido atualizado com sucesso.",
     familia,
     audit: {
       acao: ativo ? "FAMILIA_REATIVADA" : "FAMILIA_INATIVADA",
@@ -521,3 +531,4 @@ module.exports = {
   uploadFamilyAttachments,
   updateFamily,
 };
+

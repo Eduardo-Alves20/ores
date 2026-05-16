@@ -140,8 +140,8 @@ async function loadFamilyDetail({ id, user, actorId, query = {} }) {
     user,
     familiaId: id,
     select: familiaSelect,
-    notFoundMessage: "Familia nao encontrada.",
-  }).then((doc) => (doc?.toObject ? doc.toObject() : doc));
+    notFoundMessage: "Assistido nao encontrado.",
+  }).then((doc) => (doc?.toObject ? doc.toObject({ flattenMaps: true }) : doc));
 
   const filtroBase = buildFamilyRecordsFilter(id, incluirInativos);
 

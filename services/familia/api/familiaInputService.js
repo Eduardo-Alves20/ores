@@ -127,6 +127,37 @@ function normalizeFamilyObservacoes(value) {
   return normalizeLimitedString(value, 3000);
 }
 
+function normalizeFamilyExtraFields(value = {}) {
+  const source = isPlainObject(value) ? value : {};
+  const output = {};
+
+  Object.entries(source).forEach(([rawKey, rawValue]) => {
+    const key = normalizeLimitedString(rawKey, 120)
+      .replace(/[^a-zA-Z0-9_]/g, "");
+    if (!key) return;
+
+    if (typeof rawValue === "boolean") {
+      output[key] = rawValue;
+      return;
+    }
+
+    if (Number.isFinite(rawValue)) {
+      output[key] = rawValue;
+      return;
+    }
+
+    if (rawValue && typeof rawValue === "object") {
+      return;
+    }
+
+    const normalized = normalizeLimitedString(rawValue, 5000);
+    if (!normalized) return;
+    output[key] = normalized;
+  });
+
+  return output;
+}
+
 module.exports = {
   ADDRESS_FIELDS,
   countDigits,
@@ -137,6 +168,7 @@ module.exports = {
   isIsoDate,
   isNotFutureIsoDate,
   normalizeFamilyAddress,
+  normalizeFamilyExtraFields,
   normalizeFamilyObservacoes,
   normalizeFamilyResponsible,
   normalizeLimitedString,

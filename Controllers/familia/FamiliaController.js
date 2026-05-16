@@ -21,7 +21,7 @@ function respondFamiliaError(res, logMessage, fallbackMessage, error) {
 
 function respondFamiliaNotFound(res) {
   return res.status(404).json({
-    erro: "Familia nao encontrada.",
+    erro: "Assistido nao encontrado.",
   });
 }
 
@@ -34,9 +34,13 @@ async function respondWithAuditedFamily(req, res, statusCode, result) {
     await registrarAuditoria(req, result.audit);
   }
 
+  const familia = result?.familia?.toObject
+    ? result.familia.toObject({ flattenMaps: true })
+    : result.familia;
+
   return res.status(statusCode).json({
     mensagem: result.mensagem,
-    familia: result.familia,
+    familia,
   });
 }
 
@@ -66,8 +70,8 @@ class FamiliaController {
     } catch (error) {
       return respondFamiliaError(
         res,
-        "Erro ao listar familias:",
-        "Erro interno ao listar familias.",
+        "Erro ao listar assistidos:",
+        "Erro interno ao listar assistidos.",
         error
       );
     }
@@ -90,8 +94,8 @@ class FamiliaController {
     } catch (error) {
       return respondFamiliaError(
         res,
-        "Erro ao detalhar familia:",
-        "Erro interno ao detalhar familia.",
+        "Erro ao detalhar assistido:",
+        "Erro interno ao detalhar assistido.",
         error
       );
     }
@@ -111,8 +115,8 @@ class FamiliaController {
     } catch (error) {
       return respondFamiliaError(
         res,
-        "Erro ao criar familia:",
-        "Erro interno ao criar familia.",
+        "Erro ao criar assistido:",
+        "Erro interno ao criar assistido.",
         error
       );
     }
@@ -134,8 +138,8 @@ class FamiliaController {
     } catch (error) {
       return respondFamiliaError(
         res,
-        "Erro ao atualizar familia:",
-        "Erro interno ao atualizar familia.",
+        "Erro ao atualizar assistido:",
+        "Erro interno ao atualizar assistido.",
         error
       );
     }
@@ -157,8 +161,8 @@ class FamiliaController {
     } catch (error) {
       return respondFamiliaError(
         res,
-        "Erro ao alterar status da familia:",
-        "Erro interno ao alterar status da familia.",
+        "Erro ao alterar status do assistido:",
+        "Erro interno ao alterar status do assistido.",
         error
       );
     }
@@ -189,8 +193,8 @@ class FamiliaController {
     } catch (error) {
       return respondFamiliaError(
         res,
-        "Erro ao enviar anexos da familia:",
-        "Erro interno ao enviar anexos da familia.",
+        "Erro ao enviar anexos do assistido:",
+        "Erro interno ao enviar anexos do assistido.",
         error
       );
     }
@@ -220,8 +224,8 @@ class FamiliaController {
     } catch (error) {
       return respondFamiliaError(
         res,
-        "Erro ao exibir anexo da familia:",
-        "Erro interno ao exibir anexo da familia.",
+        "Erro ao exibir anexo do assistido:",
+        "Erro interno ao exibir anexo do assistido.",
         error
       );
     }

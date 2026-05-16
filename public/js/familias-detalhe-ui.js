@@ -54,11 +54,11 @@
       refs.breadcrumbDependenteSep.hidden = !showDependenteCrumb;
 
       if (showDependenteCrumb) {
-        refs.breadcrumbDependente.textContent = `Dependente: ${String(
+        refs.breadcrumbDependente.textContent = `Vinculo: ${String(
           dependente.nome,
         ).trim()}`;
       } else {
-        refs.breadcrumbDependente.textContent = "Dependente";
+        refs.breadcrumbDependente.textContent = "Vinculo";
       }
     }
 
@@ -164,7 +164,7 @@
       const dependente = getSelectedDependente();
       if (!dependente) {
         refs.dependenteDetalhe.innerHTML =
-          '<p class="empty-hint">Selecione um dependente para visualizar a ficha.</p>';
+          '<p class="empty-hint">Selecione um vinculo para visualizar a ficha.</p>';
         if (refs.dependenteEditarBtn) {
           refs.dependenteEditarBtn.disabled = true;
           refs.dependenteEditarBtn.hidden = !can("canEditPatient");
@@ -245,7 +245,7 @@
               formatDateTime(atendimento.dataHora),
             )}</p>
 
-            <p class="consulta-label">Dependente</p>
+            <p class="consulta-label">Vinculo</p>
             <p class="consulta-value consulta-value-success">${escapeHtml(
               paciente?.nome || "Nao informado",
             )}</p>
@@ -336,36 +336,36 @@
       refs.panelRegistro.classList.toggle("is-active", view === "registro");
 
       if (view === "pacientes") {
-        refs.workflowTitle.textContent = "Ficha de Dependentes";
+        refs.workflowTitle.textContent = "Ficha de Vinculos";
         refs.workflowSubtitle.textContent =
           can("canEditPatient") || can("canCreatePatient")
-            ? "Gestao dos dependentes vinculados a esta familia."
-            : "Consulta dos dependentes vinculados a esta familia.";
+            ? "Gestao dos vinculos cadastrados para este assistido."
+            : "Consulta dos vinculos cadastrados para este assistido.";
         refs.workflowMainBtn.hidden = false;
         refs.workflowMainBtn.textContent = "Historico de atendimento";
         refs.workflowBackBtn.hidden = true;
       } else if (view === "dependente") {
-        refs.workflowTitle.textContent = "Ficha do Dependente";
+        refs.workflowTitle.textContent = "Ficha do Vinculo";
         refs.workflowSubtitle.textContent = can("canEditPatient")
-          ? "Dados completos do dependente e edicao segura."
-          : "Dados completos do dependente em modo de leitura.";
+          ? "Dados completos do vinculo e edicao segura."
+          : "Dados completos do vinculo em modo de leitura.";
         refs.workflowMainBtn.hidden = false;
         refs.workflowMainBtn.textContent = "Historico de atendimento";
         refs.workflowBackBtn.hidden = false;
-        refs.workflowBackBtn.textContent = "Voltar aos dependentes";
+        refs.workflowBackBtn.textContent = "Voltar aos vinculos";
       } else if (view === "historico") {
         refs.workflowTitle.textContent = "Historico de Atendimentos";
         refs.workflowSubtitle.textContent = can("canCreateAttendance")
-          ? "Linha do tempo completa das interacoes com a familia."
-          : "Linha do tempo completa das interacoes com a familia em modo de leitura.";
+          ? "Linha do tempo completa das interacoes com o assistido."
+          : "Linha do tempo completa das interacoes com o assistido em modo de leitura.";
         refs.workflowMainBtn.hidden = !can("canCreateAttendance");
         refs.workflowMainBtn.textContent = "Registrar atendimento";
         refs.workflowBackBtn.hidden = false;
-        refs.workflowBackBtn.textContent = "Ficha de dependentes";
+        refs.workflowBackBtn.textContent = "Ficha de vinculos";
       } else if (view === "presencas") {
         refs.workflowTitle.textContent = "Controle de Presenca";
         refs.workflowSubtitle.textContent =
-          "Consultas da agenda com faltas, presencas e justificativas desta familia.";
+          "Consultas da agenda com faltas, presencas e justificativas deste assistido.";
         refs.workflowMainBtn.hidden = true;
         refs.workflowBackBtn.hidden = true;
       } else if (view === "atendimento") {
@@ -433,15 +433,15 @@
       }`;
       if (refs.statusBtn) {
         refs.statusBtn.textContent = familia?.ativo
-          ? "Inativar Familia"
-          : "Reativar Familia";
+          ? "Inativar Assistido"
+          : "Reativar Assistido";
         refs.statusBtn.hidden = !can("canToggleFamilyStatus");
       }
 
       if (refs.familiaStatusPill) {
         refs.familiaStatusPill.textContent = familia?.ativo
-          ? "Familia ativa"
-          : "Familia inativa";
+          ? "Assistido ativo"
+          : "Assistido inativo";
         refs.familiaStatusPill.className = `familias-hero-tag ${
           familia?.ativo ? "is-success" : "is-neutral"
         }`;
@@ -452,7 +452,7 @@
       state.currentPacientes = pacientes;
       refs.pacientesCount.textContent = String(pacientes.length);
       if (refs.familiaPacientesPill) {
-        refs.familiaPacientesPill.textContent = `${pacientes.length} dependente${
+        refs.familiaPacientesPill.textContent = `${pacientes.length} vinculo${
           pacientes.length === 1 ? "" : "s"
         }`;
       }
@@ -467,14 +467,14 @@
 
       if (!pacientes.length) {
         refs.pacientesLista.innerHTML =
-          '<p class="empty-hint">Nenhum dependente vinculado.</p>';
+          '<p class="empty-hint">Nenhum vinculo cadastrado.</p>';
       } else {
         refs.pacientesLista.innerHTML = pacientes
           .map((paciente) => {
             const toggleLabel = paciente.ativo ? "Inativar" : "Reativar";
             const pacienteId = escapeHtml(String(paciente?._id || ""));
             return `
-              <article class="stack-card stack-card-clickable" data-type="dependente-open" data-id="${pacienteId}" role="button" tabindex="0" aria-label="Abrir ficha de ${escapeHtml(paciente.nome || "dependente")}">
+              <article class="stack-card stack-card-clickable" data-type="dependente-open" data-id="${pacienteId}" role="button" tabindex="0" aria-label="Abrir ficha de ${escapeHtml(paciente.nome || "vinculo")}">
                 <div>
                   <h4>${escapeHtml(paciente.nome || "-")}</h4>
                   <p><strong>Tipo:</strong> ${escapeHtml(paciente.tipoDeficiencia || "-")}</p>
@@ -498,7 +498,7 @@
       }
 
       if (refs.pacienteSelect) {
-        const options = ['<option value="">Sem dependente especifico</option>'].concat(
+        const options = ['<option value="">Sem vinculo especifico</option>'].concat(
           pacientes
             .filter((paciente) => paciente.ativo)
             .map(
@@ -565,7 +565,7 @@
                   formatDateTime(item.dataHora),
                 )}</p>
 
-                <p class="consulta-label">Dependente</p>
+                <p class="consulta-label">Vinculo</p>
                 <p class="consulta-value consulta-value-success">${escapeHtml(
                   paciente?.nome || "Nao informado",
                 )}</p>

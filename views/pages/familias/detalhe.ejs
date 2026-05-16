@@ -25,16 +25,16 @@
         <span class="ficha-avatar-letters"><%= _familiaInitials %></span>
       </div>
       <div class="ficha-identity-meta">
-        <h1 class="ficha-identity-name"><%= familia?.responsavel?.nome || "Familia" %></h1>
+        <h1 class="ficha-identity-name"><%= familia?.responsavel?.nome || "Assistido" %></h1>
         <div class="ficha-identity-tags">
           <span class="badge-soft <%= familia?.ativo ? '' : 'badge-soft-muted' %>" id="familia-status-pill">
-            <%= familia?.ativo ? "Familia ativa" : "Familia inativa" %>
+            <%= familia?.ativo ? "Assistido ativo" : "Assistido inativo" %>
           </span>
           <% if (familia?.responsavel?.parentesco) { %>
             <span class="ficha-identity-login"><%= familia.responsavel.parentesco %></span>
           <% } %>
           <span class="ficha-identity-date"><%= familia?.responsavel?.telefone || "" %></span>
-          <span class="ficha-identity-date" id="familia-pacientes-pill">0 dependentes</span>
+          <span class="ficha-identity-date" id="familia-pacientes-pill">0 vínculos</span>
           <span class="ficha-identity-date" id="familia-atendimentos-pill">0 atendimentos</span>
           <span class="ficha-identity-date" id="familia-presencas-pill">0 consultas agenda</span>
         </div>
@@ -45,8 +45,8 @@
         <a
           href="/familias/<%= familia._id %>/editar"
           class="ficha-edit-btn"
-          title="Editar familia"
-          aria-label="Editar familia"
+          title="Editar assistido"
+          aria-label="Editar assistido"
         >
           <i class="fa-solid fa-pen" aria-hidden="true"></i>
         </a>
@@ -54,7 +54,7 @@
     </div>
   </header>
 
-  <nav class="ficha-tabs family-record-tabs" role="tablist" aria-label="Secoes da ficha familiar">
+  <nav class="ficha-tabs family-record-tabs" role="tablist" aria-label="Secoes da ficha do assistido">
     <button
       type="button"
       class="ficha-tab family-record-tab is-active"
@@ -75,7 +75,7 @@
       aria-selected="false"
       aria-controls="family-record-workflow"
     >
-      Dependentes
+      Vínculos
     </button>
     <button
       type="button"
@@ -105,7 +105,7 @@
     <div class="familia-resumo-head">
       <div>
         <p class="familias-overline">Visão geral</p>
-        <h2 class="section-title">Resumo da família</h2>
+        <h2 class="section-title">Resumo do assistido</h2>
       </div>
       <span class="badge-soft">Ficha social centralizada</span>
     </div>
@@ -128,10 +128,10 @@
         <p><span class="status-badge <%= familia?.ativo ? 'status-active' : 'status-inactive' %>" id="resumo-status"><%= familia?.ativo ? "Ativa" : "Inativa" %></span></p>
         <% if (viewFlags?.canToggleFamilyStatus) { %>
           <button class="btn btn-muted" id="familia-toggle-status" type="button">
-            <%= familia?.ativo ? "Inativar Familia" : "Reativar Familia" %>
+            <%= familia?.ativo ? "Inativar Assistido" : "Reativar Assistido" %>
           </button>
         <% } else { %>
-          <small class="section-subtitle">Somente administração pode alterar o status da família.</small>
+          <small class="section-subtitle">Somente administração pode alterar o status do assistido.</small>
         <% } %>
       </article>
     </div>
@@ -141,8 +141,8 @@
   <section class="detail-workflow card-elevated" id="family-record-workflow" hidden>
     <header class="workflow-toolbar">
       <div>
-        <h2 class="section-title" id="workflow-title">Ficha de Dependentes</h2>
-        <p class="section-subtitle" id="workflow-subtitle">Gestão dos dependentes vinculados a esta família.</p>
+        <h2 class="section-title" id="workflow-title">Ficha de Vínculos</h2>
+        <p class="section-subtitle" id="workflow-subtitle">Gestão dos vínculos cadastrados para este assistido.</p>
       </div>
       <div class="workflow-actions-top">
         <button type="button" class="btn btn-muted" id="workflow-back-btn" hidden>Voltar</button>
@@ -153,7 +153,7 @@
     <nav class="workflow-tabs" aria-label="Navegacao da ficha">
       <button type="button" class="workflow-tab is-active" data-workflow-tab="pacientes">
         <i class="fa-solid fa-people-group" aria-hidden="true"></i>
-        <span>Dependentes</span>
+        <span>Vínculos</span>
       </button>
       <button type="button" class="workflow-tab" data-workflow-tab="historico">
         <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
@@ -168,22 +168,22 @@
     <div class="workflow-panels">
       <section id="panel-pacientes" class="workflow-panel is-active">
         <div class="listagem-head">
-          <h3 class="section-title panel-title">Dependentes da Família</h3>
+          <h3 class="section-title panel-title">Vínculos do Assistido</h3>
           <span class="badge-soft" id="pacientes-count">0</span>
         </div>
         <div id="pacientes-lista" class="stack-list"></div>
         <% if (viewFlags?.canCreatePatient) { %>
           <div class="panel-actions">
-            <button type="button" class="btn btn-primary" id="paciente-novo-btn">Registrar Dependente</button>
+            <button type="button" class="btn btn-primary" id="paciente-novo-btn">Registrar Vínculo</button>
           </div>
         <% } else { %>
           <div class="panel-actions">
-            <small class="section-subtitle">Perfil em modo visualizacao. Somente administração registra ou altera dependentes.</small>
+            <small class="section-subtitle">Perfil em modo visualizacao. Somente administração registra ou altera vínculos.</small>
           </div>
         <% } %>
 
         <form id="paciente-form" class="form-stack panel-inline-form" hidden>
-          <h3 class="section-title panel-title">Novo Dependente</h3>
+          <h3 class="section-title panel-title">Novo Vínculo</h3>
           <label class="field-wrap">
             <span class="input-label">Nome *</span>
             <input class="input-control" type="text" name="nome" required />
@@ -210,14 +210,14 @@
           </label>
           <div class="panel-actions">
             <button type="button" class="btn btn-muted" id="paciente-cancelar-btn">Cancelar</button>
-            <button class="btn btn-primary" type="submit">Adicionar Dependente</button>
+            <button class="btn btn-primary" type="submit">Adicionar Vínculo</button>
           </div>
         </form>
       </section>
 
       <section id="panel-dependente" class="workflow-panel" hidden>
         <div class="listagem-head">
-          <h3 class="section-title panel-title">Ficha do Dependente</h3>
+          <h3 class="section-title panel-title">Ficha do Vínculo</h3>
           <% if (viewFlags?.canEditPatient) { %>
             <div class="panel-head-actions">
               <button type="button" class="btn btn-muted" id="dependente-editar-btn">
@@ -229,11 +229,11 @@
         </div>
 
         <div id="dependente-detalhe" class="stack-card">
-          <p class="empty-hint">Selecione um dependente para visualizar a ficha.</p>
+          <p class="empty-hint">Selecione um vínculo para visualizar a ficha.</p>
         </div>
 
         <form id="dependente-form" class="form-stack panel-inline-form" hidden>
-          <h3 class="section-title panel-title">Editar Dependente</h3>
+          <h3 class="section-title panel-title">Editar Vínculo</h3>
           <label class="field-wrap">
             <span class="input-label">Nome *</span>
             <input class="input-control" type="text" name="nome" required />
@@ -278,7 +278,7 @@
           <div class="historico-spotlight-copy">
             <p class="familias-overline">Registro social</p>
             <h3><%= viewFlags?.canCreateAttendance ? "Registrar atendimento sem perder o contexto" : "Consultar historico sem alterar registros" %></h3>
-            <p><%= viewFlags?.canCreateAttendance ? "Salve resumo, proximos passos e o voluntario atendido direto da linha do tempo da familia." : "Acompanhe o historico da familia em modo de leitura, sem alterar registros existentes." %></p>
+            <p><%= viewFlags?.canCreateAttendance ? "Salve resumo, proximos passos e o voluntario atendido direto da linha do tempo do assistido." : "Acompanhe o historico do assistido em modo de leitura, sem alterar registros existentes." %></p>
           </div>
           <% if (viewFlags?.canCreateAttendance) { %>
             <button type="button" class="btn btn-primary historico-spotlight-btn" id="historico-registrar-btn">Registrar Atendimento</button>
@@ -296,7 +296,7 @@
         <section class="presenca-familiar-hero">
           <div class="presenca-familiar-copy">
             <p class="familias-overline">Controle de comparecimento</p>
-            <h3>Consultas, faltas e justificativas desta família</h3>
+            <h3>Consultas, faltas e justificativas deste assistido</h3>
             <p>Veja rapidamente quem compareceu, onde houve falta e quais consultas tiveram justificativa registrada.</p>
           </div>
         </section>
@@ -357,7 +357,7 @@
         </div>
         <form id="atendimento-form" class="form-stack atendimento-form-box">
           <label class="field-wrap">
-            <span class="input-label">Dependente (opcional)</span>
+            <span class="input-label">Vínculo (opcional)</span>
             <select class="input-control" name="pacienteId" id="atendimento-paciente"></select>
           </label>
           <label class="field-wrap">

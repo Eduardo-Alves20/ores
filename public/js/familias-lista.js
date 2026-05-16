@@ -67,7 +67,7 @@
 
     function renderRows(items) {
       if (!items.length) {
-        tbody.innerHTML = '<tr><td colspan="8">Nenhuma familia encontrada com os filtros atuais.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8">Nenhum assistido encontrado com os filtros atuais.</td></tr>';
         return;
       }
 
@@ -80,7 +80,7 @@
           const safeId = encodeURIComponent(String(doc?._id || ""));
           const detalhesHref = `/familias/${safeId}`;
           const editarHref = `/familias/${safeId}/editar`;
-          const rowLabel = doc?.responsavel?.nome || "familia";
+          const rowLabel = doc?.responsavel?.nome || "assistido";
           const actions = [
             `
               <a class="table-action-btn table-action-btn-neutral" href="${escapeHtml(detalhesHref)}">
@@ -117,7 +117,7 @@
               </td>
               <td data-label="Parentesco">${escapeHtml(doc?.responsavel?.parentesco || "-")}</td>
               <td data-label="Cidade/UF">${escapeHtml(cidade || "-")}</td>
-              <td data-label="Pacientes">${Number(doc?.pacientesAtivos || 0)}</td>
+              <td data-label="Vinculos">${Number(doc?.pacientesAtivos || 0)}</td>
               <td data-label="Status"><span class="status-badge ${statusClass}">${escapeHtml(statusLabel)}</span></td>
               <td data-label="Atualizacao">${escapeHtml(formatDate(doc?.updatedAt))}</td>
               <td data-label="Acoes">
@@ -156,7 +156,7 @@
     }
 
     async function load() {
-      tbody.innerHTML = '<tr><td colspan="8">Carregando familias...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8">Carregando assistidos...</td></tr>';
       updateUrl();
 
       const params = new URLSearchParams();
@@ -171,15 +171,15 @@
         const payload = await requestJson(`/api/familias?${params.toString()}`);
         renderRows(payload.docs || []);
         renderPaginacao(payload);
-        count.textContent = `${payload.totalDocs || 0} familias monitoradas`;
+        count.textContent = `${payload.totalDocs || 0} assistidos monitorados`;
 
         const docs = Array.isArray(payload.docs) ? payload.docs : [];
         const ativosNaPagina = docs.filter((doc) => doc?.ativo).length;
-        const dependentesNaPagina = docs.reduce((total, doc) => total + Number(doc?.pacientesAtivos || 0), 0);
+        const vinculosNaPagina = docs.reduce((total, doc) => total + Number(doc?.pacientesAtivos || 0), 0);
 
         if (totalChip) totalChip.textContent = String(payload.totalDocs || 0);
         if (activeChip) activeChip.textContent = String(ativosNaPagina);
-        if (pacientesChip) pacientesChip.textContent = String(dependentesNaPagina);
+        if (pacientesChip) pacientesChip.textContent = String(vinculosNaPagina);
       } catch (error) {
         tbody.innerHTML = `<tr><td colspan="8">${escapeHtml(error.message)}</td></tr>`;
         count.textContent = "Erro ao carregar";
@@ -245,10 +245,10 @@
         const nextAtivo = next === "true";
 
         const ok = await confirmAction({
-          title: nextAtivo ? "Reativar familia?" : "Inativar familia?",
+          title: nextAtivo ? "Reativar assistido?" : "Inativar assistido?",
           text: nextAtivo
-            ? "Deseja reativar esta familia?"
-            : "Deseja inativar esta familia? Essa acao pode impactar atendimentos.",
+            ? "Deseja reativar este assistido?"
+            : "Deseja inativar este assistido? Essa acao pode impactar atendimentos.",
           icon: "warning",
           confirmButtonText: nextAtivo ? "Reativar" : "Inativar",
         });
@@ -261,7 +261,7 @@
             body: { ativo: nextAtivo },
           });
           await load();
-          showSuccess("Status da familia atualizado com sucesso.");
+          showSuccess("Status do assistido atualizado com sucesso.");
         } catch (error) {
           showToast(error.message);
         } finally {

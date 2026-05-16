@@ -44,7 +44,7 @@ class FamiliaPageController {
     const quickFilters = await listQuickFilters("assistidos_familias", { includeInactive: false });
 
     return res.status(200).render("pages/familias/lista", {
-      ...buildViewBase(req, "Familias"),
+      ...buildViewBase(req, "Assistidos"),
       quickFilters,
       filtros: {
         busca: String(req.query.busca || ""),
@@ -59,7 +59,7 @@ class FamiliaPageController {
 
   static async novo(req, res) {
     return res.status(200).render("pages/familias/form", {
-      ...buildViewBase(req, "Nova Familia"),
+      ...buildViewBase(req, "Novo Assistido"),
       modo: "criar",
       familia: null,
       customFields: await listCustomFields("familia", { includeInactive: false }),
@@ -68,22 +68,25 @@ class FamiliaPageController {
 
   static async editar(req, res) {
     try {
-      const familia = await ensureAccessibleFamily({
+      const familiaDoc = await ensureAccessibleFamily({
         user: req?.session?.user || null,
         familiaId: req.params?.id,
-        select: "responsavel endereco observacoes camposExtras ativo createdAt updatedAt",
-        notFoundMessage: "Familia nao encontrada.",
+        select: "responsavel endereco observacoes camposExtras anexos ativo createdAt updatedAt",
+        notFoundMessage: "Assistido nao encontrado.",
       });
+      const familia = familiaDoc?.toObject
+        ? familiaDoc.toObject({ flattenMaps: true })
+        : familiaDoc;
 
       return res.status(200).render("pages/familias/form", {
-        ...buildViewBase(req, "Editar Familia"),
+        ...buildViewBase(req, "Editar Assistido"),
         modo: "editar",
         familia,
         customFields: await listCustomFields("familia", { includeInactive: false }),
       });
     } catch (error) {
       if ([400, 403, 404].includes(Number(error?.status || 0))) {
-        req.flash("error", "Familia nao encontrada ou acesso nao permitido.");
+        req.flash("error", "Assistido nao encontrado ou acesso nao permitido.");
         return res.redirect("/familias");
       }
       throw error;
@@ -92,20 +95,23 @@ class FamiliaPageController {
 
   static async detalhar(req, res) {
     try {
-      const familia = await ensureAccessibleFamily({
+      const familiaDoc = await ensureAccessibleFamily({
         user: req?.session?.user || null,
         familiaId: req.params?.id,
         select: "responsavel endereco observacoes camposExtras ativo createdAt updatedAt",
-        notFoundMessage: "Familia nao encontrada.",
+        notFoundMessage: "Assistido nao encontrado.",
       });
+      const familia = familiaDoc?.toObject
+        ? familiaDoc.toObject({ flattenMaps: true })
+        : familiaDoc;
 
       return res.status(200).render("pages/familias/detalhe", {
-        ...buildViewBase(req, "Detalhe da Familia"),
+        ...buildViewBase(req, "Detalhe do Assistido"),
         familia,
       });
     } catch (error) {
       if ([400, 403, 404].includes(Number(error?.status || 0))) {
-        req.flash("error", "Familia nao encontrada ou acesso nao permitido.");
+        req.flash("error", "Assistido nao encontrado ou acesso nao permitido.");
         return res.redirect("/familias");
       }
       throw error;

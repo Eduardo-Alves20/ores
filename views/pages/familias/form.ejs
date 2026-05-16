@@ -87,7 +87,7 @@
       <div class="wizard-panel-header">
         <div>
           <h2 class="wizard-panel-title">Dados pessoais do assistido</h2>
-          <p class="wizard-panel-subtitle">Identificação completa, contato e vínculo familiar.</p>
+          <p class="wizard-panel-subtitle">Identificação completa, contato e dados do responsável.</p>
         </div>
         <span class="wizard-panel-badge" id="badge-panel-1" hidden></span>
       </div>
@@ -217,14 +217,14 @@
       <div class="form-subsection">
         <h3 class="form-subsection-title">
           <span class="form-subsection-icon"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
-          Vínculo familiar
+          Dados do responsável
         </h3>
         <div class="form-grid">
           <label class="field-wrap">
             <span class="input-label">Parentesco / vínculo</span>
             <select class="input-control" name="responsavel_parentesco">
               <% const parAtual = familia?.responsavel?.parentesco || "responsavel"; %>
-              <% [["responsavel","Responsável familiar"],["mae","Mãe"],["pai","Pai"],["tio","Tio(a)"],["avo","Avô / Avó"],["irmao","Irmão / Irmã"],["primo","Primo(a)"],["adotante","Adotante"],["outro","Outro"]].forEach(function(item){ %>
+              <% [["responsavel","Responsável"],["mae","Mãe"],["pai","Pai"],["tio","Tio(a)"],["avo","Avô / Avó"],["irmao","Irmão / Irmã"],["primo","Primo(a)"],["adotante","Adotante"],["outro","Outro"]].forEach(function(item){ %>
                 <option value="<%= item[0] %>" <%= parAtual===item[0]?'selected':'' %>><%= item[1] %></option>
               <% }) %>
             </select>

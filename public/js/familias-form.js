@@ -570,6 +570,7 @@
     // ── Upload cards / file preview ───────────────────────────────────────
     var uploadedFiles  = [];
     var uploadCardFilesByField = {};
+    var existingAttachmentsByField = {};
 
     form.querySelectorAll(".upload-card").forEach(function (card) {
       var input = card.querySelector("input[type='file']");
@@ -579,6 +580,42 @@
       if (!container) return;
       uploadCardFilesByField[fieldName] = container;
     });
+
+    function normalizeAttachmentFieldName(rawFieldName) {
+      var fieldName = String(rawFieldName || "").trim() || "anexo_outros";
+      return uploadCardFilesByField[fieldName] ? fieldName : "anexo_outros";
+    }
+
+    function appendExistingAttachment(entry, familyRecordId) {
+      var fieldName = normalizeAttachmentFieldName(entry && entry.fieldName);
+      var attachmentId = sanitizeTextValue(entry && entry.attachmentId, 80);
+      if (!attachmentId) return;
+
+      if (!existingAttachmentsByField[fieldName]) {
+        existingAttachmentsByField[fieldName] = [];
+      }
+
+      var alreadyExists = existingAttachmentsByField[fieldName].some(function (item) {
+        return String(item.attachmentId || "") === attachmentId;
+      });
+      if (alreadyExists) return;
+
+      var normalizedFamilyId = sanitizeTextValue(familyRecordId || familyId, 80);
+      existingAttachmentsByField[fieldName].push({
+        attachmentId: attachmentId,
+        originalName: sanitizeTextValue(entry && entry.originalName, 180) || "arquivo",
+        size: Number(entry && entry.size ? entry.size : 0),
+        url: normalizedFamilyId
+          ? "/api/familias/" + encodeURIComponent(normalizedFamilyId) + "/anexos/" + encodeURIComponent(attachmentId)
+          : "",
+      });
+    }
+
+    if (Array.isArray(initial && initial.anexos)) {
+      initial.anexos.forEach(function (entry) {
+        appendExistingAttachment(entry, initial && initial._id);
+      });
+    }
 
     function formatFileSize(sizeInBytes) {
       var kb = Math.round(Number(sizeInBytes || 0) / 1024);
@@ -590,6 +627,10 @@
         var container = uploadCardFilesByField[fieldName];
         if (!container) return;
 
+        var existingInCard = Array.isArray(existingAttachmentsByField[fieldName])
+          ? existingAttachmentsByField[fieldName]
+          : [];
+
         var filesInCard = uploadedFiles
           .map(function (entry, idx) {
             if (!entry || entry.fieldName !== fieldName || !entry.file) return null;
@@ -597,7 +638,7 @@
           })
           .filter(Boolean);
 
-        if (!filesInCard.length) {
+        if (!existingInCard.length && !filesInCard.length) {
           container.hidden = true;
           container.innerHTML = "";
           return;
@@ -605,25 +646,47 @@
 
         container.hidden = false;
         container.innerHTML =
-          '<div class="upload-card-files-title">Arquivos anexados (' + filesInCard.length + ')</div>' +
+          '<div class="upload-card-files-title">Arquivos anexados (' + (existingInCard.length + filesInCard.length) + ')</div>' +
           '<div class="annexo-files-list">' +
+          existingInCard.map(function (item) {
+            var meta = formatFileSize(item.size) + " • salvo";
+            var actions =
+              '<div class="annexo-file-actions">' +
+                (item.url
+                  ? '<a class="annexo-file-open" href="' + escHtml(item.url) + '" target="_blank" rel="noopener noreferrer">Abrir</a>'
+                  : "") +
+              "</div>";
+
+            return (
+              '<div class="annexo-file-item is-saved">' +
+                '<i class="fa-solid fa-file-check annexo-file-icon" aria-hidden="true"></i>' +
+                '<div class="annexo-file-info">' +
+                  '<span class="annexo-file-name">' + escHtml(item.originalName) + '</span>' +
+                  '<span class="annexo-file-meta">' + escHtml(meta) + '</span>' +
+                "</div>" +
+                actions +
+              "</div>"
+            );
+          }).join("") +
           filesInCard.map(function (item) {
             return (
               '<div class="annexo-file-item" data-file-idx="' + item.index + '">' +
                 '<i class="fa-solid fa-file-lines annexo-file-icon" aria-hidden="true"></i>' +
                 '<div class="annexo-file-info">' +
                   '<span class="annexo-file-name">' + escHtml(item.file.name) + '</span>' +
-                  '<span class="annexo-file-meta">' + formatFileSize(item.file.size) + '</span>' +
+                  '<span class="annexo-file-meta">' + formatFileSize(item.file.size) + " • pendente" + '</span>' +
                 "</div>" +
-                '<button type="button" class="annexo-file-remove" aria-label="Remover arquivo"><i class="fa-solid fa-times"></i></button>' +
+                '<div class="annexo-file-actions">' +
+                  '<button type="button" class="annexo-file-remove" data-file-idx="' + item.index + '" aria-label="Remover arquivo"><i class="fa-solid fa-times"></i></button>' +
+                "</div>" +
               "</div>"
             );
           }).join("") +
           "</div>";
 
-        container.querySelectorAll(".annexo-file-remove").forEach(function (btn) {
+        container.querySelectorAll(".annexo-file-remove[data-file-idx]").forEach(function (btn) {
           btn.addEventListener("click", function () {
-            var idx = parseInt(btn.closest("[data-file-idx]").getAttribute("data-file-idx"), 10);
+            var idx = parseInt(btn.getAttribute("data-file-idx"), 10);
             if (Number.isNaN(idx)) return;
             uploadedFiles.splice(idx, 1);
             refreshAnnexoList();
@@ -668,13 +731,20 @@
         throw new Error((payload && (payload.erro || payload.message)) || "Erro ao enviar anexos.");
       }
 
+      var uploadedAttachments = Array.isArray(payload && payload.anexos) ? payload.anexos : [];
+      uploadedAttachments.forEach(function (entry) {
+        appendExistingAttachment(entry, familyRecordId);
+      });
+
       uploadedFiles = [];
       refreshAnnexoList();
       return {
         total: Number(payload && payload.total ? payload.total : 0),
-        anexos: Array.isArray(payload && payload.anexos) ? payload.anexos : [],
+        anexos: uploadedAttachments,
       };
     }
+
+    refreshAnnexoList();
 
     // ── Collect payload ───────────────────────────────────────────────────
     function collectPayload() {

@@ -2017,6 +2017,25 @@
 
 .annexo-file-actions { display: flex; gap: 4px; }
 
+.annexo-file-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--brand);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.annexo-file-open:hover {
+  background: var(--brand-soft);
+}
+
 .annexo-file-remove {
   border: 0;
   background: transparent;
