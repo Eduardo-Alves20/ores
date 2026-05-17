@@ -17,7 +17,7 @@ const {
 } = require("./agendaEventMutationSupportService");
 
 async function updateAgendaEvent(user, eventId, body = {}) {
-  ensureAgendaPermission(user, PERMISSIONS.AGENDA_UPDATE, "Acesso negado para agenda.");
+  ensureAgendaPermission(user, [PERMISSIONS.AGENDA_UPDATE, PERMISSIONS.AGENDA_MEDICO_MANAGE], "Acesso negado para agenda.");
 
   const normalizedEventId = ensureAgendaObjectId(eventId, "Identificador de agendamento invalido.");
   const evento = await AgendaEvento.findById(normalizedEventId);

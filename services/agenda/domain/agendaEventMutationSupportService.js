@@ -4,7 +4,8 @@ const { hasAnyPermission } = require("../../shared/accessControlService");
 const { createAgendaError } = require("./agendaErrorService");
 
 function ensureAgendaPermission(user, permission, message) {
-  if (!user || !hasAnyPermission(user.permissions || [], [permission])) {
+  const requiredPermissions = Array.isArray(permission) ? permission : [permission];
+  if (!user || !hasAnyPermission(user.permissions || [], requiredPermissions)) {
     throw createAgendaError(403, message);
   }
 }

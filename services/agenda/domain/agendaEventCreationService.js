@@ -24,7 +24,7 @@ const {
 } = require("./agendaEventMutationSupportService");
 
 async function createAgendaEvent(user, body = {}) {
-  ensureAgendaPermission(user, PERMISSIONS.AGENDA_CREATE, "Acesso negado para agenda.");
+  ensureAgendaPermission(user, [PERMISSIONS.AGENDA_CREATE, PERMISSIONS.AGENDA_MEDICO_MANAGE], "Acesso negado para agenda.");
 
   const actorId = asObjectId(user.id);
   if (!actorId) {

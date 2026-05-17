@@ -11,7 +11,7 @@ const {
 } = require("./agendaEventMutationSupportService");
 
 async function changeAgendaEventStatus(user, eventId, ativoInput) {
-  ensureAgendaPermission(user, PERMISSIONS.AGENDA_STATUS, "Acesso negado para agenda.");
+  ensureAgendaPermission(user, [PERMISSIONS.AGENDA_STATUS, PERMISSIONS.AGENDA_MEDICO_MANAGE], "Acesso negado para agenda.");
 
   const ativo = parseBoolean(ativoInput);
   if (typeof ativo === "undefined") {

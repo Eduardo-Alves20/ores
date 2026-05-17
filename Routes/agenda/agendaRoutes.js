@@ -17,10 +17,10 @@ router.patch("/agenda/salas/:id/status", requirePermission(PERMISSIONS.AGENDA_VI
 
 router.get("/agenda/eventos", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaController.listar);
 router.get("/agenda/eventos/:id", requirePermission(PERMISSIONS.AGENDA_VIEW), AgendaController.detalhe);
-router.post("/agenda/eventos", requirePermission(PERMISSIONS.AGENDA_CREATE), AgendaController.criar);
-router.put("/agenda/eventos/:id", requirePermission(PERMISSIONS.AGENDA_UPDATE), AgendaController.atualizar);
-router.patch("/agenda/eventos/:id/mover", requirePermission(PERMISSIONS.AGENDA_MOVE), AgendaController.mover);
-router.patch("/agenda/eventos/:id/status", requirePermission(PERMISSIONS.AGENDA_STATUS), AgendaController.alterarStatus);
+router.post("/agenda/eventos", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.criar);
+router.put("/agenda/eventos/:id", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.atualizar);
+router.patch("/agenda/eventos/:id/mover", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.mover);
+router.patch("/agenda/eventos/:id/status", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.alterarStatus);
 router.patch(
   "/agenda/eventos/:id/presenca",
   requirePermission(PERMISSIONS.AGENDA_ATTENDANCE),
