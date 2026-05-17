@@ -79,7 +79,7 @@ async function loadAccessibleAttendance({ id, user }) {
     "Identificador de atendimento invalido."
   );
   const atendimento = await Atendimento.findById(normalizedId).select(
-    "_id familiaId pacienteId profissionalId"
+    "_id familiaId pacienteId profissionalId criadoPor ownerId careTeamIds visibilityScope registroTipo"
   );
   if (!atendimento) return null;
 

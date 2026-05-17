@@ -10,6 +10,18 @@ const TIPOS_ATENDIMENTO = [
   "outro",
 ];
 
+const REGISTRO_TIPOS = [
+  "atendimento_geral",
+  "entrevista_social",
+  "relatorio_triagem",
+  "anamnese",
+  "relatorio_individual",
+  "relatorio_evolucao",
+  "relatorio_geral",
+];
+
+const VISIBILITY_SCOPES = ["owner_only", "care_team", "care_team_plus_admin"];
+
 const AtendimentoSchema = new mongoose.Schema(
   {
     familiaId: {
@@ -57,6 +69,30 @@ const AtendimentoSchema = new mongoose.Schema(
       maxlength: 8000,
       default: null,
     },
+    registroTipo: {
+      type: String,
+      enum: REGISTRO_TIPOS,
+      default: "atendimento_geral",
+      index: true,
+    },
+    visibilityScope: {
+      type: String,
+      enum: VISIBILITY_SCOPES,
+      default: "care_team",
+      index: true,
+    },
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      required: true,
+      index: true,
+    },
+    careTeamIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Usuario",
+      },
+    ],
     proximosPassos: {
       type: String,
       trim: true,
@@ -99,4 +135,6 @@ AtendimentoSchema.plugin(mongoosePaginate);
 module.exports = {
   Atendimento: mongoose.model("Atendimento", AtendimentoSchema),
   TIPOS_ATENDIMENTO,
+  REGISTRO_TIPOS,
+  VISIBILITY_SCOPES,
 };

@@ -1,4 +1,7 @@
 const { Atendimento, TIPOS_ATENDIMENTO } = require("../../../schemas/social/Atendimento");
+const { PERFIS } = require("../../../config/roles");
+const { PERMISSIONS } = require("../../../config/permissions");
+const { hasAnyPermission } = require("../../shared/accessControlService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { createFamiliaError } = require("./familiaContextService");
 const {
@@ -9,6 +12,46 @@ const {
   hasOwnAssistidosScope,
   loadAccessibleAttendance,
 } = require("./familiaGuardService");
+
+function isElevatedProfile(user) {
+  const perfil = String(user?.perfil || "").trim().toLowerCase();
+  return perfil === PERFIS.ADMIN || perfil === PERFIS.SUPERADMIN;
+}
+
+function canReadByScope({ atendimento, user }) {
+  if (!atendimento || !user) return false;
+  if (isElevatedProfile(user)) return true;
+
+  const userId = String(user.id || "");
+  const ownerId = String(atendimento.ownerId || atendimento.criadoPor || "");
+  const profissionalId = String(atendimento.profissionalId || "");
+  const careTeamIds = Array.isArray(atendimento.careTeamIds)
+    ? atendimento.careTeamIds.map((item) => String(item || ""))
+    : [];
+  const isOwner = ownerId && ownerId === userId;
+  const isCareTeam = profissionalId === userId || careTeamIds.includes(userId);
+  const scope = String(atendimento.visibilityScope || "care_team").trim().toLowerCase();
+
+  if (scope === "owner_only") return isOwner;
+  return isOwner || isCareTeam;
+}
+
+function ensureCreatePermissionByRecordType({ user, registroTipo }) {
+  const tipo = String(registroTipo || "atendimento_geral").trim().toLowerCase();
+  const permissionByType = {
+    entrevista_social: PERMISSIONS.ENTREVISTA_SOCIAL_CREATE,
+    relatorio_triagem: PERMISSIONS.RELATORIO_TRIAGEM_CREATE,
+    anamnese: PERMISSIONS.ANAMNESE_CREATE_UPDATE,
+    relatorio_individual: PERMISSIONS.RELATORIO_INDIVIDUAL_CREATE_UPDATE,
+    relatorio_evolucao: PERMISSIONS.RELATORIO_EVOLUCAO_CREATE_UPDATE,
+    relatorio_geral: PERMISSIONS.RELATORIO_GERAL_READ_CARE_TEAM,
+  };
+  const requiredPermission = permissionByType[tipo] || PERMISSIONS.ATENDIMENTOS_CREATE;
+
+  if (!hasAnyPermission(user?.permissions || [], [requiredPermission])) {
+    throw createFamiliaError("Sem permissao para criar este tipo de registro.", 403);
+  }
+}
 
 function normalizeAttendanceType(tipo) {
   const normalized = String(tipo || "").trim().toLowerCase();
@@ -57,6 +100,9 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
   });
 
   const { pacienteId, profissionalId, dataHora, tipo, resumo, proximosPassos, notasPrivadas } = body;
+  const registroTipo = String(body?.registroTipo || "atendimento_geral").trim().toLowerCase();
+  const visibilityScope = String(body?.visibilityScope || "").trim().toLowerCase();
+  ensureCreatePermissionByRecordType({ user, registroTipo });
 
   if (!resumo || !String(resumo).trim()) {
     throw createFamiliaError("Campo resumo e obrigatorio.", 400);
@@ -85,6 +131,14 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
     resumo: String(resumo).trim(),
     proximosPassos,
     notasPrivadas: notasPrivadas ? String(notasPrivadas).trim() : null,
+    registroTipo,
+    visibilityScope:
+      visibilityScope ||
+      (registroTipo === "entrevista_social" || registroTipo === "relatorio_triagem"
+        ? "owner_only"
+        : "care_team"),
+    ownerId: actorId,
+    careTeamIds: profissional?._id ? [profissional._id] : [],
     ativo: true,
     criadoPor: actorId,
     atualizadoPor: actorId,
@@ -109,6 +163,9 @@ async function createAttendance({ user, actorId, familiaId, body = {} }) {
 async function updateAttendance({ user, actorId, id, body = {} }) {
   const atual = await loadAccessibleAttendance({ id, user });
   if (!atual) return null;
+  if (!canReadByScope({ atendimento: atual, user })) {
+    throw createFamiliaError("Sem permissao para acessar este registro.", 403);
+  }
 
   ensureOwnScopedProfessional(
     user,
@@ -182,9 +239,16 @@ async function updateAttendance({ user, actorId, id, body = {} }) {
   }
 
   if (typeof notasPrivadas !== "undefined") {
-    const isOwner = String(atual.criadoPor || "") === String(actorId || "");
+    const isOwner = String(atual.ownerId || atual.criadoPor || "") === String(actorId || "");
     if (isOwner) {
       patch.notasPrivadas = notasPrivadas ? String(notasPrivadas).trim() : null;
+    }
+  }
+
+  if (typeof body.visibilityScope !== "undefined") {
+    const isOwner = String(atual.ownerId || atual.criadoPor || "") === String(actorId || "");
+    if (isOwner || isElevatedProfile(user)) {
+      patch.visibilityScope = String(body.visibilityScope || "").trim().toLowerCase() || "care_team";
     }
   }
 
@@ -217,6 +281,12 @@ async function changeAttendanceStatus({ user, actorId, id, ativoInput }) {
 
   const atual = await loadAccessibleAttendance({ id, user });
   if (!atual) return null;
+  if (!canReadByScope({ atendimento: atual, user })) {
+    throw createFamiliaError(
+      "Voluntarios de atendimento so podem alterar status de registros vinculados a si mesmos.",
+      403
+    );
+  }
 
   ensureOwnScopedProfessional(
     user,
