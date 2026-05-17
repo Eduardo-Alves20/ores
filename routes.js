@@ -17,6 +17,8 @@ const acessoPageRoutes = require("./Routes/admin/acessoPageRoutes");
 const segurancaRoutes = require("./Routes/admin/segurancaRoutes");
 const administracaoRoutes = require("./Routes/admin/administracaoRoutes");
 const modulosRoutes = require("./Routes/modulos/modulosRoutes");
+const assistidoRoutes = require("./Routes/assistido/assistidoRoutes");
+const assistidoPageRoutes = require("./Routes/assistido/assistidoPageRoutes");
 const DashboardController = require("./Controllers/admin/DashboardController");
 const OnlineUsersPageController = require("./Controllers/admin/OnlineUsersPageController");
 const AgendaPageController = require("./Controllers/agenda/AgendaPageController");
@@ -111,12 +113,14 @@ router.get(
   AgendaPresencaPageController.detail
 );
 router.use("/familias", requirePermission(PERMISSIONS.FAMILIAS_VIEW), familiaPageRoutes);
+router.use("/assistidos", requirePermission(PERMISSIONS.ASSISTIDOS_VIEW), assistidoPageRoutes);
 
 router.use("/admin/usuarios", limiter, usuarioRoutes);
 router.use("/usuarios", limiter, usuarioRoutes);
 router.use("/api/admin/usuarios", limiter, usuarioRoutes);
 router.use("/api/usuarios", limiter, usuarioRoutes);
 router.use("/api/familias", limiter, familiaRoutes);
+router.use("/api/assistidos", limiter, assistidoRoutes);
 
 router.use("/", limiter, pacienteRoutes);
 router.use("/", limiter, atendimentoRoutes);

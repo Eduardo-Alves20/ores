@@ -1,0 +1,870 @@
+<section
+  class="page-shell familias-layout"
+  data-page="assistidos-form"
+  data-mode="<%= modo %>"
+  data-assistido-id="<%= assistido?._id || '' %>"
+>
+  <nav class="familias-breadcrumb" aria-label="Trilha de navegacao">
+    <a class="familias-breadcrumb-link" href="/painel">Painel</a>
+    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <a class="familias-breadcrumb-link" href="/assistidos">Assistidos</a>
+    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <% if (modo === "editar" && assistido?._id) { %>
+      <a class="familias-breadcrumb-link" href="/assistidos/<%= assistido._id %>"><%= assistido?.nome || "Assistido" %></a>
+      <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <% } %>
+    <span class="familias-breadcrumb-current"><%= modo === "editar" ? "Editar assistido" : "Novo assistido" %></span>
+  </nav>
+
+  <%# ── Wizard step indicator ── %>
+  <div class="cadastro-wizard-steps card-elevated">
+    <div class="wizard-steps-header">
+      <span class="wizard-steps-label">ETAPAS DO CADASTRO</span>
+      <div class="wizard-progress-info">
+        <span class="wizard-progress-text" id="wizard-progress-text">0 de 6 preenchidas &mdash; 0%</span>
+        <div class="wizard-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="wizard-progress-fill" id="wizard-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="wizard-steps-list">
+      <div class="wizard-step-item is-active" data-step="1" role="button" tabindex="0">
+        <div class="wizard-step-circle">1</div>
+        <div class="wizard-step-info">
+          <span class="wizard-step-name">Dados pessoais</span>
+          <span class="wizard-step-subtitle">Identificação e contato</span>
+        </div>
+      </div>
+      <div class="wizard-step-connector" id="connector-1"></div>
+      <div class="wizard-step-item" data-step="2" role="button" tabindex="0">
+        <div class="wizard-step-circle">2</div>
+        <div class="wizard-step-info">
+          <span class="wizard-step-name">Endereço</span>
+          <span class="wizard-step-subtitle">Residência e território</span>
+        </div>
+      </div>
+      <div class="wizard-step-connector" id="connector-2"></div>
+      <div class="wizard-step-item" data-step="3" role="button" tabindex="0">
+        <div class="wizard-step-circle">3</div>
+        <div class="wizard-step-info">
+          <span class="wizard-step-name">Anamnese</span>
+          <span class="wizard-step-subtitle">Ficha clínica adaptada</span>
+        </div>
+      </div>
+      <div class="wizard-step-connector" id="connector-3"></div>
+      <div class="wizard-step-item" data-step="4" role="button" tabindex="0">
+        <div class="wizard-step-circle">4</div>
+        <div class="wizard-step-info">
+          <span class="wizard-step-name">Entrevista social</span>
+          <span class="wizard-step-subtitle">Diagnóstico social</span>
+        </div>
+      </div>
+      <div class="wizard-step-connector" id="connector-4"></div>
+      <div class="wizard-step-item" data-step="5" role="button" tabindex="0">
+        <div class="wizard-step-circle">5</div>
+        <div class="wizard-step-info">
+          <span class="wizard-step-name">Anexos</span>
+          <span class="wizard-step-subtitle">Documentos comprobatórios</span>
+        </div>
+      </div>
+      <div class="wizard-step-connector" id="connector-5"></div>
+      <div class="wizard-step-item" data-step="6" role="button" tabindex="0">
+        <div class="wizard-step-circle">6</div>
+        <div class="wizard-step-info">
+          <span class="wizard-step-name">Resumo</span>
+          <span class="wizard-step-subtitle">Revisão e salvamento</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form id="familia-form" class="familia-form card-elevated" novalidate>
+
+    <%# ════════════════════════════════════════════════ %>
+    <%# ETAPA 1 — Dados pessoais                        %>
+    <%# ════════════════════════════════════════════════ %>
+    <div class="wizard-panel" data-panel="1">
+      <div class="wizard-panel-header">
+        <div>
+          <h2 class="wizard-panel-title">Dados pessoais do assistido</h2>
+          <p class="wizard-panel-subtitle">Identificação completa, contato e dados do responsável.</p>
+        </div>
+        <span class="wizard-panel-badge" id="badge-panel-1" hidden></span>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+          Identificação
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap span-2">
+            <span class="input-label">Nome completo *</span>
+            <input class="input-control" type="text" name="responsavel_nome" value="<%= assistido?.nome !== 'Rascunho' ? (assistido?.nome || '') : '' %>" placeholder="Nome completo do assistido" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Responsável ou filiação</span>
+            <input class="input-control" type="text" name="campoExtra_responsavel_ou_filiacao" value="" placeholder="Nome do responsável ou filiação" data-custom-field-key="responsavel_ou_filiacao" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">CPF *</span>
+            <input class="input-control" type="text" name="campoExtra_cpf" value="<%= assistido?.cpf || '' %>" placeholder="123.456.789-00" data-custom-field-key="cpf" data-custom-field-type="texto" data-mask="cpf" data-only-digits="11" inputmode="numeric" autocomplete="off" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">RG</span>
+            <input class="input-control" type="text" name="campoExtra_rg" value="<%= assistido?.rg || '' %>" placeholder="00.000.000-0" data-custom-field-key="rg" data-custom-field-type="texto" data-mask="rg" data-only-digits="9" inputmode="numeric" autocomplete="off" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Órgão emissor / UF</span>
+            <input class="input-control" type="text" name="campoExtra_orgao_emissor" value="<%= assistido?.orgaoEmissor || '' %>" placeholder="SSP/SP" data-custom-field-key="orgao_emissor" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Data de nascimento *</span>
+            <input class="input-control" type="date" name="campoExtra_data_nascimento" value="<%= assistido?.dataNascimento ? new Date(assistido.dataNascimento).toISOString().slice(0,10) : '' %>" data-custom-field-key="data_nascimento" data-custom-field-type="data" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Idade (calculada)</span>
+            <input class="input-control" type="text" name="_idade_calculada" placeholder="—" readonly tabindex="-1" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Faixa para anamnese</span>
+            <input class="input-control" type="text" name="_faixa_anamnese" placeholder="—" readonly tabindex="-1" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-person" aria-hidden="true"></i></span>
+          Características pessoais
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Sexo biológico</span>
+            <select class="input-control" name="campoExtra_sexo_biologico" data-custom-field-key="sexo_biologico" data-custom-field-type="select">
+              <% const sexoBioAtual = assistido?.sexoBiologico || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="masculino"    <%= sexoBioAtual==='masculino'?'selected':'' %>>Masculino</option>
+              <option value="feminino"     <%= sexoBioAtual==='feminino'?'selected':'' %>>Feminino</option>
+              <option value="intersexo"    <%= sexoBioAtual==='intersexo'?'selected':'' %>>Intersexo</option>
+              <option value="nao_informado" <%= sexoBioAtual==='nao_informado'?'selected':'' %>>Prefiro não informar</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Cor / raça (autodeclaração)</span>
+            <select class="input-control" name="campoExtra_cor_raca" data-custom-field-key="cor_raca" data-custom-field-type="select">
+              <% const crAtual = assistido?.corRaca || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="branco"       <%= crAtual==='branco'?'selected':'' %>>Branca</option>
+              <option value="preto"        <%= crAtual==='preto'?'selected':'' %>>Preta</option>
+              <option value="pardo"        <%= crAtual==='pardo'?'selected':'' %>>Parda</option>
+              <option value="amarelo"      <%= crAtual==='amarelo'?'selected':'' %>>Amarela</option>
+              <option value="indigena"     <%= crAtual==='indigena'?'selected':'' %>>Indígena</option>
+              <option value="nao_informado" <%= crAtual==='nao_informado'?'selected':'' %>>Não declarado</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Naturalidade</span>
+            <input class="input-control" type="text" name="campoExtra_naturalidade" value="<%= assistido?.naturalidade || '' %>" placeholder="Cidade / UF de nascimento" data-custom-field-key="naturalidade" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Nacionalidade</span>
+            <input class="input-control" type="text" name="campoExtra_nacionalidade" value="<%= assistido?.nacionalidade || 'Brasileira' %>" data-custom-field-key="nacionalidade" data-custom-field-type="texto" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
+          Contato
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Telefone principal *</span>
+            <input class="input-control" type="text" name="responsavel_telefone" value="<%= assistido?.telefonePrincipal || '' %>" placeholder="(11) 99999-9999" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Telefone secundário</span>
+            <input class="input-control" type="text" name="campoExtra_telefone_secundario" value="<%= assistido?.telefoneSecundario || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="telefone_secundario" data-custom-field-type="texto" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
+          </label>
+          <div class="field-wrap">
+            <span class="input-label">É WhatsApp?</span>
+            <div class="radio-group">
+              <% const isWaAtual = assistido?.isWhatsApp === false ? 'nao' : 'sim'; %>
+              <label class="radio-pill <%= isWaAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_is_whatsapp" value="sim" <%= isWaAtual==='sim'?'checked':'' %> data-custom-field-key="is_whatsapp" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= isWaAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_is_whatsapp" value="nao" <%= isWaAtual==='nao'?'checked':'' %> data-custom-field-key="is_whatsapp" data-custom-field-type="texto" />Não</label>
+            </div>
+          </div>
+          <label class="field-wrap">
+            <span class="input-label">Email</span>
+            <input class="input-control" type="email" name="responsavel_email" value="<%= assistido?.email || '' %>" placeholder="email@exemplo.com" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Permissão de contato</span>
+            <select class="input-control" name="campoExtra_permissao_contato" data-custom-field-key="permissao_contato" data-custom-field-type="select">
+              <% const permAtual = assistido?.permissaoContato || ''; %>
+              <option value="qualquer_hora"   <%= permAtual==='qualquer_hora'?'selected':'' %>>Qualquer canal</option>
+              <option value="somente_manha"   <%= permAtual==='somente_manha'?'selected':'' %>>Somente manhã</option>
+              <option value="somente_tarde"   <%= permAtual==='somente_tarde'?'selected':'' %>>Somente tarde</option>
+              <option value="nao_ligar"       <%= permAtual==='nao_ligar'?'selected':'' %>>Não ligar</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-people-roof" aria-hidden="true"></i></span>
+          Dados do responsável / guardião
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Parentesco / vínculo</span>
+            <select class="input-control" name="responsavel_parentesco">
+              <% const parAtual = assistido?.responsavel?.parentesco || "responsavel"; %>
+              <% [["responsavel","Responsável"],["mae","Mãe"],["pai","Pai"],["avo","Avô / Avó"],["tio","Tio(a)"],["irmao","Irmão / Irmã"],["conjuge","Cônjuge"],["cuidador","Cuidador(a)"],["outro","Outro"]].forEach(function(item){ %>
+                <option value="<%= item[0] %>" <%= parAtual===item[0]?'selected':'' %>><%= item[1] %></option>
+              <% }) %>
+            </select>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Nome do responsável</span>
+            <input class="input-control" type="text" name="responsavel_familiar_nome" value="<%= assistido?.responsavel?.nome || '' %>" placeholder="Nome completo do responsável" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">CPF do responsável</span>
+            <input class="input-control" type="text" name="responsavel_familiar_cpf" value="<%= assistido?.responsavel?.cpf || '' %>" placeholder="000.000.000-00" data-mask="cpf" data-only-digits="11" inputmode="numeric" autocomplete="off" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Nascimento do responsável</span>
+            <input class="input-control" type="date" name="responsavel_familiar_nascimento" value="<%= assistido?.responsavel?.dataNascimento ? new Date(assistido.responsavel.dataNascimento).toISOString().slice(0,10) : '' %>" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Telefone do responsável</span>
+            <input class="input-control" type="text" name="responsavel_familiar_telefone" value="<%= assistido?.responsavel?.telefone || '' %>" placeholder="(11) 99999-9999" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">E-mail do responsável</span>
+            <input class="input-control" type="email" name="responsavel_familiar_email" value="<%= assistido?.responsavel?.email || '' %>" placeholder="email@exemplo.com" />
+          </label>
+          <div class="field-wrap">
+            <span class="input-label">É o(a) responsável principal?</span>
+            <div class="radio-group">
+              <% const ehRespAtual = assistido?.responsavel?.ePrincipalResponsavel || 'sim'; %>
+              <label class="radio-pill <%= ehRespAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="sim" <%= ehRespAtual==='sim'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= ehRespAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="nao" <%= ehRespAtual==='nao'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Não</label>
+              <label class="radio-pill <%= ehRespAtual==='nao_sabe'?'is-selected':'' %>"><input type="radio" name="campoExtra_eh_responsavel" value="nao_sabe" <%= ehRespAtual==='nao_sabe'?'checked':'' %> data-custom-field-key="eh_responsavel" data-custom-field-type="texto" />Não sabe</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-phone-volume" aria-hidden="true"></i></span>
+          Contato em caso de emergência
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap span-2">
+            <span class="input-label">Nome</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_nome" value="<%= assistido?.contatoEmergencia?.nome || '' %>" placeholder="Nome completo" data-custom-field-key="emergencia_nome" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Telefone</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_telefone" value="<%= assistido?.contatoEmergencia?.telefone || '' %>" placeholder="(11) 99999-9999" data-custom-field-key="emergencia_telefone" data-custom-field-type="texto" data-mask="phone" data-only-digits="11" inputmode="numeric" autocomplete="off" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Vínculo / parentesco</span>
+            <input class="input-control" type="text" name="campoExtra_emergencia_vinculo" value="<%= assistido?.contatoEmergencia?.vinculo || '' %>" placeholder="Ex: Vizinha, Irmão..." data-custom-field-key="emergencia_vinculo" data-custom-field-type="texto" />
+          </label>
+          <div class="field-wrap span-2">
+            <span class="input-label">Mora na mesma residência?</span>
+            <div class="radio-group">
+              <% var emgRes = assistido?.contatoEmergencia?.moraNaMesmaResidencia; %>
+              <% var emgResAtual = emgRes === true ? 'sim' : emgRes === false ? 'nao' : ''; %>
+              <label class="radio-pill <%= emgResAtual==='sim'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="sim" <%= emgResAtual==='sim'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Sim</label>
+              <label class="radio-pill <%= emgResAtual==='nao'?'is-selected':'' %>"><input type="radio" name="campoExtra_emergencia_mesma_residencia" value="nao" <%= emgResAtual==='nao'?'checked':'' %> data-custom-field-key="emergencia_mesma_residencia" data-custom-field-type="texto" />Não</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ════════════════════════════════════════════════ %>
+    <%# ETAPA 2 — Endereço e moradia                    %>
+    <%# ════════════════════════════════════════════════ %>
+    <div class="wizard-panel" data-panel="2" hidden>
+      <div class="wizard-panel-header">
+        <div>
+          <h2 class="wizard-panel-title">Endereço e moradia</h2>
+          <p class="wizard-panel-subtitle">Onde o assistido reside.</p>
+        </div>
+        <span class="wizard-panel-badge" id="badge-panel-2" hidden></span>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
+          Endereço residencial
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">CEP *</span>
+            <input class="input-control" type="text" name="endereco_cep" value="<%= assistido?.endereco?.cep || '' %>" placeholder="00000-000" data-mask="cep" data-only-digits="8" inputmode="numeric" autocomplete="postal-code" />
+          </label>
+          <label class="field-wrap span-3">
+            <span class="input-label">Logradouro *</span>
+            <input class="input-control" type="text" name="endereco_rua" value="<%= assistido?.endereco?.logradouro || '' %>" placeholder="Rua, avenida, travessa..." />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Número *</span>
+            <input class="input-control" type="text" name="endereco_numero" value="<%= assistido?.endereco?.numero || '' %>" placeholder="Ex: 142" data-only-digits="10" inputmode="numeric" autocomplete="off" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Complemento</span>
+            <input class="input-control" type="text" name="endereco_complemento" value="<%= assistido?.endereco?.complemento || '' %>" placeholder="Apto, bloco, casa..." />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Ponto de referência</span>
+            <input class="input-control" type="text" name="campoExtra_ponto_referencia" value="<%= assistido?.endereco?.pontoReferencia || '' %>" placeholder="Próximo a..." data-custom-field-key="ponto_referencia" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Bairro *</span>
+            <input class="input-control" type="text" name="endereco_bairro" value="<%= assistido?.endereco?.bairro || '' %>" placeholder="Bairro" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Cidade *</span>
+            <input class="input-control" type="text" name="endereco_cidade" value="<%= assistido?.endereco?.cidade || '' %>" placeholder="São Paulo" />
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Estado *</span>
+            <select class="input-control" name="endereco_estado">
+              <% const ufAtual = assistido?.endereco?.estado || ''; %>
+              <option value="">UF</option>
+              <% ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].forEach(function(uf){ %>
+                <option value="<%= uf %>" <%= ufAtual===uf?'selected':'' %>><%= uf %></option>
+              <% }) %>
+            </select>
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Microárea (ACS/ESF)</span>
+            <input class="input-control" type="text" name="campoExtra_microarea" value="<%= assistido?.endereco?.microarea || '' %>" placeholder="Ex: Microárea 03" data-custom-field-key="microarea" data-custom-field-type="texto" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
+          Condições de moradia
+        </h3>
+        <div class="form-grid">
+          <label class="field-wrap">
+            <span class="input-label">Tipo de moradia</span>
+            <select class="input-control" name="campoExtra_tipo_moradia" data-custom-field-key="tipo_moradia" data-custom-field-type="select">
+              <% const tmAtual = assistido?.endereco?.tipoMoradia || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="propria"    <%= tmAtual==='propria'?'selected':'' %>>Própria</option>
+              <option value="alugada"    <%= tmAtual==='alugada'?'selected':'' %>>Alugada</option>
+              <option value="cedida"     <%= tmAtual==='cedida'?'selected':'' %>>Cedida</option>
+              <option value="ocupacao"   <%= tmAtual==='ocupacao'?'selected':'' %>>Ocupação</option>
+              <option value="abrigo"     <%= tmAtual==='abrigo'?'selected':'' %>>Abrigo / Instituição</option>
+              <option value="sem_moradia" <%= tmAtual==='sem_moradia'?'selected':'' %>>Sem moradia fixa</option>
+            </select>
+          </label>
+          <label class="field-wrap">
+            <span class="input-label">Tempo na moradia atual</span>
+            <input class="input-control" type="text" name="campoExtra_tempo_moradia" value="<%= assistido?.endereco?.tempoMoradia || '' %>" placeholder="Ex: 5 anos" data-custom-field-key="tempo_moradia" data-custom-field-type="texto" />
+          </label>
+          <label class="field-wrap span-2">
+            <span class="input-label">Observações sobre a moradia</span>
+            <textarea class="input-control textarea-control" name="campoExtra_obs_moradia" rows="3" placeholder="Condições gerais, divisão de cômodos..." data-custom-field-key="obs_moradia" data-custom-field-type="textarea"></textarea>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <%# ════════════════════════════════════════════════ %>
+    <%# ETAPA 3 — Anamnese                              %>
+    <%# ════════════════════════════════════════════════ %>
+    <div class="wizard-panel" data-panel="3" hidden>
+      <div class="wizard-panel-header">
+        <div>
+          <h2 class="wizard-panel-title">Ficha de anamnese</h2>
+          <p class="wizard-panel-subtitle">Histórico clínico e saúde do assistido. Adaptada por faixa etária.</p>
+        </div>
+        <span class="wizard-panel-badge" id="badge-panel-3" hidden></span>
+      </div>
+
+      <div class="form-subsection">
+        <div class="anamnese-faixa-info">
+          <i class="fa-solid fa-file-medical anamnese-faixa-info-icon" aria-hidden="true"></i>
+          <div class="anamnese-faixa-info-text">
+            <strong id="anamnese-faixa-label">Ficha aplicada: Adulto (18-59 anos)</strong>
+            <p id="anamnese-faixa-desc">Sugerida automaticamente pela idade do assistido. Doenças crônicas, hábitos de vida, saúde mental, trabalho e ocupação.</p>
+          </div>
+        </div>
+        <div class="radio-group">
+          <label class="radio-pill" id="faixa-btn-crianca"><input type="radio" name="_faixa_sel" value="crianca" />Criança</label>
+          <label class="radio-pill" id="faixa-btn-adolescente"><input type="radio" name="_faixa_sel" value="adolescente" />Adolescente</label>
+          <label class="radio-pill is-selected" id="faixa-btn-adulto"><input type="radio" name="_faixa_sel" value="adulto" checked />Adulto</label>
+          <label class="radio-pill" id="faixa-btn-idoso"><input type="radio" name="_faixa_sel" value="idoso" />Idoso</label>
+        </div>
+      </div>
+
+      <div id="anamnese-form-crianca" hidden>
+        <%- include("../familias/partials/anamnese-crianca") %>
+      </div>
+      <div id="anamnese-form-adolescente" hidden>
+        <%- include("../familias/partials/anamnese-adolescente") %>
+      </div>
+      <div id="anamnese-form-adulto" hidden>
+        <%- include("../familias/partials/anamnese-adulto") %>
+      </div>
+      <div id="anamnese-form-idoso" hidden>
+        <%- include("../familias/partials/anamnese-idoso") %>
+      </div>
+
+      <div id="anamnese-form-geral">
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+            Saúde geral
+          </h3>
+          <div class="form-grid">
+            <label class="field-wrap span-4">
+              <span class="input-label">Queixa principal / motivo da procura</span>
+              <textarea class="input-control textarea-control" name="campoExtra_queixa_principal" rows="3" placeholder="Descreva com as palavras do próprio assistido sempre que possível." data-custom-field-key="queixa_principal" data-custom-field-type="textarea"></textarea>
+            </label>
+            <label class="field-wrap span-2">
+              <span class="input-label">Estado geral percebido</span>
+              <select class="input-control" name="campoExtra_estado_geral" data-custom-field-key="estado_geral" data-custom-field-type="select">
+                <option value="">Selecionar...</option>
+                <option value="otimo">Ótimo</option>
+                <option value="bom">Bom</option>
+                <option value="regular">Regular</option>
+                <option value="ruim">Ruim</option>
+                <option value="critico">Crítico</option>
+              </select>
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Peso (kg)</span>
+              <input class="input-control" type="text" name="campoExtra_peso" placeholder="Ex: 72" data-custom-field-key="peso" data-custom-field-type="texto" />
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Altura (cm)</span>
+              <input class="input-control" type="text" name="campoExtra_altura" placeholder="Ex: 168" data-custom-field-key="altura" data-custom-field-type="texto" />
+            </label>
+          </div>
+        </div>
+
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i></span>
+            Antecedentes pessoais
+          </h3>
+          <div class="form-grid">
+            <div class="field-wrap span-4">
+              <span class="input-label">Doenças crônicas / condições atuais</span>
+              <div class="checkbox-grid">
+                <% [["hipertensao","Hipertensão"],["diabetes","Diabetes"],["cardiopatia","Cardiopatia"],["asma_dpoc","Asma / DPOC"],["tireoide","Tireoide"],["obesidade","Obesidade"],["cancer","Câncer"],["hiv","HIV"],["hepatite","Hepatite"],["renais","Renais"],["reumaticas","Reumáticas"],["nenhuma","Nenhuma"]].forEach(function(item){ %>
+                  <label class="checkbox-option">
+                    <input type="checkbox" class="checkbox-input" data-checkbox-group="doencas_cronicas" value="<%= item[0] %>" />
+                    <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                    <span><%= item[1] %></span>
+                  </label>
+                <% }) %>
+              </div>
+            </div>
+            <label class="field-wrap span-2">
+              <span class="input-label">Cirurgias prévias</span>
+              <textarea class="input-control textarea-control" name="campoExtra_cirurgias" rows="3" placeholder="Procedimento e ano..." data-custom-field-key="cirurgias" data-custom-field-type="textarea"></textarea>
+            </label>
+            <label class="field-wrap span-2">
+              <span class="input-label">Internações</span>
+              <textarea class="input-control textarea-control" name="campoExtra_internacoes" rows="3" placeholder="Motivo e ano..." data-custom-field-key="internacoes" data-custom-field-type="textarea"></textarea>
+            </label>
+            <label class="field-wrap span-4">
+              <span class="input-label">Medicamentos em uso contínuo</span>
+              <textarea class="input-control textarea-control" name="campoExtra_medicamentos" rows="3" placeholder="Nome, dosagem, frequência." data-custom-field-key="medicamentos" data-custom-field-type="textarea"></textarea>
+            </label>
+            <label class="field-wrap span-2">
+              <span class="input-label">Alergias</span>
+              <input class="input-control" type="text" name="campoExtra_alergias" placeholder="Medicamentos, alimentos, outros..." data-custom-field-key="alergias" data-custom-field-type="texto" />
+            </label>
+            <label class="field-wrap span-2">
+              <span class="input-label">Última consulta médica</span>
+              <input class="input-control" type="text" name="campoExtra_ultima_consulta" placeholder="Ex: Há 6 meses, clínico geral" data-custom-field-key="ultima_consulta" data-custom-field-type="texto" />
+            </label>
+          </div>
+        </div>
+
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon" style="background:#fef3f2;color:#e64b3b"><i class="fa-solid fa-people-group" aria-hidden="true"></i></span>
+            Histórico familiar
+          </h3>
+          <div class="form-grid">
+            <div class="field-wrap span-4">
+              <span class="input-label">Doenças relevantes na família (pais, avós, irmãos)</span>
+              <div class="checkbox-grid">
+                <% [["hf_hipertensao","Hipertensão"],["hf_diabetes","Diabetes"],["hf_cancer","Câncer"],["hf_cardiopatia","Cardiopatia"],["hf_avc","AVC"],["hf_doenca_mental","Doença mental"],["hf_alcoolismo","Alcoolismo"],["hf_suicidio","Suicídio"],["hf_doencas_geneticas","Doenças genéticas"],["hf_nenhum","Não há histórico"]].forEach(function(item){ %>
+                  <label class="checkbox-option">
+                    <input type="checkbox" class="checkbox-input" data-checkbox-group="historico_familiar" value="<%= item[0] %>" />
+                    <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                    <span><%= item[1] %></span>
+                  </label>
+                <% }) %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon" style="background:#fff4f7;color:#c2416d"><i class="fa-solid fa-brain" aria-hidden="true"></i></span>
+            Saúde mental e emocional
+          </h3>
+          <div class="form-grid">
+            <div class="field-wrap">
+              <span class="input-label">Já fez ou faz acompanhamento psicológico?</span>
+              <div class="radio-group">
+                <label class="radio-pill"><input type="radio" name="campoExtra_sm_acompanhamento_psico" value="sim" data-custom-field-key="sm_acompanhamento_psico" data-custom-field-type="texto" />Sim</label>
+                <label class="radio-pill"><input type="radio" name="campoExtra_sm_acompanhamento_psico" value="nao" data-custom-field-key="sm_acompanhamento_psico" data-custom-field-type="texto" />Não</label>
+                <label class="radio-pill"><input type="radio" name="campoExtra_sm_acompanhamento_psico" value="nao_sabe" data-custom-field-key="sm_acompanhamento_psico" data-custom-field-type="texto" />Não sabe</label>
+              </div>
+            </div>
+            <div class="field-wrap">
+              <span class="input-label">Já fez ou faz uso de medicação psiquiátrica?</span>
+              <div class="radio-group">
+                <label class="radio-pill"><input type="radio" name="campoExtra_sm_medicacao_psiq" value="sim" data-custom-field-key="sm_medicacao_psiq" data-custom-field-type="texto" />Sim</label>
+                <label class="radio-pill"><input type="radio" name="campoExtra_sm_medicacao_psiq" value="nao" data-custom-field-key="sm_medicacao_psiq" data-custom-field-type="texto" />Não</label>
+                <label class="radio-pill"><input type="radio" name="campoExtra_sm_medicacao_psiq" value="nao_sabe" data-custom-field-key="sm_medicacao_psiq" data-custom-field-type="texto" />Não sabe</label>
+              </div>
+            </div>
+            <div class="field-wrap span-2">
+              <span class="input-label">Sintomas presentes</span>
+              <div class="checkbox-grid">
+                <% [["sm_tristeza","Tristeza persistente"],["sm_ansiedade","Ansiedade"],["sm_insonia","Insônia"],["sm_crises_panico","Crises de pânico"],["sm_ideacao_suicida","Ideação suicida"],["sm_irritabilidade","Irritabilidade"],["sm_falta_motivacao","Falta de motivação"],["sm_isolamento","Isolamento social"],["sm_nenhum","Nenhum"]].forEach(function(item){ %>
+                  <label class="checkbox-option">
+                    <input type="checkbox" class="checkbox-input" data-checkbox-group="sm_sintomas" value="<%= item[0] %>" />
+                    <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                    <span><%= item[1] %></span>
+                  </label>
+                <% }) %>
+              </div>
+            </div>
+            <label class="field-wrap span-2">
+              <span class="input-label">Descrição do sono</span>
+              <textarea class="input-control textarea-control" name="campoExtra_descricao_sono" rows="2" placeholder="Qualidade, horas, dificuldades..." data-custom-field-key="descricao_sono" data-custom-field-type="textarea"></textarea>
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Nível de estresse (0-10)</span>
+              <input class="input-control" type="number" name="campoExtra_nivel_estresse" min="0" max="10" placeholder="0-10" data-custom-field-key="nivel_estresse" data-custom-field-type="texto" />
+            </label>
+          </div>
+        </div>
+
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon" style="background:#f0fdf4;color:#16a34a"><i class="fa-solid fa-leaf" aria-hidden="true"></i></span>
+            Hábitos de vida
+          </h3>
+          <div class="form-grid">
+            <label class="field-wrap">
+              <span class="input-label">Tabagismo</span>
+              <select class="input-control" name="campoExtra_tabagismo" data-custom-field-key="tabagismo" data-custom-field-type="select">
+                <option value="">Selecionar...</option>
+                <option value="nao_fuma">Não fuma</option>
+                <option value="ex_fumante">Ex-fumante</option>
+                <option value="fumante_leve">Fumante leve (&lt;10/dia)</option>
+                <option value="fumante_mod">Fumante moderado</option>
+                <option value="fumante_pesado">Fumante pesado (&gt;20/dia)</option>
+              </select>
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Etilismo</span>
+              <select class="input-control" name="campoExtra_etilismo" data-custom-field-key="etilismo" data-custom-field-type="select">
+                <option value="">Selecionar...</option>
+                <option value="nao_usa">Não usa</option>
+                <option value="social">Social / esporádico</option>
+                <option value="moderado">Moderado</option>
+                <option value="frequente">Frequente / diário</option>
+                <option value="dependente">Dependente</option>
+              </select>
+            </label>
+            <label class="field-wrap span-2">
+              <span class="input-label">Outras substâncias</span>
+              <select class="input-control" name="campoExtra_outras_substancias" data-custom-field-key="outras_substancias" data-custom-field-type="select">
+                <option value="nao_usa" selected>Não usa</option>
+                <option value="cannabis">Cannabis</option>
+                <option value="cocaina">Cocaína / Crack</option>
+                <option value="multiplas">Múltiplas substâncias</option>
+                <option value="outra">Outra</option>
+              </select>
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Atividade física</span>
+              <select class="input-control" name="campoExtra_atividade_fisica" data-custom-field-key="atividade_fisica" data-custom-field-type="select">
+                <option value="">Selecionar...</option>
+                <option value="sedentario">Sedentário</option>
+                <option value="leve">Leve (1-2x/semana)</option>
+                <option value="moderado">Moderado (3-4x/semana)</option>
+                <option value="intenso">Intenso (5+/semana)</option>
+              </select>
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Qualidade da alimentação</span>
+              <select class="input-control" name="campoExtra_qualidade_alimentacao" data-custom-field-key="qualidade_alimentacao" data-custom-field-type="select">
+                <option value="">Selecionar...</option>
+                <option value="boa">Boa</option>
+                <option value="regular">Regular</option>
+                <option value="insuficiente">Insuficiente</option>
+                <option value="inseguranca">Insegurança alimentar</option>
+              </select>
+            </label>
+            <label class="field-wrap span-2">
+              <span class="input-label">Restrições alimentares</span>
+              <input class="input-control" type="text" name="campoExtra_restricoes_alimentares" placeholder="Ex: lactose, glúten, vegetariano..." data-custom-field-key="restricoes_alimentares" data-custom-field-type="texto" />
+            </label>
+          </div>
+        </div>
+
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon" style="background:#f0f7fc;color:#1C5D85"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
+            Trabalho e ocupação
+          </h3>
+          <div class="form-grid">
+            <label class="field-wrap">
+              <span class="input-label">Profissão</span>
+              <input class="input-control" type="text" name="campoExtra_profissao" placeholder="Ex: Auxiliar de cozinha" data-custom-field-key="profissao" data-custom-field-type="texto" />
+            </label>
+            <label class="field-wrap">
+              <span class="input-label">Ocupação atual</span>
+              <select class="input-control" name="campoExtra_ocupacao_atual" data-custom-field-key="ocupacao_atual" data-custom-field-type="select">
+                <option value="">Selecionar...</option>
+                <option value="empregado_clt">Empregado (CLT)</option>
+                <option value="autonomo">Autônomo / Informal</option>
+                <option value="servidor_pub">Servidor público</option>
+                <option value="desempregado">Desempregado</option>
+                <option value="aposentado">Aposentado / Pensionista</option>
+                <option value="estudante">Estudante</option>
+                <option value="inativo">Inativo / Sem renda</option>
+              </select>
+            </label>
+            <label class="field-wrap span-2">
+              <span class="input-label">Carga horária semanal</span>
+              <input class="input-control" type="text" name="campoExtra_carga_horaria" placeholder="Ex: 44h" data-custom-field-key="carga_horaria" data-custom-field-type="texto" />
+            </label>
+            <label class="field-wrap span-4">
+              <span class="input-label">Doenças ocupacionais ou afastamentos</span>
+              <textarea class="input-control textarea-control" name="campoExtra_doencas_ocupacionais" rows="3" placeholder="Ex: LER em 2023, afastado por 3 meses..." data-custom-field-key="doencas_ocupacionais" data-custom-field-type="textarea"></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon" style="background:#fff8f0;color:#d97706"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+            Hipótese diagnóstica e conduta
+          </h3>
+          <div class="form-grid">
+            <label class="field-wrap span-4">
+              <span class="input-label">Hipótese inicial</span>
+              <textarea class="input-control textarea-control" name="campoExtra_hipotese_inicial" rows="3" placeholder="Preenchido pelo profissional responsável." data-custom-field-key="hipotese_inicial" data-custom-field-type="textarea"></textarea>
+            </label>
+            <label class="field-wrap span-4">
+              <span class="input-label">Plano de cuidado / encaminhamentos</span>
+              <textarea class="input-control textarea-control" name="campoExtra_plano_cuidado_ana" rows="3" placeholder="Acompanhamento, especialidades, retorno..." data-custom-field-key="plano_cuidado_ana" data-custom-field-type="textarea"></textarea>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ════════════════════════════════════════════════ %>
+    <%# ETAPA 4 — Entrevista social                     %>
+    <%# ════════════════════════════════════════════════ %>
+    <div class="wizard-panel" data-panel="4" hidden>
+      <div class="wizard-panel-header">
+        <div>
+          <h2 class="wizard-panel-title">Entrevista social</h2>
+          <p class="wizard-panel-subtitle">Diagnóstico social conduzido pela assistente social.</p>
+        </div>
+        <span class="wizard-panel-badge" id="badge-panel-4" hidden></span>
+      </div>
+
+      <div class="wizard-info-notice">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>FICHA DE ENTREVISTA SOCIAL ORES. Fundamentada no Princípio da Prioridade Absoluta (Art. 227 da CF/88 e Art. 4º do ECA) e na Equiparação da Neurodivergência a Deficiência para todos os efeitos legais.</span>
+      </div>
+
+      <%- include("../familias/partials/entrevista-social-casa-tea") %>
+    </div>
+
+    <%# ════════════════════════════════════════════════ %>
+    <%# ETAPA 5 — Anexos                                %>
+    <%# ════════════════════════════════════════════════ %>
+    <div class="wizard-panel" data-panel="5" hidden>
+      <div class="wizard-panel-header">
+        <div>
+          <h2 class="wizard-panel-title">Documentos e anexos</h2>
+          <p class="wizard-panel-subtitle">Anexe os documentos comprobatórios do assistido.</p>
+        </div>
+        <span class="wizard-panel-badge" id="badge-panel-5" hidden></span>
+      </div>
+
+      <div class="wizard-info-notice">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>Documentos podem ser anexados a qualquer momento. O cadastro pode ser concluído sem todos os anexos — documentos pendentes ficam anotados no prontuário.</span>
+      </div>
+
+      <div class="form-subsection">
+        <h3 class="form-subsection-title">
+          <span class="form-subsection-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
+          Categorias sugeridas
+        </h3>
+        <div class="upload-cards-grid">
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Documentação</span>
+              <span class="upload-card-badge is-required">OBRIGATÓRIO</span>
+            </div>
+            <p class="upload-card-desc">RG, CPF, carteirinhas, NIS, CadÚnico</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input class="upload-card-input" type="file" name="anexo_documentacao" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
+            </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_documentacao" hidden></div>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Comprovante de residência</span>
+              <span class="upload-card-badge is-required">OBRIGATÓRIO</span>
+            </div>
+            <p class="upload-card-desc">Conta de luz/água dos últimos 3 meses</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input class="upload-card-input" type="file" name="anexo_residencia" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
+            </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_residencia" hidden></div>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Comprovante de renda</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Holerite, declaração, extrato de benefício</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input class="upload-card-input" type="file" name="anexo_renda" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
+            </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_renda" hidden></div>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Documentos de saúde</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Cartões de vacinação, receitas, relatórios</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input class="upload-card-input" type="file" name="anexo_saude" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
+            </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_saude" hidden></div>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Foto do assistido</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Para identificação no prontuário</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>JPG, PNG até 10MB</small>
+              <input class="upload-card-input" type="file" name="anexo_foto" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*" capture="environment" />
+            </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_foto" hidden></div>
+          </div>
+          <div class="upload-card">
+            <div class="upload-card-head">
+              <span class="upload-card-title">Outros documentos</span>
+              <span class="upload-card-badge is-optional">Opcional</span>
+            </div>
+            <p class="upload-card-desc">Qualquer documento relevante adicional</p>
+            <label class="upload-card-drop">
+              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+              <span>Clique ou arraste o arquivo</span>
+              <small>PDF, JPG, PNG até 10MB</small>
+              <input class="upload-card-input" type="file" name="anexo_outros" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*" />
+            </label>
+            <div class="upload-card-files" data-upload-files-for="anexo_outros" hidden></div>
+          </div>
+        </div>
+      </div>
+
+      <% if (modo === "editar") { %>
+        <div class="form-subsection">
+          <h3 class="form-subsection-title">
+            <span class="form-subsection-icon"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i></span>
+            Status
+          </h3>
+          <label class="field-wrap">
+            <span class="input-label">Assistido ativo</span>
+            <select class="input-control" name="ativo" style="max-width:200px">
+              <option value="true"  <%= assistido?.ativo !== false ? 'selected' : '' %>>Sim</option>
+              <option value="false" <%= assistido?.ativo === false ? 'selected' : '' %>>Não</option>
+            </select>
+          </label>
+        </div>
+      <% } %>
+    </div>
+
+    <%# ════════════════════════════════════════════════ %>
+    <%# ETAPA 6 — Resumo                                %>
+    <%# ════════════════════════════════════════════════ %>
+    <div class="wizard-panel" data-panel="6" hidden>
+      <div class="wizard-panel-header">
+        <div>
+          <h2 class="wizard-panel-title">Revisão e salvamento</h2>
+          <p class="wizard-panel-subtitle">Confira os dados antes de cadastrar o assistido.</p>
+        </div>
+      </div>
+      <div id="resumo-content" class="resumo-wizard-grid"></div>
+    </div>
+
+    <div id="familia-form-feedback" class="form-feedback" hidden></div>
+
+    <div class="wizard-nav">
+      <div class="wizard-nav-left">
+        <button type="button" class="btn btn-muted" id="wizard-prev" hidden>
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar
+        </button>
+      </div>
+      <span class="wizard-nav-center" id="wizard-step-label">Etapa 1 de 6</span>
+      <div class="wizard-nav-right">
+        <button type="button" class="btn btn-ghost" id="wizard-save-draft">Salvar e continuar depois</button>
+        <button type="button" class="btn btn-primary" id="wizard-next">
+          Avançar <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+        <button type="submit" class="btn btn-primary" id="wizard-submit" hidden>
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          <%= modo === "editar" ? "Salvar Alterações" : "Cadastrar Assistido" %>
+        </button>
+      </div>
+    </div>
+  </form>
+</section>
+
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="familia-form-initial" type="application/json"><%- serializeForInlineScript(assistido || null) %></script>

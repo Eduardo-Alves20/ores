@@ -8,6 +8,11 @@ const PERMISSIONS = Object.freeze({
   FAMILIAS_UPDATE: "familias.update",
   FAMILIAS_STATUS: "familias.status",
 
+  ASSISTIDOS_VIEW: "assistidos.view",
+  ASSISTIDOS_CREATE: "assistidos.create",
+  ASSISTIDOS_UPDATE: "assistidos.update",
+  ASSISTIDOS_STATUS: "assistidos.status",
+
   PACIENTES_VIEW: "pacientes.view",
   PACIENTES_CREATE: "pacientes.create",
   PACIENTES_UPDATE: "pacientes.update",
@@ -64,10 +69,14 @@ const PERMISSION_GROUPS = Object.freeze([
     key: "assistidos",
     label: "Assistidos",
     permissions: [
-      { key: PERMISSIONS.FAMILIAS_VIEW, label: "Visualizar familias" },
-      { key: PERMISSIONS.FAMILIAS_CREATE, label: "Criar familias" },
-      { key: PERMISSIONS.FAMILIAS_UPDATE, label: "Editar familias" },
-      { key: PERMISSIONS.FAMILIAS_STATUS, label: "Ativar/Inativar familias" },
+      { key: PERMISSIONS.ASSISTIDOS_VIEW, label: "Visualizar assistidos" },
+      { key: PERMISSIONS.ASSISTIDOS_CREATE, label: "Criar assistidos" },
+      { key: PERMISSIONS.ASSISTIDOS_UPDATE, label: "Editar assistidos" },
+      { key: PERMISSIONS.ASSISTIDOS_STATUS, label: "Ativar/Inativar assistidos" },
+      { key: PERMISSIONS.FAMILIAS_VIEW, label: "Visualizar familias (legado)" },
+      { key: PERMISSIONS.FAMILIAS_CREATE, label: "Criar familias (legado)" },
+      { key: PERMISSIONS.FAMILIAS_UPDATE, label: "Editar familias (legado)" },
+      { key: PERMISSIONS.FAMILIAS_STATUS, label: "Ativar/Inativar familias (legado)" },
       { key: PERMISSIONS.PACIENTES_VIEW, label: "Visualizar dependentes" },
       { key: PERMISSIONS.PACIENTES_CREATE, label: "Criar dependentes" },
       { key: PERMISSIONS.PACIENTES_UPDATE, label: "Editar dependentes" },
@@ -158,6 +167,10 @@ const DEFAULT_PERMISSIONS_BY_PROFILE = Object.freeze({
   [PERFIS.SUPERADMIN]: ["*"],
   [PERFIS.ADMIN]: [
     PERMISSIONS.DASHBOARD_VIEW,
+    PERMISSIONS.ASSISTIDOS_VIEW,
+    PERMISSIONS.ASSISTIDOS_CREATE,
+    PERMISSIONS.ASSISTIDOS_UPDATE,
+    PERMISSIONS.ASSISTIDOS_STATUS,
     PERMISSIONS.FAMILIAS_VIEW,
     PERMISSIONS.FAMILIAS_CREATE,
     PERMISSIONS.FAMILIAS_UPDATE,
@@ -199,6 +212,9 @@ const DEFAULT_PERMISSIONS_BY_PROFILE = Object.freeze({
   ],
   [PERFIS.ASSISTENTE_SOCIAL]: [
     PERMISSIONS.DASHBOARD_VIEW,
+    PERMISSIONS.ASSISTIDOS_VIEW,
+    PERMISSIONS.ASSISTIDOS_CREATE,
+    PERMISSIONS.ASSISTIDOS_UPDATE,
     PERMISSIONS.FAMILIAS_VIEW,
     PERMISSIONS.FAMILIAS_CREATE,
     PERMISSIONS.FAMILIAS_UPDATE,
@@ -247,6 +263,10 @@ const DEFAULT_PERMISSIONS_BY_PROFILE = Object.freeze({
   ],
   [PERFIS.ATENDENTE]: [
     PERMISSIONS.DASHBOARD_VIEW,
+    PERMISSIONS.ASSISTIDOS_VIEW,
+    PERMISSIONS.ASSISTIDOS_CREATE,
+    PERMISSIONS.ASSISTIDOS_UPDATE,
+    PERMISSIONS.ASSISTIDOS_STATUS,
     PERMISSIONS.FAMILIAS_VIEW,
     PERMISSIONS.FAMILIAS_CREATE,
     PERMISSIONS.FAMILIAS_UPDATE,
@@ -327,3 +347,4 @@ module.exports = {
   normalizePermissionList,
   getDefaultPermissionsForProfile,
 };
+ 

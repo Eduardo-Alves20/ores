@@ -1,0 +1,217 @@
+<section class="page-shell familias-layout" data-page="assistidos-lista">
+  <nav class="familias-breadcrumb" aria-label="Trilha de navegacao">
+    <a class="familias-breadcrumb-link" href="/painel">Painel</a>
+    <span class="familias-breadcrumb-sep" aria-hidden="true">/</span>
+    <span class="familias-breadcrumb-current">Assistidos</span>
+  </nav>
+
+  <header class="familias-header familias-hero card-elevated">
+    <div class="familias-hero-main">
+      <p class="familias-overline">Cadastro central</p>
+      <h1 class="familias-title">Assistidos</h1>
+      <p class="familias-subtitle">Gestão individual dos assistidos e seus registros de acompanhamento.</p>
+      <div class="familias-hero-metrics">
+        <article class="familias-hero-metric">
+          <span>Resultados</span>
+          <strong id="assistidos-total-chip">0</strong>
+        </article>
+        <article class="familias-hero-metric">
+          <span>Ativos</span>
+          <strong id="assistidos-active-chip">0</strong>
+        </article>
+      </div>
+    </div>
+    <div class="familias-header-actions">
+      <a href="/painel" class="btn btn-muted">Voltar ao Painel</a>
+      <% if (viewFlags?.canCreate) { %>
+        <a href="/assistidos/novo" class="btn btn-primary">Novo Assistido</a>
+      <% } %>
+    </div>
+  </header>
+
+  <section class="familias-filtros card-elevated">
+    <div class="section-title-wrap">
+      <h2 class="section-title">Encontrar assistido</h2>
+      <p class="section-subtitle">Refine por nome, CPF, cidade ou status.</p>
+    </div>
+    <form id="assistidos-filtro-form" class="filtro-grid">
+      <label class="field-wrap">
+        <span class="input-label">Busca geral</span>
+        <input class="input-control" type="text" name="busca" placeholder="Nome, CPF, telefone, email..." value="<%= filtros?.busca || '' %>" />
+      </label>
+      <label class="field-wrap">
+        <span class="input-label">Status</span>
+        <select class="input-control" name="status">
+          <% const stAtual = filtros?.status || ''; %>
+          <option value="">Todos</option>
+          <option value="ativo"      <%= stAtual==='ativo'?'selected':'' %>>Ativo</option>
+          <option value="rascunho"   <%= stAtual==='rascunho'?'selected':'' %>>Rascunho</option>
+          <option value="em_analise" <%= stAtual==='em_analise'?'selected':'' %>>Em análise</option>
+          <option value="inativo"    <%= stAtual==='inativo'?'selected':'' %>>Inativo</option>
+        </select>
+      </label>
+      <label class="field-wrap">
+        <span class="input-label">Faixa etária</span>
+        <select class="input-control" name="faixaEtaria">
+          <% const feAtual = filtros?.faixaEtaria || ''; %>
+          <option value="">Todas</option>
+          <option value="crianca"    <%= feAtual==='crianca'?'selected':'' %>>Criança</option>
+          <option value="adolescente" <%= feAtual==='adolescente'?'selected':'' %>>Adolescente</option>
+          <option value="adulto"     <%= feAtual==='adulto'?'selected':'' %>>Adulto</option>
+          <option value="idoso"      <%= feAtual==='idoso'?'selected':'' %>>Idoso</option>
+        </select>
+      </label>
+      <label class="field-wrap">
+        <span class="input-label">Cidade</span>
+        <input class="input-control" type="text" name="cidade" placeholder="Cidade" value="<%= filtros?.cidade || '' %>" />
+      </label>
+      <label class="field-wrap">
+        <span class="input-label">Itens por página</span>
+        <select class="input-control" name="limit">
+          <% const limAtual = Number(filtros?.limit || 10); %>
+          <option value="10"  <%= limAtual===10?'selected':'' %>>10</option>
+          <option value="20"  <%= limAtual===20?'selected':'' %>>20</option>
+          <option value="50"  <%= limAtual===50?'selected':'' %>>50</option>
+          <option value="100" <%= limAtual===100?'selected':'' %>>100</option>
+        </select>
+      </label>
+      <div class="filtro-actions">
+        <button class="btn btn-primary" type="submit">Aplicar</button>
+        <button class="btn btn-muted" type="button" id="assistidos-limpar-filtros">Limpar</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="familias-listagem card-elevated">
+    <div class="listagem-head">
+      <div>
+        <h2 class="section-title">Base de assistidos</h2>
+        <p class="section-subtitle">Clique em um assistido para acessar a ficha completa.</p>
+      </div>
+      <span class="badge-soft" id="assistidos-count">0 encontrados</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="familias-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Contato</th>
+            <th>Faixa etária</th>
+            <th>Cidade/UF</th>
+            <th>Status</th>
+            <th>Atualização</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="assistidos-table-body">
+          <tr><td colspan="8">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <nav id="assistidos-paginacao" class="paginacao-wrap"></nav>
+  </section>
+</section>
+
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="assistidos-initial" type="application/json"><%- serializeForInlineScript(filtros || {}) %></script>
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %> id="assistidos-view-flags" type="application/json"><%- serializeForInlineScript(viewFlags || {}) %></script>
+
+<script <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %>>
+(function () {
+  "use strict";
+  var shared = window.FamiliasShared;
+  if (!shared) return;
+  var root = document.querySelector('[data-page="assistidos-lista"]');
+  if (!root) return;
+  var { requestJson, parseJsonScript } = shared;
+
+  var filtros = parseJsonScript("assistidos-initial", {});
+  var viewFlags = parseJsonScript("assistidos-view-flags", {});
+
+  function faixaLabel(f) {
+    return { crianca: "Criança", adolescente: "Adolescente", adulto: "Adulto", idoso: "Idoso" }[f] || f || "—";
+  }
+  function statusBadge(s) {
+    var map = { ativo: "badge-soft", rascunho: "badge-soft badge-soft-muted", em_analise: "badge-soft", inativo: "badge-soft badge-soft-muted", cancelado: "badge-soft badge-soft-muted" };
+    var label = { ativo: "Ativo", rascunho: "Rascunho", em_analise: "Em análise", inativo: "Inativo", cancelado: "Cancelado" };
+    return '<span class="' + (map[s] || "badge-soft") + '">' + (label[s] || s || "—") + "</span>";
+  }
+
+  function renderRows(docs) {
+    var tbody = document.getElementById("assistidos-table-body");
+    if (!docs || !docs.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px">Nenhum assistido encontrado.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = docs.map(function (a) {
+      var tel = a.telefonePrincipal || "—";
+      var cidade = [a.endereco && a.endereco.cidade, a.endereco && a.endereco.estado].filter(Boolean).join("/") || "—";
+      var upd = a.updatedAt ? new Date(a.updatedAt).toLocaleDateString("pt-BR") : "—";
+      var actions = '<a href="/assistidos/' + a._id + '" class="btn btn-xs btn-muted">Ver</a>';
+      if (viewFlags.canUpdate) actions += ' <a href="/assistidos/' + a._id + '/editar" class="btn btn-xs btn-ghost">Editar</a>';
+      return "<tr>" +
+        "<td>" + (a.nome || "—") + "</td>" +
+        "<td>" + (a.cpf || "—") + "</td>" +
+        "<td>" + tel + "</td>" +
+        "<td>" + faixaLabel(a.faixaEtaria) + "</td>" +
+        "<td>" + cidade + "</td>" +
+        "<td>" + statusBadge(a.status) + "</td>" +
+        "<td>" + upd + "</td>" +
+        "<td>" + actions + "</td>" +
+        "</tr>";
+    }).join("");
+  }
+
+  function renderPagination(meta, currentParams) {
+    var nav = document.getElementById("assistidos-paginacao");
+    if (!meta || meta.totalPages <= 1) { nav.innerHTML = ""; return; }
+    var html = "";
+    for (var p = 1; p <= meta.totalPages; p++) {
+      var params = Object.assign({}, currentParams, { page: p });
+      var qs = Object.keys(params).map(function (k) { return k + "=" + encodeURIComponent(params[k]); }).join("&");
+      html += '<a href="?' + qs + '" class="paginacao-btn' + (p === meta.page ? " is-active" : "") + '">' + p + "</a>";
+    }
+    nav.innerHTML = html;
+  }
+
+  function getFormParams() {
+    var form = document.getElementById("assistidos-filtro-form");
+    if (!form) return {};
+    var params = {};
+    new FormData(form).forEach(function (v, k) { if (v) params[k] = v; });
+    return params;
+  }
+
+  async function load(params) {
+    var qs = Object.keys(params || {}).map(function (k) { return k + "=" + encodeURIComponent(params[k]); }).join("&");
+    var data = await requestJson("/api/assistidos?" + qs);
+    if (!data) return;
+    var docs = data.docs || data.assistidos || [];
+    var total = data.totalDocs || docs.length;
+    document.getElementById("assistidos-total-chip").textContent = total;
+    document.getElementById("assistidos-active-chip").textContent = docs.filter(function (a) { return a.status === "ativo"; }).length;
+    document.getElementById("assistidos-count").textContent = total + " encontrados";
+    renderRows(docs);
+    renderPagination(data, params);
+  }
+
+  var form = document.getElementById("assistidos-filtro-form");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      load(getFormParams());
+    });
+  }
+  var clearBtn = document.getElementById("assistidos-limpar-filtros");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", function () {
+      if (form) form.reset();
+      load({});
+    });
+  }
+
+  load(filtros);
+}());
+</script>
