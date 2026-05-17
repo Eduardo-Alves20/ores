@@ -755,10 +755,8 @@
         var key  = String(field.getAttribute("data-custom-field-key") || "").trim();
         var type = String(field.getAttribute("data-custom-field-type") || "texto").trim();
         if (!key) return;
-        if (field.type === "radio") {
-          if (!field.checked) return;
-          if (seen[key]) return;
-        }
+        if (field.type === "radio" && !field.checked) return;
+        if (seen[key]) return;
         seen[key] = true;
         if (type === "booleano") {
           camposExtras[key] = String(field.value || "").trim() === "true";
@@ -872,13 +870,13 @@
 
         if (redirectAfter) {
           if (uploadErrorMessage) {
-            setFeedback("Assistido salvo, mas os anexos falharam (" + uploadErrorMessage + "). Redirecionando...", "error");
+            setFeedback("Assistido salvo, mas os anexos falharam (" + uploadErrorMessage + "). Tente reenviar os anexos antes de sair.", "error");
           } else {
             setFeedback("Assistido salvo com sucesso" + uploadText + ". Redirecionando...", "success");
+            window.setTimeout(function () {
+              window.location.href = targetId ? "/familias/" + targetId : "/familias";
+            }, 500);
           }
-          window.setTimeout(function () {
-            window.location.href = targetId ? "/familias/" + targetId : "/familias";
-          }, 500);
         } else {
           if (uploadErrorMessage) {
             setFeedback("Rascunho salvo, mas os anexos falharam (" + uploadErrorMessage + ").", "error");
