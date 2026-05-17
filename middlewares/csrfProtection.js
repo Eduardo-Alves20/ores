@@ -5,7 +5,13 @@ const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS", "TRACE"]);
 const CSRF_FIELD_NAME = "_csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const FALLBACK_HEADER_NAMES = [CSRF_HEADER_NAME, "x-xsrf-token", "csrf-token"];
-const CSRF_EXEMPT_PATHS = new Set([CSP_REPORT_PATH, "/cadastro", "/auth/cadastro"]);
+const CSRF_EXEMPT_PATHS = new Set([
+  CSP_REPORT_PATH,
+  "/login",
+  "/auth/login",
+  "/cadastro",
+  "/auth/cadastro",
+]);
 
 function wantsHtml(req) {
   return typeof req?.accepts === "function" && !!req.accepts("html");

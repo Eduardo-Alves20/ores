@@ -68,7 +68,7 @@ const sessionParser = session({
     maxAge: MAXAGE,
     httpOnly: true,
     sameSite: 'lax',
-    secure: isProdLike,
+    secure: 'auto',
     domain: process.env.SESSION_COOKIE_DOMAIN || undefined,
   },
   resave: false,
