@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const { PERMISSIONS } = require("../../config/permissions");
-const { isAdminProfile } = require("../../config/roles");
+const { isAdminProfile, normalizeProfileValue, PERFIS } = require("../../config/roles");
 const { hasAnyPermission } = require("./accessControlService");
 
 function asObjectId(value) {
@@ -13,9 +13,19 @@ function asObjectId(value) {
 }
 
 function hasOwnAssistidosScope(user) {
+  const normalizedProfile = normalizeProfileValue(user?.perfil);
+  if (normalizedProfile === PERFIS.SUPERADMIN || normalizedProfile === PERFIS.ADMIN) {
+    return false;
+  }
+
   if (isAdminProfile(user?.perfil)) {
     return false;
   }
+
+  if (Array.isArray(user?.permissions) && user.permissions.includes("*")) {
+    return false;
+  }
+
   return hasAnyPermission(user?.permissions || [], [PERMISSIONS.ASSISTIDOS_SCOPE_OWN]);
 }
 
