@@ -52,6 +52,7 @@
       familiaPresencasPill: document.getElementById("familia-presencas-pill"),
       statusBadge: document.getElementById("resumo-status"),
       statusBtn: document.getElementById("familia-toggle-status"),
+      deleteBtn: document.getElementById("familia-delete-btn"),
       breadcrumbDependenteSep: document.getElementById(
         "familia-breadcrumb-dependente-sep",
       ),
@@ -79,6 +80,7 @@
       canCreateAttendance: false,
       canEditAttendance: false,
       canToggleAttendanceStatus: false,
+      canDeleteFamily: false,
     });
 
     const state = {
@@ -522,6 +524,35 @@
           showSuccess("Status do assistido atualizado com sucesso.");
         } catch (error) {
           showToast(error.message);
+        }
+      });
+    }
+
+    if (refs.deleteBtn) {
+      refs.deleteBtn.addEventListener("click", async () => {
+        if (!state.viewFlags.canDeleteFamily) return;
+
+        const ok = await confirmAction({
+          title: "Excluir assistido?",
+          text: "Esta acao exclui o assistido e registros vinculados. Nao podera ser desfeita.",
+          icon: "warning",
+          confirmButtonText: "Excluir definitivamente",
+        });
+        if (!ok) return;
+
+        try {
+          refs.deleteBtn.disabled = true;
+          await requestJson(`/api/familias/${familiaId}`, {
+            method: "DELETE",
+          });
+          showSuccess("Assistido excluido com sucesso.");
+          window.setTimeout(() => {
+            window.location.href = "/familias";
+          }, 250);
+        } catch (error) {
+          showToast(error.message);
+        } finally {
+          refs.deleteBtn.disabled = false;
         }
       });
     }

@@ -2,6 +2,10 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const Familia = require("../../../schemas/social/Familia");
+const { Paciente } = require("../../../schemas/social/Paciente");
+const { Atendimento } = require("../../../schemas/social/Atendimento");
+const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
+const { normalizeProfileValue, PERFIS } = require("../../../config/roles");
 const { normalizeCustomFieldValues } = require("../../shared/systemConfigService");
 const { parseBoolean } = require("../../shared/valueParsingService");
 const { createFamiliaError } = require("./familiaContextService");
@@ -66,6 +70,13 @@ function normalizeAttachmentExtension(fileName) {
 
 function resolveFamilyUploadRoot() {
   return path.resolve(String(process.env.FAMILY_UPLOADS_DIR || DEFAULT_FAMILY_UPLOAD_ROOT));
+}
+
+function ensureSuperAdminUser(user) {
+  const normalizedProfile = normalizeProfileValue(user?.perfil);
+  if (normalizedProfile !== PERFIS.SUPERADMIN) {
+    throw createFamiliaError("Somente superadmin pode excluir assistido.", 403);
+  }
 }
 
 function ensureFamilyStoragePath(storageKey) {
@@ -524,9 +535,77 @@ async function changeFamilyStatus({ id, user, actorId, ativoInput }) {
   };
 }
 
+async function removeFamilyAttachmentFiles(attachments = []) {
+  const list = Array.isArray(attachments) ? attachments : [];
+  let removedCount = 0;
+
+  for (const item of list) {
+    const storageKey = String(item?.storageKey || "").trim();
+    if (!storageKey) continue;
+    const absolutePath = ensureFamilyStoragePath(storageKey);
+    try {
+      await fs.promises.unlink(absolutePath);
+      removedCount += 1;
+    } catch (error) {
+      if (error?.code === "ENOENT") continue;
+      throw createFamiliaError("Falha ao remover arquivos vinculados ao assistido.", 500);
+    }
+  }
+
+  return removedCount;
+}
+
+async function deleteFamily({ id, user, actorId }) {
+  ensureSuperAdminUser(user);
+
+  const familia = await ensureAccessibleFamily({
+    user,
+    familiaId: id,
+    select: "_id anexos",
+    notFoundMessage: "Assistido nao encontrado.",
+  });
+
+  const removedAttachmentFiles = await removeFamilyAttachmentFiles(familia?.anexos || []);
+
+  const familyObjectId = familia?._id;
+  const [pacientesResult, atendimentosResult, agendaResult, familyResult] = await Promise.all([
+    Paciente.deleteMany({ familiaId: familyObjectId }),
+    Atendimento.deleteMany({ familiaId: familyObjectId }),
+    AgendaEvento.deleteMany({ familiaId: familyObjectId }),
+    Familia.deleteOne({ _id: familyObjectId }),
+  ]);
+
+  if (!familyResult?.deletedCount) {
+    return null;
+  }
+
+  return {
+    mensagem: "Assistido excluido com sucesso.",
+    totalRemovidos: {
+      pacientes: Number(pacientesResult?.deletedCount || 0),
+      atendimentos: Number(atendimentosResult?.deletedCount || 0),
+      agenda: Number(agendaResult?.deletedCount || 0),
+      anexosArquivos: Number(removedAttachmentFiles || 0),
+    },
+    audit: {
+      acao: "FAMILIA_EXCLUIDA",
+      entidade: "familia",
+      entidadeId: id,
+      detalhes: {
+        pacientesRemovidos: Number(pacientesResult?.deletedCount || 0),
+        atendimentosRemovidos: Number(atendimentosResult?.deletedCount || 0),
+        agendaRemovida: Number(agendaResult?.deletedCount || 0),
+        anexosArquivosRemovidos: Number(removedAttachmentFiles || 0),
+        removidoPor: actorId || null,
+      },
+    },
+  };
+}
+
 module.exports = {
   changeFamilyStatus,
   createFamily,
+  deleteFamily,
   openFamilyAttachment,
   uploadFamilyAttachments,
   updateFamily,

@@ -2,6 +2,7 @@ const { registrarAuditoria } = require("../../services/shared/auditService");
 const {
   changeFamilyStatus,
   createFamily,
+  deleteFamily,
   getActorId,
   getSessionUser,
   listFamilies,
@@ -163,6 +164,36 @@ class FamiliaController {
         res,
         "Erro ao alterar status do assistido:",
         "Erro interno ao alterar status do assistido.",
+        error
+      );
+    }
+  }
+
+  static async excluir(req, res) {
+    try {
+      const result = await deleteFamily({
+        id: req.params?.id,
+        user: getSessionUser(req),
+        actorId: getActorId(req),
+      });
+
+      if (!result) {
+        return respondFamiliaNotFound(res);
+      }
+
+      if (result.audit) {
+        await registrarAuditoria(req, result.audit);
+      }
+
+      return res.status(200).json({
+        mensagem: result.mensagem,
+        totalRemovidos: result.totalRemovidos || {},
+      });
+    } catch (error) {
+      return respondFamiliaError(
+        res,
+        "Erro ao excluir assistido:",
+        "Erro interno ao excluir assistido.",
         error
       );
     }

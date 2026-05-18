@@ -51,6 +51,17 @@
           <i class="fa-solid fa-pen" aria-hidden="true"></i>
         </a>
       <% } %>
+      <% if (viewFlags?.canDeleteFamily) { %>
+        <button
+          type="button"
+          class="ficha-edit-btn"
+          id="familia-delete-btn"
+          title="Excluir assistido"
+          aria-label="Excluir assistido"
+        >
+          <i class="fa-solid fa-trash" aria-hidden="true"></i>
+        </button>
+      <% } %>
     </div>
   </header>
 

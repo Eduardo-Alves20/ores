@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const FamiliaController = require("../../Controllers/familia/FamiliaController");
-const { requirePermission } = require("../../middlewares/authSession");
+const { requirePermission, requireSuperAdmin } = require("../../middlewares/authSession");
 const { PERMISSIONS } = require("../../config/permissions");
 
 const router = express.Router();
@@ -49,6 +49,12 @@ router.put(
   "/:id",
   requirePermission(PERMISSIONS.FAMILIAS_UPDATE),
   FamiliaController.atualizar
+);
+
+router.delete(
+  "/:id",
+  requireSuperAdmin,
+  FamiliaController.excluir
 );
 
 router.post(

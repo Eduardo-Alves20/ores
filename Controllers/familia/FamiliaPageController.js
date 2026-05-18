@@ -1,4 +1,5 @@
 const { PERMISSIONS } = require("../../config/permissions");
+const { normalizeProfileValue, PERFIS } = require("../../config/roles");
 const { registrarAuditoria } = require("../../services/shared/auditService");
 const { hasAnyPermission } = require("../../services/shared/accessControlService");
 const { listCustomFields, listQuickFilters } = require("../../services/shared/systemConfigService");
@@ -16,6 +17,7 @@ const { mapFamilyFormBodyToPayload } = require("../../services/familia/api/famil
 
 function buildViewFlags(req) {
   const permissionList = req?.session?.user?.permissions || [];
+  const normalizedProfile = normalizeProfileValue(req?.session?.user?.perfil);
 
   return {
     canCreateFamily: hasAnyPermission(permissionList, [PERMISSIONS.FAMILIAS_CREATE]),
@@ -27,6 +29,7 @@ function buildViewFlags(req) {
     canCreateAttendance: hasAnyPermission(permissionList, [PERMISSIONS.ATENDIMENTOS_CREATE]),
     canEditAttendance: hasAnyPermission(permissionList, [PERMISSIONS.ATENDIMENTOS_UPDATE]),
     canToggleAttendanceStatus: hasAnyPermission(permissionList, [PERMISSIONS.ATENDIMENTOS_STATUS]),
+    canDeleteFamily: normalizedProfile === PERFIS.SUPERADMIN,
   };
 }
 

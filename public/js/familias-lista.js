@@ -27,6 +27,7 @@
       canCreateFamily: false,
       canEditFamily: false,
       canToggleFamilyStatus: false,
+      canDeleteFamily: false,
     });
     const state = {
       busca: String(initial.busca || ""),
@@ -104,6 +105,15 @@
               <button class="table-action-btn ${doc?.ativo ? "table-action-btn-danger" : "table-action-btn-success"}" type="button" data-action="toggle" data-id="${escapeHtml(String(doc?._id || ""))}" data-next="${String(!doc?.ativo)}">
                 <i class="fa-solid ${doc?.ativo ? "fa-user-slash" : "fa-power-off"}" aria-hidden="true"></i>
                 <span>${escapeHtml(toggleLabel)}</span>
+              </button>
+            `);
+          }
+
+          if (viewFlags.canDeleteFamily) {
+            actions.push(`
+              <button class="table-action-btn table-action-btn-danger" type="button" data-action="delete" data-id="${escapeHtml(String(doc?._id || ""))}">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                <span>Excluir</span>
               </button>
             `);
           }
@@ -266,6 +276,38 @@
           showToast(error.message);
         } finally {
           button.disabled = false;
+        }
+        return;
+      }
+
+      const deleteButton = event.target.closest("button[data-action='delete']");
+      if (deleteButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!viewFlags.canDeleteFamily) return;
+
+        const id = deleteButton.getAttribute("data-id");
+        if (!id) return;
+
+        const ok = await confirmAction({
+          title: "Excluir assistido?",
+          text: "Esta acao exclui o assistido e registros vinculados. Nao podera ser desfeita.",
+          icon: "warning",
+          confirmButtonText: "Excluir definitivamente",
+        });
+        if (!ok) return;
+
+        try {
+          deleteButton.disabled = true;
+          await requestJson(`/api/familias/${id}`, {
+            method: "DELETE",
+          });
+          await load();
+          showSuccess("Assistido excluido com sucesso.");
+        } catch (error) {
+          showToast(error.message);
+        } finally {
+          deleteButton.disabled = false;
         }
         return;
       }
