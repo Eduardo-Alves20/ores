@@ -1,4 +1,22 @@
 ﻿(function () {
+  function resolveCsrfToken() {
+    const candidates = [
+      "input[name='_csrf']",
+      "meta[name='csrf-token']",
+      "meta[name='csrfToken']",
+    ];
+
+    for (const selector of candidates) {
+      const el = document.querySelector(selector);
+      if (!el) continue;
+      const value = el.getAttribute("value") || el.getAttribute("content") || "";
+      const token = String(value || "").trim();
+      if (token) return token;
+    }
+
+    return "";
+  }
+
   function parseJsonScript(id, fallback) {
     const el = document.getElementById(id);
     if (!el) return fallback;
@@ -10,8 +28,10 @@
   }
 
   async function requestJson(url, options = {}) {
+    const csrfToken = resolveCsrfToken();
     const headers = Object.assign(
       { Accept: "application/json" },
+      csrfToken ? { "X-CSRF-Token": csrfToken } : {},
       options.body ? { "Content-Type": "application/json" } : {},
       options.headers || {}
     );
@@ -141,6 +161,7 @@
   }
 
   window.FamiliasShared = {
+    resolveCsrfToken,
     confirmAction,
     escapeHtml,
     formatAgendaTipoLabel,

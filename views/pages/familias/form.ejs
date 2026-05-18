@@ -82,6 +82,7 @@
     id="familia-form"
     class="familia-form card-elevated"
     method="post"
+    enctype="multipart/form-data"
     action="<%= modo === 'editar' && familia?._id ? '/familias/' + familia._id + '/editar' : '/familias/nova' %>"
     novalidate
   >

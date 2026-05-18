@@ -8,6 +8,7 @@ const {
   createFamily,
   getActorId,
   getSessionUser,
+  uploadFamilyAttachments,
   updateFamily,
 } = require("../../services/familia/familiaApiService");
 const { ensureAccessibleFamily } = require("../../services/familia/api/familiaGuardService");
@@ -78,9 +79,10 @@ class FamiliaPageController {
 
   static async criarViaFormulario(req, res) {
     try {
+      const actorId = getActorId(req);
       const payload = mapFamilyFormBodyToPayload(req.body || {});
       const result = await createFamily({
-        actorId: getActorId(req),
+        actorId,
         body: payload,
       });
 
@@ -89,6 +91,22 @@ class FamiliaPageController {
       }
 
       const createdFamilyId = String(result?.familia?._id || "").trim();
+      if (createdFamilyId && Array.isArray(req.files) && req.files.length > 0) {
+        try {
+          const uploadResult = await uploadFamilyAttachments({
+            id: createdFamilyId,
+            user: getSessionUser(req),
+            actorId,
+            files: req.files,
+          });
+          if (uploadResult?.audit) {
+            await registrarAuditoria(req, uploadResult.audit);
+          }
+        } catch (uploadError) {
+          req.flash("error", uploadError?.message || "Assistido salvo, mas houve falha ao enviar anexos.");
+        }
+      }
+
       req.flash("success", result?.mensagem || "Assistido cadastrado com sucesso.");
       return res.redirect(createdFamilyId ? `/familias/${createdFamilyId}` : "/familias");
     } catch (error) {
@@ -128,6 +146,7 @@ class FamiliaPageController {
     const familyId = String(req.params?.id || "").trim();
 
     try {
+      const actorId = getActorId(req);
       if (!familyId) {
         req.flash("error", "Assistido nao encontrado.");
         return res.redirect("/familias");
@@ -137,7 +156,7 @@ class FamiliaPageController {
       const result = await updateFamily({
         id: familyId,
         user: getSessionUser(req),
-        actorId: getActorId(req),
+        actorId,
         body: payload,
       });
 
@@ -148,6 +167,21 @@ class FamiliaPageController {
 
       if (result.audit) {
         await registrarAuditoria(req, result.audit);
+      }
+      if (Array.isArray(req.files) && req.files.length > 0) {
+        try {
+          const uploadResult = await uploadFamilyAttachments({
+            id: familyId,
+            user: getSessionUser(req),
+            actorId,
+            files: req.files,
+          });
+          if (uploadResult?.audit) {
+            await registrarAuditoria(req, uploadResult.audit);
+          }
+        } catch (uploadError) {
+          req.flash("error", uploadError?.message || "Assistido salvo, mas houve falha ao enviar anexos.");
+        }
       }
 
       if (Object.prototype.hasOwnProperty.call(req.body || {}, "ativo")) {

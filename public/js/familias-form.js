@@ -2,7 +2,7 @@
   const shared = window.FamiliasShared;
   if (!shared) return;
 
-  const { parseJsonScript, requestJson } = shared;
+  const { parseJsonScript, requestJson, resolveCsrfToken } = shared;
 
   function init(root) {
     const form = document.getElementById("familia-form");
@@ -586,28 +586,56 @@
       return uploadCardFilesByField[fieldName] ? fieldName : "anexo_outros";
     }
 
+    function mapCategoryToFieldName(rawCategory) {
+      var category = String(rawCategory || "").trim().toLowerCase();
+      if (category === "documentacao") return "anexo_documentacao";
+      if (category === "residencia") return "anexo_residencia";
+      if (category === "renda") return "anexo_renda";
+      if (category === "saude") return "anexo_saude";
+      if (category === "foto") return "anexo_foto";
+      return "anexo_outros";
+    }
+
     function appendExistingAttachment(entry, familyRecordId) {
-      var fieldName = normalizeAttachmentFieldName(entry && entry.fieldName);
-      var attachmentId = sanitizeTextValue(entry && entry.attachmentId, 80);
-      if (!attachmentId) return;
+      var preferredField = (entry && entry.fieldName) || mapCategoryToFieldName(entry && entry.categoria);
+      var fieldName = normalizeAttachmentFieldName(preferredField);
+      var attachmentId = sanitizeTextValue(
+        (entry && (entry.attachmentId || entry._id || entry.id || entry.storageKey)) || "",
+        180
+      );
 
       if (!existingAttachmentsByField[fieldName]) {
         existingAttachmentsByField[fieldName] = [];
       }
 
       var alreadyExists = existingAttachmentsByField[fieldName].some(function (item) {
-        return String(item.attachmentId || "") === attachmentId;
+        if (attachmentId && item.attachmentId) {
+          return String(item.attachmentId) === attachmentId;
+        }
+        return (
+          String(item.originalName || "") === sanitizeTextValue(entry && entry.originalName, 180) &&
+          Number(item.size || 0) === Number(entry && entry.size ? entry.size : 0)
+        );
       });
       if (alreadyExists) return;
 
       var normalizedFamilyId = sanitizeTextValue(familyRecordId || familyId, 80);
+      var attachmentUrl = "";
+      if (attachmentId && normalizedFamilyId) {
+        attachmentUrl =
+          "/api/familias/" +
+          encodeURIComponent(normalizedFamilyId) +
+          "/anexos/" +
+          encodeURIComponent(attachmentId);
+      } else if (entry && entry.url) {
+        attachmentUrl = sanitizeTextValue(entry.url, 500);
+      }
+
       existingAttachmentsByField[fieldName].push({
-        attachmentId: attachmentId,
+        attachmentId: attachmentId || "",
         originalName: sanitizeTextValue(entry && entry.originalName, 180) || "arquivo",
         size: Number(entry && entry.size ? entry.size : 0),
-        url: normalizedFamilyId
-          ? "/api/familias/" + encodeURIComponent(normalizedFamilyId) + "/anexos/" + encodeURIComponent(attachmentId)
-          : "",
+        url: attachmentUrl,
       });
     }
 
@@ -719,8 +747,10 @@
         formData.append(entry.fieldName || "anexo_outros", entry.file, entry.file.name);
       });
 
+      var csrfToken = typeof resolveCsrfToken === "function" ? resolveCsrfToken() : "";
       var response = await fetch("/api/familias/" + familyRecordId + "/anexos", {
         method: "POST",
+        headers: csrfToken ? { "X-CSRF-Token": csrfToken } : {},
         body: formData,
       });
 
