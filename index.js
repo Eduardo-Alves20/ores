@@ -23,12 +23,12 @@ const { ensureAdminFromEnv, ensureSuperAdminFromEnv } = require("./services/shar
 
 const app = express();
 const ASSET_VERSION = process.env.ASSET_VERSION || new Date().getTime().toString();
-const JSON_BODY_LIMIT = String(process.env.MAX_JSON_BODY_SIZE || "1mb").trim();
-const FORM_BODY_LIMIT = String(process.env.MAX_FORM_BODY_SIZE || "250kb").trim();
-const FORM_PARAMETER_LIMIT = Number.parseInt(String(process.env.MAX_FORM_PARAMETER_COUNT || "1000"), 10);
+const JSON_BODY_LIMIT = String(process.env.MAX_JSON_BODY_SIZE || "5mb").trim();
+const FORM_BODY_LIMIT = String(process.env.MAX_FORM_BODY_SIZE || "5mb").trim();
+const FORM_PARAMETER_LIMIT = Number.parseInt(String(process.env.MAX_FORM_PARAMETER_COUNT || "5000"), 10);
 const SAFE_FORM_PARAMETER_LIMIT = Number.isFinite(FORM_PARAMETER_LIMIT) && FORM_PARAMETER_LIMIT > 0
   ? FORM_PARAMETER_LIMIT
-  : 1000;
+  : 5000;
 
 const {
   PORT,
