@@ -25,6 +25,10 @@ const app = express();
 const ASSET_VERSION = process.env.ASSET_VERSION || new Date().getTime().toString();
 const JSON_BODY_LIMIT = String(process.env.MAX_JSON_BODY_SIZE || "1mb").trim();
 const FORM_BODY_LIMIT = String(process.env.MAX_FORM_BODY_SIZE || "250kb").trim();
+const FORM_PARAMETER_LIMIT = Number.parseInt(String(process.env.MAX_FORM_PARAMETER_COUNT || "1000"), 10);
+const SAFE_FORM_PARAMETER_LIMIT = Number.isFinite(FORM_PARAMETER_LIMIT) && FORM_PARAMETER_LIMIT > 0
+  ? FORM_PARAMETER_LIMIT
+  : 1000;
 
 const {
   PORT,
@@ -83,7 +87,11 @@ app.locals.cspNonce = "";
 app.locals.renderCspNonceAttr = () => "";
 
 app.use(express.json({ limit: JSON_BODY_LIMIT }));
-app.use(express.urlencoded({ extended: true, limit: FORM_BODY_LIMIT, parameterLimit: 100 }));
+app.use(express.urlencoded({
+  extended: true,
+  limit: FORM_BODY_LIMIT,
+  parameterLimit: SAFE_FORM_PARAMETER_LIMIT,
+}));
 app.use(cookieParser(cookieParserKey));
 app.use(compression());
 app.use(applySecurityHeaders);

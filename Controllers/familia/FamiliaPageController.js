@@ -1,7 +1,17 @@
 const { PERMISSIONS } = require("../../config/permissions");
+const { registrarAuditoria } = require("../../services/shared/auditService");
 const { hasAnyPermission } = require("../../services/shared/accessControlService");
 const { listCustomFields, listQuickFilters } = require("../../services/shared/systemConfigService");
+const { parseBoolean } = require("../../services/shared/valueParsingService");
+const {
+  changeFamilyStatus,
+  createFamily,
+  getActorId,
+  getSessionUser,
+  updateFamily,
+} = require("../../services/familia/familiaApiService");
 const { ensureAccessibleFamily } = require("../../services/familia/api/familiaGuardService");
+const { mapFamilyFormBodyToPayload } = require("../../services/familia/api/familiaInputService");
 
 function buildViewFlags(req) {
   const permissionList = req?.session?.user?.permissions || [];
@@ -66,6 +76,27 @@ class FamiliaPageController {
     });
   }
 
+  static async criarViaFormulario(req, res) {
+    try {
+      const payload = mapFamilyFormBodyToPayload(req.body || {});
+      const result = await createFamily({
+        actorId: getActorId(req),
+        body: payload,
+      });
+
+      if (result?.audit) {
+        await registrarAuditoria(req, result.audit);
+      }
+
+      const createdFamilyId = String(result?.familia?._id || "").trim();
+      req.flash("success", result?.mensagem || "Assistido cadastrado com sucesso.");
+      return res.redirect(createdFamilyId ? `/familias/${createdFamilyId}` : "/familias");
+    } catch (error) {
+      req.flash("error", error?.message || "Nao foi possivel cadastrar o assistido.");
+      return res.redirect("/familias/nova");
+    }
+  }
+
   static async editar(req, res) {
     try {
       const familiaDoc = await ensureAccessibleFamily({
@@ -90,6 +121,55 @@ class FamiliaPageController {
         return res.redirect("/familias");
       }
       throw error;
+    }
+  }
+
+  static async atualizarViaFormulario(req, res) {
+    const familyId = String(req.params?.id || "").trim();
+
+    try {
+      if (!familyId) {
+        req.flash("error", "Assistido nao encontrado.");
+        return res.redirect("/familias");
+      }
+
+      const payload = mapFamilyFormBodyToPayload(req.body || {});
+      const result = await updateFamily({
+        id: familyId,
+        user: getSessionUser(req),
+        actorId: getActorId(req),
+        body: payload,
+      });
+
+      if (!result?.familia) {
+        req.flash("error", "Assistido nao encontrado.");
+        return res.redirect("/familias");
+      }
+
+      if (result.audit) {
+        await registrarAuditoria(req, result.audit);
+      }
+
+      if (Object.prototype.hasOwnProperty.call(req.body || {}, "ativo")) {
+        const ativo = parseBoolean(req.body?.ativo);
+        if (typeof ativo !== "undefined" && ativo !== result.familia.ativo) {
+          const statusResult = await changeFamilyStatus({
+            id: familyId,
+            user: getSessionUser(req),
+            actorId: getActorId(req),
+            ativoInput: ativo,
+          });
+          if (statusResult?.audit) {
+            await registrarAuditoria(req, statusResult.audit);
+          }
+        }
+      }
+
+      req.flash("success", result?.mensagem || "Assistido atualizado com sucesso.");
+      return res.redirect(`/familias/${familyId}`);
+    } catch (error) {
+      req.flash("error", error?.message || "Nao foi possivel salvar o assistido.");
+      return res.redirect(`/familias/${familyId}/editar`);
     }
   }
 

@@ -8,6 +8,28 @@ const ADDRESS_FIELDS = Object.freeze([
   ["complemento", 120],
 ]);
 
+const FORM_TO_RESPONSAVEL_FIELDS = Object.freeze({
+  responsavel_nome: "nome",
+  responsavel_telefone: "telefone",
+  responsavel_email: "email",
+  responsavel_parentesco: "parentesco",
+  responsavel_familiar_nome: "nomeResponsavel",
+  responsavel_familiar_cpf: "cpfResponsavel",
+  responsavel_familiar_nascimento: "dataNascimentoResponsavel",
+  responsavel_familiar_telefone: "telefoneResponsavel",
+  responsavel_familiar_email: "emailResponsavel",
+});
+
+const FORM_TO_ENDERECO_FIELDS = Object.freeze({
+  endereco_cep: "cep",
+  endereco_rua: "rua",
+  endereco_numero: "numero",
+  endereco_bairro: "bairro",
+  endereco_cidade: "cidade",
+  endereco_estado: "estado",
+  endereco_complemento: "complemento",
+});
+
 function isPlainObject(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
@@ -158,6 +180,56 @@ function normalizeFamilyExtraFields(value = {}) {
   return output;
 }
 
+function normalizeFieldFromForm(value, maxLength = 5000) {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => normalizeLimitedString(item, maxLength))
+      .filter(Boolean)
+      .join(",");
+  }
+
+  if (value && typeof value === "object") {
+    return "";
+  }
+
+  return normalizeLimitedString(value, maxLength);
+}
+
+function mapFamilyFormBodyToPayload(body = {}) {
+  const source = isPlainObject(body) ? body : {};
+  const responsavel = {};
+  const endereco = {};
+  const rawCamposExtras = {};
+
+  Object.entries(FORM_TO_RESPONSAVEL_FIELDS).forEach(([formField, payloadField]) => {
+    if (!Object.prototype.hasOwnProperty.call(source, formField)) return;
+    responsavel[payloadField] = source[formField];
+  });
+
+  Object.entries(FORM_TO_ENDERECO_FIELDS).forEach(([formField, payloadField]) => {
+    if (!Object.prototype.hasOwnProperty.call(source, formField)) return;
+    endereco[payloadField] = source[formField];
+  });
+
+  Object.entries(source).forEach(([rawKey, rawValue]) => {
+    if (!rawKey.startsWith("campoExtra_")) return;
+    const extraKey = normalizeLimitedString(rawKey.slice("campoExtra_".length), 120)
+      .replace(/[^a-zA-Z0-9_]/g, "");
+    if (!extraKey) return;
+
+    const normalizedValue = normalizeFieldFromForm(rawValue, 5000);
+    rawCamposExtras[extraKey] = normalizedValue;
+  });
+
+  return {
+    responsavel: normalizeFamilyResponsible(responsavel),
+    endereco: normalizeFamilyAddress(endereco),
+    observacoes: normalizeFamilyObservacoes(source.observacoes),
+    camposExtras: normalizeFamilyExtraFields(rawCamposExtras),
+    ativo: source.ativo,
+  };
+}
+
 module.exports = {
   ADDRESS_FIELDS,
   countDigits,
@@ -169,6 +241,7 @@ module.exports = {
   isNotFutureIsoDate,
   normalizeFamilyAddress,
   normalizeFamilyExtraFields,
+  mapFamilyFormBodyToPayload,
   normalizeFamilyObservacoes,
   normalizeFamilyResponsible,
   normalizeLimitedString,

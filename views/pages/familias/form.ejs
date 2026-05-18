@@ -78,7 +78,14 @@
     </div>
   </div>
 
-  <form id="familia-form" class="familia-form card-elevated" novalidate>
+  <form
+    id="familia-form"
+    class="familia-form card-elevated"
+    method="post"
+    action="<%= modo === 'editar' && familia?._id ? '/familias/' + familia._id + '/editar' : '/familias/nova' %>"
+    novalidate
+  >
+    <%- renderCsrfField() %>
 
     <%# ════════════════════════════════════════════════ %>
     <%# ETAPA 1 — Dados pessoais                        %>
@@ -474,7 +481,7 @@
               <% [["hipertensao","Hipertensão"],["diabetes","Diabetes"],["cardiopatia","Cardiopatia"],["asma_dpoc","Asma / DPOC"],["tireoide","Tireoide"],["obesidade","Obesidade"],["cancer","Câncer"],["hiv","HIV"],["hepatite","Hepatite"],["renais","Renais"],["reumaticas","Reumáticas"],["nenhuma_dc","Nenhuma"]].forEach(function(item){ %>
                 <% const dcChecked = (familia?.camposExtras?.doencas_cronicas || '').includes(item[0]); %>
                 <label class="checkbox-option <%= dcChecked?'is-checked':'' %>">
-                  <input type="checkbox" class="checkbox-input" data-checkbox-group="doencas_cronicas" value="<%= item[0] %>" <%= dcChecked?'checked':'' %> />
+                  <input type="checkbox" class="checkbox-input" name="campoExtra_doencas_cronicas" data-checkbox-group="doencas_cronicas" value="<%= item[0] %>" <%= dcChecked?'checked':'' %> />
                   <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                   <span><%= item[1] %></span>
                 </label>
@@ -516,7 +523,7 @@
               <% [["hf_hipertensao","Hipertensão"],["hf_diabetes","Diabetes"],["hf_cancer","Câncer"],["hf_cardiopatia","Cardiopatia"],["hf_avc","AVC"],["hf_doenca_mental","Doença mental"],["hf_alcoolismo","Alcoolismo"],["hf_suicidio","Suicídio"],["hf_doencas_geneticas","Doenças genéticas"],["hf_nenhum","Não há histórico"]].forEach(function(item){ %>
                 <% const hfChecked = (familia?.camposExtras?.historico_familiar || '').includes(item[0]); %>
                 <label class="checkbox-option <%= hfChecked?'is-checked':'' %>">
-                  <input type="checkbox" class="checkbox-input" data-checkbox-group="historico_familiar" value="<%= item[0] %>" <%= hfChecked?'checked':'' %> />
+                  <input type="checkbox" class="checkbox-input" name="campoExtra_historico_familiar" data-checkbox-group="historico_familiar" value="<%= item[0] %>" <%= hfChecked?'checked':'' %> />
                   <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                   <span><%= item[1] %></span>
                 </label>
@@ -565,7 +572,7 @@
               <% [["sm_tristeza","Tristeza persistente"],["sm_ansiedade","Ansiedade"],["sm_insonia","Insônia"],["sm_crises_panico","Crises de pânico"],["sm_ideacao_suicida","Ideação suicida"],["sm_irritabilidade","Irritabilidade"],["sm_falta_motivacao","Falta de motivação"],["sm_isolamento","Isolamento social"],["sm_nenhum","Nenhum"]].forEach(function(item){ %>
                 <% const smChecked = (familia?.camposExtras?.sm_sintomas || '').includes(item[0]); %>
                 <label class="checkbox-option <%= smChecked?'is-checked':'' %>">
-                  <input type="checkbox" class="checkbox-input" data-checkbox-group="sm_sintomas" value="<%= item[0] %>" <%= smChecked?'checked':'' %> />
+                  <input type="checkbox" class="checkbox-input" name="campoExtra_sm_sintomas" data-checkbox-group="sm_sintomas" value="<%= item[0] %>" <%= smChecked?'checked':'' %> />
                   <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                   <span><%= item[1] %></span>
                 </label>
@@ -876,7 +883,7 @@
               <% [["san_agua","Água encanada"],["san_energia","Energia elétrica"],["san_esgoto","Esgoto sanitário"],["san_lixo","Coleta de lixo"],["san_iluminacao","Iluminação pública"],["san_asfalto","Asfalto/calçada"],["san_internet","Internet"],["san_gas","Gás encanado"]].forEach(function(item){ %>
                 <% const sanChecked = (familia?.camposExtras?.saneamento || '').includes(item[0]); %>
                 <label class="checkbox-option <%= sanChecked?'is-checked':'' %>">
-                  <input type="checkbox" class="checkbox-input" data-checkbox-group="saneamento" value="<%= item[0] %>" <%= sanChecked?'checked':'' %> />
+                  <input type="checkbox" class="checkbox-input" name="campoExtra_saneamento" data-checkbox-group="saneamento" value="<%= item[0] %>" <%= sanChecked?'checked':'' %> />
                   <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                   <span><%= item[1] %></span>
                 </label>
@@ -907,7 +914,7 @@
               <% [["ben_bolsa_familia","Bolsa Família / Auxílio Brasil"],["ben_bpc_loas","BPC / LOAS"],["ben_auxilio_gas","Auxílio Gás"],["ben_cad_unico","Cadastro Único (CadÚnico)"],["ben_tarifa_energia","Tarifa Social de Energia"],["ben_pe_de_meia","Pé de Meia"],["ben_aluguel_social","Aluguel Social"],["ben_beneficio_eventual","Benefício eventual"],["ben_nenhum","Nenhum"]].forEach(function(item){ %>
                 <% const benChecked = (familia?.camposExtras?.beneficios_sociais || '').includes(item[0]); %>
                 <label class="checkbox-option <%= benChecked?'is-checked':'' %>">
-                  <input type="checkbox" class="checkbox-input" data-checkbox-group="beneficios_sociais" value="<%= item[0] %>" <%= benChecked?'checked':'' %> />
+                  <input type="checkbox" class="checkbox-input" name="campoExtra_beneficios_sociais" data-checkbox-group="beneficios_sociais" value="<%= item[0] %>" <%= benChecked?'checked':'' %> />
                   <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                   <span><%= item[1] %></span>
                 </label>
@@ -978,7 +985,7 @@
               <% [["vul_inseg_alimentar","Insegurança alimentar"],["vul_violencia_dom","Violência doméstica"],["vul_violencia_com","Violência comunitária"],["vul_alcool_drogas","Uso abusivo de álcool/drogas"],["vul_negligencia","Negligência infantil"],["vul_isolamento","Isolamento social"],["vul_saude_mental","Saúde mental fragilizada"],["vul_gravidez_adol","Gravidez na adolescência"],["vul_conflito_fam","Conflito familiar"],["vul_discriminacao","Discriminação"],["vul_nenhuma","Nenhuma"]].forEach(function(item){ %>
                 <% const vulChecked = (familia?.camposExtras?.vulnerabilidades || '').includes(item[0]); %>
                 <label class="checkbox-option <%= vulChecked?'is-checked':'' %>">
-                  <input type="checkbox" class="checkbox-input" data-checkbox-group="vulnerabilidades" value="<%= item[0] %>" <%= vulChecked?'checked':'' %> />
+                  <input type="checkbox" class="checkbox-input" name="campoExtra_vulnerabilidades" data-checkbox-group="vulnerabilidades" value="<%= item[0] %>" <%= vulChecked?'checked':'' %> />
                   <span class="checkbox-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
                   <span><%= item[1] %></span>
                 </label>

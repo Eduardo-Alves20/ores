@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
+  mapFamilyFormBodyToPayload,
   normalizeFamilyAddress,
   normalizeFamilyObservacoes,
   normalizeFamilyResponsible,
@@ -52,4 +53,43 @@ test("normalizeFamilyAddress aplica allowlist de endereco", () => {
 test("normalizeFamilyObservacoes limita tamanho", () => {
   const longText = "a".repeat(4000);
   assert.equal(normalizeFamilyObservacoes(longText).length, 3000);
+});
+
+test("mapFamilyFormBodyToPayload converte submissao plana em payload da API", () => {
+  const payload = mapFamilyFormBodyToPayload({
+    responsavel_nome: " Maria ",
+    responsavel_telefone: "21999998888",
+    responsavel_email: "MARIA@EMAIL.COM",
+    responsavel_familiar_nome: " Joana ",
+    responsavel_familiar_cpf: "11122233344",
+    responsavel_familiar_nascimento: "1990-05-10",
+    endereco_cep: "25000123",
+    endereco_estado: "rj",
+    observacoes: "  observacao livre ",
+    campoExtra_data_nascimento: "2015-01-20",
+    campoExtra_vulnerabilidades: ["vul_isolamento", "vul_negligencia"],
+    _csrf: "token-ignorado",
+  });
+
+  assert.deepEqual(payload.responsavel, {
+    nome: "Maria",
+    telefone: "(21) 99999-8888",
+    email: "maria@email.com",
+    parentesco: "responsavel",
+    nomeResponsavel: "Joana",
+    cpfResponsavel: "111.222.333-44",
+    dataNascimentoResponsavel: "1990-05-10",
+    telefoneResponsavel: "",
+    emailResponsavel: "",
+  });
+
+  assert.deepEqual(payload.endereco, {
+    cep: "25000-123",
+    estado: "RJ",
+  });
+
+  assert.equal(payload.observacoes, "observacao livre");
+  assert.equal(payload.camposExtras.data_nascimento, "2015-01-20");
+  assert.equal(payload.camposExtras.vulnerabilidades, "vul_isolamento,vul_negligencia");
+  assert.equal(payload.camposExtras._csrf, undefined);
 });
