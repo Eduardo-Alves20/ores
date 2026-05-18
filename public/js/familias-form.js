@@ -406,7 +406,6 @@
     }
 
     dataNascInput && dataNascInput.addEventListener("change", calcAge);
-    if (dataNascInput && dataNascInput.value) calcAge();
 
     // ── Faixa selector (anamnese panel header) ────────────────────────────
     var FAIXA_CONFIG = {
