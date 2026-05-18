@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const { PERMISSIONS } = require("../../config/permissions");
+const { isAdminProfile } = require("../../config/roles");
 const { hasAnyPermission } = require("./accessControlService");
 
 function asObjectId(value) {
@@ -12,6 +13,9 @@ function asObjectId(value) {
 }
 
 function hasOwnAssistidosScope(user) {
+  if (isAdminProfile(user?.perfil)) {
+    return false;
+  }
   return hasAnyPermission(user?.permissions || [], [PERMISSIONS.ASSISTIDOS_SCOPE_OWN]);
 }
 
