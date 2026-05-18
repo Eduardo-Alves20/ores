@@ -724,15 +724,35 @@
     }
 
     form.querySelectorAll(".upload-card input[type='file']").forEach(function (fileInput) {
-      fileInput.addEventListener("change", function () {
+      fileInput.addEventListener("change", async function () {
+        var selectedCount = 0;
         Array.from(fileInput.files).forEach(function (f) {
           uploadedFiles.push({
             fieldName: fileInput.name || "anexo_outros",
             file: f,
           });
+          selectedCount += 1;
         });
         fileInput.value = "";
         refreshAnnexoList();
+
+        // No modo editar, faz upload imediato para o usuario ver o anexo salvo no card.
+        if (selectedCount > 0 && mode === "editar" && familyId) {
+          try {
+            var immediateResult = await uploadAttachments(familyId);
+            if (immediateResult && immediateResult.total > 0) {
+              setFeedback(immediateResult.total + " anexo(s) enviado(s) com sucesso.", "success");
+              window.setTimeout(function () { setFeedback("", ""); }, 2000);
+            }
+          } catch (uploadErr) {
+            setFeedback(
+              (uploadErr && uploadErr.message)
+                ? "Falha ao enviar anexo: " + String(uploadErr.message)
+                : "Falha ao enviar anexo.",
+              "error"
+            );
+          }
+        }
       });
     });
 
@@ -748,7 +768,12 @@
       });
 
       var csrfToken = typeof resolveCsrfToken === "function" ? resolveCsrfToken() : "";
-      var response = await fetch("/api/familias/" + familyRecordId + "/anexos", {
+      var uploadUrl = "/api/familias/" + familyRecordId + "/anexos";
+      if (csrfToken) {
+        uploadUrl += "?_csrf=" + encodeURIComponent(csrfToken);
+      }
+
+      var response = await fetch(uploadUrl, {
         method: "POST",
         headers: csrfToken ? { "X-CSRF-Token": csrfToken } : {},
         body: formData,
