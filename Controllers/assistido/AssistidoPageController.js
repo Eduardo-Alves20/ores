@@ -55,7 +55,7 @@ class AssistidoPageController {
       const assistidoDoc = await ensureAssistidoAcessivel({
         user: req?.session?.user || null,
         assistidoId: req.params?.id,
-        select: "nome cpf rg dataNascimento sexoBiologico corRaca naturalidade nacionalidade telefonePrincipal telefoneSecundario isWhatsApp email permissaoContato responsavel contatoEmergencia endereco diagnosticoResumo observacoes status etapaConcluida ativo createdAt updatedAt",
+        select: "nome cpf rg dataNascimento sexoBiologico corRaca naturalidade nacionalidade telefonePrincipal telefoneSecundario isWhatsApp email permissaoContato responsavel contatoEmergencia endereco diagnosticoResumo observacoes status etapaConcluida anexos ativo createdAt updatedAt",
       });
       const assistido = assistidoDoc?.toObject
         ? assistidoDoc.toObject({ flattenMaps: true })
