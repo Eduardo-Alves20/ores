@@ -47,6 +47,7 @@ services:
       NODE_ENV: production
       NODE_OPTIONS: --max-old-space-size=256
       MONGO_URI: ${MONGO_URI_DOCKER}
+      ASSISTIDO_UPLOADS_DIR: /app/uploads/assistido-anexos
     restart: always
     init: true
     security_opt:
