@@ -4,12 +4,8 @@ const requestIp = require("request-ip");
 
 const authRoutes = require("./Routes/auth/authRoutes");
 const usuarioRoutes = require("./Routes/admin/usuarioRoutes");
-const familiaRoutes = require("./Routes/familia/familiaRoutes");
-const pacienteRoutes = require("./Routes/familia/pacienteRoutes");
-const atendimentoRoutes = require("./Routes/familia/atendimentoRoutes");
 const buscaRoutes = require("./Routes/shared/buscaRoutes");
 const relatorioRoutes = require("./Routes/shared/relatorioRoutes");
-const familiaPageRoutes = require("./Routes/familia/familiaPageRoutes");
 const agendaRoutes = require("./Routes/agenda/agendaRoutes");
 const portalUsuarioRoutes = require("./Routes/portal/portalUsuarioRoutes");
 const contaRoutes = require("./Routes/conta/contaRoutes");
@@ -112,23 +108,17 @@ router.get(
   requirePermission(PERMISSIONS.AGENDA_VIEW),
   AgendaPresencaPageController.detail
 );
-router.use("/familias", requirePermission(PERMISSIONS.FAMILIAS_VIEW), familiaPageRoutes);
 router.use("/assistidos", requirePermission(PERMISSIONS.ASSISTIDOS_VIEW), assistidoPageRoutes);
 
 router.use("/admin/usuarios", limiter, usuarioRoutes);
 router.use("/usuarios", limiter, usuarioRoutes);
 router.use("/api/admin/usuarios", limiter, usuarioRoutes);
 router.use("/api/usuarios", limiter, usuarioRoutes);
-router.use("/api/familias", limiter, familiaRoutes);
 router.use("/api/assistidos", limiter, assistidoRoutes);
 
-router.use("/", limiter, pacienteRoutes);
-router.use("/", limiter, atendimentoRoutes);
 router.use("/", limiter, buscaRoutes);
 router.use("/", limiter, relatorioRoutes);
 router.use("/", limiter, agendaRoutes);
-router.use("/api", limiter, pacienteRoutes);
-router.use("/api", limiter, atendimentoRoutes);
 router.use("/api", limiter, buscaRoutes);
 router.use("/api", limiter, relatorioRoutes);
 router.use("/api", limiter, agendaRoutes);

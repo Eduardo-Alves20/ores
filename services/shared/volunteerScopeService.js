@@ -29,46 +29,6 @@ function hasOwnAssistidosScope(user) {
   return hasAnyPermission(user?.permissions || [], [PERMISSIONS.ASSISTIDOS_SCOPE_OWN]);
 }
 
-async function resolveScopedFamilyIds(user) {
-  if (!hasOwnAssistidosScope(user)) {
-    return null;
-  }
-
-  const actorId = asObjectId(user?.id);
-  if (!actorId) {
-    return [];
-  }
-
-  const [agendaIds, atendimentoIds] = await Promise.all([
-    AgendaEvento.distinct("familiaId", {
-      responsavelId: actorId,
-      familiaId: { $ne: null },
-      ativo: true,
-    }),
-    Atendimento.distinct("familiaId", {
-      profissionalId: actorId,
-      familiaId: { $ne: null },
-      ativo: true,
-    }),
-  ]);
-
-  return Array.from(
-    new Set(
-      []
-        .concat(Array.isArray(agendaIds) ? agendaIds : [])
-        .concat(Array.isArray(atendimentoIds) ? atendimentoIds : [])
-        .map((item) => String(item || "").trim())
-        .filter(Boolean)
-    )
-  );
-}
-
-async function canAccessFamily(user, familiaId) {
-  const scopedIds = await resolveScopedFamilyIds(user);
-  if (scopedIds === null) return true;
-  return scopedIds.includes(String(familiaId || "").trim());
-}
-
 async function resolveScopedAssistidoIds(user) {
   if (!hasOwnAssistidosScope(user)) {
     return null;
@@ -112,8 +72,6 @@ async function canAccessAssistido(user, assistidoId) {
 module.exports = {
   asObjectId,
   hasOwnAssistidosScope,
-  resolveScopedFamilyIds,
-  canAccessFamily,
   resolveScopedAssistidoIds,
   canAccessAssistido,
 };

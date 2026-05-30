@@ -17,7 +17,7 @@ function hasOperationalWorkspace(user) {
 
   return [
     PERMISSIONS.DASHBOARD_VIEW,
-    PERMISSIONS.FAMILIAS_VIEW,
+    PERMISSIONS.ASSISTIDOS_VIEW,
     PERMISSIONS.AGENDA_VIEW,
     PERMISSIONS.RELATORIOS_VIEW,
     PERMISSIONS.BUSCA_GLOBAL,
@@ -31,21 +31,15 @@ function resolveLandingRouteForUser(user) {
   if (!perfil) return "/login";
 
   if (perfil === PERFIS.USUARIO) {
-    const tipoCadastro = String(user?.tipoCadastro || "").toLowerCase().trim();
-
-    if (tipoCadastro === "familia" && hasPerm(user, PERMISSIONS.PORTAL_MINHA_FAMILIA)) {
-      return "/minha-familia";
-    }
-
     if (hasPerm(user, PERMISSIONS.DASHBOARD_VIEW)) return "/painel";
-    if (hasPerm(user, PERMISSIONS.FAMILIAS_VIEW)) return "/familias";
+    if (hasPerm(user, PERMISSIONS.ASSISTIDOS_VIEW)) return "/assistidos";
     if (hasPerm(user, PERMISSIONS.AGENDA_VIEW)) return "/agenda";
     if (hasPerm(user, PERMISSIONS.PORTAL_MEUS_DADOS)) return "/meus-dados";
     return "/perfil";
   }
 
   if (hasPerm(user, PERMISSIONS.DASHBOARD_VIEW)) return "/painel";
-  if (hasPerm(user, PERMISSIONS.FAMILIAS_VIEW)) return "/familias";
+  if (hasPerm(user, PERMISSIONS.ASSISTIDOS_VIEW)) return "/assistidos";
   if (hasPerm(user, PERMISSIONS.AGENDA_VIEW)) return "/agenda";
   return "/perfil";
 }

@@ -99,14 +99,6 @@ async function resolvePermissionsForUserId(userId, fallbackPerfil = "") {
       ]);
     }
 
-    if (tipoCadastro === "familia") {
-      return normalizePermissionList([
-        PERMISSIONS.PORTAL_MEUS_DADOS,
-        PERMISSIONS.PORTAL_MINHA_FAMILIA,
-        PERMISSIONS.NOTIFICACOES_VIEW,
-      ]);
-    }
-
     return normalizePermissionList([
       PERMISSIONS.PORTAL_MEUS_DADOS,
       PERMISSIONS.NOTIFICACOES_VIEW,

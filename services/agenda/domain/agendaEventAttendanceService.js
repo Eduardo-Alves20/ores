@@ -32,17 +32,17 @@ function shouldTriggerAbsenceAlert({
   );
 }
 
-function extractPatientId(evento = {}) {
-  return evento?.pacienteId?._id || evento?.pacienteId || null;
+function extractAssistidoId(evento = {}) {
+  return evento?.assistidoId?._id || evento?.assistidoId || null;
 }
 
-async function countPatientAbsences(patientId) {
-  const normalizedPatientId = asObjectId(patientId);
-  if (!normalizedPatientId) return 0;
+async function countAssistidoAbsences(assistidoId) {
+  const normalizedAssistidoId = asObjectId(assistidoId);
+  if (!normalizedAssistidoId) return 0;
 
   return AgendaEvento.countDocuments({
     ativo: true,
-    pacienteId: normalizedPatientId,
+    assistidoId: normalizedAssistidoId,
     statusPresenca: {
       $in: ABSENCE_ALERT_STATUSES,
     },
@@ -112,9 +112,9 @@ async function registerAgendaAttendance(user, eventId, body = {}) {
     },
   ];
 
-  const patientId = extractPatientId(detalhe?.evento);
-  if (hasAbsenceStatus(statusPresenca) && patientId) {
-    const totalAbsences = await countPatientAbsences(patientId);
+  const assistidoId = extractAssistidoId(detalhe?.evento);
+  if (hasAbsenceStatus(statusPresenca) && assistidoId) {
+    const totalAbsences = await countAssistidoAbsences(assistidoId);
     if (
       shouldTriggerAbsenceAlert({
         previousStatusPresenca,
@@ -148,7 +148,7 @@ async function registerAgendaAttendance(user, eventId, body = {}) {
     history: {
       eventoId: evento._id,
       tipo: "presenca_registrada",
-      visibilidade: detalhe?.evento?.familiaId ? "todos" : "interna",
+      visibilidade: detalhe?.evento?.assistidoId ? "todos" : "interna",
       titulo: "Presenca atualizada",
       descricao: `O agendamento "${detalhe?.evento?.titulo || evento.titulo}" foi marcado como ${
         PRESENCA_LABELS[statusPresenca] || "Atualizado"
@@ -166,7 +166,7 @@ async function registerAgendaAttendance(user, eventId, body = {}) {
 module.exports = {
   ABSENCE_ALERT_STATUSES,
   ABSENCE_ALERT_THRESHOLD,
-  countPatientAbsences,
+  countAssistidoAbsences,
   registerAgendaAttendance,
   shouldTriggerAbsenceAlert,
 };

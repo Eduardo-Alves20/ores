@@ -108,7 +108,7 @@ async function moveAgendaEvent(user, eventId, body = {}) {
     history: {
       eventoId: evento._id,
       tipo: "agendamento_movido",
-      visibilidade: updated?.familiaId ? "todos" : "interna",
+      visibilidade: updated?.assistidoId ? "todos" : "interna",
       titulo: "Agendamento movido",
       descricao: `O agendamento "${updated?.titulo || evento.titulo}" foi remanejado para ${toDateTimeLabel(
         updated?.inicio || novoInicio

@@ -177,7 +177,7 @@ test("AgendaCalendar.renderSelectedDay escapa payloads dinamicos do evento", () 
   assert.doesNotMatch(diaLista.innerHTML, /data-bad="1"/);
 });
 
-test("AgendaForm escapa labels dinamicos em selects e cards", () => {
+test("AgendaForm escapa labels dinamicos em selects e cards", async () => {
   const context = createBrowserContext();
   loadBrowserScript(context, "public/js/agenda-shared.js");
   loadBrowserScript(context, "public/js/agenda-form.js");
@@ -189,8 +189,18 @@ test("AgendaForm escapa labels dinamicos em selects e cards", () => {
   const tipoSelect = { innerHTML: "", value: "outro" };
   const responsavelSelect = { innerHTML: "", disabled: false, value: "" };
   const responsavelFiltro = { innerHTML: "", disabled: false, value: "" };
-  const familiaSelect = { innerHTML: "" };
-  const pacienteSelect = { innerHTML: "" };
+  const assistidoSelect = { innerHTML: "" };
+
+  const mockedShared = Object.assign({}, context.AgendaShared, {
+    requestJson: async () => ({
+      docs: [
+        {
+          _id: "507f1f77bcf86cd799439014",
+          nome: '<iframe src=javascript:alert(1)>',
+        },
+      ],
+    }),
+  });
 
   const formModule = context.AgendaForm.create({
     elements: {
@@ -203,8 +213,7 @@ test("AgendaForm escapa labels dinamicos em selects e cards", () => {
       tipoSelect,
       responsavelSelect,
       responsavelFiltro,
-      familiaSelect,
-      pacienteSelect,
+      assistidoSelect,
       form: {
         elements: {
           data: { value: "" },
@@ -237,7 +246,7 @@ test("AgendaForm escapa labels dinamicos em selects e cards", () => {
         },
       ],
       availableSalas: [],
-      familias: [],
+      assistidos: [],
       salaRequestId: 0,
     },
     tiposAtendimento: ["outro", 'visita"><img src=x onerror=1>'],
@@ -246,19 +255,14 @@ test("AgendaForm escapa labels dinamicos em selects e cards", () => {
       nome: '<b>Meu calendario</b>',
     },
     attendance: {},
-    shared: context.AgendaShared,
+    shared: mockedShared,
   });
 
   formModule.setResponsavelOptions();
   formModule.setFiltroProfissionais();
   formModule.renderSalasCatalogo();
   formModule.setTipoOptions();
-  formModule.fillPatientsOptions([
-    {
-      _id: "507f1f77bcf86cd799439014",
-      nome: '<iframe src=javascript:alert(1)>',
-    },
-  ]);
+  await formModule.loadAssistidos();
 
   assert.match(
     responsavelSelect.innerHTML,
@@ -290,11 +294,11 @@ test("AgendaForm escapa labels dinamicos em selects e cards", () => {
   );
 
   assert.match(
-    pacienteSelect.innerHTML,
+    assistidoSelect.innerHTML,
     /&lt;iframe src=javascript:alert\(1\)&gt;/,
   );
   assert.doesNotMatch(
-    pacienteSelect.innerHTML,
+    assistidoSelect.innerHTML,
     /<iframe src=javascript:alert\(1\)>/,
   );
 });

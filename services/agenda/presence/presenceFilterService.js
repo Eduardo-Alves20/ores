@@ -43,8 +43,6 @@ function matchesPresenceFilters(evento, filtros = {}) {
       evento?.observacoes,
       evento?.presencaObservacao,
       evento?.assistidoId?.nome,
-      evento?.pacienteId?.nome,
-      evento?.familiaId?.responsavel?.nome,
       evento?.responsavelId?.nome,
       evento?.salaId?.nome,
     ]

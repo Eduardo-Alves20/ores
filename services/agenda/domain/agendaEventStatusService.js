@@ -57,7 +57,7 @@ async function changeAgendaEventStatus(user, eventId, ativoInput) {
     history: {
       eventoId: evento._id,
       tipo: "agendamento_status_alterado",
-      visibilidade: updated?.familiaId ? "todos" : "interna",
+      visibilidade: updated?.assistidoId ? "todos" : "interna",
       titulo: ativo ? "Agendamento reativado" : "Agendamento inativado",
       descricao: ativo
         ? `O agendamento "${updated?.titulo || evento.titulo}" foi reativado.`

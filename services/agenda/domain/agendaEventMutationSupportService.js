@@ -24,16 +24,12 @@ function buildAgendaUpdatePayload(evento, body = {}) {
     hasInicio: Object.prototype.hasOwnProperty.call(body, "inicio"),
     hasFim: Object.prototype.hasOwnProperty.call(body, "fim"),
     hasAssistido: Object.prototype.hasOwnProperty.call(body, "assistidoId"),
-    hasFamilia: Object.prototype.hasOwnProperty.call(body, "familiaId"),
-    hasPaciente: Object.prototype.hasOwnProperty.call(body, "pacienteId"),
     hasResponsavel: Object.prototype.hasOwnProperty.call(body, "responsavelId"),
     hasSala: Object.prototype.hasOwnProperty.call(body, "salaId"),
     currentInicio: evento?.inicio,
     currentFim: evento?.fim,
     currentTipoAtendimento: evento?.tipoAtendimento,
     currentAssistidoId: evento?.assistidoId,
-    currentFamiliaId: evento?.familiaId,
-    currentPacienteId: evento?.pacienteId,
     currentSalaId: evento?.salaId,
   };
 }

@@ -80,29 +80,18 @@ async function updateAgendaEvent(user, eventId, body = {}) {
     patch.observacoes = String(body?.observacoes || "").trim().slice(0, 3000);
   }
 
-  if (flags.hasAssistido || flags.hasFamilia || flags.hasPaciente) {
-    if (flags.hasAssistido && isProvided(body?.assistidoId) && !asObjectId(body?.assistidoId)) {
+  if (flags.hasAssistido) {
+    if (isProvided(body?.assistidoId) && !asObjectId(body?.assistidoId)) {
       throw createAgendaError(400, "assistidoId invalido.");
     }
-    if (flags.hasFamilia && isProvided(body?.familiaId) && !asObjectId(body?.familiaId)) {
-      throw createAgendaError(400, "familiaId invalido.");
-    }
-    if (flags.hasPaciente && isProvided(body?.pacienteId) && !asObjectId(body?.pacienteId)) {
-      throw createAgendaError(400, "pacienteId invalido.");
-    }
 
-    const assistidoIdInput = flags.hasAssistido ? body?.assistidoId || null : flags.currentAssistidoId || null;
-    const familiaIdInput = flags.hasFamilia ? body?.familiaId || null : flags.currentFamiliaId || null;
-    const pacienteIdInput = flags.hasPaciente ? body?.pacienteId || null : flags.currentPacienteId || null;
-
-    const relation = await resolveRelations({ assistidoIdInput, familiaIdInput, pacienteIdInput });
+    const assistidoIdInput = body?.assistidoId || null;
+    const relation = await resolveRelations({ assistidoIdInput });
     if (relation.error) {
       throw createAgendaError(relation.status || 400, relation.error);
     }
 
     patch.assistidoId = relation.assistidoId || null;
-    patch.familiaId = relation.familiaId || null;
-    patch.pacienteId = relation.pacienteId || null;
   }
 
   if (flags.hasResponsavel) {
@@ -162,7 +151,7 @@ async function updateAgendaEvent(user, eventId, body = {}) {
     history: {
       eventoId: evento._id,
       tipo: "agendamento_atualizado",
-      visibilidade: updated?.familiaId ? "todos" : "interna",
+      visibilidade: updated?.assistidoId ? "todos" : "interna",
       titulo: "Agendamento atualizado",
       descricao: `O agendamento "${updated?.titulo || evento.titulo}" foi atualizado.`,
       detalhes: {

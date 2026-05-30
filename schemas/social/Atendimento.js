@@ -31,20 +31,6 @@ const AtendimentoSchema = new mongoose.Schema(
       index: true,
       default: null,
     },
-    familiaId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Familia",
-      required: false,
-      index: true,
-      default: null,
-    },
-    pacienteId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Paciente",
-      required: false,
-      index: true,
-      default: null,
-    },
     profissionalId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Usuario",

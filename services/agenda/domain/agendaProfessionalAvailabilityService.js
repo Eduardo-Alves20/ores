@@ -1,7 +1,6 @@
 const Usuario = require("../../../schemas/core/Usuario");
 const { AgendaEvento, TIPOS_AGENDA } = require("../../../schemas/social/AgendaEvento");
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
-const { Paciente } = require("../../../schemas/social/Paciente");
 const { PERFIS } = require("../../../config/roles");
 const {
   AGENDA_DEFAULT_DURATION_MINUTES,
@@ -434,143 +433,9 @@ async function buildProfessionalWeekSlots({ profissionalId, referencia }) {
   };
 }
 
-async function createFamilyScheduledAppointment(context = {}, body = {}) {
-  const familiaId = asObjectId(context?.familia?._id);
-  const actorId = asObjectId(context?.userId || context?.usuario?._id);
-  const profissionalId = asObjectId(body?.profissionalId);
-  const pacienteId = asObjectId(body?.pacienteId);
-  const slotInicio = body?.slotInicio ? new Date(body.slotInicio) : null;
-
-  if (!familiaId || !actorId) {
-    throw createAgendaError(403, "Familia nao vinculada para este agendamento.");
-  }
-  if (!profissionalId) {
-    throw createAgendaError(400, "Selecione o profissional.");
-  }
-  if (!pacienteId) {
-    throw createAgendaError(400, "Selecione o dependente.");
-  }
-  if (!slotInicio || Number.isNaN(slotInicio.getTime()) || slotInicio <= new Date()) {
-    throw createAgendaError(400, "Selecione um horario futuro valido.");
-  }
-
-  const paciente = await Paciente.findOne({
-    _id: pacienteId,
-    familiaId,
-    ativo: true,
-  })
-    .select("_id nome familiaId")
-    .lean();
-
-  if (!paciente?._id) {
-    throw createAgendaError(404, "Dependente nao encontrado para esta familia.");
-  }
-
-  const disponibilidade = await buildProfessionalWeekSlots({
-    profissionalId,
-    referencia: slotInicio,
-  });
-
-  const slot = (disponibilidade?.dias || [])
-    .flatMap((item) => item.slots || [])
-    .find((item) => String(item?.inicio || "") === slotInicio.toISOString());
-
-  if (!slot?.inicio) {
-    throw createAgendaError(
-      409,
-      "Esse horario nao esta mais disponivel. Escolha outro horario."
-    );
-  }
-
-  const inicio = new Date(slot.inicio);
-  const fim = slot.fim ? new Date(slot.fim) : getEffectiveEnd(inicio, null);
-  const professionalConflictFilter = buildProfessionalEventConflictFilter({
-    profissionalId,
-    inicio,
-    fim,
-  });
-  const existingConflict = professionalConflictFilter
-    ? await AgendaEvento.findOne(professionalConflictFilter).select("_id inicio").lean()
-    : null;
-  if (existingConflict?._id) {
-    throw createAgendaError(
-      409,
-      "Esse horario acabou de ser ocupado. Escolha outro horario."
-    );
-  }
-
-  const sala = await findFirstAvailableRoom({ inicio, fim });
-  const titulo = `Consulta ${disponibilidade?.profissional?.nome || "profissional"} - ${paciente.nome}`;
-
-  const evento = await AgendaEvento.create({
-    titulo,
-    tipoAtendimento: FAMILY_BOOKING_DEFAULT_TYPE,
-    inicio,
-    fim,
-    local: FAMILY_BOOKING_DEFAULT_LOCAL,
-    observacoes: "Consulta agendada pela familia no portal.",
-    salaId: sala?._id || null,
-    familiaId,
-    pacienteId,
-    responsavelId: profissionalId,
-    ativo: true,
-    criadoPor: actorId,
-    atualizadoPor: actorId,
-  });
-
-  const loaded = await loadEventoById(evento._id);
-
-  return {
-    mensagem: "Consulta agendada com sucesso.",
-    evento: mapEvento(loaded),
-    audit: {
-      acao: "AGENDA_EVENTO_CRIADO_PORTAL_FAMILIA",
-      entidade: "agenda_evento",
-      entidadeId: evento._id,
-      detalhes: {
-        origem: "portal_familia",
-        responsavelId: profissionalId,
-        familiaId,
-        pacienteId,
-        salaId: sala?._id || null,
-      },
-    },
-    history: {
-      eventoId: evento._id,
-      tipo: "agendamento_criado",
-      visibilidade: "todos",
-      titulo: "Agendamento criado pela familia",
-      descricao: `A familia agendou "${titulo}" para ${toDateTimeLabel(inicio)}.`,
-      detalhes: {
-        origem: "portal_familia",
-        responsavelId: profissionalId,
-        familiaId,
-        pacienteId,
-        salaId: sala?._id || null,
-      },
-      ator: {
-        id: actorId,
-        _id: actorId,
-        nome:
-          String(context?.usuario?.nome || "").trim() ||
-          String(context?.familia?.responsavel?.nome || "").trim() ||
-          "Familia",
-        perfil: "usuario",
-      },
-    },
-    notify: {
-      type: "event_created",
-      event: loaded,
-      audience: "all",
-      origin: "portal_familia",
-    },
-  };
-}
-
 module.exports = {
   AGENDA_DEFAULT_DURATION_MINUTES,
   buildProfessionalWeekSlots,
-  createFamilyScheduledAppointment,
   listProfessionalsWithAvailability,
   loadOwnAgendaAvailability,
   mapAvailabilityConfig,

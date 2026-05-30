@@ -46,10 +46,8 @@ function buildAssistidoRanking(events) {
 
   (Array.isArray(events) ? events : []).forEach((evento) => {
     const assistidoId = String(evento?.assistidoId?._id || "");
-    const pacienteId = String(evento?.pacienteId?._id || "");
-    const familiaId = String(evento?.familiaId?._id || "");
-    const key = assistidoId || pacienteId || familiaId || "sem-vinculo";
-    const nome = evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
+    const key = assistidoId || "sem-vinculo";
+    const nome = evento?.assistidoId?.nome || "Sem vinculo";
 
     if (!map.has(key)) {
       map.set(key, {
@@ -131,7 +129,7 @@ function buildUltimasOcorrencias(events) {
     .map((evento) => ({
       id: String(evento?._id || ""),
       dataHoraLabel: toDateTimeLabel(evento?.inicio),
-      assistidoNome: evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "-",
+      assistidoNome: evento?.assistidoId?.nome || "-",
       profissionalNome: evento?.responsavelId?.nome || "-",
       statusPresencaLabel: PRESENCA_LABELS[evento?.statusPresenca || "pendente"] || "Pendente",
       observacao: evento?.presencaObservacao || evento?.observacoes || "-",
@@ -227,7 +225,7 @@ function mapDayEvents(events) {
       titulo: evento?.titulo || "Agendamento",
       horaLabel: toTimeLabel(evento?.inicio),
       dataHoraLabel: toDateTimeLabel(evento?.inicio),
-      assistidoNome: evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "-",
+      assistidoNome: evento?.assistidoId?.nome || "-",
       profissionalNome: evento?.responsavelId?.nome || "-",
       salaNome: evento?.salaId?.nome || "-",
       statusPresenca: String(evento?.statusPresenca || "pendente").trim(),

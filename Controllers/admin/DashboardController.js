@@ -25,7 +25,7 @@ class DashboardController {
           ],
           search: {
             enabled: false,
-            action: "/familias",
+            action: "/assistidos",
             placeholder: "Buscar responsavel, assistido ou telefone...",
             canUseSuggestions: false,
           },

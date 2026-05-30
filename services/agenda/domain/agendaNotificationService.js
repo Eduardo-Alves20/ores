@@ -1,4 +1,3 @@
-const Usuario = require("../../../schemas/core/Usuario");
 const { notify, resolveAdminRecipients } = require("../../shared/notificationService");
 const { toDateTimeLabel } = require("../../shared/dateFormattingService");
 const { PRESENCA_LABELS } = require("./agendaMappingService");
@@ -11,38 +10,16 @@ function normalizePhone(value) {
   return String(value || "").replace(/\D+/g, "");
 }
 
-async function resolveFamilyPortalRecipients(evento) {
-  const familiaResponsavel = evento?.familiaId?.responsavel || null;
-  if (!familiaResponsavel?.email && !familiaResponsavel?.telefone) return [];
-
-  const email = normalizeEmail(familiaResponsavel?.email);
-  const telefone = normalizePhone(familiaResponsavel?.telefone);
-  const userQuery = {
-    ativo: true,
-    perfil: "usuario",
-    tipoCadastro: "familia",
-    $or: [],
-  };
-
-  if (email) userQuery.$or.push({ email });
-  if (telefone) userQuery.$or.push({ telefone: familiaResponsavel.telefone });
-  if (!userQuery.$or.length) return [];
-
-  const usuarios = await Usuario.find(userQuery).select("_id nome email telefone").lean();
-  if (usuarios.length) {
-    return usuarios.map((item) => ({
-      usuarioId: item._id,
-      nome: item.nome,
-      email: item.email,
-      telefone: item.telefone,
-      channels: ["sistema", "email", "whatsapp"],
-    }));
-  }
+async function resolveAssistidoContactRecipients(evento) {
+  const responsavel = evento?.assistidoId?.responsavel || null;
+  const email = normalizeEmail(responsavel?.email);
+  const telefone = normalizePhone(responsavel?.telefone);
+  if (!email && !telefone) return [];
 
   return [{
-    nome: familiaResponsavel?.nome || "Familia",
-    email: familiaResponsavel?.email || "",
-    telefone: familiaResponsavel?.telefone || "",
+    nome: responsavel?.nome || evento?.assistidoId?.nome || "Assistido",
+    email: responsavel?.email || "",
+    telefone: responsavel?.telefone || "",
     channels: ["email", "whatsapp"],
   }];
 }
@@ -79,7 +56,7 @@ function buildNotificationMeta(evento, extra = {}) {
     tituloEvento: evento?.titulo || "Agendamento",
     inicioLabel: toDateTimeLabel(evento?.inicio),
     responsavelNome: evento?.responsavelId?.nome || "",
-    dependenteNome: evento?.pacienteId?.nome || "",
+    dependenteNome: evento?.assistidoId?.nome || "",
     statusAgendamento: evento?.statusAgendamento || "agendado",
     statusPresenca: PRESENCA_LABELS[evento?.statusPresenca || "pendente"] || "Atualizado",
     justificativa: evento?.presencaJustificativaLabel || "",
@@ -174,11 +151,11 @@ async function dispatchAgendaNotifications(notification = {}) {
     evento,
     notification
   );
-  const familyRecipients = await resolveFamilyPortalRecipients(evento);
-  let recipients = familyRecipients;
+  const contactRecipients = await resolveAssistidoContactRecipients(evento);
+  let recipients = contactRecipients;
 
   if (notification?.type === "attendance_registered") {
-    recipients = [...(await resolveOperationalRecipients(evento)), ...familyRecipients];
+    recipients = [...(await resolveOperationalRecipients(evento)), ...contactRecipients];
   } else if (notification?.type === "attendance_absence_threshold_reached") {
     recipients = await resolveOperationalRecipients(evento, ["sistema"]);
   }

@@ -94,16 +94,12 @@
                 ? "Técnico"
                 : normalizedProfile || "usuário";
         const usuariosGroupOpen = ["usuarios-familia", "usuarios-voluntario"].includes(navKey);
-        const isFamilyPortalUser = String(currentUser?.tipoCadastro || "").toLowerCase() === "familia"
-          && hasPerm("portal.minha_familia");
-        const showPortalMenu = hasPerm("portal.meus_dados") || hasPerm("portal.minha_familia");
-        const notificationHref = isFamilyPortalUser ? "/minha-familia/notificacoes" : "/notificacoes";
-        const notificationNavActive = isFamilyPortalUser
-          ? ["minha-familia-notificacoes"].includes(navKey)
-          : navKey === "notificacoes";
+        const showPortalMenu = hasPerm("portal.meus_dados");
+        const notificationHref = "/notificacoes";
+        const notificationNavActive = navKey === "notificacoes";
         const showWorkspaceMenu = normalizedProfile !== "usuario" || [
           "dashboard.view",
-          "familias.view",
+          "assistidos.view",
           "agenda.view",
           "relatorios.view",
           "busca.global",
@@ -120,28 +116,6 @@
       %>
       <nav class="sidebar-nav">
         <% if (showPortalMenu) { %>
-          <% if (isFamilyPortalUser) { %>
-            <a href="/minha-familia" class="sidebar-link <%= navKey === 'minha-familia-home' ? 'is-active' : '' %>">
-              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>
-              <span>Portal da Família</span>
-            </a>
-            <a href="/minha-familia/consultas" class="sidebar-link <%= navKey === 'minha-familia-consultas' ? 'is-active' : '' %>">
-              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
-              <span>Consultas</span>
-            </a>
-            <a href="/minha-familia/notificacoes" class="sidebar-link <%= navKey === 'minha-familia-notificacoes' ? 'is-active' : '' %>">
-              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-bell"></i></span>
-              <span>Notificações</span>
-              <% if (safeNotificationCount > 0) { %>
-                <small class="sidebar-link-badge sidebar-link-badge-alert"><%= safeNotificationCount %></small>
-              <% } %>
-            </a>
-          <% } else if (hasPerm("portal.minha_familia")) { %>
-            <a href="/minha-familia" class="sidebar-link <%= navKey === 'minha-familia' ? 'is-active' : '' %>">
-              <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>
-              <span>Minha Família</span>
-            </a>
-          <% } %>
           <% if (hasPerm("portal.meus_dados")) { %>
             <a href="/meus-dados" class="sidebar-link <%= navKey === 'meus-dados' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-address-card"></i></span>

@@ -36,7 +36,7 @@ function buildWeeklyRows(events) {
     else row.pendentes += 1;
 
     if (["falta", "falta_justificada"].includes(status)) {
-      const assistidoNome = evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
+      const assistidoNome = evento?.assistidoId?.nome || "Sem vinculo";
       row.assistidoAusencias.set(
         assistidoNome,
         Number(row.assistidoAusencias.get(assistidoNome) || 0) + 1
@@ -66,10 +66,8 @@ function buildAssistidoRows(events) {
 
   (Array.isArray(events) ? events : []).forEach((evento) => {
     const assistidoId = String(evento?.assistidoId?._id || "");
-    const pacienteId = String(evento?.pacienteId?._id || "");
-    const familiaId = String(evento?.familiaId?._id || "");
-    const key = assistidoId || pacienteId || familiaId || `evento:${String(evento?._id || "")}`;
-    const nome = evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
+    const key = assistidoId || `evento:${String(evento?._id || "")}`;
+    const nome = evento?.assistidoId?.nome || "Sem vinculo";
     const profissionalNome = evento?.responsavelId?.nome || "Sem responsavel";
     const status = String(evento?.statusPresenca || "pendente").trim();
     const timestamp = new Date(evento?.inicio || 0).getTime();
@@ -159,7 +157,7 @@ function buildProfissionalRows(events) {
     const nome = evento?.responsavelId?.nome || "Sem responsavel";
     const status = String(evento?.statusPresenca || "pendente").trim();
     const timestamp = new Date(evento?.inicio || 0).getTime();
-    const assistidoNome = evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
+    const assistidoNome = evento?.assistidoId?.nome || "Sem vinculo";
 
     if (!rows.has(key)) {
       rows.set(key, {
@@ -231,7 +229,7 @@ function buildOccurrenceRows(events) {
         dataHoraLabel: toDateTimeLabel(evento?.inicio),
         dia: toDateInputValue(evento?.inicio),
         assistidoId: String(evento?.assistidoId?._id || ""),
-        assistidoNome: evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "-",
+        assistidoNome: evento?.assistidoId?.nome || "-",
         profissionalNome: evento?.responsavelId?.nome || "-",
         salaNome: evento?.salaId?.nome || "-",
         statusPresenca,

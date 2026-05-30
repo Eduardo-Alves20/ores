@@ -188,13 +188,6 @@ class ContaController {
       const context = await loadContextOrRedirect(req, res);
       if (!context) return null;
 
-      if (
-        String(context?.profile || "").trim().toLowerCase() === "usuario" &&
-        String(context?.usuario?.tipoCadastro || "").trim().toLowerCase() === "familia"
-      ) {
-        return res.redirect("/minha-familia/notificacoes");
-      }
-
       return res.status(200).render(
         "pages/conta/notificacoes",
         await buildNotificationsPageView({

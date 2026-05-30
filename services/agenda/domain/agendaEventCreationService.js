@@ -59,18 +59,8 @@ async function createAgendaEvent(user, body = {}) {
     throw createAgendaError(400, "assistidoId invalido.");
   }
 
-  if (isProvided(body?.familiaId) && !asObjectId(body?.familiaId)) {
-    throw createAgendaError(400, "familiaId invalido.");
-  }
-
-  if (isProvided(body?.pacienteId) && !asObjectId(body?.pacienteId)) {
-    throw createAgendaError(400, "pacienteId invalido.");
-  }
-
   const relation = await resolveRelations({
     assistidoIdInput: body?.assistidoId || null,
-    familiaIdInput: body?.familiaId || null,
-    pacienteIdInput: body?.pacienteId || null,
   });
 
   if (relation.error) {
@@ -108,8 +98,6 @@ async function createAgendaEvent(user, body = {}) {
     observacoes,
     salaId: salaSelection.salaId || null,
     assistidoId: relation.assistidoId || null,
-    familiaId: relation.familiaId || null,
-    pacienteId: relation.pacienteId || null,
     responsavelId,
     ativo: true,
     criadoPor: actorId,
@@ -127,8 +115,7 @@ async function createAgendaEvent(user, body = {}) {
       entidadeId: evento._id,
       detalhes: {
         responsavelId,
-        familiaId: relation.familiaId || null,
-        pacienteId: relation.pacienteId || null,
+        assistidoId: relation.assistidoId || null,
         salaId: salaSelection.salaId || null,
         duracaoMinutos: AGENDA_DEFAULT_DURATION_MINUTES,
       },
@@ -136,14 +123,13 @@ async function createAgendaEvent(user, body = {}) {
     history: {
       eventoId: evento._id,
       tipo: "agendamento_criado",
-      visibilidade: relation.assistidoId || relation.familiaId ? "todos" : "interna",
+      visibilidade: relation.assistidoId ? "todos" : "interna",
       titulo: "Agendamento criado",
       descricao: `O agendamento "${titulo}" foi criado para ${toDateTimeLabel(intervalo.inicio)}.`,
       detalhes: {
         tipoAtendimento,
         responsavelId,
-        familiaId: relation.familiaId || null,
-        pacienteId: relation.pacienteId || null,
+        assistidoId: relation.assistidoId || null,
         salaId: salaSelection.salaId || null,
       },
     },

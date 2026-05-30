@@ -1,5 +1,3 @@
-const Familia = require("../../../schemas/social/Familia");
-const { Paciente } = require("../../../schemas/social/Paciente");
 const { Assistido } = require("../../../schemas/social/Assistido");
 const {
   AgendaEvento,
@@ -18,10 +16,8 @@ function isRoomRequiredForType(tipoAtendimento) {
   return AGENDA_ROOM_REQUIRED_TYPES.includes(String(tipoAtendimento || "").trim());
 }
 
-async function resolveRelations({ assistidoIdInput, familiaIdInput, pacienteIdInput }) {
+async function resolveRelations({ assistidoIdInput }) {
   const assistidoId = asObjectId(assistidoIdInput);
-  const familiaId = asObjectId(familiaIdInput);
-  const pacienteId = asObjectId(pacienteIdInput);
 
   let assistidoRef = null;
   if (assistidoId) {
@@ -32,37 +28,9 @@ async function resolveRelations({ assistidoIdInput, familiaIdInput, pacienteIdIn
     assistidoRef = assistido;
   }
 
-  let resolvedFamiliaId = familiaId;
-  let resolvedPacienteId = pacienteId;
-  let familiaRef = null;
-
-  if (resolvedPacienteId) {
-    const paciente = await Paciente.findById(resolvedPacienteId).select("_id familiaId ativo");
-    if (!paciente || !paciente.ativo) {
-      return { error: "Paciente invalido ou inativo.", status: 400 };
-    }
-
-    if (resolvedFamiliaId && String(paciente.familiaId) !== String(resolvedFamiliaId)) {
-      return { error: "Paciente nao pertence a familia informada.", status: 400 };
-    }
-
-    resolvedFamiliaId = paciente.familiaId;
-  }
-
-  if (resolvedFamiliaId) {
-    const familia = await Familia.findById(resolvedFamiliaId).select("_id ativo");
-    if (!familia || !familia.ativo) {
-      return { error: "Familia invalida ou inativa.", status: 400 };
-    }
-    familiaRef = familia;
-  }
-
   return {
     assistidoId: assistidoId || null,
-    familiaId: resolvedFamiliaId || null,
-    pacienteId: resolvedPacienteId || null,
     assistidoRef,
-    familiaRef,
   };
 }
 
@@ -70,8 +38,6 @@ async function loadEventoById(eventoId) {
   return AgendaEvento.findById(eventoId)
     .populate("responsavelId", "_id nome perfil email telefone")
     .populate("assistidoId", "_id nome telefonePrincipal responsavel endereco")
-    .populate("familiaId", "_id responsavel endereco")
-    .populate("pacienteId", "_id nome")
     .populate("salaId", "_id nome descricao ativo")
     .populate("presencaRegistradaPor", "_id nome")
     .lean();

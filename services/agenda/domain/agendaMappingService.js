@@ -97,19 +97,6 @@ function mapEvento(doc) {
           cidade: evento.assistidoId?.endereco?.cidade || "",
         }
       : null,
-    familia: evento?.familiaId
-      ? {
-          _id: evento.familiaId._id || evento.familiaId,
-          responsavelNome: evento.familiaId?.responsavel?.nome || "",
-          cidade: evento.familiaId?.endereco?.cidade || "",
-        }
-      : null,
-    paciente: evento?.pacienteId
-      ? {
-          _id: evento.pacienteId._id || evento.pacienteId,
-          nome: evento.pacienteId?.nome || "",
-        }
-      : null,
     presencaRegistradaPor: evento?.presencaRegistradaPor
       ? {
           _id: evento.presencaRegistradaPor._id || evento.presencaRegistradaPor,

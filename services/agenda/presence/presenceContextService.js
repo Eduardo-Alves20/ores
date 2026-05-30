@@ -114,8 +114,6 @@ async function loadPresenceContext(req) {
     AgendaEvento.find(query)
       .populate("responsavelId", "_id nome")
       .populate("assistidoId", "_id nome")
-      .populate("familiaId", "_id responsavel")
-      .populate("pacienteId", "_id nome")
       .populate("salaId", "_id nome")
       .sort({ inicio: -1 })
       .lean(),

@@ -393,7 +393,7 @@ function buildQuickFilterHref(area, field, value) {
 
   if (normalizedArea === "assistidos_familias") {
     params.set(normalizedField, normalizedValue);
-    return `/familias?${params.toString()}`;
+    return `/assistidos?${params.toString()}`;
   }
 
   if (normalizedArea === "acessos_familias") {

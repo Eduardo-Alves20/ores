@@ -1,4 +1,4 @@
-﻿const Familia = require("../../schemas/social/Familia");
+﻿const { Assistido } = require("../../schemas/social/Assistido");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const {
   buildConsultationAnalyticsViewModel,
@@ -27,7 +27,7 @@ class RelatorioController {
     try {
       const { inicio, meses } = getPeriodo(req);
 
-      const familias = await Familia.aggregate([
+      const familias = await Assistido.aggregate([
         { $match: { createdAt: { $gte: inicio } } },
         {
           $group: {

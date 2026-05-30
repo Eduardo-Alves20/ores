@@ -372,41 +372,21 @@
   }
 
   function renderSearchResults(data, term) {
-    const familias = Array.isArray(data?.familias) ? data.familias.slice(0, 3) : [];
-    const pacientes = Array.isArray(data?.pacientes) ? data.pacientes.slice(0, 3) : [];
-    const resultsMarkup = []
-      .concat(
-        familias.map((item) => {
-          const nome = item?.responsavel?.nome || "Familia";
-          const telefone = item?.responsavel?.telefone || "Sem telefone";
-          return `
-            <a href="/familias/${encodeURIComponent(item?._id || "")}" class="dashboard-search-result">
-              <span class="dashboard-avatar soft">${escapeHtml(initialsFromName(nome, "FA"))}</span>
-              <span class="dashboard-search-result-copy">
-                <strong>${escapeHtml(nome)}</strong>
-                <small>Familia • ${escapeHtml(telefone)}</small>
-              </span>
-            </a>
-          `;
-        })
-      )
-      .concat(
-        pacientes.map((item) => {
-          const nome = item?.nome || "Assistido";
-          const familiaNome = item?.familiaId?.responsavel?.nome || "Familia nao localizada";
-          const familiaId = item?.familiaId?._id;
-          const href = familiaId ? `/familias/${encodeURIComponent(familiaId)}` : "#";
-          return `
+    const assistidos = Array.isArray(data?.assistidos) ? data.assistidos.slice(0, 6) : [];
+    const resultsMarkup = assistidos.map((item) => {
+      const nome = item?.nome || "Assistido";
+      const telefone = item?.telefonePrincipal || item?.responsavel?.telefone || "Sem telefone";
+      const href = item?._id ? `/assistidos/${encodeURIComponent(item._id)}` : "#";
+      return `
             <a href="${href}" class="dashboard-search-result">
               <span class="dashboard-avatar soft">${escapeHtml(initialsFromName(nome, "AS"))}</span>
               <span class="dashboard-search-result-copy">
                 <strong>${escapeHtml(nome)}</strong>
-                <small>Assistido • ${escapeHtml(familiaNome)}</small>
+                <small>Assistido • ${escapeHtml(telefone)}</small>
               </span>
             </a>
           `;
-        })
-      );
+    });
 
     if (!resultsMarkup.length) {
       searchResults.innerHTML = `<div class="dashboard-search-empty">Nenhum resultado encontrado para "${escapeHtml(term)}".</div>`;

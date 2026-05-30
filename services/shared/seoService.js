@@ -16,11 +16,10 @@ const INDEXABLE_PUBLIC_PATHS = new Set(["/login", "/cadastro"]);
 const PRIVATE_DISALLOW_PATHS = [
   "/agenda",
   "/painel",
-  "/familias",
+  "/assistidos",
   "/perfil",
   "/notificacoes",
   "/meus-dados",
-  "/minha-familia",
   "/administracao",
   "/acessos",
   "/seguranca",

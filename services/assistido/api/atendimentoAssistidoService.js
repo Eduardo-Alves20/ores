@@ -10,7 +10,7 @@ const {
   findApprovedVolunteerProfessional,
   hasOwnAssistidosScope,
   loadAccessibleAttendance,
-} = require("../../familia/api/familiaGuardService");
+} = require("../../shared/atendimentoScopeService");
 
 function isElevatedProfile(user) {
   const perfil = String(user?.perfil || "").trim().toLowerCase();
