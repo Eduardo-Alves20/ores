@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const Usuario = require("../../schemas/core/Usuario");
-const { Paciente } = require("../../schemas/social/Paciente");
-const Familia = require("../../schemas/social/Familia");
+const { Assistido } = require("../../schemas/social/Assistido");
 const { PERMISSIONS } = require("../../config/permissions");
 const { hasAnyPermission } = require("../shared/accessControlService");
 const { buildProfessionalAnalysisHref } = require("./consultationProfessionalDetailPageService");
@@ -618,7 +617,7 @@ async function buildConsultationAnalyticsViewModel(req) {
       : Promise.resolve(null),
     AgendaEvento.find(
       currentEventMatch,
-      "_id titulo inicio statusAgendamento statusPresenca tipoAtendimento familiaId pacienteId responsavelId"
+      "_id titulo inicio statusAgendamento statusPresenca tipoAtendimento assistidoId responsavelId"
     ).lean(),
     AgendaEvento.find(
       previousEventMatch,
@@ -626,7 +625,7 @@ async function buildConsultationAnalyticsViewModel(req) {
     ).lean(),
     Atendimento.find(
       currentReportMatch,
-      "_id dataHora familiaId pacienteId profissionalId criadoPor"
+      "_id dataHora assistidoId profissionalId criadoPor"
     ).lean(),
     Atendimento.find(
       previousReportMatch,
@@ -667,31 +666,24 @@ async function buildConsultationAnalyticsViewModel(req) {
   const referencedProfessionalIds = new Set();
 
   currentEvents.forEach((evento) => {
-    const patientId = toIdString(evento?.pacienteId);
-    const familyId = toIdString(evento?.familiaId);
+    const patientId = toIdString(evento?.assistidoId);
     const professionalId = toIdString(evento?.responsavelId);
     if (patientId) patientIds.add(patientId);
-    if (familyId) familyIds.add(familyId);
     if (professionalId) referencedProfessionalIds.add(professionalId);
   });
 
   currentReports.forEach((relatorio) => {
-    const patientId = toIdString(relatorio?.pacienteId);
-    const familyId = toIdString(relatorio?.familiaId);
+    const patientId = toIdString(relatorio?.assistidoId);
     const professionalId = resolveReportProfessionalId(relatorio);
     if (patientId) patientIds.add(patientId);
-    if (familyId) familyIds.add(familyId);
     if (professionalId) referencedProfessionalIds.add(professionalId);
   });
 
   if (scopedProfessionalId) referencedProfessionalIds.add(scopedProfessionalId);
 
-  const [patientDocs, familyDocs, referencedProfessionalDocs] = await Promise.all([
+  const [patientDocs, referencedProfessionalDocs] = await Promise.all([
     patientIds.size
-      ? Paciente.find({ _id: { $in: Array.from(patientIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome matricula familiaId").lean()
-      : Promise.resolve([]),
-    familyIds.size
-      ? Familia.find({ _id: { $in: Array.from(familyIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id responsavel").lean()
+      ? Assistido.find({ _id: { $in: Array.from(patientIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome").lean()
       : Promise.resolve([]),
     referencedProfessionalIds.size
       ? Usuario.find({ _id: { $in: Array.from(referencedProfessionalIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome perfil email").lean()
@@ -704,21 +696,13 @@ async function buildConsultationAnalyticsViewModel(req) {
       {
         _id: toIdString(doc._id),
         nome: String(doc.nome || "Assistido").trim() || "Assistido",
-        matricula: String(doc.matricula || "").trim(),
-        familiaId: toIdString(doc.familiaId),
+        matricula: "",
+        familiaId: "",
       },
     ])
   );
 
-  const familyMap = new Map(
-    familyDocs.map((doc) => [
-      toIdString(doc._id),
-      {
-        _id: toIdString(doc._id),
-        nome: String(doc?.responsavel?.nome || "Fam\u00edlia").trim() || "Fam\u00edlia",
-      },
-    ])
-  );
+  const familyMap = new Map();
 
   referencedProfessionalDocs
     .map(normalizeProfessionalDoc)
@@ -758,10 +742,9 @@ async function buildConsultationAnalyticsViewModel(req) {
     const typeEntry = typeMap.get(String(evento.tipoAtendimento || "outro")) || typeMap.get("outro");
     if (typeEntry) applyConsultationToCounter(typeEntry, evento);
 
-    const familyId = toIdString(evento?.familiaId);
-    const patientId = toIdString(evento?.pacienteId);
+    const familyId = "";
+    const patientId = toIdString(evento?.assistidoId);
     const professionalId = toIdString(evento?.responsavelId);
-    if (familyId) globalFamilies.add(familyId);
     if (patientId) globalPatients.add(patientId);
 
     const rankingKey = selectedProfessionalObjectId
@@ -791,7 +774,7 @@ async function buildConsultationAnalyticsViewModel(req) {
           label,
           subtitle,
           initials: toInitials(label, "FA"),
-          href: family?._id ? `/familias/${family._id}` : `/agenda?responsavelId=${encodeURIComponent(scopedProfessionalId)}`,
+          href: patient?._id ? `/assistidos/${patient._id}` : `/agenda?responsavelId=${encodeURIComponent(scopedProfessionalId)}`,
           families: new Set(),
           patients: new Set(),
           counter: createCounter(),
@@ -828,9 +811,8 @@ async function buildConsultationAnalyticsViewModel(req) {
     const bucket = timelineModel.map.get(resolveBucketKey(relatorio.dataHora, timelineModel));
     if (bucket) bucket.relatorios += 1;
 
-    const familyId = toIdString(relatorio?.familiaId);
-    const patientId = toIdString(relatorio?.pacienteId);
-    if (familyId) globalFamilies.add(familyId);
+    const familyId = "";
+    const patientId = toIdString(relatorio?.assistidoId);
     if (patientId) globalPatients.add(patientId);
 
     const rankingKey = selectedProfessionalObjectId
@@ -858,7 +840,7 @@ async function buildConsultationAnalyticsViewModel(req) {
                 .join(" \u2022 ")
             : "Somente relat\u00f3rio registrado",
           initials: toInitials(label, "FA"),
-          href: family?._id ? `/familias/${family._id}` : `/agenda?responsavelId=${encodeURIComponent(scopedProfessionalId)}`,
+          href: patient?._id ? `/assistidos/${patient._id}` : `/agenda?responsavelId=${encodeURIComponent(scopedProfessionalId)}`,
           families: new Set(),
           patients: new Set(),
           counter: createCounter(),
@@ -1005,10 +987,8 @@ async function buildConsultationAnalyticsViewModel(req) {
         value: selectedProfessionalObjectId ? currentProfessionalName : "Toda a equipe",
       },
       {
-        label: selectedProfessionalObjectId ? "Assistidos alcan\u00e7ados" : "Fam\u00edlias alcan\u00e7adas",
-        value: selectedProfessionalObjectId
-          ? toLocaleNumber(globalPatients.size || globalFamilies.size)
-          : toLocaleNumber(globalFamilies.size),
+        label: "Assistidos alcan\u00e7ados",
+        value: toLocaleNumber(globalPatients.size),
       },
     ],
     chips: [
@@ -1021,9 +1001,9 @@ async function buildConsultationAnalyticsViewModel(req) {
         value: toLocaleNumber(finalCurrentCounter.relatorios),
       },
       {
-        label: selectedProfessionalObjectId ? "Fam\u00edlias" : "Profissionais ativos",
+        label: selectedProfessionalObjectId ? "Assistidos" : "Profissionais ativos",
         value: selectedProfessionalObjectId
-          ? toLocaleNumber(globalFamilies.size)
+          ? toLocaleNumber(globalPatients.size)
           : toLocaleNumber(
               new Set(currentEvents.map((evento) => toIdString(evento.responsavelId)).filter(Boolean)).size
             ),

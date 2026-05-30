@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const Usuario = require("../../schemas/core/Usuario");
-const { Paciente } = require("../../schemas/social/Paciente");
-const Familia = require("../../schemas/social/Familia");
+const { Assistido } = require("../../schemas/social/Assistido");
 const { PERMISSIONS } = require("../../config/permissions");
 const { hasAnyPermission } = require("../shared/accessControlService");
 
@@ -286,7 +285,7 @@ async function buildConsultationWeekdayDetailViewModel(req) {
         ...(professionalObjectId ? { responsavelId: professionalObjectId } : {}),
         inicio: { $gte: monthModel.start, $lte: monthModel.end },
       },
-      "_id titulo inicio local tipoAtendimento statusAgendamento statusPresenca familiaId pacienteId responsavelId"
+      "_id titulo inicio local tipoAtendimento statusAgendamento statusPresenca assistidoId responsavelId"
     )
       .sort({ inicio: 1 })
       .lean(),
@@ -298,25 +297,19 @@ async function buildConsultationWeekdayDetailViewModel(req) {
           : {}),
         dataHora: { $gte: monthModel.start, $lte: monthModel.end },
       },
-      "_id dataHora familiaId pacienteId profissionalId criadoPor"
+      "_id dataHora assistidoId profissionalId criadoPor"
     ).lean(),
   ]);
 
-  const patientIds = new Set(events.map((item) => toIdString(item.pacienteId)).filter(Boolean));
-  const familyIds = new Set(events.map((item) => toIdString(item.familiaId)).filter(Boolean));
+  const patientIds = new Set(events.map((item) => toIdString(item.assistidoId)).filter(Boolean));
   reports.forEach((item) => {
-    const patientId = toIdString(item.pacienteId);
-    const familyId = toIdString(item.familiaId);
+    const patientId = toIdString(item.assistidoId);
     if (patientId) patientIds.add(patientId);
-    if (familyId) familyIds.add(familyId);
   });
 
-  const [patients, families, professionals] = await Promise.all([
+  const [patients, professionals] = await Promise.all([
     patientIds.size
-      ? Paciente.find({ _id: { $in: Array.from(patientIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome matricula familiaId").lean()
-      : Promise.resolve([]),
-    familyIds.size
-      ? Familia.find({ _id: { $in: Array.from(familyIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id responsavel").lean()
+      ? Assistido.find({ _id: { $in: Array.from(patientIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome").lean()
       : Promise.resolve([]),
     events.length
       ? Usuario.find({ _id: { $in: Array.from(new Set(events.map((item) => toIdString(item.responsavelId)).filter(Boolean))).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome").lean()
@@ -326,12 +319,10 @@ async function buildConsultationWeekdayDetailViewModel(req) {
   const patientMap = new Map(
     patients.map((item) => [
       toIdString(item._id),
-      { _id: toIdString(item._id), nome: String(item.nome || "Assistido").trim(), matricula: String(item.matricula || "").trim(), familiaId: toIdString(item.familiaId) },
+      { _id: toIdString(item._id), nome: String(item.nome || "Assistido").trim(), matricula: "", familiaId: "" },
     ])
   );
-  const familyMap = new Map(
-    families.map((item) => [toIdString(item._id), { _id: toIdString(item._id), nome: String(item?.responsavel?.nome || "Família").trim() }])
-  );
+  const familyMap = new Map();
   const professionalMap = new Map(
     professionals.map((item) => [toIdString(item._id), { _id: toIdString(item._id), nome: String(item.nome || "Profissional").trim() }])
   );
@@ -339,15 +330,15 @@ async function buildConsultationWeekdayDetailViewModel(req) {
   const reportKeys = new Set(
     reports.map((item) => [
       toIdString(item.profissionalId || item.criadoPor),
-      toIdString(item.pacienteId),
-      toIdString(item.familiaId),
+      toIdString(item.assistidoId),
+      "",
       new Date(item.dataHora).toDateString(),
     ].join("|"))
   );
 
   const enrichedEvents = events.map((evento) => {
-    const patientId = toIdString(evento.pacienteId);
-    const familyId = toIdString(evento.familiaId);
+    const patientId = toIdString(evento.assistidoId);
+    const familyId = "";
     const patient = patientMap.get(patientId);
     const family = familyMap.get(familyId || patient?.familiaId);
     const professional = professionalMap.get(toIdString(evento.responsavelId));
@@ -393,7 +384,7 @@ async function buildConsultationWeekdayDetailViewModel(req) {
               : classification === "canceladas"
                 ? "Cancelada"
                 : "Pendente",
-      familyHref: family?._id ? `/familias/${family._id}` : "/agenda",
+      familyHref: patient?._id ? `/assistidos/${patient._id}` : "/agenda",
     };
   });
 

@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const Usuario = require("../../schemas/core/Usuario");
-const { Paciente } = require("../../schemas/social/Paciente");
-const Familia = require("../../schemas/social/Familia");
+const { Assistido } = require("../../schemas/social/Assistido");
 const { PERMISSIONS } = require("../../config/permissions");
 const { hasAnyPermission } = require("../shared/accessControlService");
 
@@ -410,7 +409,7 @@ async function buildProfessionalConsultationDetailViewModel(req) {
         responsavelId: professionalObjectId,
         inicio: { $gte: period.start, $lte: period.end },
       },
-      "_id titulo inicio fim local tipoAtendimento statusAgendamento statusPresenca familiaId pacienteId"
+      "_id titulo inicio fim local tipoAtendimento statusAgendamento statusPresenca assistidoId"
     )
       .sort({ inicio: -1 })
       .lean(),
@@ -420,25 +419,19 @@ async function buildProfessionalConsultationDetailViewModel(req) {
         $or: [{ profissionalId: professionalObjectId }, { criadoPor: professionalObjectId }],
         dataHora: { $gte: period.start, $lte: period.end },
       },
-      "_id dataHora familiaId pacienteId profissionalId criadoPor"
+      "_id dataHora assistidoId profissionalId criadoPor"
     ).lean(),
   ]);
 
-  const patientIds = new Set(events.map((item) => toIdString(item.pacienteId)).filter(Boolean));
-  const familyIds = new Set(events.map((item) => toIdString(item.familiaId)).filter(Boolean));
+  const patientIds = new Set(events.map((item) => toIdString(item.assistidoId)).filter(Boolean));
   reports.forEach((item) => {
-    const patientId = toIdString(item.pacienteId);
-    const familyId = toIdString(item.familiaId);
+    const patientId = toIdString(item.assistidoId);
     if (patientId) patientIds.add(patientId);
-    if (familyId) familyIds.add(familyId);
   });
 
-  const [patients, families] = await Promise.all([
+  const [patients] = await Promise.all([
     patientIds.size
-      ? Paciente.find({ _id: { $in: Array.from(patientIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome matricula familiaId").lean()
-      : Promise.resolve([]),
-    familyIds.size
-      ? Familia.find({ _id: { $in: Array.from(familyIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id responsavel").lean()
+      ? Assistido.find({ _id: { $in: Array.from(patientIds).map((id) => new mongoose.Types.ObjectId(id)) } }, "_id nome").lean()
       : Promise.resolve([]),
   ]);
 
@@ -448,26 +441,18 @@ async function buildProfessionalConsultationDetailViewModel(req) {
       {
         _id: toIdString(item._id),
         nome: String(item.nome || "Assistido").trim() || "Assistido",
-        matricula: String(item.matricula || "").trim(),
-        familiaId: toIdString(item.familiaId),
+        matricula: "",
+        familiaId: "",
       },
     ])
   );
 
-  const familyMap = new Map(
-    families.map((item) => [
-      toIdString(item._id),
-      {
-        _id: toIdString(item._id),
-        nome: String(item?.responsavel?.nome || "Família").trim() || "Família",
-      },
-    ])
-  );
+  const familyMap = new Map();
 
   const reportMap = new Map();
   reports.forEach((item) => {
-    const patientId = toIdString(item.pacienteId);
-    const familyId = toIdString(item.familiaId);
+    const patientId = toIdString(item.assistidoId);
+    const familyId = "";
     const key = buildReportKey({
       professionalId,
       patientId,
@@ -489,8 +474,8 @@ async function buildProfessionalConsultationDetailViewModel(req) {
   };
 
   const enrichedEvents = events.map((evento) => {
-    const patientId = toIdString(evento.pacienteId);
-    const familyId = toIdString(evento.familiaId);
+    const patientId = toIdString(evento.assistidoId);
+    const familyId = "";
     const patient = patientMap.get(patientId);
     const family = familyMap.get(familyId || patient?.familiaId);
     const classification = classifyEvent(evento);
@@ -548,7 +533,7 @@ async function buildProfessionalConsultationDetailViewModel(req) {
       hasReport,
       reportLabel: hasReport ? "Com relatório" : "Sem relatório",
       reportTone: hasReport ? "active" : "pending",
-      familyHref: family?._id ? `/familias/${family._id}` : `/agenda?responsavelId=${encodeURIComponent(professionalId)}`,
+      familyHref: patient?._id ? `/assistidos/${patient._id}` : `/agenda?responsavelId=${encodeURIComponent(professionalId)}`,
       agendaHref: `/agenda?responsavelId=${encodeURIComponent(professionalId)}`,
       familyId: family?._id || familyId || "",
       patientId,

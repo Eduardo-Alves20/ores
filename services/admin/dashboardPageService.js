@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
-const Familia = require("../../schemas/social/Familia");
-const { Paciente } = require("../../schemas/social/Paciente");
+const { Assistido } = require("../../schemas/social/Assistido");
 const { Atendimento } = require("../../schemas/social/Atendimento");
 const { AgendaEvento } = require("../../schemas/social/AgendaEvento");
 const Usuario = require("../../schemas/core/Usuario");
@@ -9,7 +8,7 @@ const AuditTrail = require("../../schemas/core/AuditTrail");
 const { PERFIS } = require("../../config/roles");
 const { PERMISSIONS } = require("../../config/permissions");
 const { hasAnyPermission } = require("../shared/accessControlService");
-const { asObjectId, resolveScopedFamilyIds } = require("../shared/volunteerScopeService");
+const { asObjectId, resolveScopedAssistidoIds } = require("../shared/volunteerScopeService");
 const {
   buildBirthdayWindowLabel,
   getBirthdayCampaignForDashboard,
@@ -328,27 +327,24 @@ function buildDonutModel(statusRows = []) {
   };
 }
 
-function buildScopeFilters(scopedFamilyObjectIds) {
-  if (scopedFamilyObjectIds === null) {
+function buildScopeFilters(scopedAssistidoObjectIds) {
+  if (scopedAssistidoObjectIds === null) {
     return {
-      families: {},
-      patients: {},
+      assistidos: {},
       atendimentos: {},
     };
   }
 
-  if (!scopedFamilyObjectIds.length) {
+  if (!scopedAssistidoObjectIds.length) {
     return {
-      families: { _id: { $in: [] } },
-      patients: { familiaId: { $in: [] } },
-      atendimentos: { familiaId: { $in: [] } },
+      assistidos: { _id: { $in: [] } },
+      atendimentos: { assistidoId: { $in: [] } },
     };
   }
 
   return {
-    families: { _id: { $in: scopedFamilyObjectIds } },
-    patients: { familiaId: { $in: scopedFamilyObjectIds } },
-    atendimentos: { familiaId: { $in: scopedFamilyObjectIds } },
+    assistidos: { _id: { $in: scopedAssistidoObjectIds } },
+    atendimentos: { assistidoId: { $in: scopedAssistidoObjectIds } },
   };
 }
 
@@ -583,8 +579,8 @@ async function buildDashboardViewModel(req) {
   const actorId = asObjectId(user?.id);
   const normalizedProfile = String(user?.perfil || "").trim().toLowerCase();
 
-  const canViewFamilies = hasAnyPermission(permissionList, [PERMISSIONS.FAMILIAS_VIEW]);
-  const canCreateFamilies = hasAnyPermission(permissionList, [PERMISSIONS.FAMILIAS_CREATE]);
+  const canViewFamilies = hasAnyPermission(permissionList, [PERMISSIONS.ASSISTIDOS_VIEW]);
+  const canCreateFamilies = hasAnyPermission(permissionList, [PERMISSIONS.ASSISTIDOS_CREATE]);
   const canViewAgenda = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_VIEW]);
   const canViewAllAgenda = hasAnyPermission(permissionList, [PERMISSIONS.AGENDA_VIEW_ALL]);
   const canApproveAccess =
@@ -595,13 +591,13 @@ async function buildDashboardViewModel(req) {
   const canManageAdministration =
     normalizedProfile === PERFIS.ADMIN || normalizedProfile === PERFIS.SUPERADMIN;
 
-  const scopedFamilyIds = await resolveScopedFamilyIds(user);
-  const scopedFamilyObjectIds =
-    scopedFamilyIds === null
+  const scopedAssistidoIds = await resolveScopedAssistidoIds(user);
+  const scopedAssistidoObjectIds =
+    scopedAssistidoIds === null
       ? null
-      : scopedFamilyIds.map((id) => asObjectId(id)).filter(Boolean);
+      : scopedAssistidoIds.map((id) => asObjectId(id)).filter(Boolean);
 
-  const scopedFilters = buildScopeFilters(scopedFamilyObjectIds);
+  const scopedFilters = buildScopeFilters(scopedAssistidoObjectIds);
   const agendaScopeFilter = buildAgendaScopeFilter(canViewAgenda, canViewAllAgenda, actorId);
 
   const monthCurrentComparable = toComparableMonthRange(now, 0);
@@ -647,8 +643,8 @@ async function buildDashboardViewModel(req) {
       }
     : null;
 
-  const historicalActivePacienteFilter = {
-    ...scopedFilters.patients,
+  const historicalActiveAssistidoFilter = {
+    ...scopedFilters.assistidos,
     createdAt: { $lt: monthCurrentComparable.start },
     $or: [{ inativadoEm: null }, { inativadoEm: { $gte: monthCurrentComparable.start } }],
   };
@@ -678,15 +674,15 @@ async function buildDashboardViewModel(req) {
     teamLoad,
     familiasRecentes,
   ] = await Promise.all([
-    Paciente.countDocuments({ ...scopedFilters.patients, ativo: true }),
-    Paciente.countDocuments(historicalActivePacienteFilter),
-    Familia.countDocuments({ ...scopedFilters.families, ativo: true }),
-    Familia.countDocuments({
-      ...scopedFilters.families,
+    Assistido.countDocuments({ ...scopedFilters.assistidos, ativo: true }),
+    Assistido.countDocuments(historicalActiveAssistidoFilter),
+    Assistido.countDocuments({ ...scopedFilters.assistidos, ativo: true }),
+    Assistido.countDocuments({
+      ...scopedFilters.assistidos,
       createdAt: { $gte: monthCurrentComparable.start, $lte: monthCurrentComparable.end },
     }),
-    Familia.countDocuments({
-      ...scopedFilters.families,
+    Assistido.countDocuments({
+      ...scopedFilters.assistidos,
       createdAt: { $gte: monthPreviousComparable.start, $lte: monthPreviousComparable.end },
     }),
     Atendimento.countDocuments({
@@ -759,7 +755,7 @@ async function buildDashboardViewModel(req) {
     attendanceRatePreviousMatch
       ? AgendaEvento.find(attendanceRatePreviousMatch).select("statusPresenca").lean()
       : Promise.resolve([]),
-    aggregateMonthlyCounts(Familia, "createdAt", timelineBuckets, scopedFilters.families),
+    aggregateMonthlyCounts(Assistido, "createdAt", timelineBuckets, scopedFilters.assistidos),
     aggregateMonthlyCounts(Atendimento, "dataHora", timelineBuckets, {
       ...scopedFilters.atendimentos,
       ativo: true,
@@ -783,10 +779,10 @@ async function buildDashboardViewModel(req) {
         )
       : Promise.resolve([]),
     canViewFamilies
-      ? Familia.find(scopedFilters.families)
+      ? Assistido.find(scopedFilters.assistidos)
           .sort({ createdAt: -1 })
           .limit(8)
-          .select("_id responsavel endereco createdAt ativo criadoPor")
+          .select("_id nome responsavel endereco createdAt ativo criadoPor")
           .populate("criadoPor", "nome")
           .lean()
       : Promise.resolve([]),
@@ -810,14 +806,14 @@ async function buildDashboardViewModel(req) {
     buildCard({
       key: "dependentes-ativos",
       icon: "fa-solid fa-people-group",
-      title: "Dependentes ativos",
+      title: "Assistidos ativos",
       value: toLocaleNumber(totalDependentesAtivos),
       periodLabel: "Base atual",
-      caption: `${toLocaleNumber(totalFamiliasAtivas)} família(s) ativas na base`,
+      caption: `${toLocaleNumber(totalFamiliasAtivas)} assistido(s) ativos na base`,
       trend: buildTrend(totalDependentesAtivos, totalDependentesMesAnteriorAtivos, {
         suffix: "desde o início do mês",
       }),
-      href: canViewFamilies ? "/familias" : "",
+      href: canViewFamilies ? "/assistidos" : "",
     }),
     buildCard({
       key: "cadastros-mes",
@@ -825,11 +821,11 @@ async function buildDashboardViewModel(req) {
       title: "Novos cadastros no mês",
       value: toLocaleNumber(cadastrosMesAtual),
       periodLabel: "Mês atual",
-      caption: "Famílias adicionadas no recorte atual",
+      caption: "Assistidos adicionados no recorte atual",
       trend: buildTrend(cadastrosMesAtual, cadastrosMesAnterior, {
         suffix: "vs mês anterior comparável",
       }),
-      href: canViewFamilies ? "/familias" : "",
+      href: canViewFamilies ? "/assistidos" : "",
     }),
     buildCard({
       key: "atendimentos-hoje",
@@ -949,16 +945,16 @@ async function buildDashboardViewModel(req) {
       ? buildQuickAction({
           icon: "fa-solid fa-people-group",
           label: "Assistidos",
-          description: "Abrir base social e localizar famílias rapidamente.",
-          href: "/familias",
+          description: "Abrir base social e localizar assistidos rapidamente.",
+          href: "/assistidos",
         })
       : null,
     canCreateFamilies
       ? buildQuickAction({
           icon: "fa-solid fa-user-plus",
-          label: "Nova família",
-          description: "Cadastrar um novo núcleo assistido.",
-          href: "/familias/nova",
+          label: "Novo assistido",
+          description: "Cadastrar um novo assistido.",
+          href: "/assistidos/novo",
         })
       : null,
     canViewAgenda
@@ -1035,49 +1031,24 @@ async function buildDashboardViewModel(req) {
     atendimentos: Number(atendimentosSeries[index]?.value || 0),
   }));
 
-  const recentFamilyIds = familiasRecentes.map((item) => item?._id).filter(Boolean);
-  const patientCountRows = recentFamilyIds.length
-    ? await Paciente.aggregate([
-        {
-          $match: {
-            familiaId: { $in: recentFamilyIds },
-          },
-        },
-        {
-          $group: {
-            _id: "$familiaId",
-            total: { $sum: 1 },
-            ativos: {
-              $sum: {
-                $cond: [{ $eq: ["$ativo", true] }, 1, 0],
-              },
-            },
-          },
-        },
-      ])
-    : [];
-
-  const patientCountMap = new Map(patientCountRows.map((item) => [String(item?._id || ""), item]));
-
   const recentRows = familiasRecentes.map((item) => {
-    const patientStats = patientCountMap.get(String(item?._id || "")) || { total: 0, ativos: 0 };
     const responsavelCadastro = item?.criadoPor?.nome || "Equipe";
-    const familyName = String(item?.responsavel?.nome || "Sem nome");
+    const assistidoName = String(item?.nome || "Sem nome");
 
     return {
       id: String(item?._id || ""),
-      nome: familyName,
-      initials: toInitials(familyName, "FA"),
+      nome: assistidoName,
+      initials: toInitials(assistidoName, "AS"),
       status: item?.ativo ? "Ativo" : "Inativo",
       statusTone: item?.ativo ? "active" : "inactive",
       cidade: item?.endereco?.cidade || "Cidade não informada",
-      telefone: item?.responsavel?.telefone || "-",
+      telefone: item?.telefonePrincipal || item?.responsavel?.telefone || "-",
       data: toShortDateLabel(item?.createdAt),
-      dependentes: Number(patientStats.total || 0),
-      dependentesAtivos: Number(patientStats.ativos || 0),
+      dependentes: 0,
+      dependentesAtivos: 0,
       responsavelCadastro,
       responsavelCadastroInitials: toInitials(responsavelCadastro, "EQ"),
-      href: `/familias/${String(item?._id || "")}`,
+      href: `/assistidos/${String(item?._id || "")}`,
     };
   });
 
@@ -1140,8 +1111,8 @@ async function buildDashboardViewModel(req) {
       stats: heroStats,
       search: {
         enabled: canViewFamilies,
-        action: "/familias",
-        placeholder: "Buscar responsável, assistido ou telefone...",
+        action: "/assistidos",
+        placeholder: "Buscar assistido, responsável ou telefone...",
         canUseSuggestions: canViewFamilies && canUseGlobalSearch,
       },
       quickActions,

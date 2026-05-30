@@ -69,9 +69,51 @@ async function canAccessFamily(user, familiaId) {
   return scopedIds.includes(String(familiaId || "").trim());
 }
 
+async function resolveScopedAssistidoIds(user) {
+  if (!hasOwnAssistidosScope(user)) {
+    return null;
+  }
+
+  const actorId = asObjectId(user?.id);
+  if (!actorId) {
+    return [];
+  }
+
+  const [agendaIds, atendimentoIds] = await Promise.all([
+    AgendaEvento.distinct("assistidoId", {
+      responsavelId: actorId,
+      assistidoId: { $ne: null },
+      ativo: true,
+    }),
+    Atendimento.distinct("assistidoId", {
+      profissionalId: actorId,
+      assistidoId: { $ne: null },
+      ativo: true,
+    }),
+  ]);
+
+  return Array.from(
+    new Set(
+      []
+        .concat(Array.isArray(agendaIds) ? agendaIds : [])
+        .concat(Array.isArray(atendimentoIds) ? atendimentoIds : [])
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+    )
+  );
+}
+
+async function canAccessAssistido(user, assistidoId) {
+  const scopedIds = await resolveScopedAssistidoIds(user);
+  if (scopedIds === null) return true;
+  return scopedIds.includes(String(assistidoId || "").trim());
+}
+
 module.exports = {
   asObjectId,
   hasOwnAssistidosScope,
   resolveScopedFamilyIds,
   canAccessFamily,
+  resolveScopedAssistidoIds,
+  canAccessAssistido,
 };
