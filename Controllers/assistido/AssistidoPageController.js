@@ -8,6 +8,10 @@ function buildViewFlags(req) {
     canCreate: hasAnyPermission(permissionList, [PERMISSIONS.ASSISTIDOS_CREATE]),
     canUpdate: hasAnyPermission(permissionList, [PERMISSIONS.ASSISTIDOS_UPDATE]),
     canStatus: hasAnyPermission(permissionList, [PERMISSIONS.ASSISTIDOS_STATUS]),
+    canAtendView: hasAnyPermission(permissionList, [PERMISSIONS.ATENDIMENTOS_VIEW]),
+    canAtendCreate: hasAnyPermission(permissionList, [PERMISSIONS.ATENDIMENTOS_CREATE]),
+    canAtendUpdate: hasAnyPermission(permissionList, [PERMISSIONS.ATENDIMENTOS_UPDATE]),
+    canAtendStatus: hasAnyPermission(permissionList, [PERMISSIONS.ATENDIMENTOS_STATUS]),
   };
 }
 
@@ -90,6 +94,7 @@ class AssistidoPageController {
 
       return res.status(200).render("pages/assistidos/detalhe", {
         ...buildViewBase(req, "Ficha do Assistido"),
+        extraJs: ["/js/familias-shared.js", "/js/assistidos-detalhe.js"],
         assistido,
       });
     } catch (error) {

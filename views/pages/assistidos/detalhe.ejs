@@ -90,4 +90,69 @@
     </div>
   </div>
 
+  <% if (viewFlags?.canAtendView) { %>
+  <div class="card-elevated" style="padding:24px;margin-top:24px" data-atendimentos-section>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+      <h2 class="section-title" style="margin:0">Histórico de atendimentos</h2>
+      <% if (viewFlags?.canAtendCreate) { %>
+        <button type="button" class="btn btn-primary" id="atendimento-novo-btn">Registrar atendimento</button>
+      <% } %>
+    </div>
+
+    <% if (viewFlags?.canAtendCreate) { %>
+    <form id="atendimento-form" class="card-elevated" style="padding:18px;margin-bottom:18px;display:none">
+      <input type="hidden" name="atendimentoId" value="" />
+      <div class="form-grid">
+        <label class="field-wrap span-2">
+          <span class="input-label">Tipo</span>
+          <select class="input-control" name="tipo">
+            <option value="presencial">Presencial</option>
+            <option value="ligacao">Ligação</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="mensagem">Mensagem</option>
+            <option value="videochamada">Videochamada</option>
+            <option value="outro">Outro</option>
+          </select>
+        </label>
+        <label class="field-wrap span-2">
+          <span class="input-label">Data e hora</span>
+          <input class="input-control" type="datetime-local" name="dataHora" />
+        </label>
+        <label class="field-wrap span-4">
+          <span class="input-label">Resumo *</span>
+          <textarea class="input-control" name="resumo" rows="3" placeholder="O que foi tratado neste atendimento"></textarea>
+        </label>
+        <label class="field-wrap span-4">
+          <span class="input-label">Próximos passos</span>
+          <textarea class="input-control" name="proximosPassos" rows="2"></textarea>
+        </label>
+        <label class="field-wrap span-2">
+          <span class="input-label">Visibilidade</span>
+          <select class="input-control" name="visibilityScope">
+            <option value="care_team">Equipe de cuidado</option>
+            <option value="owner_only">Somente eu</option>
+          </select>
+        </label>
+        <label class="field-wrap span-2">
+          <span class="input-label">Notas privadas (só você vê)</span>
+          <textarea class="input-control" name="notasPrivadas" rows="2"></textarea>
+        </label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+        <button type="button" class="btn btn-muted" id="atendimento-cancelar-btn">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="atendimento-salvar-btn">Salvar atendimento</button>
+      </div>
+    </form>
+    <% } %>
+
+    <div id="atendimentos-lista"><p style="color:var(--text-soft)">Carregando atendimentos…</p></div>
+  </div>
+  <% } %>
+
+  <script
+    <%- typeof renderCspNonceAttr === "function" ? renderCspNonceAttr() : "" %>
+    id="assistido-detalhe-flags"
+    type="application/json"
+  ><%- serializeForInlineScript(viewFlags || {}) %></script>
+
 </section>
