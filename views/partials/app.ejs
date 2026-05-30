@@ -156,8 +156,8 @@
               <span>Tela de Início</span>
             </a>
           <% } %>
-          <% if (hasPerm("familias.view")) { %>
-            <a href="/familias" class="sidebar-link <%= navKey === 'assistidos' ? 'is-active' : '' %>">
+          <% if (hasPerm("assistidos.view")) { %>
+            <a href="/assistidos" class="sidebar-link <%= navKey === 'assistidos' ? 'is-active' : '' %>">
               <span class="sidebar-link-icon" aria-hidden="true"><i class="fa-solid fa-people-group"></i></span>
               <span>Assistidos</span>
             </a>

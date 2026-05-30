@@ -29,8 +29,10 @@ function buildViewBase(req, title) {
 
 class AssistidoPageController {
   static async listar(req, res) {
+    const base = buildViewBase(req, "Assistidos");
     return res.status(200).render("pages/assistidos/lista", {
-      ...buildViewBase(req, "Assistidos"),
+      ...base,
+      extraJs: ["/js/familias-shared.js", "/js/assistidos-lista.js"],
       filtros: {
         busca: String(req.query.busca || ""),
         status: String(req.query.status || ""),
