@@ -896,7 +896,7 @@
     async function loadAssistidos(busca) {
       const query = String(busca || "").trim();
       const params = new URLSearchParams();
-      params.set("limit", "20");
+      params.set("limit", "500");
       params.set("page", "1");
       params.set("ativo", "true");
       if (query) params.set("busca", query);
