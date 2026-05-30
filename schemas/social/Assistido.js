@@ -8,6 +8,8 @@ const COR_RACA = Object.freeze(["branco", "preto", "pardo", "amarelo", "indigena
 const PARENTESCO = Object.freeze(["mae", "pai", "avo", "tio", "conjuge", "irmao", "cuidador", "outro"]);
 const TIPO_MORADIA = Object.freeze(["propria", "alugada", "cedida", "ocupacao", "abrigo", "sem_moradia"]);
 const PERMISSAO_CONTATO = Object.freeze(["qualquer_hora", "somente_manha", "somente_tarde", "nao_ligar"]);
+// Nível de suporte (TEA / acompanhamento terapêutico): 1 = leve, 2 = moderado, 3 = elevado
+const NIVEL_SUPORTE = Object.freeze(["1", "2", "3"]);
 
 const ResponsavelSchema = new mongoose.Schema(
   {
@@ -84,6 +86,7 @@ const AssistidoSchema = new mongoose.Schema(
     faixaEtaria: { type: String, enum: [...FAIXA_ETARIA, null], default: null },
     sexoBiologico: { type: String, enum: [...SEXO_BIOLOGICO, null], default: null },
     corRaca: { type: String, enum: [...COR_RACA, null], default: null },
+    suporte: { type: String, enum: [...NIVEL_SUPORTE, null], default: null },
     naturalidade: { type: String, trim: true },
     nacionalidade: { type: String, trim: true, default: "Brasileira" },
 
@@ -150,4 +153,5 @@ module.exports = {
   PARENTESCO,
   TIPO_MORADIA,
   PERMISSAO_CONTATO,
+  NIVEL_SUPORTE,
 };

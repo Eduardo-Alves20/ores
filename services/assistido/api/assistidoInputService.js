@@ -5,6 +5,7 @@ const {
   SEXO_BIOLOGICO,
   COR_RACA,
   PERMISSAO_CONTATO,
+  NIVEL_SUPORTE,
 } = require("../../../schemas/social/Assistido");
 
 // ── Validadores primitivos ──────────────────────────────────────────────────
@@ -80,6 +81,11 @@ function normalizeDadosPessoais(body = {}) {
     throw createAssistidoError("Cor/raça inválida.", 400);
   }
 
+  const suporte = body.suporte ? String(body.suporte).trim() : null;
+  if (suporte && !NIVEL_SUPORTE.includes(suporte)) {
+    throw createAssistidoError("Nível de suporte inválido (use 1, 2 ou 3).", 400);
+  }
+
   const permissaoContato = body.permissaoContato || null;
   if (permissaoContato && !PERMISSAO_CONTATO.includes(permissaoContato)) {
     throw createAssistidoError("Permissão de contato inválida.", 400);
@@ -102,6 +108,7 @@ function normalizeDadosPessoais(body = {}) {
     faixaEtaria: calcularFaixaEtaria(dataNascimento),
     sexoBiologico,
     corRaca,
+    suporte,
     naturalidade: String(body.naturalidade || "").trim() || null,
     nacionalidade: String(body.nacionalidade || "Brasileira").trim(),
     telefonePrincipal: telefonePrincipal || null,

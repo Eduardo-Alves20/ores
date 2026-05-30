@@ -164,6 +164,16 @@
             </select>
           </label>
           <label class="field-wrap">
+            <span class="input-label">Nível de suporte</span>
+            <select class="input-control" name="suporte" data-custom-field-key="suporte" data-custom-field-type="select">
+              <% const suporteAtual = assistido?.suporte || ''; %>
+              <option value="">Selecionar...</option>
+              <option value="1" <%= suporteAtual==='1'?'selected':'' %>>Nível 1 — leve</option>
+              <option value="2" <%= suporteAtual==='2'?'selected':'' %>>Nível 2 — moderado</option>
+              <option value="3" <%= suporteAtual==='3'?'selected':'' %>>Nível 3 — elevado</option>
+            </select>
+          </label>
+          <label class="field-wrap">
             <span class="input-label">Naturalidade</span>
             <input class="input-control" type="text" name="campoExtra_naturalidade" value="<%= assistido?.naturalidade || '' %>" placeholder="Cidade / UF de nascimento" data-custom-field-key="naturalidade" data-custom-field-type="texto" />
           </label>
