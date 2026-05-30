@@ -25,6 +25,12 @@ const {
   buscarEntrevistaAtual,
   buscarEntrevista,
 } = require("../../services/assistido/assistidoApiService");
+const {
+  createAttendanceForAssistido,
+  listAttendancesByAssistido,
+  updateAttendance,
+  changeAttendanceStatus,
+} = require("../../services/assistido/api/atendimentoAssistidoService");
 
 function respondError(res, logMsg, fallback, error) {
   console.error(logMsg, error);
@@ -265,6 +271,66 @@ class AssistidoController {
       createReadStream(fullPath).pipe(res);
     } catch (error) {
       return respondError(res, "Erro ao visualizar anexo:", "Erro interno ao abrir anexo.", error);
+    }
+  }
+
+  // ── Atendimentos ───────────────────────────────────────────────────────
+
+  static async listarAtendimentos(req, res) {
+    try {
+      return res.status(200).json(
+        await listAttendancesByAssistido({
+          user: getSessionUser(req),
+          assistidoId: req.params?.id,
+          query: req.query || {},
+        })
+      );
+    } catch (error) {
+      return respondError(res, "Erro ao listar atendimentos:", "Erro interno ao listar atendimentos.", error);
+    }
+  }
+
+  static async criarAtendimento(req, res) {
+    try {
+      const result = await createAttendanceForAssistido({
+        user: getSessionUser(req),
+        actorId: getActorId(req),
+        assistidoId: req.params?.id,
+        body: req.body || {},
+      });
+      return respondWithAudit(req, res, 201, result, "atendimento");
+    } catch (error) {
+      return respondError(res, "Erro ao registrar atendimento:", "Erro interno ao registrar atendimento.", error);
+    }
+  }
+
+  static async atualizarAtendimento(req, res) {
+    try {
+      const result = await updateAttendance({
+        user: getSessionUser(req),
+        actorId: getActorId(req),
+        id: req.params?.atendimentoId,
+        body: req.body || {},
+      });
+      if (!result) return res.status(404).json({ erro: "Atendimento nao encontrado." });
+      return respondWithAudit(req, res, 200, result, "atendimento");
+    } catch (error) {
+      return respondError(res, "Erro ao atualizar atendimento:", "Erro interno ao atualizar atendimento.", error);
+    }
+  }
+
+  static async alterarStatusAtendimento(req, res) {
+    try {
+      const result = await changeAttendanceStatus({
+        user: getSessionUser(req),
+        actorId: getActorId(req),
+        id: req.params?.atendimentoId,
+        ativoInput: req.body?.ativo,
+      });
+      if (!result) return res.status(404).json({ erro: "Atendimento nao encontrado." });
+      return respondWithAudit(req, res, 200, result, "atendimento");
+    } catch (error) {
+      return respondError(res, "Erro ao alterar status do atendimento:", "Erro interno.", error);
     }
   }
 }

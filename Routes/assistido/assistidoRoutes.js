@@ -123,6 +123,28 @@ router.post(
   AssistidoController.criarEntrevista
 );
 
+// ── Atendimentos ───────────────────────────────────────────────────────────
+router.get(
+  "/:id/atendimentos",
+  requirePermission(PERMISSIONS.ATENDIMENTOS_VIEW),
+  AssistidoController.listarAtendimentos
+);
+router.post(
+  "/:id/atendimentos",
+  requirePermission(PERMISSIONS.ATENDIMENTOS_CREATE),
+  AssistidoController.criarAtendimento
+);
+router.put(
+  "/:id/atendimentos/:atendimentoId",
+  requirePermission(PERMISSIONS.ATENDIMENTOS_UPDATE),
+  AssistidoController.atualizarAtendimento
+);
+router.patch(
+  "/:id/atendimentos/:atendimentoId/status",
+  requirePermission(PERMISSIONS.ATENDIMENTOS_STATUS),
+  AssistidoController.alterarStatusAtendimento
+);
+
 // ── Anexos (etapa 5) ───────────────────────────────────────────────────────
 router.post(
   "/:id/anexos",
