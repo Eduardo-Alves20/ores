@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l \"detalhe\\\\|detail\\\\|ficha\")",
+      "Bash(xargs grep -l \"loadApprovalDetailPayload\\\\|acessoPage\")",
+      "Bash(xargs grep -l \"Usuario\")",
+      "Bash(node --check services/admin/access/accessActionService.js)",
+      "Bash(node --check Controllers/admin/AcessoPageController.js)",
+      "Bash(node --check public/js/usuario-detalhe.js)",
+      "Bash(node --check Routes/admin/acessoPageRoutes.js)",
+      "Bash(git pull *)",
+      "Bash(git stash *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}
