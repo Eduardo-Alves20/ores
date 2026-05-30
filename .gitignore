@@ -41,3 +41,9 @@ Desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Local tooling / temp / secrets
+.claude/
+cookies.txt
+tmp-design-handoff.tar.gz
+tmp-design-headers.txt
