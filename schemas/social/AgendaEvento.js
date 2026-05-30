@@ -105,6 +105,12 @@ const AgendaEventoSchema = new mongoose.Schema(
       ref: "Usuario",
       default: null,
     },
+    assistidoId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Assistido",
+      default: null,
+      index: true,
+    },
     familiaId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Familia",

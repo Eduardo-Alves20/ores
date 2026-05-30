@@ -24,11 +24,19 @@ const VISIBILITY_SCOPES = ["owner_only", "care_team", "care_team_plus_admin"];
 
 const AtendimentoSchema = new mongoose.Schema(
   {
+    assistidoId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Assistido",
+      required: false,
+      index: true,
+      default: null,
+    },
     familiaId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Familia",
-      required: true,
+      required: false,
       index: true,
+      default: null,
     },
     pacienteId: {
       type: mongoose.Schema.Types.ObjectId,
