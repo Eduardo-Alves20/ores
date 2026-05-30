@@ -110,6 +110,8 @@ const AssistidoSchema = new mongoose.Schema(
     diagnosticoResumo: { type: String, trim: true, maxlength: 2000 },
     observacoes: { type: String, trim: true, maxlength: 3000 },
 
+    camposExtras: { type: Map, of: mongoose.Schema.Types.Mixed, default: {} },
+
     // Controle do fluxo de cadastro em etapas
     status: {
       type: String,
