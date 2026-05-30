@@ -329,7 +329,7 @@ function buildPresenceDetailView(sectionKey, context, req) {
       },
       {
         label: "Ocorrencia mais recente",
-        value: rows[0]?.pacienteNome || "Sem dados",
+        value: rows[0]?.assistidoNome || "Sem dados",
         meta: rows[0] ? `${rows[0].statusPresencaLabel} em ${rows[0].dataHoraLabel}` : "Nenhuma ocorrencia recente.",
         tone: "info",
       },

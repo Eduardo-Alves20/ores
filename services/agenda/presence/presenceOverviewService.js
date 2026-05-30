@@ -45,16 +45,18 @@ function buildAssistidoRanking(events) {
   const map = new Map();
 
   (Array.isArray(events) ? events : []).forEach((evento) => {
+    const assistidoId = String(evento?.assistidoId?._id || "");
     const pacienteId = String(evento?.pacienteId?._id || "");
     const familiaId = String(evento?.familiaId?._id || "");
-    const key = pacienteId || familiaId || "sem-vinculo";
-    const nome = evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
+    const key = assistidoId || pacienteId || familiaId || "sem-vinculo";
+    const nome = evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
 
     if (!map.has(key)) {
       map.set(key, {
         key,
         nome,
-        familiaNome: evento?.familiaId?.responsavel?.nome || "-",
+        assistidoId,
+        assistidoNome: nome,
         total: 0,
         faltas: 0,
         justificadas: 0,
@@ -129,8 +131,7 @@ function buildUltimasOcorrencias(events) {
     .map((evento) => ({
       id: String(evento?._id || ""),
       dataHoraLabel: toDateTimeLabel(evento?.inicio),
-      pacienteNome: evento?.pacienteId?.nome || "-",
-      familiaNome: evento?.familiaId?.responsavel?.nome || "-",
+      assistidoNome: evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "-",
       profissionalNome: evento?.responsavelId?.nome || "-",
       statusPresencaLabel: PRESENCA_LABELS[evento?.statusPresenca || "pendente"] || "Pendente",
       observacao: evento?.presencaObservacao || evento?.observacoes || "-",
@@ -226,8 +227,7 @@ function mapDayEvents(events) {
       titulo: evento?.titulo || "Agendamento",
       horaLabel: toTimeLabel(evento?.inicio),
       dataHoraLabel: toDateTimeLabel(evento?.inicio),
-      pacienteNome: evento?.pacienteId?.nome || "-",
-      familiaNome: evento?.familiaId?.responsavel?.nome || "-",
+      assistidoNome: evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "-",
       profissionalNome: evento?.responsavelId?.nome || "-",
       salaNome: evento?.salaId?.nome || "-",
       statusPresenca: String(evento?.statusPresenca || "pendente").trim(),

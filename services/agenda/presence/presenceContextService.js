@@ -113,6 +113,7 @@ async function loadPresenceContext(req) {
     loadProfissionaisOptions(canViewAll),
     AgendaEvento.find(query)
       .populate("responsavelId", "_id nome")
+      .populate("assistidoId", "_id nome")
       .populate("familiaId", "_id responsavel")
       .populate("pacienteId", "_id nome")
       .populate("salaId", "_id nome")

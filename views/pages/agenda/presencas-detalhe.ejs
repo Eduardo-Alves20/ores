@@ -301,7 +301,6 @@
               <thead>
                 <tr>
                   <th>Assistido</th>
-                  <th>Família</th>
                   <th>Profissional principal</th>
                   <th>Presentes</th>
                   <th>Faltas</th>
@@ -317,13 +316,6 @@
                     <td>
                       <strong><%= item.nome %></strong>
                       <small><%= item.total %> agenda(s) · status atual <%= item.ultimoStatusLabel %></small>
-                    </td>
-                    <td>
-                      <% if (item.familiaId) { %>
-                        <a href="/familias/<%= item.familiaId %>" class="presenca-inline-link"><%= item.familiaNome || '-' %></a>
-                      <% } else { %>
-                        <%= item.familiaNome || '-' %>
-                      <% } %>
                     </td>
                     <td><%= item.profissionalPrincipal %></td>
                     <td><span class="pill is-presente"><%= item.presentes %></span></td>
@@ -415,11 +407,11 @@
                 data-presenca-event-id="<%= ocorrencia.id %>"
                 role="button"
                 tabindex="0"
-                aria-label="Abrir ficha da ocorrência de <%= ocorrencia.pacienteNome %>"
+                aria-label="Abrir ficha da ocorrência de <%= ocorrencia.assistidoNome %>"
               >
                 <div class="presenca-occurrence-top">
                   <div>
-                    <strong><%= ocorrencia.pacienteNome %></strong>
+                    <strong><%= ocorrencia.assistidoNome %></strong>
                     <span><%= ocorrencia.titulo %></span>
                   </div>
                   <span class="pill <%= ocorrencia.statusPresenca === 'falta_justificada' ? 'is-justificada' : ocorrencia.statusPresenca === 'cancelado_antecipadamente' ? 'is-muted' : 'is-falta' %>">
@@ -430,7 +422,6 @@
                 <div class="presenca-occurrence-meta">
                   <span><i class="fa-regular fa-clock"></i> <%= ocorrencia.dataHoraLabel %></span>
                   <span><i class="fa-regular fa-user"></i> <%= ocorrencia.profissionalNome %></span>
-                  <span><i class="fa-regular fa-heart"></i> <%= ocorrencia.familiaNome %></span>
                   <% if (ocorrencia.salaNome && ocorrencia.salaNome !== '-') { %>
                     <span><i class="fa-regular fa-building"></i> <%= ocorrencia.salaNome %></span>
                   <% } %>
@@ -439,8 +430,8 @@
                 <p><%= ocorrencia.observacao || 'Sem observação registrada para esta ocorrência.' %></p>
 
                 <div class="presenca-occurrence-actions">
-                  <% if (ocorrencia.familiaId) { %>
-                    <a href="/familias/<%= ocorrencia.familiaId %>" class="btn btn-muted">Ver família</a>
+                  <% if (ocorrencia.assistidoId) { %>
+                    <a href="/assistidos/<%= ocorrencia.assistidoId %>" class="btn btn-muted">Ver assistido</a>
                   <% } %>
                   <span class="presenca-inline-link">Abrir ficha da presença</span>
                 </div>

@@ -65,11 +65,11 @@ function buildAssistidoRows(events) {
   const rows = new Map();
 
   (Array.isArray(events) ? events : []).forEach((evento) => {
+    const assistidoId = String(evento?.assistidoId?._id || "");
     const pacienteId = String(evento?.pacienteId?._id || "");
     const familiaId = String(evento?.familiaId?._id || "");
-    const key = pacienteId || familiaId || `evento:${String(evento?._id || "")}`;
-    const nome = evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
-    const familiaNome = evento?.familiaId?.responsavel?.nome || "-";
+    const key = assistidoId || pacienteId || familiaId || `evento:${String(evento?._id || "")}`;
+    const nome = evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "Sem vinculo";
     const profissionalNome = evento?.responsavelId?.nome || "Sem responsavel";
     const status = String(evento?.statusPresenca || "pendente").trim();
     const timestamp = new Date(evento?.inicio || 0).getTime();
@@ -78,8 +78,8 @@ function buildAssistidoRows(events) {
       rows.set(key, {
         key,
         nome,
-        familiaId,
-        familiaNome,
+        assistidoId,
+        assistidoNome: nome,
         total: 0,
         presentes: 0,
         faltas: 0,
@@ -230,9 +230,8 @@ function buildOccurrenceRows(events) {
         id: String(evento?._id || ""),
         dataHoraLabel: toDateTimeLabel(evento?.inicio),
         dia: toDateInputValue(evento?.inicio),
-        pacienteNome: evento?.pacienteId?.nome || "-",
-        familiaId: String(evento?.familiaId?._id || ""),
-        familiaNome: evento?.familiaId?.responsavel?.nome || "-",
+        assistidoId: String(evento?.assistidoId?._id || ""),
+        assistidoNome: evento?.assistidoId?.nome || evento?.pacienteId?.nome || evento?.familiaId?.responsavel?.nome || "-",
         profissionalNome: evento?.responsavelId?.nome || "-",
         salaNome: evento?.salaId?.nome || "-",
         statusPresenca,
