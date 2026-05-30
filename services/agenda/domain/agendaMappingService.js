@@ -89,6 +89,14 @@ function mapEvento(doc) {
     dia: inicio ? toDayDateString(inicio) : "",
     hora: inicio ? toTimeString(inicio) : "",
     sala: mapSala(evento?.salaId),
+    assistido: evento?.assistidoId
+      ? {
+          _id: evento.assistidoId._id || evento.assistidoId,
+          nome: evento.assistidoId?.nome || "",
+          telefone: evento.assistidoId?.telefonePrincipal || evento.assistidoId?.responsavel?.telefone || "",
+          cidade: evento.assistidoId?.endereco?.cidade || "",
+        }
+      : null,
     familia: evento?.familiaId
       ? {
           _id: evento.familiaId._id || evento.familiaId,

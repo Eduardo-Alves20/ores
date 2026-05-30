@@ -288,10 +288,8 @@
         .map((evento) => {
           const hora = escapeHtml(toTimeRangeLabel(evento.inicio, evento.fim));
           const responsavelNome = evento?.responsavel?.nome || "Sem responsavel";
-          const pacienteNome =
-            evento?.paciente?.nome || "Sem paciente especifico";
-          const familiaNome =
-            evento?.familia?.responsavelNome || "Sem familia vinculada";
+          const assistidoNome =
+            evento?.assistido?.nome || "Sem assistido vinculado";
           const salaNome = evento?.sala?.nome || "";
           const statusLabel = evento.ativo ? "Inativar" : "Reativar";
           const statusAgendamentoClass = sanitizeClassToken(
@@ -332,11 +330,8 @@
               <p class="agenda-event-line"><strong>Responsavel:</strong> ${escapeHtml(
                 responsavelNome,
               )}</p>
-              <p class="agenda-event-line"><strong>Paciente:</strong> ${escapeHtml(
-                pacienteNome,
-              )}</p>
-              <p class="agenda-event-line"><strong>Familia:</strong> ${escapeHtml(
-                familiaNome,
+              <p class="agenda-event-line"><strong>Assistido:</strong> ${escapeHtml(
+                assistidoNome,
               )}</p>
               ${salaNome ? `<p class="agenda-event-line"><strong>Sala:</strong> ${escapeHtml(salaNome)}</p>` : ""}
               ${evento.local ? `<p class="agenda-event-line"><strong>Local:</strong> ${escapeHtml(evento.local)}</p>` : ""}

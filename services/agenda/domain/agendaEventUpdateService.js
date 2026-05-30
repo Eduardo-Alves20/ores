@@ -80,7 +80,10 @@ async function updateAgendaEvent(user, eventId, body = {}) {
     patch.observacoes = String(body?.observacoes || "").trim().slice(0, 3000);
   }
 
-  if (flags.hasFamilia || flags.hasPaciente) {
+  if (flags.hasAssistido || flags.hasFamilia || flags.hasPaciente) {
+    if (flags.hasAssistido && isProvided(body?.assistidoId) && !asObjectId(body?.assistidoId)) {
+      throw createAgendaError(400, "assistidoId invalido.");
+    }
     if (flags.hasFamilia && isProvided(body?.familiaId) && !asObjectId(body?.familiaId)) {
       throw createAgendaError(400, "familiaId invalido.");
     }
@@ -88,14 +91,16 @@ async function updateAgendaEvent(user, eventId, body = {}) {
       throw createAgendaError(400, "pacienteId invalido.");
     }
 
+    const assistidoIdInput = flags.hasAssistido ? body?.assistidoId || null : flags.currentAssistidoId || null;
     const familiaIdInput = flags.hasFamilia ? body?.familiaId || null : flags.currentFamiliaId || null;
     const pacienteIdInput = flags.hasPaciente ? body?.pacienteId || null : flags.currentPacienteId || null;
 
-    const relation = await resolveRelations({ familiaIdInput, pacienteIdInput });
+    const relation = await resolveRelations({ assistidoIdInput, familiaIdInput, pacienteIdInput });
     if (relation.error) {
       throw createAgendaError(relation.status || 400, relation.error);
     }
 
+    patch.assistidoId = relation.assistidoId || null;
     patch.familiaId = relation.familiaId || null;
     patch.pacienteId = relation.pacienteId || null;
   }

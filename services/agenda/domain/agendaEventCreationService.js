@@ -55,6 +55,10 @@ async function createAgendaEvent(user, body = {}) {
     throw createAgendaError(400, "Data de fim deve ser maior que a data de inicio.");
   }
 
+  if (isProvided(body?.assistidoId) && !asObjectId(body?.assistidoId)) {
+    throw createAgendaError(400, "assistidoId invalido.");
+  }
+
   if (isProvided(body?.familiaId) && !asObjectId(body?.familiaId)) {
     throw createAgendaError(400, "familiaId invalido.");
   }
@@ -64,6 +68,7 @@ async function createAgendaEvent(user, body = {}) {
   }
 
   const relation = await resolveRelations({
+    assistidoIdInput: body?.assistidoId || null,
     familiaIdInput: body?.familiaId || null,
     pacienteIdInput: body?.pacienteId || null,
   });
@@ -102,6 +107,7 @@ async function createAgendaEvent(user, body = {}) {
     local,
     observacoes,
     salaId: salaSelection.salaId || null,
+    assistidoId: relation.assistidoId || null,
     familiaId: relation.familiaId || null,
     pacienteId: relation.pacienteId || null,
     responsavelId,
@@ -130,7 +136,7 @@ async function createAgendaEvent(user, body = {}) {
     history: {
       eventoId: evento._id,
       tipo: "agendamento_criado",
-      visibilidade: relation.familiaId ? "todos" : "interna",
+      visibilidade: relation.assistidoId || relation.familiaId ? "todos" : "interna",
       titulo: "Agendamento criado",
       descricao: `O agendamento "${titulo}" foi criado para ${toDateTimeLabel(intervalo.inicio)}.`,
       detalhes: {

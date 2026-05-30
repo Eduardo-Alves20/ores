@@ -69,9 +69,8 @@
         "data",
         "hora",
         "responsavel",
-        "familia_busca",
-        "familia",
-        "paciente",
+        "assistido_busca",
+        "assistido",
         "local",
         "observacoes",
       ],
@@ -80,9 +79,8 @@
         "data",
         "hora",
         "responsavel",
-        "familia_busca",
-        "familia",
-        "paciente",
+        "assistido_busca",
+        "assistido",
         "sala",
         "sala_hint",
         "observacoes",
@@ -92,9 +90,8 @@
         "data",
         "hora",
         "responsavel",
-        "familia_busca",
-        "familia",
-        "paciente",
+        "assistido_busca",
+        "assistido",
         "local",
         "observacoes",
       ],
@@ -117,9 +114,8 @@
       "responsavel",
       "sala",
       "sala_hint",
-      "familia_busca",
-      "familia",
-      "paciente",
+      "assistido_busca",
+      "assistido",
       "local",
       "observacoes",
     ];
@@ -276,19 +272,13 @@
         return;
       }
 
-      if (fieldName === "familia_busca") {
-        if (elements.familiaBusca) elements.familiaBusca.value = "";
+      if (fieldName === "assistido_busca") {
+        if (elements.assistidoBusca) elements.assistidoBusca.value = "";
         return;
       }
 
-      if (fieldName === "familia") {
-        if (elements.familiaSelect) elements.familiaSelect.value = "";
-        fillPatientsOptions([]);
-        return;
-      }
-
-      if (fieldName === "paciente") {
-        if (elements.pacienteSelect) elements.pacienteSelect.value = "";
+      if (fieldName === "assistido") {
+        if (elements.assistidoSelect) elements.assistidoSelect.value = "";
         return;
       }
 
@@ -903,7 +893,7 @@
       setResponsavelOptions();
     }
 
-    async function loadFamilies(busca) {
+    async function loadAssistidos(busca) {
       const query = String(busca || "").trim();
       const params = new URLSearchParams();
       params.set("limit", "20");
@@ -911,45 +901,21 @@
       params.set("ativo", "true");
       if (query) params.set("busca", query);
 
-      const payload = await requestJson(`/api/familias?${params.toString()}`);
+      const payload = await requestJson(`/api/assistidos?${params.toString()}`);
       const docs = Array.isArray(payload.docs) ? payload.docs : [];
-      state.familias = docs;
+      state.assistidos = docs;
 
-      const options = ['<option value="">Sem familia vinculada</option>'].concat(
-        docs.map((familia) => {
-          const label =
-            `${familia?.responsavel?.nome || "Familia"} - ${familia?.responsavel?.telefone || ""}`.trim();
-          return `<option value="${escapeHtml(String(familia?._id || ""))}">${escapeHtml(
+      const options = ['<option value="">Sem assistido vinculado</option>'].concat(
+        docs.map((assistido) => {
+          const tel = assistido?.telefonePrincipal || assistido?.responsavel?.telefone || "";
+          const label = `${assistido?.nome || "Assistido"}${tel ? " - " + tel : ""}`.trim();
+          return `<option value="${escapeHtml(String(assistido?._id || ""))}">${escapeHtml(
             label,
           )}</option>`;
         }),
       );
 
-      elements.familiaSelect.innerHTML = options.join("");
-    }
-
-    function fillPatientsOptions(pacientes) {
-      const docs = Array.isArray(pacientes) ? pacientes : [];
-      const options = ['<option value="">Sem paciente especifico</option>'].concat(
-        docs.map(
-          (p) =>
-            `<option value="${escapeHtml(String(p?._id || ""))}">${escapeHtml(
-              p?.nome || "",
-            )}</option>`,
-        ),
-      );
-      elements.pacienteSelect.innerHTML = options.join("");
-    }
-
-    async function loadPacientesByFamilia(familiaId) {
-      if (!familiaId) {
-        fillPatientsOptions([]);
-        return null;
-      }
-
-      const payload = await requestJson(`/api/familias/${familiaId}`);
-      fillPatientsOptions(payload?.pacientes || []);
-      return payload?.familia || null;
+      elements.assistidoSelect.innerHTML = options.join("");
     }
 
     async function loadMonthEvents() {
@@ -999,8 +965,7 @@
         elements.responsavelSelect.value = String(user.id || "");
       }
 
-      fillPatientsOptions([]);
-      await loadFamilies(elements.familiaBusca.value || "");
+      await loadAssistidos(elements.assistidoBusca.value || "");
       clearValidationFeedback();
       setWizardStep(1);
       setModalOpen(true);
@@ -1044,47 +1009,24 @@
         elements.responsavelSelect.value = String(user.id || "");
       }
 
-      if (visibleFields.has("familia")) {
-        await loadFamilies(evento?.familia?.responsavelNome || "");
-      } else {
-        elements.familiaSelect.value = "";
-        fillPatientsOptions([]);
-      }
-
-      if (visibleFields.has("familia") && evento?.familia?._id) {
-        const familyOption = Array.from(elements.familiaSelect.options).find(
-          (opt) => opt.value === String(evento.familia._id),
-        );
-        if (!familyOption) {
-          const opt = document.createElement("option");
-          opt.value = String(evento.familia._id);
-          opt.textContent = evento.familia.responsavelNome || "Familia";
-          elements.familiaSelect.appendChild(opt);
-        }
-        elements.familiaSelect.value = String(evento.familia._id);
-        if (visibleFields.has("paciente")) {
-          await loadPacientesByFamilia(evento.familia._id);
+      if (visibleFields.has("assistido")) {
+        await loadAssistidos(evento?.assistido?.nome || "");
+        if (evento?.assistido?._id) {
+          const assistidoOption = Array.from(elements.assistidoSelect.options).find(
+            (opt) => opt.value === String(evento.assistido._id),
+          );
+          if (!assistidoOption) {
+            const opt = document.createElement("option");
+            opt.value = String(evento.assistido._id);
+            opt.textContent = evento.assistido.nome || "Assistido";
+            elements.assistidoSelect.appendChild(opt);
+          }
+          elements.assistidoSelect.value = String(evento.assistido._id);
         } else {
-          fillPatientsOptions([]);
+          elements.assistidoSelect.value = "";
         }
       } else {
-        fillPatientsOptions([]);
-        elements.familiaSelect.value = "";
-      }
-
-      if (visibleFields.has("paciente") && evento?.paciente?._id) {
-        const patientOption = Array.from(elements.pacienteSelect.options).find(
-          (opt) => opt.value === String(evento.paciente._id),
-        );
-        if (!patientOption) {
-          const opt = document.createElement("option");
-          opt.value = String(evento.paciente._id);
-          opt.textContent = evento.paciente.nome || "Paciente";
-          elements.pacienteSelect.appendChild(opt);
-        }
-        elements.pacienteSelect.value = String(evento.paciente._id);
-      } else {
-        elements.pacienteSelect.value = "";
+        elements.assistidoSelect.value = "";
       }
 
       clearValidationFeedback();
@@ -1148,8 +1090,7 @@
           elements.form.elements.observacoes.value || "",
         ).trim(),
         salaId: elements.form.elements.salaId.value || null,
-        familiaId: elements.form.elements.familiaId.value || null,
-        pacienteId: elements.form.elements.pacienteId.value || null,
+        assistidoId: elements.form.elements.assistidoId.value || null,
         responsavelId: elements.form.elements.responsavelId.value || null,
       };
 
@@ -1350,7 +1291,6 @@
     return {
       closeModal,
       closeSalasModal,
-      fillPatientsOptions,
       goToDetailsStep,
       goToTypeStep,
       getCurrentEventId,
@@ -1360,9 +1300,8 @@
       handleSalaFormSubmit,
       handleSalasListActions,
       loadAvailableSalas,
-      loadFamilies,
+      loadAssistidos,
       loadMonthEvents,
-      loadPacientesByFamilia,
       loadProfissionais,
       openCreateModal,
       openEditModal,

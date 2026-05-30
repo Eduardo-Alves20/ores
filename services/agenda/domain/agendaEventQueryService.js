@@ -110,6 +110,7 @@ async function listAgendaEvents(user, query = {}) {
   const eventos = await AgendaEvento.find(filtro)
     .sort({ inicio: 1, createdAt: 1 })
     .populate("responsavelId", "_id nome perfil email telefone")
+    .populate("assistidoId", "_id nome telefonePrincipal responsavel endereco")
     .populate("familiaId", "_id responsavel endereco")
     .populate("pacienteId", "_id nome")
     .populate("salaId", "_id nome descricao ativo")

@@ -71,9 +71,8 @@
     salaLabel: document.getElementById("agenda-sala-label"),
     salaSelect: document.getElementById("agenda-sala-select"),
     salaHint: document.getElementById("agenda-sala-hint"),
-    familiaBusca: document.getElementById("agenda-familia-busca"),
-    familiaSelect: document.getElementById("agenda-familia-select"),
-    pacienteSelect: document.getElementById("agenda-paciente-select"),
+    assistidoBusca: document.getElementById("agenda-assistido-busca"),
+    assistidoSelect: document.getElementById("agenda-assistido-select"),
     presencaBackdrop: document.getElementById("agenda-presenca-backdrop"),
     presencaCloseBtn: document.getElementById("agenda-presenca-close"),
     presencaSubtitle: document.getElementById("agenda-presenca-subtitle"),
@@ -107,7 +106,7 @@
     profissionais: [],
     eventos: [],
     eventosById: new Map(),
-    familias: [],
+    assistidos: [],
     searchTimer: null,
     saving: false,
     salaSaving: false,
@@ -379,34 +378,30 @@
       }
     });
 
-    elements.familiaBusca.addEventListener("input", () => {
+    elements.assistidoBusca.addEventListener("input", () => {
       window.clearTimeout(state.searchTimer);
       state.searchTimer = window.setTimeout(() => {
-        form.loadFamilies(elements.familiaBusca.value).catch((error) =>
+        form.loadAssistidos(elements.assistidoBusca.value).catch((error) =>
           shared.showToast(error.message),
         );
       }, 350);
     });
 
-    elements.familiaSelect.addEventListener("change", async () => {
-      try {
-        const familia = await form.loadPacientesByFamilia(
-          elements.familiaSelect.value,
-        );
-        if (!elements.form.elements.local.value && familia?.endereco) {
-          const endereco = [
-            familia.endereco.rua,
-            familia.endereco.numero,
-            familia.endereco.bairro,
-            familia.endereco.cidade,
-            familia.endereco.estado,
-          ]
-            .filter(Boolean)
-            .join(", ");
-          elements.form.elements.local.value = endereco || "";
-        }
-      } catch (error) {
-        shared.showToast(error.message);
+    elements.assistidoSelect.addEventListener("change", () => {
+      const assistido = (state.assistidos || []).find(
+        (a) => String(a._id) === String(elements.assistidoSelect.value),
+      );
+      if (!elements.form.elements.local.value && assistido?.endereco) {
+        const endereco = [
+          assistido.endereco.logradouro,
+          assistido.endereco.numero,
+          assistido.endereco.bairro,
+          assistido.endereco.cidade,
+          assistido.endereco.estado,
+        ]
+          .filter(Boolean)
+          .join(", ");
+        elements.form.elements.local.value = endereco || "";
       }
     });
   }
@@ -422,7 +417,7 @@
 
     try {
       await form.loadProfissionais();
-      await form.loadFamilies("");
+      await form.loadAssistidos("");
       await form.loadMonthEvents();
     } catch (error) {
       shared.showToast(error.message);
