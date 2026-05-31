@@ -1333,6 +1333,29 @@
         } catch (error) {
           showToast(error.message);
         }
+        return;
+      }
+
+      if (action === "excluir") {
+        if (!evento || !attendance.canEditEvent(evento)) {
+          showToast("Voce nao pode excluir este agendamento.");
+          return;
+        }
+        const ok = await confirmAction({
+          title: "Excluir agendamento?",
+          text: `Esta acao remove definitivamente "${evento.titulo || "Agendamento"}" da agenda e nao pode ser desfeita.`,
+          icon: "warning",
+          confirmButtonText: "Excluir",
+        });
+        if (!ok) return;
+
+        try {
+          await requestJson(`/api/agenda/eventos/${id}`, { method: "DELETE" });
+          await loadMonthEvents();
+          showSuccess("Agendamento excluido com sucesso.");
+        } catch (error) {
+          showToast(error.message);
+        }
       }
     }
 

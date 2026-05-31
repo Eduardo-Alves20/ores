@@ -1651,3 +1651,12 @@
 .agenda-assistido-chip-remove:hover {
   background: rgba(255, 255, 255, .45);
 }
+
+.btn-ghost-danger {
+  color: #c0392b;
+}
+
+.btn-ghost-danger:hover {
+  background: rgba(192, 57, 43, .08);
+  border-color: rgba(192, 57, 43, .25);
+}

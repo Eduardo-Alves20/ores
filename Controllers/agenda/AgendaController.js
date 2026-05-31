@@ -3,6 +3,7 @@ const {
   changeAgendaEventStatus,
   createAgendaRoom,
   createAgendaEvent,
+  deleteAgendaEvent,
   buildProfessionalWeekSlots,
   getAgendaEventDetail,
   getSessionUser,
@@ -247,6 +248,18 @@ class AgendaController {
       entityKey: "evento",
       logMessage: "Erro ao alterar status do evento de agenda:",
       fallbackMessage: "Erro interno ao alterar status do agendamento.",
+      statusCode: 200,
+    });
+  }
+
+  static async excluir(req, res) {
+    return handleEventAction({
+      action: () => deleteAgendaEvent(getSessionUser(req), req.params?.id),
+      req,
+      res,
+      entityKey: "evento",
+      logMessage: "Erro ao excluir evento de agenda:",
+      fallbackMessage: "Erro interno ao excluir agendamento.",
       statusCode: 200,
     });
   }

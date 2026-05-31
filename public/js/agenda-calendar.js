@@ -346,6 +346,7 @@
                 ${attendance.canManageAttendance(evento) ? `<button type="button" class="btn-ghost" data-action="presenca" data-id="${escapeHtml(String(evento?._id || ""))}">Ficha da presenca</button>` : ""}
                 ${attendance.canEditEvent(evento) ? `<button type="button" class="btn-ghost" data-action="editar" data-id="${escapeHtml(String(evento?._id || ""))}">Editar</button>` : ""}
                 ${attendance.canToggleEventStatus(evento) ? `<button type="button" class="btn-ghost" data-action="status" data-id="${escapeHtml(String(evento?._id || ""))}" data-next="${String(!evento.ativo)}">${escapeHtml(statusLabel)}</button>` : ""}
+                ${attendance.canEditEvent(evento) ? `<button type="button" class="btn-ghost btn-ghost-danger" data-action="excluir" data-id="${escapeHtml(String(evento?._id || ""))}">Excluir</button>` : ""}
               </div>
             </article>
           `;

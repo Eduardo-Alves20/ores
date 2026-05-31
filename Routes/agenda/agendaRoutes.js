@@ -21,6 +21,7 @@ router.post("/agenda/eventos", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAG
 router.put("/agenda/eventos/:id", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.atualizar);
 router.patch("/agenda/eventos/:id/mover", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.mover);
 router.patch("/agenda/eventos/:id/status", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.alterarStatus);
+router.delete("/agenda/eventos/:id", requirePermission(PERMISSIONS.AGENDA_MEDICO_MANAGE), AgendaController.excluir);
 router.patch(
   "/agenda/eventos/:id/presenca",
   requirePermission(PERMISSIONS.AGENDA_ATTENDANCE),
