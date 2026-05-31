@@ -1597,3 +1597,57 @@
     grid-template-columns: 1fr;
   }
 }
+
+.input-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-soft, #6b85a0);
+}
+
+.agenda-assistidos-lista {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.agenda-assistido-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px 5px 12px;
+  border-radius: 100px;
+  background: var(--brand, #1976d2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 100%;
+}
+
+.agenda-assistido-chip > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-assistido-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .25);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background .15s ease;
+}
+
+.agenda-assistido-chip-remove:hover {
+  background: rgba(255, 255, 255, .45);
+}

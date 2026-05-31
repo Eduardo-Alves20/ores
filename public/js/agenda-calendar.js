@@ -288,8 +288,12 @@
         .map((evento) => {
           const hora = escapeHtml(toTimeRangeLabel(evento.inicio, evento.fim));
           const responsavelNome = evento?.responsavel?.nome || "Sem responsavel";
-          const assistidoNome =
-            evento?.assistido?.nome || "Sem assistido vinculado";
+          const assistidosArr = Array.isArray(evento?.assistidos)
+            ? evento.assistidos
+            : [];
+          const assistidoNome = assistidosArr.length
+            ? assistidosArr.map((a) => a?.nome).filter(Boolean).join(", ")
+            : evento?.assistido?.nome || "Sem assistido vinculado";
           const salaNome = evento?.sala?.nome || "";
           const statusLabel = evento.ativo ? "Inativar" : "Reativar";
           const statusAgendamentoClass = sanitizeClassToken(
@@ -330,7 +334,7 @@
               <p class="agenda-event-line"><strong>Responsavel:</strong> ${escapeHtml(
                 responsavelNome,
               )}</p>
-              <p class="agenda-event-line"><strong>Assistido:</strong> ${escapeHtml(
+              <p class="agenda-event-line"><strong>Assistido(s):</strong> ${escapeHtml(
                 assistidoNome,
               )}</p>
               ${salaNome ? `<p class="agenda-event-line"><strong>Sala:</strong> ${escapeHtml(salaNome)}</p>` : ""}

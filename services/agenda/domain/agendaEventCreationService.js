@@ -55,12 +55,9 @@ async function createAgendaEvent(user, body = {}) {
     throw createAgendaError(400, "Data de fim deve ser maior que a data de inicio.");
   }
 
-  if (isProvided(body?.assistidoId) && !asObjectId(body?.assistidoId)) {
-    throw createAgendaError(400, "assistidoId invalido.");
-  }
-
   const relation = await resolveRelations({
-    assistidoIdInput: body?.assistidoId || null,
+    assistidoIdsInput: body?.assistidoIds,
+    assistidoIdInput: body?.assistidoId,
   });
 
   if (relation.error) {
@@ -98,6 +95,7 @@ async function createAgendaEvent(user, body = {}) {
     observacoes,
     salaId: salaSelection.salaId || null,
     assistidoId: relation.assistidoId || null,
+    assistidoIds: relation.assistidoIds || [],
     responsavelId,
     ativo: true,
     criadoPor: actorId,
@@ -123,7 +121,7 @@ async function createAgendaEvent(user, body = {}) {
     history: {
       eventoId: evento._id,
       tipo: "agendamento_criado",
-      visibilidade: relation.assistidoId ? "todos" : "interna",
+      visibilidade: relation.assistidoIds.length ? "todos" : "interna",
       titulo: "Agendamento criado",
       descricao: `O agendamento "${titulo}" foi criado para ${toDateTimeLabel(intervalo.inicio)}.`,
       detalhes: {

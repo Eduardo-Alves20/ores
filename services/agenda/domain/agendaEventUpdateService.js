@@ -81,17 +81,16 @@ async function updateAgendaEvent(user, eventId, body = {}) {
   }
 
   if (flags.hasAssistido) {
-    if (isProvided(body?.assistidoId) && !asObjectId(body?.assistidoId)) {
-      throw createAgendaError(400, "assistidoId invalido.");
-    }
-
-    const assistidoIdInput = body?.assistidoId || null;
-    const relation = await resolveRelations({ assistidoIdInput });
+    const relation = await resolveRelations({
+      assistidoIdsInput: body?.assistidoIds,
+      assistidoIdInput: body?.assistidoId,
+    });
     if (relation.error) {
       throw createAgendaError(relation.status || 400, relation.error);
     }
 
     patch.assistidoId = relation.assistidoId || null;
+    patch.assistidoIds = relation.assistidoIds || [];
   }
 
   if (flags.hasResponsavel) {

@@ -111,6 +111,13 @@ const AgendaEventoSchema = new mongoose.Schema(
       default: null,
       index: true,
     },
+    assistidoIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Assistido",
+        index: true,
+      },
+    ],
     responsavelId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Usuario",

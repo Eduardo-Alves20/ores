@@ -208,10 +208,12 @@
           </label>
 
           <label class="field-wrap span-2" data-agenda-field="assistido">
-            <span class="input-label">Assistido</span>
+            <span class="input-label">Assistidos</span>
             <select class="input-control" name="assistidoId" id="agenda-assistido-select">
-              <option value="">Sem assistido vinculado</option>
+              <option value="">Adicionar assistido...</option>
             </select>
+            <small class="input-hint">Selecione um por vez para adicionar varios ao mesmo atendimento.</small>
+            <ul class="agenda-assistidos-lista" id="agenda-assistidos-lista" aria-live="polite"></ul>
           </label>
 
           <label class="field-wrap span-2" data-agenda-field="local">

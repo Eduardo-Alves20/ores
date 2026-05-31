@@ -73,6 +73,7 @@
     salaHint: document.getElementById("agenda-sala-hint"),
     assistidoBusca: document.getElementById("agenda-assistido-busca"),
     assistidoSelect: document.getElementById("agenda-assistido-select"),
+    assistidosLista: document.getElementById("agenda-assistidos-lista"),
     presencaBackdrop: document.getElementById("agenda-presenca-backdrop"),
     presencaCloseBtn: document.getElementById("agenda-presenca-close"),
     presencaSubtitle: document.getElementById("agenda-presenca-subtitle"),
@@ -107,6 +108,7 @@
     eventos: [],
     eventosById: new Map(),
     assistidos: [],
+    selectedAssistidos: [],
     searchTimer: null,
     saving: false,
     salaSaving: false,
@@ -388,22 +390,20 @@
     });
 
     elements.assistidoSelect.addEventListener("change", () => {
-      const assistido = (state.assistidos || []).find(
-        (a) => String(a._id) === String(elements.assistidoSelect.value),
-      );
-      if (!elements.form.elements.local.value && assistido?.endereco) {
-        const endereco = [
-          assistido.endereco.logradouro,
-          assistido.endereco.numero,
-          assistido.endereco.bairro,
-          assistido.endereco.cidade,
-          assistido.endereco.estado,
-        ]
-          .filter(Boolean)
-          .join(", ");
-        elements.form.elements.local.value = endereco || "";
-      }
+      const value = elements.assistidoSelect.value;
+      if (!value) return;
+      form.addSelectedAssistido(value);
+      elements.assistidoSelect.value = "";
     });
+
+    if (elements.assistidosLista) {
+      elements.assistidosLista.addEventListener("click", (event) => {
+        const botao = event.target.closest("[data-remove-assistido]");
+        if (!botao) return;
+        event.preventDefault();
+        form.removeSelectedAssistido(botao.getAttribute("data-remove-assistido"));
+      });
+    }
   }
 
   async function init() {

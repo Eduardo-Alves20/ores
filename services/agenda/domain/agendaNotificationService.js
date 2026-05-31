@@ -11,17 +11,34 @@ function normalizePhone(value) {
 }
 
 async function resolveAssistidoContactRecipients(evento) {
-  const responsavel = evento?.assistidoId?.responsavel || null;
-  const email = normalizeEmail(responsavel?.email);
-  const telefone = normalizePhone(responsavel?.telefone);
-  if (!email && !telefone) return [];
+  const assistidos = Array.isArray(evento?.assistidoIds) && evento.assistidoIds.length
+    ? evento.assistidoIds
+    : evento?.assistidoId
+      ? [evento.assistidoId]
+      : [];
 
-  return [{
-    nome: responsavel?.nome || evento?.assistidoId?.nome || "Assistido",
-    email: responsavel?.email || "",
-    telefone: responsavel?.telefone || "",
-    channels: ["email", "whatsapp"],
-  }];
+  const recipients = [];
+  const seen = new Set();
+
+  assistidos.forEach((assistido) => {
+    const responsavel = assistido?.responsavel || null;
+    const email = normalizeEmail(responsavel?.email);
+    const telefone = normalizePhone(responsavel?.telefone);
+    if (!email && !telefone) return;
+
+    const key = `${email}|${telefone}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    recipients.push({
+      nome: responsavel?.nome || assistido?.nome || "Assistido",
+      email: responsavel?.email || "",
+      telefone: responsavel?.telefone || "",
+      channels: ["email", "whatsapp"],
+    });
+  });
+
+  return recipients;
 }
 
 async function resolveOperationalRecipients(

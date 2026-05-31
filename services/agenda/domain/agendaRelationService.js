@@ -13,21 +13,44 @@ function isRoomRequiredForType(tipoAtendimento) {
   return AGENDA_ROOM_REQUIRED_TYPES.includes(String(tipoAtendimento || "").trim());
 }
 
-async function resolveRelations({ assistidoIdInput }) {
-  const assistidoId = asObjectId(assistidoIdInput);
+async function resolveRelations({ assistidoIdsInput, assistidoIdInput }) {
+  const rawList = Array.isArray(assistidoIdsInput)
+    ? assistidoIdsInput
+    : isProvided(assistidoIdsInput)
+      ? [assistidoIdsInput]
+      : [];
 
-  let assistidoRef = null;
-  if (assistidoId) {
-    const assistido = await Assistido.findById(assistidoId).select("_id nome ativo");
+  if (!rawList.length && isProvided(assistidoIdInput)) {
+    rawList.push(assistidoIdInput);
+  }
+
+  const seen = new Set();
+  const ids = [];
+  for (const raw of rawList) {
+    if (!isProvided(raw)) continue;
+    const oid = asObjectId(raw);
+    if (!oid) {
+      return { error: "Assistido invalido.", status: 400 };
+    }
+    const key = String(oid);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    ids.push(oid);
+  }
+
+  const refs = [];
+  for (const oid of ids) {
+    const assistido = await Assistido.findById(oid).select("_id nome ativo");
     if (!assistido || !assistido.ativo) {
       return { error: "Assistido invalido ou inativo.", status: 400 };
     }
-    assistidoRef = assistido;
+    refs.push(assistido);
   }
 
   return {
-    assistidoId: assistidoId || null,
-    assistidoRef,
+    assistidoIds: ids,
+    assistidoId: ids[0] || null,
+    assistidoRefs: refs,
   };
 }
 
@@ -35,6 +58,7 @@ async function loadEventoById(eventoId) {
   return AgendaEvento.findById(eventoId)
     .populate("responsavelId", "_id nome perfil email telefone")
     .populate("assistidoId", "_id nome telefonePrincipal responsavel endereco")
+    .populate("assistidoIds", "_id nome telefonePrincipal responsavel endereco")
     .populate("salaId", "_id nome descricao ativo")
     .populate("presencaRegistradaPor", "_id nome")
     .lean();

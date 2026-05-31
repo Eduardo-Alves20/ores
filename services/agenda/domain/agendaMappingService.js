@@ -63,6 +63,25 @@ function mapSala(doc) {
   };
 }
 
+function mapAssistidoRef(ref) {
+  if (!ref) return null;
+  return {
+    _id: ref._id || ref,
+    nome: ref?.nome || "",
+    telefone: ref?.telefonePrincipal || ref?.responsavel?.telefone || "",
+    cidade: ref?.endereco?.cidade || "",
+  };
+}
+
+function mapAssistidos(evento) {
+  const lista = Array.isArray(evento?.assistidoIds) ? evento.assistidoIds : [];
+  const mapeados = lista.map(mapAssistidoRef).filter(Boolean);
+  if (mapeados.length) return mapeados;
+
+  const principal = mapAssistidoRef(evento?.assistidoId);
+  return principal ? [principal] : [];
+}
+
 function mapEvento(doc) {
   const evento = doc?.toObject ? doc.toObject() : doc;
   const inicio = evento?.inicio ? new Date(evento.inicio) : null;
@@ -97,6 +116,7 @@ function mapEvento(doc) {
           cidade: evento.assistidoId?.endereco?.cidade || "",
         }
       : null,
+    assistidos: mapAssistidos(evento),
     presencaRegistradaPor: evento?.presencaRegistradaPor
       ? {
           _id: evento.presencaRegistradaPor._id || evento.presencaRegistradaPor,

@@ -279,6 +279,8 @@
 
       if (fieldName === "assistido") {
         if (elements.assistidoSelect) elements.assistidoSelect.value = "";
+        state.selectedAssistidos = [];
+        renderSelectedAssistidos();
         return;
       }
 
@@ -905,7 +907,7 @@
       const docs = Array.isArray(payload.docs) ? payload.docs : [];
       state.assistidos = docs;
 
-      const options = ['<option value="">Sem assistido vinculado</option>'].concat(
+      const options = ['<option value="">Adicionar assistido...</option>'].concat(
         docs.map((assistido) => {
           const tel = assistido?.telefonePrincipal || assistido?.responsavel?.telefone || "";
           const label = `${assistido?.nome || "Assistido"}${tel ? " - " + tel : ""}`.trim();
@@ -916,6 +918,52 @@
       );
 
       elements.assistidoSelect.innerHTML = options.join("");
+    }
+
+    function renderSelectedAssistidos() {
+      if (!elements.assistidosLista) return;
+      const itens = state.selectedAssistidos || [];
+      elements.assistidosLista.innerHTML = itens
+        .map((assistido) => {
+          const tel = assistido?.telefonePrincipal || assistido?.responsavel?.telefone || "";
+          const label = `${assistido?.nome || "Assistido"}${tel ? " - " + tel : ""}`.trim();
+          const id = escapeHtml(String(assistido?._id || ""));
+          return `<li class="agenda-assistido-chip"><span>${escapeHtml(label)}</span><button type="button" class="agenda-assistido-chip-remove" data-remove-assistido="${id}" aria-label="Remover assistido">&times;</button></li>`;
+        })
+        .join("");
+    }
+
+    function addSelectedAssistido(id) {
+      const sid = String(id || "").trim();
+      if (!sid) return;
+      if ((state.selectedAssistidos || []).some((a) => String(a._id) === sid)) return;
+
+      const found = (state.assistidos || []).find((a) => String(a._id) === sid);
+      const assistido = found || { _id: sid, nome: "Assistido" };
+      state.selectedAssistidos = [...(state.selectedAssistidos || []), assistido];
+
+      if (!elements.form.elements.local.value && found?.endereco) {
+        const endereco = [
+          found.endereco.logradouro,
+          found.endereco.numero,
+          found.endereco.bairro,
+          found.endereco.cidade,
+          found.endereco.estado,
+        ]
+          .filter(Boolean)
+          .join(", ");
+        if (endereco) elements.form.elements.local.value = endereco;
+      }
+
+      renderSelectedAssistidos();
+    }
+
+    function removeSelectedAssistido(id) {
+      const sid = String(id || "").trim();
+      state.selectedAssistidos = (state.selectedAssistidos || []).filter(
+        (a) => String(a._id) !== sid,
+      );
+      renderSelectedAssistidos();
     }
 
     async function loadMonthEvents() {
@@ -1010,22 +1058,22 @@
       }
 
       if (visibleFields.has("assistido")) {
-        await loadAssistidos(evento?.assistido?.nome || "");
-        if (evento?.assistido?._id) {
-          const assistidoOption = Array.from(elements.assistidoSelect.options).find(
-            (opt) => opt.value === String(evento.assistido._id),
-          );
-          if (!assistidoOption) {
-            const opt = document.createElement("option");
-            opt.value = String(evento.assistido._id);
-            opt.textContent = evento.assistido.nome || "Assistido";
-            elements.assistidoSelect.appendChild(opt);
-          }
-          elements.assistidoSelect.value = String(evento.assistido._id);
-        } else {
-          elements.assistidoSelect.value = "";
-        }
+        await loadAssistidos("");
+        const lista = Array.isArray(evento?.assistidos) && evento.assistidos.length
+          ? evento.assistidos
+          : evento?.assistido
+            ? [evento.assistido]
+            : [];
+        state.selectedAssistidos = lista.map((a) => ({
+          _id: a._id,
+          nome: a.nome || "Assistido",
+          telefonePrincipal: a.telefone || a.telefonePrincipal || "",
+        }));
+        elements.assistidoSelect.value = "";
+        renderSelectedAssistidos();
       } else {
+        state.selectedAssistidos = [];
+        renderSelectedAssistidos();
         elements.assistidoSelect.value = "";
       }
 
@@ -1090,7 +1138,7 @@
           elements.form.elements.observacoes.value || "",
         ).trim(),
         salaId: elements.form.elements.salaId.value || null,
-        assistidoId: elements.form.elements.assistidoId.value || null,
+        assistidoIds: (state.selectedAssistidos || []).map((a) => String(a._id)),
         responsavelId: elements.form.elements.responsavelId.value || null,
       };
 
@@ -1301,6 +1349,9 @@
       handleSalasListActions,
       loadAvailableSalas,
       loadAssistidos,
+      addSelectedAssistido,
+      removeSelectedAssistido,
+      renderSelectedAssistidos,
       loadMonthEvents,
       loadProfissionais,
       openCreateModal,
