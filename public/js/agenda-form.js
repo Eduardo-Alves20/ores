@@ -1013,6 +1013,9 @@
         elements.responsavelSelect.value = String(user.id || "");
       }
 
+      state.selectedAssistidos = [];
+      renderSelectedAssistidos();
+
       await loadAssistidos(elements.assistidoBusca.value || "");
       clearValidationFeedback();
       setWizardStep(1);
