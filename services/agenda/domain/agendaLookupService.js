@@ -1,16 +1,12 @@
 const Usuario = require("../../../schemas/core/Usuario");
-const { AgendaEvento } = require("../../../schemas/social/AgendaEvento");
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
 const { PERFIS } = require("../../../config/roles");
 const { PERMISSIONS } = require("../../../config/permissions");
 const { VOLUNTARIO_ACCESS_LEVELS } = require("../../../config/volunteerAccess");
 const { hasAnyPermission } = require("../../shared/accessControlService");
-const {
-  buildAgendaInterval,
-  buildAnySalaConflictFilter,
-} = require("../../shared/agendaAvailabilityService");
+const { buildAgendaInterval } = require("../../shared/agendaAvailabilityService");
 const { canManageRooms, canViewAll } = require("./agendaPermissionService");
-const { createAgendaError, ensureAgendaObjectId } = require("./agendaErrorService");
+const { createAgendaError } = require("./agendaErrorService");
 const { parseBoolean, parseDateInput } = require("./agendaDateValueService");
 const { mapSala } = require("./agendaMappingService");
 
@@ -101,39 +97,17 @@ async function listAvailableAgendaRooms(user, query = {}) {
     throw createAgendaError(400, "Informe o inicio para consultar as salas.");
   }
 
-  const eventoIdInput = String(query?.eventoId || "").trim();
-  const normalizedEventId = eventoIdInput
-    ? ensureAgendaObjectId(eventoIdInput, "Identificador de agendamento invalido.")
-    : null;
-
   const intervalo = buildAgendaInterval({ inicio, fim });
   if (!intervalo.inicio || !intervalo.fim || intervalo.fim <= intervalo.inicio) {
     throw createAgendaError(400, "Intervalo de consulta invalido.");
   }
 
   const salas = await AgendaSala.find({ ativo: true }).sort({ nome: 1 }).lean();
-  if (!salas.length) {
-    return {
-      inicio: intervalo.inicio,
-      fim: intervalo.fim,
-      salas: [],
-    };
-  }
-
-  const filtroConflitos = buildAnySalaConflictFilter({
-    inicio: intervalo.inicio,
-    fim: intervalo.fim,
-    ignoreEventId: normalizedEventId,
-  });
-
-  const salasOcupadas = filtroConflitos ? await AgendaEvento.distinct("salaId", filtroConflitos) : [];
-  const salaOcupadaSet = new Set((salasOcupadas || []).map((item) => String(item || "")));
-  const disponiveis = salas.filter((sala) => !salaOcupadaSet.has(String(sala._id)));
 
   return {
     inicio: intervalo.inicio,
     fim: intervalo.fim,
-    salas: disponiveis.map(mapSala),
+    salas: salas.map(mapSala),
   };
 }
 

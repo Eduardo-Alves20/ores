@@ -5,10 +5,7 @@ const {
 } = require("../../../schemas/social/AgendaEvento");
 const { AgendaSala } = require("../../../schemas/social/AgendaSala");
 const { listarHistoricoAgenda } = require("../../shared/agendaHistoryService");
-const {
-  asObjectId,
-  findSalaConflict,
-} = require("../../shared/agendaAvailabilityService");
+const { asObjectId } = require("../../shared/agendaAvailabilityService");
 const { isProvided } = require("./agendaDateValueService");
 const { mapHistorico } = require("./agendaMappingService");
 
@@ -54,9 +51,6 @@ async function carregarEventoDetalhado(eventoId) {
 async function resolveSalaSelection({
   salaIdInput,
   tipoAtendimento,
-  inicio,
-  fim,
-  ignoreEventId = null,
   allowEmptyRoom = false,
 }) {
   const salaId = asObjectId(salaIdInput);
@@ -74,21 +68,6 @@ async function resolveSalaSelection({
   const sala = await AgendaSala.findById(salaId).select("_id nome descricao ativo").lean();
   if (!sala || !sala.ativo) {
     return { error: "Sala informada esta inativa ou nao existe.", status: 400 };
-  }
-
-  const conflito = await findSalaConflict({
-    salaId,
-    inicio,
-    fim,
-    ignoreEventId,
-  });
-
-  if (conflito) {
-    return {
-      error: "A sala selecionada ja possui um agendamento neste horario.",
-      status: 409,
-      conflito,
-    };
   }
 
   return { salaId, sala };

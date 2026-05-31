@@ -163,36 +163,32 @@ test("listAgendaEvents rejeita responsavelId invalido sem consultar o banco", as
   }
 });
 
-test("listAvailableAgendaRooms rejeita eventoId invalido sem listar salas", async () => {
+test("listAvailableAgendaRooms lista todas as salas ativas sem filtrar por ocupacao", async () => {
   const originalFind = AgendaSala.find;
-  let findCalled = false;
 
-  AgendaSala.find = () => {
-    findCalled = true;
-    return {
-      sort() {
-        return this;
-      },
-      lean() {
-        return [];
-      },
-    };
-  };
+  AgendaSala.find = () => ({
+    sort() {
+      return this;
+    },
+    lean() {
+      return [
+        { _id: "507f1f77bcf86cd799439101", nome: "Sala A", ativo: true },
+        { _id: "507f1f77bcf86cd799439102", nome: "Sala B", ativo: true },
+      ];
+    },
+  });
 
   try {
-    await assert.rejects(
-      () =>
-        listAvailableAgendaRooms(createAgendaViewer(), {
-          inicio: "2026-03-01T08:00:00.000Z",
-          fim: "2026-03-01T09:00:00.000Z",
-          eventoId: "evento-invalido",
-        }),
-      (error) =>
-        error?.status === 400 &&
-        error?.publicMessage === "Identificador de agendamento invalido."
-    );
+    const result = await listAvailableAgendaRooms(createAgendaViewer(), {
+      inicio: "2026-03-01T08:00:00.000Z",
+      fim: "2026-03-01T09:00:00.000Z",
+    });
 
-    assert.equal(findCalled, false);
+    assert.equal(result.salas.length, 2);
+    assert.deepEqual(
+      result.salas.map((sala) => sala.nome),
+      ["Sala A", "Sala B"]
+    );
   } finally {
     AgendaSala.find = originalFind;
   }

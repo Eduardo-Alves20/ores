@@ -587,7 +587,7 @@
         elements.salaSelect.innerHTML =
           '<option value="">Informe data e hora</option>';
         elements.salaSelect.disabled = true;
-        setSalaHintMessage("Informe data e hora para consultar as salas livres.");
+        setSalaHintMessage("Informe data e hora para consultar as salas.");
         setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
         return;
       }
@@ -616,8 +616,8 @@
       if (!state.availableSalas.length) {
         setSalaHintMessage(
           required
-            ? "Nao ha sala livre para esse horario. Troque a hora ou cadastre outra sala."
-            : "Nenhuma sala livre neste horario. Voce ainda pode salvar sem sala vinculada.",
+            ? "Nenhuma sala cadastrada. Cadastre uma sala para este atendimento."
+            : "Nenhuma sala cadastrada. Voce ainda pode salvar sem sala vinculada.",
           required ? "warning" : "default",
         );
         setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
@@ -625,7 +625,7 @@
       }
 
       setSalaHintMessage(
-        `${state.availableSalas.length} sala(s) livre(s) para esse horario.`,
+        `${state.availableSalas.length} sala(s) disponivel(is). A mesma sala aceita varios atendimentos no mesmo horario.`,
         "success",
       );
       setFieldFeedback("salaId", validateSala({ strict: hasSubmitValidation }));
