@@ -185,6 +185,18 @@
           cell.appendChild(popover);
         }
 
+        const selectDay = () => {
+          state.openPopoverDay = null;
+          state.selectedDay = dayKey;
+          if (outside) {
+            state.viewDate = new Date(day.getFullYear(), day.getMonth(), 1);
+            context.loadMonthEvents().catch((error) => showToast(error.message));
+            return;
+          }
+          renderCalendar();
+          renderSelectedDay();
+        };
+
         cell.addEventListener("click", (event) => {
           if (event.target.closest("[data-no-day-select='true']")) return;
           if (event.target.closest(".agenda-day-pill") && hasMultipleEvents) {
@@ -193,19 +205,13 @@
             renderCalendar();
             return;
           }
-          state.openPopoverDay = null;
-          state.selectedDay = dayKey;
-          renderCalendar();
-          renderSelectedDay();
+          selectDay();
         });
 
         cell.addEventListener("keydown", (event) => {
           if (event.key !== "Enter" && event.key !== " ") return;
           event.preventDefault();
-          state.openPopoverDay = null;
-          state.selectedDay = dayKey;
-          renderCalendar();
-          renderSelectedDay();
+          selectDay();
         });
 
         cell.addEventListener("dragstart", (event) => {
