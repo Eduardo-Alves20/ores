@@ -205,6 +205,9 @@
   background: #fff;
   padding: 10px;
   min-width: 0;
+  position: sticky;
+  top: 16px;
+  align-self: start;
 }
 
 .agenda-calendar-head {
@@ -1397,6 +1400,10 @@
 @media (max-width: 1180px) {
   .agenda-board {
     grid-template-columns: 1fr;
+  }
+
+  .agenda-calendar-panel {
+    position: static;
   }
 
   .agenda-day-panel {
