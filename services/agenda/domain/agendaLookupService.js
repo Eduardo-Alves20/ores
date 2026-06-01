@@ -52,7 +52,22 @@ async function listAgendaProfessionals(user) {
     ? buildAtendimentoProfessionalFilter()
     : {
         ativo: true,
-        perfil: { $in: [PERFIS.SUPERADMIN, PERFIS.ADMIN, PERFIS.ATENDENTE, PERFIS.TECNICO] },
+        $or: [
+          {
+            perfil: {
+              $in: [
+                PERFIS.SUPERADMIN,
+                PERFIS.ADMIN,
+                PERFIS.ASSISTENTE_SOCIAL,
+                PERFIS.PROFISSIONAL,
+                PERFIS.AGENDADOR_MEDICO,
+                PERFIS.ATENDENTE,
+                PERFIS.TECNICO,
+              ],
+            },
+          },
+          { tipoCadastro: "voluntario", statusAprovacao: "aprovado" },
+        ],
       };
 
   const profissionais = await Usuario.find(filter)
