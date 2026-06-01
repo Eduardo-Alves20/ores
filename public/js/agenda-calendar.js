@@ -339,6 +339,7 @@
               )}</p>
               ${salaNome ? `<p class="agenda-event-line"><strong>Sala:</strong> ${escapeHtml(salaNome)}</p>` : ""}
               ${evento.local ? `<p class="agenda-event-line"><strong>Local:</strong> ${escapeHtml(evento.local)}</p>` : ""}
+              ${evento.observacoes ? `<p class="agenda-event-line"><strong>Observacoes:</strong> ${escapeHtml(evento.observacoes)}</p>` : ""}
               ${evento.presencaRegistradaEmLabel && evento.presencaRegistradaEmLabel !== "-" ? `<p class="agenda-event-line"><strong>Ultimo registro:</strong> ${escapeHtml(ultimoRegistro)}</p>` : ""}
               ${attendance.buildAttendanceQuickActions(evento)}
               ${evento.presencaObservacao ? `<p class="agenda-event-note"><strong>Obs. presenca:</strong> ${escapeHtml(evento.presencaObservacao)}</p>` : ""}
